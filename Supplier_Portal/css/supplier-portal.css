@@ -1,4 +1,4 @@
-﻿/* On-card reuse dropdown (sections 2-11, top-right of the section header) */
+/* On-card reuse dropdown (sections 2-11, top-right of the section header) */
 .sec-hdr-reuse-wrap{position:relative}
 .sec-hdr-reuse-btn{display:flex;align-items:center;gap:6px;height:28px;padding:0 11px;background:rgba(78,187,129,.1);border:1px solid rgba(78,187,129,.28);color:var(--gs);border-radius:7px;cursor:pointer;font-family:"Inter",sans-serif;font-size:11px;font-weight:600;white-space:nowrap}
 .sec-hdr-reuse-btn:hover{background:rgba(78,187,129,.18)}
@@ -437,7 +437,7 @@ select.cpkg-inp option{background:#1a2f4a}
 .prod-sort-arrow{display:inline-block;margin-left:4px;font-size:9px;color:rgba(255,255,255,.28)}
 .prod-sortable.sorted{color:#fff}
 .prod-sortable.sorted .prod-sort-arrow{color:var(--gs)}
-.prod-tbl tbody tr{border-bottom:1px solid rgba(255,255,255,.05);cursor:pointer;transition:filter .1s}
+.prod-tbl tbody tr{position:relative;will-change:transform;border-bottom:1px solid rgba(255,255,255,.05);cursor:pointer;transition:filter .1s,background-color .4s ease}
 .prod-tbl tbody tr:last-child{border-bottom:none}
 .prod-tbl tbody tr:nth-child(even){background:rgba(255,255,255,.05)}
 .prod-tbl tbody tr.st-incomplete{background:rgba(224,82,82,.09);box-shadow:inset 3px 0 0 rgba(224,82,82,.55)}
@@ -509,6 +509,8 @@ select.cpkg-inp option{background:#1a2f4a}
 @keyframes gsRowFlash{0%{background:rgba(78,187,129,.42)}35%{background:rgba(78,187,129,.28)}100%{background:rgba(78,187,129,0)}}
 tr.gs-row-flash>td{animation:gsRowFlash 2s ease forwards}
 tr.gs-row-flash>td:first-child{box-shadow:inset 3px 0 0 var(--gs)}
+@keyframes prodRowCompleteFlash{0%{background-color:rgba(78,187,129,.45);box-shadow:0 0 14px rgba(78,187,129,.4)}40%{background-color:rgba(78,187,129,.28)}100%{background-color:transparent;box-shadow:none}}
+tr.prod-row-complete-flash>td{animation:prodRowCompleteFlash 1.2s cubic-bezier(.16,1,.3,1) forwards}
 .gs-toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(12px);background:rgba(20,32,54,.96);border:1px solid rgba(78,187,129,.5);color:#fff;font-family:"Inter",sans-serif;font-size:13px;font-weight:600;padding:11px 18px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:12000}
 .gs-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .pd-fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:13px 16px}

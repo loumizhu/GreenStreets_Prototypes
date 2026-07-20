@@ -189,7 +189,7 @@ function prodSetReq(pi,val){
 function prodMarkRowComplete(pi){
   var p = PRODUCTS.filter(function(x){return x.id===pi;})[0]; if(!p) return;
   p.type = 'complete'; p.status = 'complete';
-  prodRender();
+  prodRender(pi);
   if(typeof gsToast==='function') gsToast('“'+p.code+'” marked complete — ready to submit');
 }
 
@@ -664,9 +664,17 @@ function updateProdArrows(){
   });
 }
 
-function prodRender(){
+function prodRender(animatingPi){
   var tb = document.getElementById('prod-tbody');
   if(!tb) return;
+
+  var firstPositions = {};
+  var oldTrs = tb.querySelectorAll('tr[data-pi]');
+  oldTrs.forEach(function(tr){
+    var pi = tr.getAttribute('data-pi');
+    firstPositions[pi] = tr.getBoundingClientRect();
+  });
+
   var all = PRODUCTS.filter(prodMatches);
   var key = prodState.sortKey, dir = prodState.sortDir;
   all.sort(function(a,b){
@@ -686,6 +694,46 @@ function prodRender(){
     tb.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:26px;color:rgba(255,255,255,.4)">No matching products</td></tr>';
   } else {
     slice.forEach(function(p){ tb.insertAdjacentHTML('beforeend', prodRowHtml(p)); });
+  }
+
+  var newTrs = tb.querySelectorAll('tr[data-pi]');
+  var hasMoved = false;
+  newTrs.forEach(function(tr){
+    var pi = tr.getAttribute('data-pi');
+    var first = firstPositions[pi];
+    if(first){
+      var last = tr.getBoundingClientRect();
+      var dy = first.top - last.top;
+      if(Math.abs(dy) > 0.5){
+        hasMoved = true;
+        tr.style.transform = 'translateY(' + dy + 'px)';
+        tr.style.transition = 'none';
+      }
+    }
+    if(animatingPi != null && String(pi) === String(animatingPi)){
+      tr.classList.add('prod-row-complete-flash');
+    }
+  });
+
+  if(hasMoved || animatingPi != null){
+    void tb.offsetHeight;
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        newTrs.forEach(function(tr){
+          var pi = tr.getAttribute('data-pi');
+          if(firstPositions[pi]){
+            tr.style.transition = 'transform 0.45s cubic-bezier(0.2,0,0.2,1)';
+            tr.style.transform = '';
+          }
+        });
+        setTimeout(function(){
+          newTrs.forEach(function(tr){
+            tr.style.transition = '';
+            tr.classList.remove('prod-row-complete-flash');
+          });
+        }, 800);
+      });
+    });
   }
 
   var from = total ? start+1 : 0;
