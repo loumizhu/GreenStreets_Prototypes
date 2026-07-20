@@ -1,0 +1,12 @@
+# Ignore old/archive folder
+old/
+
+# Ignore Claude AI files
+.claude/
+claude.md
+CLAUDE.md
+
+# Common OS files
+.DS_Store
+Thumbs.db
+desktop.ini
