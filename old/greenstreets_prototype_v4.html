@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Greenstreet Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gs:#4ebb81;--gs-m:#3daa72;
+  --nv:#0c1a2e;--nv2:#0e1c30;--nv3:#162944;--nv4:#1c3356;
+  --stroke:rgba(69,125,195,.35);
+  --tw:#fff;--tw2:rgba(255,255,255,.75);--tw3:rgba(255,255,255,.40);
+  --bw:rgba(255,255,255,.08);
+  --rs:6px;--rl:12px;
+}
+html,body{height:100%;font-family:'Inter',sans-serif;color:var(--tw);background:var(--nv)}
+
+/* ── nav strip ── */
+.nav-strip{display:flex;align-items:center;gap:3px;padding:7px 12px;background:rgba(12,26,46,.96);border-bottom:1px solid var(--bw);flex-wrap:wrap;position:sticky;top:0;z-index:200}
+.ns-lbl{font-size:10px;font-weight:600;color:var(--gs);letter-spacing:.08em;text-transform:uppercase;margin-right:8px}
+.snb{font-family:'Inter',sans-serif;font-size:11px;font-weight:500;padding:4px 10px;border-radius:var(--rs);cursor:pointer;border:none;color:var(--tw3);background:transparent;transition:all .12s}
+.snb:hover{background:var(--nv3);color:var(--tw)}
+.snb.on{background:var(--gs);color:#fff}
+
+/* ── screens ── */
+.screen{display:none;flex-direction:column;min-height:560px}
+.screen.on{display:flex}
+
+/* ── login ── */
+.login-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:24px;background-size:cover;background-position:center;min-height:560px}
+.login-card{width:340px;border:1.5px solid #457dc3;border-radius:var(--rl);overflow:hidden;backdrop-filter:blur(2px)}
+.login-logo-zone{width:100%;padding:20px 18px 16px;background:linear-gradient(160deg,#0e1e38,#0f2246);border-bottom:1px solid rgba(69,125,195,.2)}
+.login-logo{width:100%;height:auto;display:block}
+.login-form-zone{padding:18px 20px 20px;background:linear-gradient(175deg,#1c3356,#162847)}
+.login-title{font-size:17px;font-weight:600;text-align:center;margin-bottom:16px}
+.mfa-fi{letter-spacing:.3em;text-align:center;font-size:17px;font-weight:500}
+.mfa-hint{display:flex;align-items:center;gap:4px;margin:5px 0 12px;font-size:10px;color:#5b9cf6}
+.forgot{display:block;text-align:center;margin-top:10px;font-size:11px;color:var(--tw3);text-decoration:none}
+
+/* ── sidebar ── the new layout hero ── */
+.app-body{display:flex;flex:1;overflow:hidden;min-height:520px}
+
+.sidebar{
+  width:210px;
+  background:rgba(10,20,38,.98);
+  border-right:1px solid var(--bw);
+  display:flex;
+  flex-direction:column;
+  flex-shrink:0;
+  padding-bottom:0;
+}
+
+/* logo zone — prominent top of sidebar */
+.sb-logo-zone{
+  padding:18px 16px 14px;
+  border-bottom:1px solid var(--bw);
+  flex-shrink:0;
+}
+.sb-logo{
+  width:100%;
+  height:auto;
+  display:block;
+}
+
+/* bell row — just below logo */
+.sb-bell-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 14px;
+  border-bottom:1px solid var(--bw);
+  flex-shrink:0;
+}
+.sb-bell{
+  position:relative;
+  width:30px;height:30px;
+  border-radius:var(--rs);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+  color:var(--tw3);
+  border:1px solid transparent;
+  background:transparent;
+  transition:all .12s;
+  flex-shrink:0;
+}
+.sb-bell:hover{background:var(--nv3);color:var(--tw);border-color:var(--bw)}
+.bell-badge{
+  position:absolute;
+  top:3px;right:3px;
+  width:14px;height:14px;
+  border-radius:50%;
+  background:#e05252;
+  font-size:9px;font-weight:600;
+  color:#fff;
+  display:flex;align-items:center;justify-content:center;
+}
+.sb-bell-label{font-size:12px;color:var(--tw3)}
+
+/* nav section */
+.sb-section{padding:12px 16px 4px;font-size:10px;font-weight:600;color:var(--tw3);letter-spacing:.08em;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:9px;padding:7px 13px;cursor:pointer;color:var(--tw3);font-size:12px;text-decoration:none;transition:all .12s;margin:1px 5px;border-radius:var(--rs)}
+.nav-item:hover{background:var(--nv3);color:var(--tw)}
+.nav-item.active{background:rgba(78,187,129,.13);color:var(--gs);font-weight:500}
+.sb-divider{height:1px;background:var(--bw);margin:7px 12px}
+
+/* user profile — pinned bottom of sidebar */
+.sb-user{
+  margin-top:auto;
+  padding:12px 14px;
+  border-top:1px solid var(--bw);
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-shrink:0;
+}
+.sb-avatar{
+  width:34px;height:34px;
+  border-radius:50%;
+  background:var(--gs-m);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:600;color:#fff;
+  border:2px solid var(--gs);
+  flex-shrink:0;
+}
+.sb-user-info{flex:1;min-width:0}
+.sb-user-name{font-size:12px;font-weight:500;color:var(--tw);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-user-role{font-size:10px;color:var(--tw3);margin-top:1px}
+.sb-logout{
+  width:26px;height:26px;
+  border-radius:var(--rs);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+  color:var(--tw3);
+  border:1px solid transparent;
+  background:transparent;
+  flex-shrink:0;
+}
+.sb-logout:hover{background:rgba(224,82,82,.15);color:#e05252;border-color:rgba(224,82,82,.25)}
+
+/* ── main content ── */
+.main{flex:1;padding:16px 20px;overflow-y:auto}
+
+/* page header */
+.pg-hdr-bar{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;gap:12px}
+.pg-title{font-size:17px;font-weight:600;color:var(--tw)}
+.pg-sub{font-size:11px;color:var(--tw3);margin-top:3px}
+.pg-tags{display:flex;align-items:center;gap:6px;margin-top:5px;flex-wrap:wrap}
+.pg-actions{display:flex;gap:8px;flex-shrink:0;margin-top:2px}
+
+/* breadcrumb */
+.breadcrumb{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--tw3);margin-bottom:10px}
+.bc-link{color:var(--gs);text-decoration:none;cursor:pointer}
+.bc-link:hover{text-decoration:underline}
+.bc-sep,.bc-cur{color:var(--tw3)}
+
+/* ── groups ── */
+.grids{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grp{background:linear-gradient(175deg,#1c3356 0%,#192d4e 50%,#162847 100%);border:1px solid var(--stroke);border-radius:var(--rl);overflow:hidden}
+.grp-hdr{padding:8px 14px;background:linear-gradient(160deg,#0e1e38,#122540);font-size:10px;font-weight:600;color:rgba(255,255,255,.65);letter-spacing:.05em;text-transform:uppercase;border-bottom:1px solid rgba(69,125,195,.18)}
+.grp-body{padding:14px}
+
+/* ── stats ── */
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.stat3{grid-template-columns:repeat(3,1fr)}
+.stat{background:rgba(255,255,255,.05);border:1px solid var(--bw);border-radius:var(--rs);padding:11px 13px}
+.stat-lbl{font-size:10px;font-weight:500;color:var(--tw3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.stat-val{font-size:21px;font-weight:600;color:var(--tw)}
+
+/* ── alerts ── */
+.alert{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:var(--rs);margin-bottom:12px;font-size:12px}
+.alert-warn{background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.25);color:#f5a623}
+.alert-info{background:rgba(91,156,246,.1);border:1px solid rgba(91,156,246,.2);color:#5b9cf6}
+
+/* ── tables ── */
+.tbl-wrap{border-radius:var(--rs);overflow:hidden}
+.tbl{width:100%;border-collapse:collapse;table-layout:fixed}
+.tbl th{background:rgba(255,255,255,.05);font-size:10px;font-weight:600;color:var(--tw3);padding:7px 11px;text-align:left;border-bottom:1px solid var(--bw);letter-spacing:.04em;text-transform:uppercase}
+.tbl td{padding:8px 11px;font-size:12px;color:var(--tw2);border-bottom:1px solid var(--bw)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:rgba(255,255,255,.03);cursor:pointer}
+.tbl-name{color:var(--tw);font-weight:500}
+.tbl-sub{font-size:10px;color:var(--tw3);margin-top:2px}
+.tbl-val{color:var(--tw);font-size:12px}
+.tbl-warn{font-size:10px;color:#f5a623;font-weight:500}
+.tbl-muted{font-size:11px;color:var(--tw3)}
+.tbl-frac{font-size:13px;font-weight:600;color:var(--tw)}
+.tbl-footer{font-size:11px;color:var(--tw3);text-align:right;padding:7px 4px 0}
+.chev{color:var(--tw3);text-align:right}
+.filter-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+
+/* ── pills ── */
+.pill{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px;white-space:nowrap}
+.pill-grey{background:rgba(255,255,255,.08);color:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.12)}
+.pill-gs{background:rgba(78,187,129,.12);color:#4ebb81;border:1px solid rgba(78,187,129,.22)}
+.pill-green{background:rgba(78,187,129,.15);color:#4ebb81;border:1px solid rgba(78,187,129,.25)}
+.pill-blue{background:rgba(91,156,246,.12);color:#5b9cf6;border:1px solid rgba(91,156,246,.25)}
+.pill-amber{background:rgba(245,166,35,.12);color:#f5a623;border:1px solid rgba(245,166,35,.25)}
+.pill-red{background:rgba(224,82,82,.12);color:#e05252;border:1px solid rgba(224,82,82,.25)}
+
+/* ── progress ── */
+.prog{height:4px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden;margin-top:4px;width:70px}
+.prog-f{height:100%;border-radius:2px;background:var(--gs)}
+.prog-lg{flex:1;max-width:200px;height:5px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden}
+.prog-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+
+/* ── health dots ── */
+.hdot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.hdot-g{background:#4ebb81}.hdot-a{background:#f5a623}.hdot-r{background:#e05252}
+
+/* ── buttons ── */
+.btn-p{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;height:36px;padding:0 14px;border-radius:var(--rs);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;border:none;background:var(--gs);color:#fff;overflow:hidden;position:relative;transition:filter .12s;white-space:nowrap}
+.btn-p:hover{filter:brightness(1.08)}
+.btn-sw{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover;object-position:center bottom;opacity:.2;pointer-events:none}
+.btn-c{position:relative;z-index:1;display:flex;align-items:center;gap:6px}
+.btn-g{font-family:'Inter',sans-serif;font-size:12px;font-weight:500;height:32px;padding:0 11px;border-radius:var(--rs);cursor:pointer;display:inline-flex;align-items:center;gap:5px;background:transparent;color:var(--tw2);border:1px solid rgba(255,255,255,.14);transition:all .12s;white-space:nowrap}
+.btn-g:hover{background:var(--nv3);color:var(--tw)}
+
+/* ── forms ── */
+.fi{width:100%;padding:8px 11px;font-size:13px;border:1px solid rgba(255,255,255,.12);border-radius:var(--rs);background:rgba(255,255,255,.06);color:var(--tw);font-family:'Inter',sans-serif;outline:none;transition:border-color .15s}
+.fi::placeholder{color:var(--tw3)}
+.fi:focus{border-color:#457dc3;background:rgba(255,255,255,.09)}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fg3{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:flex-start}
+.fgrp{display:flex;flex-direction:column;gap:4px}
+.flbl{font-size:11px;font-weight:500;color:rgba(255,255,255,.6)}
+.fhint{font-size:10px;color:var(--tw3)}
+.req{color:var(--gs)}
+.faction{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+
+/* ── steps ── */
+.steps{display:flex;position:relative}
+.steps::before{content:'';position:absolute;top:12px;left:0;right:0;height:1px;background:var(--bw)}
+.step{flex:1;text-align:center;position:relative;z-index:1}
+.sdot{width:25px;height:25px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;background:var(--nv2);border:2px solid var(--bw);color:var(--tw3)}
+.sdot.curr{border-color:var(--gs);color:var(--gs)}
+.slbl{font-size:10px;color:var(--tw3);margin-top:4px}
+.slbl.curr{color:var(--gs)}
+
+/* ── toggles ── */
+.tgl-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--bw)}
+.tgl-row:last-child{border-bottom:none}
+.tgl-info{flex:1;font-size:12px;color:var(--tw)}
+.tgl-info small{display:block;font-size:10px;color:var(--tw3);margin-top:1px}
+.tgl{width:30px;height:17px;border-radius:8px;position:relative;cursor:pointer;flex-shrink:0;background:rgba(255,255,255,.15);border:1px solid var(--bw)}
+.tgl.on{background:var(--gs);border-color:var(--gs)}
+.tgl::after{content:'';width:11px;height:11px;background:#fff;border-radius:50%;position:absolute;top:2px;left:2px;transition:left .15s}
+.tgl.on::after{left:15px}
+
+/* ── tier ── */
+.tier-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.tier{border:1px solid var(--bw);border-radius:var(--rs);padding:12px}
+.tier-sel{border-color:var(--gs);background:rgba(78,187,129,.06)}
+.tier-name{font-size:12px;font-weight:600;color:var(--tw)}
+.tier-desc{font-size:11px;color:var(--tw3);margin-top:3px}
+.dim{color:var(--tw3)!important}
+
+/* ── notes ── */
+.notes-area{font-size:12px;color:var(--tw2);line-height:1.6;background:rgba(255,255,255,.05);border-radius:var(--rs);padding:10px;min-height:72px}
+
+/* ── impersonate ── */
+.imp-bar{background:var(--gs-m);padding:7px 16px;display:flex;align-items:center;gap:9px;font-size:11px;font-weight:500;color:#fff;flex-shrink:0}
+.imp-note{font-size:10px;font-weight:400;opacity:.8}
+.imp-exit{margin-left:auto;font-family:'Inter',sans-serif;font-size:11px;padding:3px 10px;border-radius:4px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);color:#fff;cursor:pointer}
+
+/* ── import ── */
+.import-tabs{display:flex;gap:0;margin-bottom:12px;border-bottom:1px solid var(--bw)}
+.itab{font-family:'Inter',sans-serif;font-size:12px;font-weight:500;padding:7px 14px;border:none;background:transparent;color:var(--tw3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+.itab.active{color:var(--gs);border-bottom-color:var(--gs)}
+.import-drop{border:1.5px dashed rgba(255,255,255,.18);border-radius:var(--rs);padding:28px;text-align:center}
+</style>
+</head>
+<body>
+<div class="nav-strip">
+  <span class="ns-lbl">GS Admin</span>
+  <button class="snb" onclick="show('s1')">Login</button>
+<button class="snb" onclick="show('s2')">All retailers</button>
+<button class="snb" onclick="show('s3')">Provision</button>
+<button class="snb" onclick="show('s4')">Retailer detail</button>
+<button class="snb" onclick="show('s5')">Configure</button>
+<button class="snb" onclick="show('s6')">Impersonate</button>
+<button class="snb" onclick="show('s7')">Users</button>
+<button class="snb" onclick="show('s8')">Packagings</button>
+<button class="snb" onclick="show('s9')">Reports</button>
+
+</div>
+<div class="screen" id="s1">
+  <div class="login-wrap" style="background-image:url('BASE64')">
+    <div class="login-card">
+      <div class="login-logo-zone"><img src="BASE64" class="login-logo" alt="Greenstreets"></div>
+      <div class="login-form-zone">
+        <div class="login-title">Greenstreet Admin</div>
+        <input class="fi" type="email" placeholder="name@greenstreets.io">
+        <input class="fi" type="password" placeholder="Password" style="margin-top:9px">
+        <input class="fi mfa-fi" type="text" placeholder="000 000" style="margin-top:9px;margin-bottom:0">
+        <div class="mfa-hint">
+          <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#5b9cf6" stroke-width="1.4"/><path d="M8 7v4M8 5.5v.5" stroke="#5b9cf6" stroke-width="1.4" stroke-linecap="round"/></svg>
+          <span>MFA required for this account</span>
+        </div>
+        <button class="btn-p" style="width:100%;justify-content:center" onclick="show('s2');return false"><img class="btn-sw" src="BASE64" alt=""><span class="btn-c"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d='M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3'/></svg>Access dashboard</span></button>
+        <a href="#" class="forgot">Forgot password?</a>
+      </div>
+    </div>
+  </div>
+</div><div class="screen" id="s2">
+  <div class="app-body">
+    <div class="sidebar">
+  <!-- Logo — prominent, left pane -->
+  <div class="sb-logo-zone">
+    <img src="BASE64" class="sb-logo" alt="Greenstreets">
+  </div>
+
+  <!-- Bell notifications -->
+  <div class="sb-bell-row">
+    <button class="sb-bell" aria-label="Notifications">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span class="bell-badge">3</span>
+    </button>
+    <span class="sb-bell-label">Notifications</span>
+  </div>
+
+  <div class="sb-section">Operator</div>
+  <a href="#" class="nav-item active" onclick="show('s2');return false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> All retailers
+        </a>
+<a href="#" class="nav-item" onclick="show('s3');return false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/></svg> Provision retailer
+        </a>
+<a href="#" class="nav-item" onclick="show('s7');return false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Users
+        </a>
+<a href="#" class="nav-item" onclick="show('s8');return false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg> Packagings
+        </a>
+<a href="#" class="nav-item" onclick="show('s9');return false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> Reports
+        </a>
+
+
+  <div class="sb-divider"></div>
+  <a href="#" class="nav-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg> Platform config</a>
+  <a href="#" class="nav-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414A1 1 0 0 1 19 9.414V19a2 2 0 0 1-2 2z"/></svg> Audit log</a>
+
+  <!-- User profile — pinned to sidebar bottom -->
+  <div class="sb-user">
+    <div class="sb-avatar">DM</div>
+    <div class="sb-user-info">
+      <div class="sb-user-name">Dan Murphy</div>
+      <div class="sb-user-role">GS Admin</div>
+    </div>
+    <button class="sb-logout" aria-label="Sign out"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
+  </div>
+</div>
+    <div class="main">
+      <div class="pg-hdr-bar"><div class="pg-title">All retailers</div><div class="pg-sub">Portfolio overview across all managed retailer accounts</div></div>
+      <div class="grids">
+        <div class="grp" style="grid-column:1/-1"><div class="grp-hdr">Portfolio summary</div><div class="grp-body"><div class="stat-row"><div class="stat"><div class="stat-lbl">Active retailers</div><div class="stat-val" >15</div></div><div class="stat"><div class="stat-lbl">Total DoCs</div><div class="stat-val" style="color:#4ebb81">847</div></div><div class="stat"><div class="stat-lbl">Total suppliers</div><div class="stat-val" >2,341</div></div><div class="stat"><div class="stat-lbl">Alerts</div><div class="stat-val" style="color:#f5a623">3</div></div></div></div></div>
+        <div class="grp" style="grid-column:1/-1"><div class="grp-hdr">Retailer directory</div><div class="grp-body"><div class="filter-row">
+  <input class="fi" placeholder="Search retailers..." style="width:180px">
+  <select class="fi" style="width:130px"><option>All jurisdictions</option></select>
+  <select class="fi" style="width:110px"><option>All health</option></select>
+  <button class="btn-p"  onclick="show('s3');return false"><img class="btn-sw" src="BASE64" alt=""><span class="btn-c"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d='M12 5v14M5 12h14'/></svg>Add retailer</span></button>
+</div>
+<div class="tbl-wrap"><table class="tbl">
+<colgroup><col width="23%"><col width="12%"><col width="10%"><col width="16%"><col width="14%"><col width="8%"><col width="12%"><col width="5%"></colgroup>
+<thead><tr><th>Retailer</th><th>Jurisdiction</th><th>Tier</th><th>Compliance</th><th>Suppliers</th><th>Health</th><th>Last active</th><th></th></tr></thead>
+<tbody>
+<tr onclick="show('s4')"><td><div class="tbl-name">Primark Stores Ltd</div><div class="tbl-sub">primark.greenstreets.io</div></td><td><span class="pill pill-grey">EU</span> <span class="pill pill-grey">UK</span></td><td><span class="pill pill-gs">Enterprise</span></td><td><div class="tbl-frac">15/20</div><div class="prog"><div class="prog-f" style="width:75%;"></div></div></td><td><div class="tbl-val">380</div><div class="tbl-warn">47 overdue</div></td><td><span class="hdot hdot-a"></span></td><td class="tbl-muted">2 hrs ago</td><td class="chev">›</td></tr>
+<tr><td><div class="tbl-name">M&amp;S Food Retail</div><div class="tbl-sub">ms-food.greenstreets.io</div></td><td><span class="pill pill-grey">UK</span></td><td><span class="pill pill-gs">Pro</span></td><td><div class="tbl-frac" style="color:#4ebb81">20/20</div><div class="prog"><div class="prog-f" style="width:100%;"></div></div></td><td><div class="tbl-val">124</div><div class="tbl-muted">0 overdue</div></td><td><span class="hdot hdot-g"></span></td><td class="tbl-muted">Yesterday</td><td class="chev">›</td></tr>
+<tr><td><div class="tbl-name">Aldi GmbH</div><div class="tbl-sub">aldi.greenstreets.io</div></td><td><span class="pill pill-grey">EU</span></td><td><span class="pill pill-gs">Enterprise</span></td><td><div class="tbl-frac" style="color:#f5a623">8/20</div><div class="prog"><div class="prog-f" style="width:40%;background:#f5a623"></div></div></td><td><div class="tbl-val">210</div><div class="tbl-warn" style="color:#e05252">88 overdue</div></td><td><span class="hdot hdot-r"></span></td><td class="tbl-muted" style="color:#e05252">14 days ago</td><td class="chev">›</td></tr>
+<tr><td><div class="tbl-name">Next Retail Ltd</div><div class="tbl-sub">next.greenstreets.io</div></td><td><span class="pill pill-grey">UK</span> <span class="pill pill-grey">EU</span></td><td><span class="pill pill-gs">Pro</span></td><td><div class="tbl-frac">11/16</div><div class="prog"><div class="prog-f" style="width:69%;"></div></div></td><td><div class="tbl-val">97</div><div class="tbl-warn">12 overdue</div></td><td><span class="hdot hdot-a"></span></td><td class="tbl-muted">4 hrs ago</td><td class="chev">›</td></tr>
+<tr><td><div class="tbl-name">Tesco PLC</div><div class="tbl-sub">tesco.greenstreets.io</div></td><td><span class="pill pill-grey">UK</span></td><td><span class="pill pill-gs">Enterprise</span></td><td><div class="tbl-frac" style="color:#4ebb81">18/18</div><div class="prog"><div class="prog-f" style="width:100%;"></div></div></td><td><div class="tbl-val">445</div><div class="tbl-muted">0 overdue</div></td><td><span class="hdot hdot-g"></span></td><td class="tbl-muted">1 hr ago</td><td class="chev">›</td></tr>
+</tbody></table></div><div class="tbl-footer">Showing 5 of 15 retailers</div></div></div>
+      </div>
+    </div>
+  </div>
+</div><div class="screen" id="s3">
+  <div class="app-body">
+    <div class="sidebar">
+  <!-- Logo — prominent, left pane -->
+  <div class="sb-logo-zone">
+    <img src="BASE64" class="sb-logo" alt="Greenstreets">
+  </div>
+
+  <!-- Bell notifications -->
+  <div class="sb-bell-row">
+    <button class="sb-bell" aria-label="Notifications">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span class="bell-badge">3</span>
+    </button>
+    <span class="sb-bell-label">Notifications</span>
+  </div>
+
+  <div class="sb-section">Operator</div>
+  <a href="#" class="nav-item" onclick="show('s2');return false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> All retailers
+        </a>
+<a href="#" class="nav-item active" onclick="show('s3');return false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/></svg> Provision retailer
+        </a>
+<a href="#" class="nav-item" onclick="show('s7');return false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Users
+        </a>
+<a href="#" class="nav-item" onclick="show('s8');return false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg> Packagings
+        </a>
+<a href="#" class="nav-item" onclick="show('s9');return false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> Reports
+        </a>
+
+
+  <div class="sb-divider"></div>
+  <a href="#" class="nav-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg> Platform config</a>
+  <a href="#" class="nav-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414A1 1 0 0 1 19 9.414V19a2 2 0 0 1-2 2z"/></svg> Audit log</a>
+
+  <!-- User profile — pinned to sidebar bottom -->
+  <div class="sb-user">
+    <div class="sb-avatar">DM</div>
+    <div class="sb-user-info">
+      <div class="sb-user-name">Dan Murphy</div>
+      <div class="sb-user-role">GS Admin</div>
+    </div>
+    <button class="sb-logout" aria-label="Sign out"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
+  </div>
+</div>
+    <div class="main">
+      <div class="breadcrumb"><a href="#" class="bc-link" onclick="show('s2');return false">All retailers</a><span class="bc-sep">›</span><span class="bc-cur">Provision retailer</span></div>
+      <div class="pg-hdr-bar"><div class="pg-title">Provision new retailer</div><div class="pg-sub">Create a new retailer account and send their onboarding invitation</div></div>
+      <div class="grids">
+        <div class="grp" style="grid-column:1/-1"><div class="grp-hdr">Onboarding progress</div><div class="grp-body"><div class="steps">
+  <div class="step"><div class="sdot curr">1</div><div class="slbl curr">Company</div></div>
+  <div class="step"><div class="sdot">2</div><div class="slbl">Jurisdiction</div></div>
+  <div class="step"><div class="sdot">3</div><div class="slbl">Admin user</div></div>
+  <div class="step"><div class="sdot">4</div><div class="slbl">Confirm</div></div>
+</div></div></div>
+        <div class="grp" style="grid-column:1/-1"><div class="grp-hdr">Step 1 — Company details</div><div class="grp-body"><div class="fg2">
+  <div class="fgrp"><label class="flbl">Company name <span class="req">*</span></label><input class="fi" value="Primark Stores Ltd" readonly></div>
+  <div class="fgrp"><label class="flbl">Registered country <span class="req">*</span></label><select class="fi"><option>Ireland</option></select></div>
+</div>
+<div class="fg2" style="margin-top:10px">
+  <div class="fgrp"><label class="flbl">Company registration</label><input class="fi" value="IE-123456" readonly></div>
+  <div class="fgrp"><label class="flbl">VAT number</label><input class="fi" value="IE1234567T" readonly></div>
+</div>
+<div class="fgrp" style="margin-top:10px"><label class="flbl">Tenant slug</label><input class="fi" value="primark" readonly><div class="fhint" style="color:#4ebb81">primark.greenstreets.io</div></div>
+<div class="faction"><button class="btn-g" >Cancel</button> <button class="btn-p"  onclick="show('s5');return false"><img class="btn-sw" src="BASE64" alt=""><span class="btn-c"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d='M5 12h14M12 5l7 7-7 7'/></svg>Next: Jurisdiction</span></button></div></div></div>
+      </div>
+    </div>
+  </div>
+</div><div class="screen" id="s4">
+  <div class="app-body">
+    <div class="sidebar">
+  <!-- Logo — prominent, left pane -->
+  <div class="sb-logo-zone">
+    <img src="BASE64" class="sb-logo" alt="Greenstreets">
+  </div>
+
+  <!-- Bell notifications -->
+  <div class="sb-bell-row">
+    <button class="sb-bell" aria-label="Notifications">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span class="bell-badge">3</span>
+    </button>
+    <span class="sb-bell-label">Notifications</span>
+  </div>
+
+  <div class="sb-section">Operator</div>
+  <a href="#" class="nav-item active" onclick="show('s2');return false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> All retailers
+        </a>
+<a href="#" class="nav-item" onclick="show('s3');return false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/></svg> Provision retailer
+        </a>
+<a href="#" class="nav-item" onclick="show('s7');return false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Users
+        </a>
+<a href="#" class="nav-item" onclick="show('s8');return false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg> Packagings
+        </a>
+<a href="#" class="nav-item" onclick="show('s9');return false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> Reports
+        </a>
+
+
+  <div class="sb-divider"></div>
+  <a href="#" class="nav-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg> Platform config</a>
+  <a href="#" class="nav-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414A1 1 0 0 1 19 9.414V19a2 2 0 0 1-2 2z"/></svg> Audit log</a>
+
+  <!-- User profile — pinned to sidebar bottom -->
+  <div class="sb-user">
+    <div class="sb-avatar">DM</div>
+    <div class="sb-user-info">
+      <div class="sb-user-name">Dan Murphy</div>
+      <div class="sb-user-role">GS Admin</div>
+    </div>
+    <button class="sb-logout" aria-label="Sign out"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
+  </div>
+</div>
+    <div class="main">
+      <div class="breadcrumb"><a href="#" class="bc-link" onclick="show('s2');return false">All retailers</a><span class="bc-sep">›</span><span class="bc-cur">Primark Stores Ltd</span></div>
+      <div class="pg-hdr-bar">
+        <div>
+          <div class="pg-title">Primark Stores Ltd</div>
+          <div class="pg-tags"><span class="pill pill-grey">EU</span> <span class="pill pill-grey">UK</span> <span class="pill pill-gs">Enterprise</span><span class="tbl-sub">primark.greenstreets.io</span></div>
+        </div>
+        <div class="pg-actions">
+          <button class="btn-g" onclick="show('s6');return false"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d='M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z'/><circle cx='12' cy='12' r='3'/></svg>Impersonate</button>
+          <button class="btn-g" onclick="show('s5');return false"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx='12' cy='12' r='3'/></svg>Configure</button>
+        </div>
+      </div>
+      <div class="alert alert-warn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f5a623" stroke-width="2" style="flex-shrink:0"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/></svg><span>47 suppliers overdue — admin last active 2 hours ago</span></div>
+      <div class="grids">
+        <div class="grp" style="grid-column:1/-1"><div class="grp-hdr">Compliance overview</div><div class="grp-body"><div class="stat-row stat3"><div class="stat"><div class="stat-lbl">DoCs complete</div><div class="stat-val" >15/20</div></div><div class="stat"><div class="stat-lbl">Suppliers submitted</div><div class="stat-val" >333/380</div></div><div class="stat"><div class="stat-lbl">Active users</div><div class="stat-val" >4</div></div></div></div></div>
+        <div class="grp"><div class="grp-hdr">Users</div><div class="grp-body"><table class="tbl"><thead><tr><th>Name</th><th>Role</th><th>Last active</th></tr></thead>
+<tbody>
+<tr><td><div class="tbl-name">Keith O'Sullivan</div></td><td><span class="pill pill-blue">Admin</span></td><td class="tbl-muted">2 hrs ago</td></tr>
+<tr><td><div class="tbl-name">Sarah Connolly</div></td><td><span class="pill pill-grey">Retailer user</span></td><td class="tbl-muted">Yesterday</td></tr>
+<tr><td><div class="tbl-name">Tom Brady</div></td><td><span class="pill pill-grey">Retailer user</span></td><td class="tbl-muted">3 days ago</td></tr>
+<tr><td style="color:var(--tw3);font-style:italic">Pending invite</td><td><span class="pill pill-grey">Retailer user</span></td><td style="color:#f5a623;font-size:11px">Pending</td></tr>
+</tbody></table>
+<div style="margin-top:10px"><button class="btn-g" onclick="show('s7');return false"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d='M12 5v14M5 12h14'/></svg>Manage users</button></div></div></div>
+        <div class="grp"><div class="grp-hdr">Internal notes</div><div class="grp-body"><div class="notes-area">Primark going live with supplier campaign early July. Key contact: Keith O'Sullivan. Call booked Thursday re. overdue suppliers in APAC region.</div>
+<div style="text-align:right;margin-top:8px"><button class="btn-g" >Edit note</button></div></div></div>
+      </div>
+    </div>
+  </div>
+</div><div class="screen" id="s5">
+  <div class="app-body">
+    <div class="sidebar">
+  <!-- Logo — prominent, left pane -->
+  <div class="sb-logo-zone">
+    <img src="BASE64" class="sb-logo" alt="Greenstreets">
+  </div>
+
+  <!-- Bell notifications -->
+  <div class="sb-bell-row">
+    <button class="sb-bell" aria-label="Notifications">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span class="bell-badge">3</span>
+    </button>
+    <span class="sb-bell-label">Notifications</span>
+  </div>
+
+  <div class="sb-section">Operator</div>
+  <a href="#" class="nav-item" onclick="show('s2');return false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> All retailers
+        </a>
+<a href="#" class="nav-item active" onclick="show('s3');return false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/></svg> Provision retailer
+        </a>
+<a href="#" class="nav-item" onclick="show('s7');return false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Users
+        </a>
+<a href="#" class="nav-item" onclick="show('s8');return false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg> Packagings
+        </a>
+<a href="#" class="nav-item" onclick="show('s9');return false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> Reports
+        </a>
+
+
+  <div class="sb-divider"></div>
+  <a href="#" class="nav-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg> Platform config</a>
+  <a href="#" class="nav-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414A1 1 0 0 1 19 9.414V19a2 2 0 0 1-2 2z"/></svg> Audit log</a>
+
+  <!-- User profile — pinned to sidebar bottom -->
+  <div class="sb-user">
+    <div class="sb-avatar">DM</div>
+    <div class="sb-user-info">
+      <div class="sb-user-name">Dan Murphy</div>
+      <div class="sb-user-role">GS Admin</div>
+    </div>
+    <button class="sb-logout" aria-label="Sign out"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
+  </div>
+</div>
+    <div class="main">
+      <div class="breadcrumb"><a href="#" class="bc-link" onclick="show('s2');return false">All retailers</a><span class="bc-sep">›</span><a href="#" class="bc-link" onclick="show('s4');return false">Primark Stores Ltd</a><span class="bc-sep">›</span><span class="bc-cur">Configure</span></div>
+      <div class="pg-hdr-bar"><div class="pg-title">Configure — Primark Stores Ltd</div><div class="pg-sub">Jurisdiction, data residency, and feature modules</div></div>
+      <div class="grids">
+        <div class="grp"><div class="grp-hdr">Jurisdictions and data residency</div><div class="grp-body"><div class="tgl-row"><div class="tgl on"></div><div class="tgl-info">EU (eu-west-1)<small>Aurora — Frankfurt</small></div></div>
+<div class="tgl-row"><div class="tgl on"></div><div class="tgl-info">UK (eu-west-2)<small>Aurora — London</small></div></div>
+<div class="tgl-row"><div class="tgl "></div><div class="tgl-info">Canada (ca-central-1)<small>Aurora — Montréal</small></div></div></div></div>
+        <div class="grp"><div class="grp-hdr">Feature modules</div><div class="grp-body"><div class="tgl-row"><div class="tgl on"></div><div class="tgl-info">AI extraction<small>Automated spec sheet parsing</small></div></div>
+<div class="tgl-row"><div class="tgl on"></div><div class="tgl-info">EPR reporting<small>Annex IX quantity export</small></div></div>
+<div class="tgl-row"><div class="tgl on"></div><div class="tgl-info">Multi-jurisdiction<small>Cross-region routing</small></div></div>
+<div class="tgl-row"><div class="tgl "></div><div class="tgl-info">Advanced analytics<small><span class="pill pill-grey">Post-MVP</span></small></div></div></div></div>
+        <div class="grp" style="grid-column:1/-1"><div class="grp-hdr">Subscription tier</div><div class="grp-body"><div class="tier-grid">
+  <div class="tier tier-sel"><div class="tier-name">Enterprise</div><div class="tier-desc">Unlimited · All modules · SLA</div><span class="pill pill-gs" style="margin-top:8px;display:inline-flex">Selected</span></div>
+  <div class="tier"><div class="tier-name dim">Professional</div><div class="tier-desc">Up to 500 suppliers</div></div>
+  <div class="tier"><div class="tier-name dim">Starter</div><div class="tier-desc">Up to 50 suppliers</div></div>
+</div></div></div>
+      </div>
+      <div class="faction"><button class="btn-g" onclick="show('s4');return false">Back</button> <button class="btn-p"  onclick="show('s4');return false"><img class="btn-sw" src="BASE64" alt=""><span class="btn-c"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d='M20 6L9 17l-5-5'/></svg>Save configuration</span></button></div>
+    </div>
+  </div>
+</div><div class="screen" id="s6">
+  <div class="imp-bar">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+    <strong>Viewing as Primark Stores Ltd — Keith O'Sullivan</strong>
+    <span class="imp-note">All actions logged · Read-only</span>
+    <button class="imp-exit" onclick="show('s4')">Exit</button>
+  </div>
+  <div class="app-body">
+    <div class="sidebar">
+      <div class="sb-logo-zone" style="border-bottom:2px dashed rgba(78,187,129,.35)">
+        <img src="BASE64" class="sb-logo" alt="Greenstreets">
+        <div style="font-size:9px;color:#4ebb81;text-align:center;margin-top:4px;letter-spacing:.04em">PRIMARK VIEW</div>
+      </div>
+      <div class="sb-section">Client navigation</div>
+      <a href="#" class="nav-item active"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
+      <a href="#" class="nav-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8"/></svg>Products</a>
+      <a href="#" class="nav-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Suppliers</a>
+      <a href="#" class="nav-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Compliance</a>
+      <div class="sb-user" style="margin-top:auto">
+        <div class="sb-avatar" style="background:#2a4a6e">KO</div>
+        <div class="sb-user-info">
+          <div class="sb-user-name">Keith O'Sullivan</div>
+          <div class="sb-user-role">Retailer Admin</div>
+        </div>
+      </div>
+    </div>
+    <div class="main">
+      <div class="pg-hdr-bar"><div class="pg-title">Compliance dashboard</div><div class="pg-sub">Primark Stores Ltd · Retailer / Importer</div></div>
+      <div class="alert alert-info"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5b9cf6" stroke-width="2" style="flex-shrink:0"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><span>Impersonation mode — you're seeing exactly what Keith sees. Data-modifying actions are disabled.</span></div>
+      <div class="grids">
+        <div class="grp" style="grid-column:1/-1"><div class="grp-hdr">Overall progress</div><div class="grp-body"><div class="prog-row"><span class="tbl-muted">Completion</span><div class="prog prog-lg"><div class="prog-f" style="width:62%"></div></div><span style="color:#4ebb81;font-weight:600">62%</span><span class="tbl-muted">15 of 20 DoCs</span></div><div class="stat-row stat3" style="margin-top:12px"><div class="stat"><div class="stat-lbl">Declaration of conformity</div><div class="stat-val" >15/20</div></div><div class="stat"><div class="stat-lbl">Substance compliance</div><div class="stat-val" style="color:#4ebb81">18/20</div></div><div class="stat"><div class="stat-lbl">Technical documentation</div><div class="stat-val" style="color:#f5a623">14/20</div></div></div></div></div>
+      </div>
+    </div>
+  </div>
+</div><div class="screen" id="s7">
+  <div class="app-body">
+    <div class="sidebar">
+  <!-- Logo — prominent, left pane -->
+  <div class="sb-logo-zone">
+    <img src="BASE64" class="sb-logo" alt="Greenstreets">
+  </div>
+
+  <!-- Bell notifications -->
+  <div class="sb-bell-row">
+    <button class="sb-bell" aria-label="Notifications">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span class="bell-badge">3</span>
+    </button>
+    <span class="sb-bell-label">Notifications</span>
+  </div>
+
+  <div class="sb-section">Operator</div>
+  <a href="#" class="nav-item" onclick="show('s2');return false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> All retailers
+        </a>
+<a href="#" class="nav-item" onclick="show('s3');return false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/></svg> Provision retailer
+        </a>
+<a href="#" class="nav-item active" onclick="show('s7');return false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Users
+        </a>
+<a href="#" class="nav-item" onclick="show('s8');return false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg> Packagings
+        </a>
+<a href="#" class="nav-item" onclick="show('s9');return false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> Reports
+        </a>
+
+
+  <div class="sb-divider"></div>
+  <a href="#" class="nav-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg> Platform config</a>
+  <a href="#" class="nav-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414A1 1 0 0 1 19 9.414V19a2 2 0 0 1-2 2z"/></svg> Audit log</a>
+
+  <!-- User profile — pinned to sidebar bottom -->
+  <div class="sb-user">
+    <div class="sb-avatar">DM</div>
+    <div class="sb-user-info">
+      <div class="sb-user-name">Dan Murphy</div>
+      <div class="sb-user-role">GS Admin</div>
+    </div>
+    <button class="sb-logout" aria-label="Sign out"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
+  </div>
+</div>
+    <div class="main">
+      <div class="breadcrumb"><a href="#" class="bc-link" onclick="show('s2');return false">All retailers</a><span class="bc-sep">›</span><a href="#" class="bc-link" onclick="show('s4');return false">Primark Stores Ltd</a><span class="bc-sep">›</span><span class="bc-cur">Users</span></div>
+      <div class="pg-hdr-bar"><div class="pg-title">Users — Primark Stores Ltd</div><div class="pg-sub">Manage access for this retailer account</div></div>
+      <div class="grids">
+        <div class="grp" style="grid-column:1/-1"><div class="grp-hdr">Add user</div><div class="grp-body"><div class="fg3">
+  <div class="fgrp"><label class="flbl">Email address</label><input class="fi" placeholder="name@primark.com"></div>
+  <div class="fgrp"><label class="flbl">Role</label><select class="fi"><option>Retailer Admin</option><option>Retailer User</option></select></div>
+  <div style="padding-top:18px"><button class="btn-p"  ><img class="btn-sw" src="BASE64" alt=""><span class="btn-c"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d='M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z'/></svg>Send invite</span></button></div>
+</div>
+<div class="fhint" style="margin-top:6px">Actions appear in both operator and retailer audit trails as "GreenStreet Admin"</div></div></div>
+        <div class="grp" style="grid-column:1/-1"><div class="grp-hdr">Current users</div><div class="grp-body"><table class="tbl"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Last active</th><th>Actions</th></tr></thead>
+<tbody>
+<tr><td><div class="tbl-name">Keith O'Sullivan</div></td><td class="tbl-muted">keith@primark.com</td><td><span class="pill pill-blue">Admin</span></td><td><span class="pill pill-green">Active</span></td><td class="tbl-muted">2 hrs ago</td><td><button class="btn-g" >Change role</button></td></tr>
+<tr><td><div class="tbl-name">Sarah Connolly</div></td><td class="tbl-muted">sarah@primark.com</td><td><span class="pill pill-grey">Retailer user</span></td><td><span class="pill pill-green">Active</span></td><td class="tbl-muted">Yesterday</td><td style="display:flex;gap:4px"><button class="btn-g" >Change role</button> <button class="btn-g" >Deactivate</button></td></tr>
+<tr><td><div class="tbl-name">Tom Brady</div></td><td class="tbl-muted">tom@primark.com</td><td><span class="pill pill-grey">Retailer user</span></td><td><span class="pill pill-green">Active</span></td><td class="tbl-muted">3 days ago</td><td style="display:flex;gap:4px"><button class="btn-g" >Change role</button> <button class="btn-g" >Deactivate</button></td></tr>
+<tr><td class="tbl-muted" style="font-style:italic">Pending</td><td class="tbl-muted">jane.smith@primark.com</td><td><span class="pill pill-grey">Retailer user</span></td><td><span class="pill pill-amber">Pending</span></td><td class="tbl-muted">Invited 1 day ago</td><td style="display:flex;gap:4px"><button class="btn-g" >Resend</button> <button class="btn-g" >Revoke</button></td></tr>
+</tbody></table></div></div>
+      </div>
+    </div>
+  </div>
+</div><div class="screen" id="s8">
+  <div class="app-body">
+    <div class="sidebar">
+  <!-- Logo — prominent, left pane -->
+  <div class="sb-logo-zone">
+    <img src="BASE64" class="sb-logo" alt="Greenstreets">
+  </div>
+
+  <!-- Bell notifications -->
+  <div class="sb-bell-row">
+    <button class="sb-bell" aria-label="Notifications">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span class="bell-badge">3</span>
+    </button>
+    <span class="sb-bell-label">Notifications</span>
+  </div>
+
+  <div class="sb-section">Operator</div>
+  <a href="#" class="nav-item" onclick="show('s2');return false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> All retailers
+        </a>
+<a href="#" class="nav-item" onclick="show('s3');return false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/></svg> Provision retailer
+        </a>
+<a href="#" class="nav-item" onclick="show('s7');return false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Users
+        </a>
+<a href="#" class="nav-item active" onclick="show('s8');return false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg> Packagings
+        </a>
+<a href="#" class="nav-item" onclick="show('s9');return false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> Reports
+        </a>
+
+
+  <div class="sb-divider"></div>
+  <a href="#" class="nav-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg> Platform config</a>
+  <a href="#" class="nav-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414A1 1 0 0 1 19 9.414V19a2 2 0 0 1-2 2z"/></svg> Audit log</a>
+
+  <!-- User profile — pinned to sidebar bottom -->
+  <div class="sb-user">
+    <div class="sb-avatar">DM</div>
+    <div class="sb-user-info">
+      <div class="sb-user-name">Dan Murphy</div>
+      <div class="sb-user-role">GS Admin</div>
+    </div>
+    <button class="sb-logout" aria-label="Sign out"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
+  </div>
+</div>
+    <div class="main">
+      <div class="breadcrumb"><a href="#" class="bc-link" onclick="show('s2');return false">All retailers</a><span class="bc-sep">›</span><a href="#" class="bc-link" onclick="show('s4');return false">Primark Stores Ltd</a><span class="bc-sep">›</span><span class="bc-cur">Packagings</span></div>
+      <div class="pg-hdr-bar"><div class="pg-title">Packagings — Primark Stores Ltd</div><div class="pg-sub">SKUs, packaging types, and product-packaging links</div></div>
+      <div class="grids">
+        <div class="grp" style="grid-column:1/-1"><div class="grp-hdr">Portfolio summary</div><div class="grp-body"><div class="stat-row stat3"><div class="stat"><div class="stat-lbl">Total SKUs</div><div class="stat-val" >380</div></div><div class="stat"><div class="stat-lbl">Packaging components</div><div class="stat-val" >847</div></div><div class="stat"><div class="stat-lbl">Awaiting data</div><div class="stat-val" style="color:#f5a623">47</div></div></div></div></div>
+        <div class="grp" style="grid-column:1/-1"><div class="grp-hdr">SKU catalogue</div><div class="grp-body"><div class="filter-row" style="margin-bottom:10px">
+  <input class="fi" placeholder="Search SKU or description..." style="width:200px">
+  <select class="fi" style="width:130px"><option>All categories</option></select>
+  <select class="fi" style="width:130px"><option>All statuses</option></select>
+</div>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>SKU code</th><th>Description</th><th>Category</th><th>Components</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td class="tbl-name">PRK-001-SW-BLK</td><td>Black Crew Neck Sweatshirt</td><td class="tbl-muted">Tops</td><td>3</td><td><span class="pill pill-green">Complete</span></td></tr>
+<tr><td class="tbl-name">PRK-002-JN-BLU</td><td>Blue Slim Fit Jeans</td><td class="tbl-muted">Bottoms</td><td>2</td><td><span class="pill pill-amber">Incomplete</span></td></tr>
+<tr><td class="tbl-name">PRK-003-DRS-RED</td><td>Red Midi Dress</td><td class="tbl-muted">Dresses</td><td>3</td><td><span class="pill pill-amber">Incomplete</span></td></tr>
+<tr><td class="tbl-name">PRK-004-JKT-KHK</td><td>Khaki Utility Jacket</td><td class="tbl-muted">Outerwear</td><td>4</td><td><span class="pill pill-grey">Pending</span></td></tr>
+<tr><td class="tbl-name">PRK-005-TEE-WHT</td><td>White Essential T-Shirt</td><td class="tbl-muted">Tops</td><td>2</td><td><span class="pill pill-green">Complete</span></td></tr>
+</tbody></table></div>
+<div class="tbl-footer">Showing 5 of 380 SKUs</div></div></div>
+        <div class="grp" style="grid-column:1/-1"><div class="grp-hdr">Packaging components</div><div class="grp-body"><div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>Type</th><th>Material</th><th>Weight (g)</th><th>PCR %</th><th>Recyclability</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td class="tbl-name">Swing tag</td><td class="tbl-muted">Paper / card</td><td>2.4</td><td>80%</td><td><span class="pill pill-green">A</span></td><td><span class="pill pill-green">Retailer Approved</span></td></tr>
+<tr><td class="tbl-name">Poly bag</td><td class="tbl-muted">LDPE plastic</td><td>8.1</td><td>0%</td><td><span class="pill pill-amber">D</span></td><td><span class="pill pill-amber">Supplier Complete</span></td></tr>
+<tr><td class="tbl-name">Box / carton</td><td class="tbl-muted">Corrugated card</td><td>45.0</td><td>65%</td><td><span class="pill pill-green">A</span></td><td><span class="pill pill-green">Retailer Approved</span></td></tr>
+<tr><td class="tbl-name">Hanger</td><td class="tbl-muted">Recycled plastic</td><td>12.3</td><td>40%</td><td><span class="pill pill-amber">B</span></td><td><span class="pill pill-blue">In Progress</span></td></tr>
+<tr><td class="tbl-name">Tissue paper</td><td class="tbl-muted">FSC paper</td><td>3.2</td><td>0%</td><td><span class="pill pill-green">A</span></td><td><span class="pill pill-grey">Pending</span></td></tr>
+</tbody></table></div>
+<div class="tbl-footer">Showing 5 of 847 packaging components</div></div></div>
+        <div class="grp" style="grid-column:1/-1"><div class="grp-hdr">Import data</div><div class="grp-body"><div class="import-tabs">
+  <button class="itab active">CSV import</button>
+  <button class="itab">JSON import</button>
+</div>
+<div class="import-drop">
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--tw3)"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+  <div style="font-size:13px;color:var(--tw2);margin-top:8px">Drop your CSV or JSON file here</div>
+  <div style="font-size:11px;color:var(--tw3);margin-top:4px">SKUs, packaging types, or product-packaging links</div>
+  <button class="btn-g" style="margin-top:12px">Browse files</button>
+</div>
+<div style="font-size:11px;color:var(--tw3);margin-top:10px;display:flex;align-items:center;gap:6px">
+  <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.3"/><path d="M8 7v4M8 5.5v.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+  Accepts: SKUs (sku_code, name, category), packaging types (material, weight_g, pcr_pct, recyclability_grade), or links (sku_code, packaging_type_id). <a href="#" style="color:#4ebb81;text-decoration:none;margin-left:4px">Download templates</a>
+</div></div></div>
+      </div>
+    </div>
+  </div>
+</div><div class="screen" id="s9">
+  <div class="app-body">
+    <div class="sidebar">
+  <!-- Logo — prominent, left pane -->
+  <div class="sb-logo-zone">
+    <img src="BASE64" class="sb-logo" alt="Greenstreets">
+  </div>
+
+  <!-- Bell notifications -->
+  <div class="sb-bell-row">
+    <button class="sb-bell" aria-label="Notifications">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span class="bell-badge">3</span>
+    </button>
+    <span class="sb-bell-label">Notifications</span>
+  </div>
+
+  <div class="sb-section">Operator</div>
+  <a href="#" class="nav-item" onclick="show('s2');return false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> All retailers
+        </a>
+<a href="#" class="nav-item" onclick="show('s3');return false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/></svg> Provision retailer
+        </a>
+<a href="#" class="nav-item" onclick="show('s7');return false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Users
+        </a>
+<a href="#" class="nav-item" onclick="show('s8');return false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg> Packagings
+        </a>
+<a href="#" class="nav-item active" onclick="show('s9');return false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> Reports
+        </a>
+
+
+  <div class="sb-divider"></div>
+  <a href="#" class="nav-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg> Platform config</a>
+  <a href="#" class="nav-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414A1 1 0 0 1 19 9.414V19a2 2 0 0 1-2 2z"/></svg> Audit log</a>
+
+  <!-- User profile — pinned to sidebar bottom -->
+  <div class="sb-user">
+    <div class="sb-avatar">DM</div>
+    <div class="sb-user-info">
+      <div class="sb-user-name">Dan Murphy</div>
+      <div class="sb-user-role">GS Admin</div>
+    </div>
+    <button class="sb-logout" aria-label="Sign out"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
+  </div>
+</div>
+    <div class="main">
+      <div class="pg-hdr-bar"><div class="pg-title">Reports</div><div class="pg-sub">EPR registration records and PPWR conformity reporting</div></div>
+      <div class="grids">
+        <div class="grp" style="grid-column:1/-1"><div class="grp-hdr">EPR registrations summary</div><div class="grp-body"><div class="stat-row stat3"><div class="stat"><div class="stat-lbl">Member states</div><div class="stat-val" >5</div></div><div class="stat"><div class="stat-lbl">Total packaging weight</div><div class="stat-val" style="color:#4ebb81">42.3 t</div></div><div class="stat"><div class="stat-lbl">Pending submissions</div><div class="stat-val" style="color:#f5a623">2</div></div></div></div></div>
+        <div class="grp" style="grid-column:1/-1"><div class="grp-hdr">EPR registrations — Q1 2026</div><div class="grp-body"><div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>Member state</th><th>Scheme</th><th>Registration ID</th><th>Reporting period</th><th>Quantity (kg)</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td class="tbl-name">Ireland (IE)</td><td class="tbl-muted">Repak</td><td class="tbl-muted">REP-2024-001243</td><td class="tbl-muted">Q1 2026</td><td class="tbl-val">8,420</td><td><span class="pill pill-green">Submitted</span></td></tr>
+<tr><td class="tbl-name">United Kingdom (GB)</td><td class="tbl-muted">PRN Scheme</td><td class="tbl-muted">PRN-2024-88821</td><td class="tbl-muted">Q1 2026</td><td class="tbl-val">12,100</td><td><span class="pill pill-green">Submitted</span></td></tr>
+<tr><td class="tbl-name">Germany (DE)</td><td class="tbl-muted">LUCID / ZSVR</td><td class="tbl-muted">DE1234567891011</td><td class="tbl-muted">Q1 2026</td><td class="tbl-val">6,810</td><td><span class="pill pill-amber">Draft</span></td></tr>
+<tr><td class="tbl-name">France (FR)</td><td class="tbl-muted">Citeo</td><td class="tbl-muted">FR-2024-X-0091</td><td class="tbl-muted">Q1 2026</td><td class="tbl-val">9,340</td><td><span class="pill pill-green">Submitted</span></td></tr>
+<tr><td class="tbl-name">Netherlands (NL)</td><td class="tbl-muted">Nedvang</td><td class="tbl-muted">NL-ENV-2024-5531</td><td class="tbl-muted">Q1 2026</td><td class="tbl-val">5,630</td><td><span class="pill pill-grey">Pending</span></td></tr>
+</tbody></table></div>
+<div class="tbl-footer">Showing 5 of 5 member states · Total Q1 2026: 42,300 kg</div></div></div>
+        <div class="grp" style="grid-column:1/-1"><div class="grp-hdr">PPWR conformity summary</div><div class="grp-body"><div class="stat-row stat3"><div class="stat"><div class="stat-lbl">DoCs generated</div><div class="stat-val" >847</div></div><div class="stat"><div class="stat-lbl">PFAS compliant</div><div class="stat-val" style="color:#4ebb81">18/20</div></div><div class="stat"><div class="stat-lbl">Technical docs</div><div class="stat-val" style="color:#f5a623">14/20</div></div></div></div></div>
+        <div class="grp" style="grid-column:1/-1"><div class="grp-hdr">PPWR article checks</div><div class="grp-body"><div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>Article</th><th>Requirement</th><th>Checked</th><th>Status</th><th>Failing SKUs</th></tr></thead>
+<tbody>
+<tr><td class="tbl-name">Art. 5</td><td>PFAS limits for food-contact packaging</td><td class="tbl-muted">380/380</td><td><span class="pill pill-green">Compliant</span></td><td class="tbl-muted">0</td></tr>
+<tr><td class="tbl-name">Art. 6</td><td>Restrictions on hazardous substances</td><td class="tbl-muted">380/380</td><td><span class="pill pill-green">Compliant</span></td><td class="tbl-muted">0</td></tr>
+<tr><td class="tbl-name">Art. 7</td><td>Recycled content minimum targets (PCR%)</td><td class="tbl-muted">312/380</td><td><span class="pill pill-amber">Attention</span></td><td style="color:#f5a623;font-size:12px;font-weight:500">14</td></tr>
+<tr><td class="tbl-name">Art. 9</td><td>Recyclability by design</td><td class="tbl-muted">380/380</td><td><span class="pill pill-green">Compliant</span></td><td class="tbl-muted">0</td></tr>
+<tr><td class="tbl-name">Art. 10</td><td>Packaging minimisation</td><td class="tbl-muted">356/380</td><td><span class="pill pill-amber">Attention</span></td><td style="color:#f5a623;font-size:12px;font-weight:500">6</td></tr>
+</tbody></table></div>
+<div class="tbl-footer">Last assessed: today · Next automated check: in 24 hours</div></div></div>
+        <div class="grp" style="grid-column:1/-1"><div class="grp-hdr">Export reports</div><div class="grp-body"><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+  <button class="btn-p"  ><img class="btn-sw" src="BASE64" alt=""><span class="btn-c"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'/><polyline points='7 10 12 15 17 10'/><line x1='12' y1='15' x2='12' y2='3'/></svg>Export EPR report (XLSX)</span></button>
+  <button class="btn-p"  ><img class="btn-sw" src="BASE64" alt=""><span class="btn-c"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'/><polyline points='7 10 12 15 17 10'/><line x1='12' y1='15' x2='12' y2='3'/></svg>Export PPWR summary (PDF)</span></button>
+  <button class="btn-g" >Export Annex IX Table 1 (CSV)</button>
+</div>
+<div class="fhint" style="margin-top:8px">All exports are logged in the audit trail with actor, timestamp, and scope.</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.snb').forEach(b=>b.classList.remove('on'));
+  var el=document.getElementById(id);
+  if(el) el.classList.add('on');
+  var ids=['s1','s2','s3','s4','s5','s6','s7','s8','s9'];
+  var i=ids.indexOf(id);
+  var btns=document.querySelectorAll('.snb');
+  if(i>=0&&btns[i]) btns[i].classList.add('on');
+}
+show('s1');
+</script>
+</body>
+</html>

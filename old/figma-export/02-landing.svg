@@ -1,0 +1,216 @@
+<svg width="1440" height="900" viewBox="0 0 1440 900" fill="none" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
+  <defs>
+    <linearGradient id="bgBase" x1="0" y1="0" x2="1440" y2="900" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#081321"/><stop offset=".38" stop-color="#0b1a30"/>
+      <stop offset=".72" stop-color="#0a1626"/><stop offset="1" stop-color="#081120"/>
+    </linearGradient>
+    <radialGradient id="glowGreen" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(115 -72) scale(900 620)">
+      <stop stop-color="#4ebb81" stop-opacity=".20"/><stop offset=".6" stop-color="#4ebb81" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowBlue" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1555 54) scale(760 720)">
+      <stop stop-color="#5b9cf6" stop-opacity=".16"/><stop offset=".58" stop-color="#5b9cf6" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowBottom" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(662 1062) scale(900 700)">
+      <stop stop-color="#3766b0" stop-opacity=".22"/><stop offset=".6" stop-color="#3766b0" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- background -->
+  <rect width="1440" height="900" fill="#070f1c"/>
+  <rect width="1440" height="900" fill="url(#bgBase)"/>
+  <rect width="1440" height="900" fill="url(#glowGreen)"/>
+  <rect width="1440" height="900" fill="url(#glowBlue)"/>
+  <rect width="1440" height="900" fill="url(#glowBottom)"/>
+
+  <!-- ── portal header (.ph) ── -->
+  <rect x="0" y="0" width="1440" height="62" fill="#0a1626" fill-opacity=".85"/>
+  <line x1="0" y1="62" x2="1440" y2="62" stroke="#94b4e6" stroke-opacity=".16"/>
+  <text x="40" y="28" font-size="16" font-weight="700" fill="#ffffff">Primark Stores Ltd</text>
+  <text x="40" y="44" font-size="10" fill="#ffffff" fill-opacity=".5">Packaging compliance portal</text>
+  <text x="1290" y="36" font-size="11" fill="#ffffff" fill-opacity=".5">Due: <tspan font-weight="700" fill="#f5a623" fill-opacity="1">26 Jul 2026</tspan></text>
+
+  <!-- ── landing tabs ── -->
+  <g font-size="12" font-weight="600">
+    <rect x="170" y="86" width="112" height="36" rx="10" fill="#4ebb81" fill-opacity=".16" stroke="#4ebb81" stroke-opacity=".45"/>
+    <text x="196" y="109" fill="#8fe3b6">Products</text>
+    <rect x="290" y="86" width="196" height="36" rx="10" fill="#ffffff" fill-opacity=".04" stroke="#94b4e6" stroke-opacity=".16"/>
+    <text x="316" y="109" fill="#ffffff" fill-opacity=".6">Packaging Components</text>
+    <rect x="494" y="86" width="188" height="36" rx="10" fill="#ffffff" fill-opacity=".04" stroke="#94b4e6" stroke-opacity=".16"/>
+    <text x="520" y="109" fill="#ffffff" fill-opacity=".6">Supporting Documents</text>
+  </g>
+
+  <!-- ── filter row ── -->
+  <g font-size="11.5" font-weight="600">
+    <rect x="170" y="142" width="48" height="32" rx="16" fill="#4ebb81" fill-opacity=".18" stroke="#4ebb81" stroke-opacity=".5"/>
+    <text x="183" y="162" fill="#8fe3b6">All</text>
+    <rect x="226" y="142" width="92" height="32" rx="16" fill="#ffffff" fill-opacity=".04" stroke="#94b4e6" stroke-opacity=".2"/>
+    <text x="243" y="162" fill="#ffffff" fill-opacity=".55">Incomplete</text>
+    <rect x="326" y="142" width="86" height="32" rx="16" fill="#ffffff" fill-opacity=".04" stroke="#94b4e6" stroke-opacity=".2"/>
+    <text x="343" y="162" fill="#ffffff" fill-opacity=".55">Complete</text>
+    <rect x="420" y="142" width="78" height="32" rx="16" fill="#ffffff" fill-opacity=".04" stroke="#94b4e6" stroke-opacity=".2"/>
+    <text x="437" y="162" fill="#ffffff" fill-opacity=".55">Delisted</text>
+    <!-- category select -->
+    <rect x="510" y="141" width="158" height="34" rx="10" fill="#ffffff" fill-opacity=".045" stroke="#94b4e6" stroke-opacity=".16"/>
+    <text x="524" y="162" font-weight="400" font-size="12" fill="#ffffff" fill-opacity=".74">All categories</text>
+    <path d="M648 155l5 5 5-5" stroke="#ffffff" stroke-opacity=".44" stroke-width="1.6" fill="none"/>
+    <!-- search -->
+    <rect x="1040" y="141" width="230" height="34" rx="10" fill="#ffffff" fill-opacity=".045" stroke="#94b4e6" stroke-opacity=".16"/>
+    <circle cx="1058" cy="157" r="5" stroke="#ffffff" stroke-opacity=".44" stroke-width="1.6"/>
+    <path d="M1062 161l4 4" stroke="#ffffff" stroke-opacity=".44" stroke-width="1.6"/>
+    <text x="1074" y="162" font-weight="400" font-size="12" fill="#ffffff" fill-opacity=".26">Search products…</text>
+  </g>
+
+  <!-- ── product table card ── -->
+  <rect x="170" y="192" width="1100" height="560" rx="13" fill="#ffffff" fill-opacity=".03" stroke="#94b4e6" stroke-opacity=".16"/>
+
+  <!-- header row -->
+  <rect x="170" y="192" width="1100" height="38" fill="#ffffff" fill-opacity=".05"/>
+  <g font-size="10" font-weight="700" fill="#ffffff" fill-opacity=".45" letter-spacing="0.6">
+    <text x="190" y="216">PRODUCT ↕</text>
+    <text x="430" y="216">CATEGORY ↕</text>
+    <text x="552" y="216">STATUS ↕</text>
+    <text x="682" y="216">PACKING ↕</text>
+    <text x="790" y="216">UNITS / CASE</text>
+    <text x="888" y="216">CASES / PALLET</text>
+    <text x="994" y="216">UNITS / PALLET</text>
+    <text x="1100" y="216">COMPONENTS</text>
+  </g>
+  <line x1="170" y1="230" x2="1270" y2="230" stroke="#94b4e6" stroke-opacity=".16"/>
+
+  <!-- rows (y step 52) -->
+  <g font-size="12">
+    <!-- row 1 -->
+    <text x="190" y="252" font-weight="600" fill="#ffffff">Red Midi Dress</text>
+    <text x="190" y="268" font-size="10.5" fill="#ffffff" fill-opacity=".44">PRK-003-DRS-RED</text>
+    <text x="430" y="262" fill="#ffffff" fill-opacity=".6">Dresses</text>
+    <rect x="548" y="248" width="86" height="20" rx="10" fill="#f5a623" fill-opacity=".14" stroke="#f5a623" stroke-opacity=".4"/>
+    <text x="562" y="262" font-size="10.5" font-weight="600" fill="#f5a623">Incomplete</text>
+    <text x="682" y="262" fill="#ffffff" fill-opacity=".6">Flat</text>
+    <text x="812" y="262" fill="#ffffff" fill-opacity=".6">35</text>
+    <text x="912" y="262" fill="#ffffff" fill-opacity=".6">—</text>
+    <text x="1018" y="262" fill="#ffffff" fill-opacity=".6">—</text>
+    <text x="1122" y="262" fill="#ffffff" fill-opacity=".6">3</text>
+    <path d="M1244 252l6 6-6 6" stroke="#ffffff" stroke-opacity=".35" stroke-width="1.8" fill="none"/>
+    <line x1="170" y1="282" x2="1270" y2="282" stroke="#ffffff" stroke-opacity=".06"/>
+    <!-- row 2 -->
+    <text x="190" y="304" font-weight="600" fill="#ffffff">Khaki Utility Jacket</text>
+    <text x="190" y="320" font-size="10.5" fill="#ffffff" fill-opacity=".44">PRK-004-JKT-KHK</text>
+    <text x="430" y="314" fill="#ffffff" fill-opacity=".6">Jackets</text>
+    <rect x="548" y="300" width="86" height="20" rx="10" fill="#f5a623" fill-opacity=".14" stroke="#f5a623" stroke-opacity=".4"/>
+    <text x="562" y="314" font-size="10.5" font-weight="600" fill="#f5a623">Incomplete</text>
+    <text x="682" y="314" fill="#ffffff" fill-opacity=".6">GOH</text>
+    <text x="812" y="314" fill="#ffffff" fill-opacity=".6">50</text>
+    <text x="912" y="314" fill="#ffffff" fill-opacity=".6">40</text>
+    <text x="1018" y="314" fill="#ffffff" fill-opacity=".6">2,000</text>
+    <text x="1122" y="314" fill="#ffffff" fill-opacity=".6">2</text>
+    <path d="M1244 304l6 6-6 6" stroke="#ffffff" stroke-opacity=".35" stroke-width="1.8" fill="none"/>
+    <line x1="170" y1="334" x2="1270" y2="334" stroke="#ffffff" stroke-opacity=".06"/>
+    <!-- row 3 -->
+    <text x="190" y="356" font-weight="600" fill="#ffffff">Blue Slim Fit Jeans</text>
+    <text x="190" y="372" font-size="10.5" fill="#ffffff" fill-opacity=".44">PRK-002-JN-BLU</text>
+    <text x="430" y="366" fill="#ffffff" fill-opacity=".6">Jeans</text>
+    <rect x="548" y="352" width="78" height="20" rx="10" fill="#4ebb81" fill-opacity=".14" stroke="#4ebb81" stroke-opacity=".4"/>
+    <text x="562" y="366" font-size="10.5" font-weight="600" fill="#8fe3b6">Complete</text>
+    <text x="682" y="366" fill="#ffffff" fill-opacity=".6">Flat</text>
+    <text x="812" y="366" fill="#ffffff" fill-opacity=".6">100</text>
+    <text x="912" y="366" fill="#ffffff" fill-opacity=".6">—</text>
+    <text x="1018" y="366" fill="#ffffff" fill-opacity=".6">—</text>
+    <text x="1122" y="366" fill="#ffffff" fill-opacity=".6">2</text>
+    <path d="M1244 356l6 6-6 6" stroke="#ffffff" stroke-opacity=".35" stroke-width="1.8" fill="none"/>
+    <line x1="170" y1="386" x2="1270" y2="386" stroke="#ffffff" stroke-opacity=".06"/>
+    <!-- row 4 -->
+    <text x="190" y="408" font-weight="600" fill="#ffffff">Black Crew Neck Sweatshirt</text>
+    <text x="190" y="424" font-size="10.5" fill="#ffffff" fill-opacity=".44">PRK-001-SW-BLK</text>
+    <text x="430" y="418" fill="#ffffff" fill-opacity=".6">Sweatshirts</text>
+    <rect x="548" y="404" width="86" height="20" rx="10" fill="#ffffff" fill-opacity=".06" stroke="#ffffff" stroke-opacity=".2"/>
+    <text x="562" y="418" font-size="10.5" font-weight="600" fill="#ffffff" fill-opacity=".5">Not started</text>
+    <text x="682" y="418" fill="#ffffff" fill-opacity=".6">—</text>
+    <text x="812" y="418" fill="#ffffff" fill-opacity=".6">—</text>
+    <text x="912" y="418" fill="#ffffff" fill-opacity=".6">—</text>
+    <text x="1018" y="418" fill="#ffffff" fill-opacity=".6">—</text>
+    <text x="1122" y="418" fill="#ffffff" fill-opacity=".6">0</text>
+    <path d="M1244 408l6 6-6 6" stroke="#ffffff" stroke-opacity=".35" stroke-width="1.8" fill="none"/>
+    <line x1="170" y1="438" x2="1270" y2="438" stroke="#ffffff" stroke-opacity=".06"/>
+    <!-- row 5 -->
+    <text x="190" y="460" font-weight="600" fill="#ffffff" fill-opacity=".55">White Cropped Top</text>
+    <text x="190" y="476" font-size="10.5" fill="#ffffff" fill-opacity=".35">PRK-005-TOP-WHT</text>
+    <text x="430" y="470" fill="#ffffff" fill-opacity=".45">Tops</text>
+    <rect x="548" y="456" width="70" height="20" rx="10" fill="#e0605a" fill-opacity=".14" stroke="#e0605a" stroke-opacity=".4"/>
+    <text x="562" y="470" font-size="10.5" font-weight="600" fill="#e0605a">Delisted</text>
+    <text x="682" y="470" fill="#ffffff" fill-opacity=".45">Flat</text>
+    <text x="812" y="470" fill="#ffffff" fill-opacity=".45">35</text>
+    <text x="912" y="470" fill="#ffffff" fill-opacity=".45">—</text>
+    <text x="1018" y="470" fill="#ffffff" fill-opacity=".45">—</text>
+    <text x="1122" y="470" fill="#ffffff" fill-opacity=".45">2</text>
+    <path d="M1244 460l6 6-6 6" stroke="#ffffff" stroke-opacity=".25" stroke-width="1.8" fill="none"/>
+    <line x1="170" y1="490" x2="1270" y2="490" stroke="#ffffff" stroke-opacity=".06"/>
+    <!-- row 6 -->
+    <text x="190" y="512" font-weight="600" fill="#ffffff">Navy Pleated Skirt</text>
+    <text x="190" y="528" font-size="10.5" fill="#ffffff" fill-opacity=".44">PRK-006-SKT-NVY</text>
+    <text x="430" y="522" fill="#ffffff" fill-opacity=".6">Skirts</text>
+    <rect x="548" y="508" width="78" height="20" rx="10" fill="#4ebb81" fill-opacity=".14" stroke="#4ebb81" stroke-opacity=".4"/>
+    <text x="562" y="522" font-size="10.5" font-weight="600" fill="#8fe3b6">Complete</text>
+    <text x="682" y="522" fill="#ffffff" fill-opacity=".6">Flat</text>
+    <text x="812" y="522" fill="#ffffff" fill-opacity=".6">60</text>
+    <text x="912" y="522" fill="#ffffff" fill-opacity=".6">30</text>
+    <text x="1018" y="522" fill="#ffffff" fill-opacity=".6">1,800</text>
+    <text x="1122" y="522" fill="#ffffff" fill-opacity=".6">3</text>
+    <path d="M1244 512l6 6-6 6" stroke="#ffffff" stroke-opacity=".35" stroke-width="1.8" fill="none"/>
+    <line x1="170" y1="542" x2="1270" y2="542" stroke="#ffffff" stroke-opacity=".06"/>
+    <!-- row 7 -->
+    <text x="190" y="564" font-weight="600" fill="#ffffff">Striped Oxford Shirt</text>
+    <text x="190" y="580" font-size="10.5" fill="#ffffff" fill-opacity=".44">PRK-007-SHT-STR</text>
+    <text x="430" y="574" fill="#ffffff" fill-opacity=".6">Shirts</text>
+    <rect x="548" y="560" width="78" height="20" rx="10" fill="#4ebb81" fill-opacity=".14" stroke="#4ebb81" stroke-opacity=".4"/>
+    <text x="562" y="574" font-size="10.5" font-weight="600" fill="#8fe3b6">Complete</text>
+    <text x="682" y="574" fill="#ffffff" fill-opacity=".6">Boxed</text>
+    <text x="812" y="574" fill="#ffffff" fill-opacity=".6">40</text>
+    <text x="912" y="574" fill="#ffffff" fill-opacity=".6">45</text>
+    <text x="1018" y="574" fill="#ffffff" fill-opacity=".6">1,800</text>
+    <text x="1122" y="574" fill="#ffffff" fill-opacity=".6">3</text>
+    <path d="M1244 564l6 6-6 6" stroke="#ffffff" stroke-opacity=".35" stroke-width="1.8" fill="none"/>
+    <line x1="170" y1="594" x2="1270" y2="594" stroke="#ffffff" stroke-opacity=".06"/>
+    <!-- row 8 -->
+    <text x="190" y="616" font-weight="600" fill="#ffffff">Beige Chino Shorts</text>
+    <text x="190" y="632" font-size="10.5" fill="#ffffff" fill-opacity=".44">PRK-008-SHO-BEG</text>
+    <text x="430" y="626" fill="#ffffff" fill-opacity=".6">Shorts</text>
+    <rect x="548" y="612" width="86" height="20" rx="10" fill="#f5a623" fill-opacity=".14" stroke="#f5a623" stroke-opacity=".4"/>
+    <text x="562" y="626" font-size="10.5" font-weight="600" fill="#f5a623">Incomplete</text>
+    <text x="682" y="626" fill="#ffffff" fill-opacity=".6">Flat</text>
+    <text x="812" y="626" fill="#ffffff" fill-opacity=".6">80</text>
+    <text x="912" y="626" fill="#ffffff" fill-opacity=".6">25</text>
+    <text x="1018" y="626" fill="#ffffff" fill-opacity=".6">2,000</text>
+    <text x="1122" y="626" fill="#ffffff" fill-opacity=".6">1</text>
+    <path d="M1244 616l6 6-6 6" stroke="#ffffff" stroke-opacity=".35" stroke-width="1.8" fill="none"/>
+    <line x1="170" y1="646" x2="1270" y2="646" stroke="#ffffff" stroke-opacity=".06"/>
+    <!-- row 9 -->
+    <text x="190" y="668" font-weight="600" fill="#ffffff">Camel Wool Coat</text>
+    <text x="190" y="684" font-size="10.5" fill="#ffffff" fill-opacity=".44">PRK-009-CO-CAM</text>
+    <text x="430" y="678" fill="#ffffff" fill-opacity=".6">Coats</text>
+    <rect x="548" y="664" width="86" height="20" rx="10" fill="#f5a623" fill-opacity=".14" stroke="#f5a623" stroke-opacity=".4"/>
+    <text x="562" y="678" font-size="10.5" font-weight="600" fill="#f5a623">Incomplete</text>
+    <text x="682" y="678" fill="#ffffff" fill-opacity=".6">GOH</text>
+    <text x="812" y="678" fill="#ffffff" fill-opacity=".6">20</text>
+    <text x="912" y="678" fill="#ffffff" fill-opacity=".6">30</text>
+    <text x="1018" y="678" fill="#ffffff" fill-opacity=".6">600</text>
+    <text x="1122" y="678" fill="#ffffff" fill-opacity=".6">1</text>
+    <path d="M1244 668l6 6-6 6" stroke="#ffffff" stroke-opacity=".35" stroke-width="1.8" fill="none"/>
+  </g>
+
+  <!-- footer: count + pager -->
+  <g font-size="11">
+    <text x="170" y="782" fill="#ffffff" fill-opacity=".44">Showing 1–9 of 15 products</text>
+    <rect x="948" y="766" width="58" height="26" rx="7" fill="#ffffff" fill-opacity=".03" stroke="#94b4e6" stroke-opacity=".16"/>
+    <text x="960" y="783" fill="#ffffff" fill-opacity=".3">« First</text>
+    <rect x="1012" y="766" width="56" height="26" rx="7" fill="#ffffff" fill-opacity=".03" stroke="#94b4e6" stroke-opacity=".16"/>
+    <text x="1024" y="783" fill="#ffffff" fill-opacity=".3">‹ Prev</text>
+    <text x="1080" y="783" fill="#ffffff" fill-opacity=".5">Page</text>
+    <rect x="1112" y="766" width="42" height="26" rx="7" fill="#ffffff" fill-opacity=".045" stroke="#94b4e6" stroke-opacity=".26"/>
+    <text x="1126" y="783" fill="#ffffff">1</text>
+    <text x="1162" y="783" fill="#ffffff" fill-opacity=".5">of 2</text>
+    <rect x="1192" y="766" width="58" height="26" rx="7" fill="#ffffff" fill-opacity=".03" stroke="#94b4e6" stroke-opacity=".16"/>
+    <text x="1204" y="783" fill="#ffffff" fill-opacity=".74">Next ›</text>
+  </g>
+
+  <text x="720" y="828" text-anchor="middle" font-size="11" fill="#ffffff" fill-opacity=".3">Progress auto-saved · compliance@primark.ie</text>
+</svg>

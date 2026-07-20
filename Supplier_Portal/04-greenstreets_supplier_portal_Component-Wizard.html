@@ -1,0 +1,739 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Greenstreets — New packaging component</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gs:#4ebb81; --gs-dim:rgba(78,187,129,.14); --gs-brd:rgba(78,187,129,.34);
+  --bl:#3b82f6; --bl-dim:rgba(59,130,246,.14); --bl-brd:rgba(59,130,246,.45);
+  --amb:#f5a623; --amb-dim:rgba(245,166,35,.13); --amb-brd:rgba(245,166,35,.35);
+  --red:#f87171; --ai:#c084fc;
+  --tx:#fff; --tx2:rgba(255,255,255,.72); --tx3:rgba(255,255,255,.5);
+  --card:rgba(255,255,255,.05); --brd:rgba(255,255,255,.12); --brd2:rgba(255,255,255,.16);
+  --topH:0px; --railW:0px; --barH:64px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-snap-type:y proximity;scroll-padding-top:14px}
+body{font-family:"Inter",sans-serif;color:var(--tx);background:linear-gradient(160deg,#0e2040 0%,#102448 45%,#0c1a2e 100%);min-height:100vh;padding-right:var(--railW);padding-bottom:var(--barH)}
+html{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.22) transparent}
+html::-webkit-scrollbar{width:7px}
+html::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:4px}
+html::-webkit-scrollbar-track{background:transparent}
+button{font-family:inherit}
+:focus-visible{outline:2px solid var(--bl);outline-offset:3px;border-radius:6px}
+
+/* Product identity — sits at the top of the left sidebar, above progress */
+.snav-product{background:var(--card);border:1px solid var(--brd);border-radius:14px;padding:15px}
+.snav-product .ph-eyebrow{font-size:9.5px;color:var(--tx3);text-transform:uppercase;letter-spacing:.09em;font-weight:700;margin-bottom:6px}
+.snav-product .ph-product{font-size:21px;font-weight:800;line-height:1.12;letter-spacing:-.015em;display:block;color:var(--tx)}
+.snav-product .ph-forprod{font-size:11.5px;color:var(--tx2);margin-top:6px;line-height:1.35}
+.snav-product .ph-forprod-code{color:var(--gs);font-weight:700}
+.snav-product .ph-right{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px}
+.ph-sku{font-size:10px;background:var(--gs-dim);color:var(--gs);border:1px solid rgba(78,187,129,.25);padding:4px 9px;border-radius:6px;font-weight:600}
+.ph-due{font-size:11px;color:var(--tx3)}.ph-due strong{color:var(--amb)}
+
+/* Layout: sticky sidebar + scrolling main */
+.layout{max-width:1240px;margin:0 auto;padding:16px 20px 0;display:grid;grid-template-columns:270px 1fr;gap:26px;align-items:start}
+.snav{position:sticky;top:14px;display:flex;flex-direction:column;gap:12px;max-height:calc(100vh - 28px - var(--barH));overflow-y:auto;padding:2px 2px 2px 0}
+.snav::-webkit-scrollbar{width:4px}.snav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
+
+.prog-card{background:var(--card);border:1px solid var(--brd);border-radius:14px;padding:15px}
+.prog-top{display:flex;align-items:baseline;gap:6px}
+.prog-top b{font-size:24px;font-weight:800;color:var(--gs)}
+.prog-top span{font-size:12px;color:var(--tx2)}
+.prog-eta{font-size:11px;color:var(--tx3);margin-top:2px}
+.prog-bar{height:6px;background:rgba(255,255,255,.08);border-radius:3px;margin-top:11px;overflow:hidden}
+.prog-fill{height:100%;width:0;background:linear-gradient(90deg,#3aa870,var(--gs));border-radius:3px;transition:width .45s ease}
+.prefill-btn{margin-top:11px;width:100%;display:flex;align-items:center;justify-content:center;gap:7px;background:rgba(192,132,252,.12);border:1px solid rgba(192,132,252,.34);color:var(--ai);font-size:11.5px;font-weight:700;padding:9px;border-radius:9px;cursor:pointer}
+.prefill-btn:hover{background:rgba(192,132,252,.2)}
+.prefill-btn.hide{display:none}
+
+.snav-groups{background:var(--card);border:1px solid var(--brd);border-radius:14px;padding:8px 0}
+.snav-phase{padding:5px 0 2px}
+.snav-phase + .snav-phase{border-top:1px solid rgba(255,255,255,.06);margin-top:4px}
+.snav-phase-hdr{display:flex;align-items:center;justify-content:space-between;padding:6px 14px 4px;font-size:9.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--tx3)}
+.snav-phase-hdr .pc{font-weight:600;letter-spacing:0;font-size:10px;color:var(--tx3)}
+.snav-phase-hdr .pc.done{color:var(--gs)}
+.snav-item{display:flex;align-items:center;gap:9px;width:100%;background:none;border:none;border-left:2px solid transparent;padding:8px 12px 8px 14px;cursor:pointer;text-align:left;color:var(--tx2);font-size:12px;transition:background .12s,color .12s}
+.snav-item:hover{background:rgba(255,255,255,.05);color:#fff}
+.snav-item.active{background:var(--bl-dim);border-left-color:var(--bl);color:#fff}
+.snav-item .lbl{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.state{width:18px;height:18px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;border:1.6px solid rgba(255,255,255,.28);font-size:9px;color:var(--tx3);transition:all .2s}
+.state.done{background:var(--gs);border-color:var(--gs);color:#fff}
+.state.part{border-color:var(--amb);color:var(--amb)}
+.snav-badge{min-width:17px;height:17px;padding:0 5px;border-radius:9px;font-size:9.5px;font-weight:700;display:flex;align-items:center;justify-content:center;background:var(--amb-dim);border:1px solid var(--amb-brd);color:var(--amb)}
+.snav-badge.hide{display:none}
+@keyframes pop{0%{transform:scale(.5)}70%{transform:scale(1.25)}100%{transform:scale(1)}}
+.state.pop{animation:pop .35s ease}
+
+.main{min-width:0}
+.sec{min-height:calc(100vh - var(--topH));scroll-snap-align:start;scroll-margin-top:var(--topH);display:flex;flex-direction:column;justify-content:center;padding:40px 6px 120px;position:relative}
+.sec-inner{width:100%;max-width:600px;margin:0 auto}
+.sec-head,.sec .fields>*{opacity:0;transform:translateY(26px);transition:opacity .5s cubic-bezier(.22,.61,.36,1),transform .5s cubic-bezier(.22,.61,.36,1)}
+.sec.in-view .sec-head,.sec.in-view .fields>*{opacity:1;transform:none}
+.sec.in-view .sec-head{transition-delay:.02s}
+.sec.in-view .fields>*:nth-child(1){transition-delay:.10s}
+.sec.in-view .fields>*:nth-child(2){transition-delay:.16s}
+.sec.in-view .fields>*:nth-child(3){transition-delay:.22s}
+.sec.in-view .fields>*:nth-child(4){transition-delay:.28s}
+.sec.in-view .fields>*:nth-child(5){transition-delay:.34s}
+.sec.in-view .fields>*:nth-child(6){transition-delay:.40s}
+
+.sec-head{margin-bottom:26px}
+.qnum{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:var(--bl);margin-bottom:8px}
+.qnum svg{width:14px;height:14px}
+.qnum .pill{margin-left:8px;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;color:var(--tx3);background:rgba(255,255,255,.06);border:1px solid var(--brd2)}
+.qnum .pill.done{color:var(--gs);background:var(--gs-dim);border-color:var(--gs-brd)}
+.qnum .pill.todo,.qnum .pill.part{color:var(--amb);background:var(--amb-dim);border-color:var(--amb-brd)}
+.q{font-size:clamp(22px,3.2vw,31px);font-weight:800;line-height:1.18;letter-spacing:-.01em}
+.qdesc{font-size:14px;color:var(--tx3);margin-top:9px;line-height:1.5}
+.fields{display:flex;flex-direction:column;gap:19px}
+
+.tf-field .lbl{display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px}
+.req{color:var(--gs);font-weight:700;margin-left:2px}
+.hint{font-size:11px;color:var(--tx3);margin-top:6px}
+.fi{width:100%;height:50px;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.16);border-radius:12px;color:#fff;font-family:inherit;font-size:16px;padding:0 15px;transition:border-color .15s,background .15s}
+.fi::placeholder{color:rgba(255,255,255,.32)}
+.fi:focus{outline:none;border-color:var(--bl);background:rgba(59,130,246,.06)}
+select.fi{cursor:pointer}select.fi option{background:#16294a;color:#fff}
+textarea.fi{height:auto;min-height:88px;padding:12px 15px;resize:vertical;line-height:1.5}
+.fi-ro{background:rgba(255,255,255,.03);color:rgba(255,255,255,.55);cursor:pointer;height:44px;font-size:14px}
+.fi-ro:hover{border-color:var(--bl-brd);color:#fff}
+.fi-unlocked{background:rgba(59,130,246,.08)!important;border-color:var(--bl)!important;color:#fff!important;cursor:text}
+.fi-wrap{position:relative}
+.fi-has-unit{padding-right:52px}
+.fi-unit{position:absolute;right:15px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--tx3);pointer-events:none}
+.fi.shake{animation:shake .4s;border-color:var(--red)!important}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:560px){.grid2{grid-template-columns:1fr}}
+
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:rgba(255,255,255,.045);border:1.5px solid rgba(255,255,255,.18);border-radius:12px;padding:13px 15px;cursor:pointer;color:var(--tx);font-size:15px;font-weight:500;transition:all .13s}
+.opt:hover{border-color:rgba(255,255,255,.4);background:rgba(255,255,255,.07)}
+.opt:focus-visible{outline:none;border-color:var(--bl);box-shadow:0 0 0 3px rgba(59,130,246,.25)}
+.opt.sel{border-color:var(--gs);background:var(--gs-dim);color:#fff}
+.opt .key{flex-shrink:0;width:25px;height:25px;border-radius:7px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.24);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--tx2)}
+.opt.sel .key{background:var(--gs);border-color:var(--gs);color:#fff}
+.opt .olbl{flex:1}
+.opt .tick{opacity:0;color:var(--gs);font-weight:800}.opt.sel .tick{opacity:1}
+
+.ai-tag{margin-left:6px;font-size:8.5px;font-weight:700;letter-spacing:.04em;color:var(--ai);background:rgba(192,132,252,.14);border:1px solid rgba(192,132,252,.4);border-radius:5px;padding:1px 5px;vertical-align:middle}
+.ai-input{padding-right:64px}
+.ai-input.ai-on{border-color:rgba(192,132,252,.45)}
+.ai-input.ai-on:focus{border-color:var(--ai);background:rgba(192,132,252,.07)}
+.ai-input.ai-accepted{border-color:var(--gs)!important;background:rgba(78,187,129,.12)!important}
+.ai-ghost{position:absolute;left:15px;top:50%;transform:translateY(-50%);font-size:16px;font-style:italic;color:rgba(192,132,252,.5);pointer-events:none;display:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:calc(100% - 78px)}
+.ai-wrap.show-ghost .ai-ghost{display:block}
+.ai-badge{position:absolute;right:9px;top:50%;transform:translateY(-50%);font-size:9px;font-weight:700;color:var(--ai);background:rgba(192,132,252,.16);border:1px solid rgba(192,132,252,.42);border-radius:6px;padding:3px 7px;pointer-events:none;white-space:nowrap;transition:all .15s}
+.ai-badge.badge-hint{color:#1a1030;background:var(--ai);border-color:var(--ai)}
+
+.err{color:var(--red);font-size:12.5px;margin-top:14px;min-height:16px;font-weight:600;opacity:0;transition:opacity .15s}
+.err.show{opacity:1}
+
+.sec-cta{margin-top:26px;display:flex;align-items:center;gap:14px}
+.cta-btn{display:flex;align-items:center;gap:9px;background:var(--gs);border:none;color:#fff;font-size:15px;font-weight:700;padding:12px 22px;border-radius:11px;cursor:pointer;transition:filter .15s}
+.cta-btn:hover{filter:brightness(1.08)}
+.cta-btn svg{width:15px;height:15px}
+.cta-hint{font-size:12px;color:var(--tx3)}.cta-hint b{color:var(--tx2)}
+
+/* Bottom bar — flush to the bottom, spanning the content area (left of the rail).
+   Every control shares one height and is centred, so they line up with each other. */
+.actbar{position:fixed;bottom:0;left:0;right:var(--railW);z-index:60;height:var(--barH);display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(14,30,56,.96);backdrop-filter:blur(10px);border-top:1px solid var(--brd2);padding:0 20px}
+.act-left{display:flex;align-items:center;gap:16px;min-width:0}
+.actbar-back{display:flex;align-items:center;gap:8px;height:40px;padding:0 16px;background:rgba(255,255,255,.05);border:1px solid var(--brd2);border-radius:10px;color:var(--tx2);font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .12s}
+.actbar-back:hover{color:#fff;border-color:rgba(255,255,255,.35);background:rgba(255,255,255,.08)}
+.actbar-back svg{width:14px;height:14px}
+.saved{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--tx3)}.saved svg{width:12px;height:12px;color:var(--gs)}
+.act-right{display:flex;align-items:center;gap:10px}
+.next-inc{display:flex;align-items:center;height:40px;background:transparent;border:1px solid var(--brd2);color:var(--tx2);font-size:12px;padding:0 16px;border-radius:10px;cursor:pointer}
+.next-inc:hover{color:#fff;border-color:rgba(255,255,255,.35)}
+.submit{height:40px;border:none;color:#fff;font-size:13px;font-weight:700;padding:0 22px;border-radius:10px;cursor:pointer;display:flex;align-items:center;gap:8px}
+.submit.locked{background:rgba(255,255,255,.09);color:var(--tx3)}.submit.locked:hover{background:rgba(255,255,255,.13)}
+.submit.ready{background:var(--gs)}.submit.ready:hover{filter:brightness(1.08)}
+.submit .cnt{background:var(--amb-dim);border:1px solid var(--amb-brd);color:var(--amb);font-size:10px;font-weight:700;padding:1px 7px;border-radius:9px}
+
+.toast{position:fixed;top:calc(var(--topH) + 14px);left:50%;transform:translateX(-50%) translateY(-12px);background:#16294a;border:1px solid var(--brd2);border-radius:11px;padding:12px 18px;font-size:13px;box-shadow:0 12px 36px rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:all .3s;z-index:300}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.good{border-color:var(--gs-brd)}.toast.warn{border-color:var(--amb-brd)}
+
+@media(max-width:900px){
+  .layout{grid-template-columns:1fr}
+  .snav{position:static;max-height:none;flex-direction:row;flex-wrap:wrap}
+  .snav-product{width:100%}
+  .snav-groups{display:none}
+  html{scroll-snap-type:none}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}.sec-head,.sec .fields>*{opacity:1;transform:none}}
+
+/* Review overlay */
+.rv-overlay{position:fixed;inset:0;z-index:400;background:rgba(8,18,36,.72);backdrop-filter:blur(6px);display:none;align-items:flex-start;justify-content:center;padding:32px 16px;overflow-y:auto}
+.rv-overlay.show{display:flex}
+.rv-card{width:100%;max-width:720px;background:#0f2140;border:1px solid var(--brd2);border-radius:18px;box-shadow:0 24px 70px rgba(0,0,0,.55);overflow:hidden;margin:auto}
+.rv-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:22px 26px 18px;border-bottom:1px solid rgba(255,255,255,.09)}
+.rv-eyebrow{font-size:10.5px;color:var(--tx3);text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin-bottom:6px}
+.rv-title{font-size:22px;font-weight:800;letter-spacing:-.015em;line-height:1.1}
+.rv-sub{font-size:12px;color:var(--tx3);margin-top:6px}
+.rv-close{width:34px;height:34px;border-radius:9px;border:1px solid var(--brd2);background:transparent;color:var(--tx2);font-size:16px;cursor:pointer;flex-shrink:0;line-height:1}
+.rv-close:hover{background:rgba(255,255,255,.08);color:#fff}
+.rv-body{padding:8px 26px 6px;max-height:calc(100vh - 250px);overflow-y:auto}
+.rv-sec{padding:15px 0;border-bottom:1px solid rgba(255,255,255,.07)}
+.rv-sec:last-child{border-bottom:none}
+.rv-sec-title{font-size:13px;font-weight:800;color:var(--gs);margin-bottom:12px}
+.rv-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 22px}
+.rv-item{min-width:0}
+.rv-lbl{font-size:10.5px;color:var(--tx3);text-transform:uppercase;letter-spacing:.04em;font-weight:600;margin-bottom:3px}
+.rv-val{font-size:14px;color:#fff;font-weight:500;word-break:break-word}
+.rv-val.empty{color:var(--tx3);font-style:italic;font-weight:400}
+.rv-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 26px;border-top:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.02)}
+.rv-back{display:flex;align-items:center;gap:7px;background:transparent;border:1px solid var(--brd2);color:var(--tx2);font-size:13px;font-weight:600;padding:11px 18px;border-radius:10px;cursor:pointer}
+.rv-back:hover{color:#fff;border-color:rgba(255,255,255,.35)}
+.rv-submit{display:flex;align-items:center;gap:8px;background:var(--gs);border:none;color:#fff;font-size:14px;font-weight:700;padding:12px 24px;border-radius:10px;cursor:pointer}
+.rv-submit:hover{filter:brightness(1.08)}
+.rv-submit svg{width:15px;height:15px}
+@media(max-width:560px){.rv-grid{grid-template-columns:1fr}}
+
+/* Success overlay */
+.sx-overlay{position:fixed;inset:0;z-index:500;background:linear-gradient(160deg,#0e2040,#0c1a2e);display:none;align-items:center;justify-content:center;padding:24px}
+.sx-overlay.show{display:flex}
+.sx-card{text-align:center;max-width:460px}
+.sx-check{width:84px;height:84px;border-radius:50%;background:var(--gs-dim);border:2px solid var(--gs);display:flex;align-items:center;justify-content:center;margin:0 auto 22px;animation:sxpop .45s cubic-bezier(.22,.61,.36,1)}
+.sx-check svg{width:42px;height:42px;color:var(--gs)}
+@keyframes sxpop{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
+.sx-title{font-size:26px;font-weight:800;letter-spacing:-.01em;margin-bottom:10px}
+.sx-msg{font-size:14px;color:var(--tx2);line-height:1.55;margin-bottom:26px}
+.sx-msg b{color:#fff}
+.sx-btn{display:inline-flex;align-items:center;gap:8px;background:var(--gs);border:none;color:#fff;font-size:14px;font-weight:700;padding:13px 26px;border-radius:11px;cursor:pointer}
+.sx-btn:hover{filter:brightness(1.08)}
+.sx-btn svg{width:15px;height:15px}
+.nameid-row{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap}
+.nameid-name{flex:1;min-width:220px}
+.nameid-id{display:flex;align-items:center;gap:8px;padding:0 14px;border-radius:10px;border:1px dashed var(--brd);background:rgba(78,187,129,.06);min-width:190px}
+.nameid-id-lbl{font-size:9.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--tx3)}
+.nameid-id-val{font-family:"SFMono-Regular",ui-monospace,Menlo,monospace;font-size:13.5px;font-weight:700;color:var(--gs);letter-spacing:.01em}
+</style>
+<link rel="stylesheet" href="css/greenstreets-theme.css?v=23">
+</head>
+<body>
+
+<div class="layout">
+  <aside class="snav" aria-label="Form sections">
+    <div class="snav-product ph-brand">
+      <div class="ph-eyebrow">New packaging component</div>
+      <b class="ph-product" id="phPkgNameVal">Untitled component</b>
+      <div class="ph-forprod">for <span class="ph-forprod-code"></span> · New packaging component</div>
+      <div class="ph-right"><span class="ph-sku" id="sku"></span><span class="ph-due">Due: <strong>26 Jul 2026</strong></span></div>
+    </div>
+    <div class="prog-card">
+      <div class="prog-top"><b id="pDone">0</b><span>of 9 sections complete</span></div>
+      <div class="prog-eta" id="pEta">—</div>
+      <div class="prog-bar"><div class="prog-fill" id="pFill"></div></div>
+      <button class="prefill-btn" id="prefillBtn" onclick="applyPrefill()">✦ Prefill from a similar component</button>
+    </div>
+    <div class="snav-groups" id="snavGroups"></div>
+  </aside>
+
+  <main class="main" id="main"></main>
+</div>
+
+<div class="actbar">
+  <div class="act-left">
+    <button class="actbar-back" onclick="wizBack()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M19 12H5m0 0 6 6m-6-6 6-6"/></svg>Save &amp; Back to products</button>
+    <span class="saved"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="m4.5 12.5 5 5 10-11"/></svg><span id="savedTxt">Draft saved</span></span>
+  </div>
+  <div class="act-right">
+    <button class="next-inc" id="nextIncBtn" onclick="goNextIncomplete()">Next incomplete ↓</button>
+    <button class="submit locked" id="submitBtn" onclick="trySubmit()"><span id="submitLbl">Save</span><span class="cnt" id="submitCnt">— left</span></button>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<div class="rv-overlay" id="reviewScreen" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="rv-card">
+    <div class="rv-head">
+      <div><div class="rv-eyebrow">Review before saving</div><div class="rv-title">New packaging component</div><div class="rv-sub"> · check every answer, then save</div></div>
+      <button class="rv-close" onclick="closeReview()" title="Back to edit">✕</button>
+    </div>
+    <div class="rv-body" id="rvBody"></div>
+    <div class="rv-foot">
+      <button class="rv-back" onclick="closeReview()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M19 12H5m0 0 6 6m-6-6 6-6"/></svg>Back to edit</button>
+      <button class="rv-submit" onclick="confirmSubmit()">Save <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg></button>
+    </div>
+  </div>
+</div>
+
+<div class="sx-overlay" id="successScreen" role="dialog" aria-modal="true">
+  <div class="sx-card">
+    <div class="sx-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><path d="M20 6 9 17l-5-5"/></svg></div>
+    <div class="sx-title">Saved successfully</div>
+    <div class="sx-msg">The packaging component for <b>New packaging component</b> () has been saved. You can continue editing it any time from the products list.</div>
+    <button class="sx-btn" onclick="finishWizard()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M19 12H5m0 0 6 6m-6-6 6-6"/></svg>Back to products</button>
+  </div>
+</div>
+
+<script>
+/* Step model — Product details + palletisation steps removed; starts at level & format */
+const STEPS=[
+ {t:'Packaging name & ID', d:'Give this packaging component a name — a unique ID is generated automatically.', phase:'B', nav:'Name & ID',
+  fields:[
+   {type:'nameid', label:'Packaging name', req:true, ph:'e.g. Kraft Mailer Bag'}
+  ]},
+ {t:'Packaging level & format', d:'Identify the hierarchy and type of this component.', phase:'B', nav:'Level & format',
+  fields:[
+   {type:'chips', label:'Packaging level', name:'level', req:true, value:'Primary — touches the product', options:['Primary — touches the product','Secondary — groups units','Tertiary — transport']},
+   {type:'select', label:'Packaging type', req:true, value:'Flexible film bag', options:['Flexible film bag','Rigid box / carton','Hanger','Label / tag','Wrap / band','Other']},
+   {type:'text', label:'Other type description', ph:'Only if “Other” selected'}
+  ]},
+ {t:'Who supplies this packaging?', d:'Who manufactures or supplies this packaging component.', phase:'B', nav:'Source type',
+  fields:[
+   {type:'chips', label:'Packaging source type', name:'source', req:true, value:'Supplier-manufactured', options:['Supplier-manufactured','Third-party converter','Primark-nominated source']}
+  ]},
+ {t:'Material information', d:'Composition by material and percentage weight (must total 100%).', phase:'C', nav:'Materials',
+  fields:[
+   {type:'select', label:'Base material', req:true, value:'Plastic', options:['Plastic','Paper / board','Metal','Glass','Composite']},
+   {type:'chips', label:'Number of materials', name:'nummat', req:true, value:'2', options:['1','2','3','4']},
+   {type:'text', label:'Material 1 name', ph:'e.g. LDPE film', req:true},
+   {type:'number', label:'% Material 1', unit:'%', req:true},
+   {type:'text', label:'Material 2 name', ph:'e.g. Paper label'},
+   {type:'number', label:'% Material 2', unit:'%'}
+  ]},
+ {t:'Recycled content', d:'PPWR Article 7 recycled-content declarations.', phase:'C', nav:'Recycled content',
+  fields:[
+   {type:'chips', label:'Does this component contain recycled content?', name:'recycled', req:true, options:['Yes','No']},
+   {type:'number', label:'Post-consumer recycled content', unit:'%', id:'pcr', hint:'Required when recycled content = Yes'},
+   {type:'number', label:'Post-industrial recycled content', unit:'%'},
+   {type:'textarea', label:'Additional comments', ph:'Anything the compliance team should know'}
+  ]},
+ {t:'Colour & decoration', d:'Visual properties of this packaging component.', phase:'C', nav:'Colour',
+  fields:[
+   {type:'ai', label:'Colour reference', ai:'PMS Cool Gray 1C', hint:'Focus the field and press Tab to accept — or type your own'},
+   {type:'chips', label:'Opacity / transparency', name:'opacity', req:true, options:['Transparent','Translucent','Opaque']},
+   {type:'chips', label:'Decoration / printing', name:'deco', req:true, options:['None','1-colour print','2-colour print','Full print']}
+  ]},
+ {t:'Weight & grammage', d:'Physical weight properties of this component.', phase:'C', nav:'Weight',
+  fields:[
+   {type:'number', label:'Weight per unit', unit:'g', req:true, ph:'e.g. 6.2'},
+   {type:'number', label:'Grammage', unit:'gsm', req:true, ph:'e.g. 46'},
+   {type:'number', label:'Gauge', unit:'µm', ph:'e.g. 50 — film only'}
+  ]},
+ {t:'Material dimensions', d:'Flat / unassembled dimensions of this component.', phase:'C', nav:'Dimensions',
+  fields:[
+   {type:'number', label:'Length (or diameter)', unit:'mm', req:true, ph:'e.g. 400'},
+   {type:'number', label:'Width', unit:'mm', req:true, ph:'e.g. 320'},
+   {type:'number', label:'Height / depth', unit:'mm', ph:'Leave blank for flat components'},
+   {type:'ai', label:'Wall thickness / gauge (µm)', ai:'18', hint:'Suggested from similar film components — Tab to accept'}
+  ]},
+ {t:'Additional information', d:'Certifications and packaging supplier details.', phase:'D', nav:'Additional info',
+  fields:[
+   {type:'select', label:'Certification', req:true, options:['GRS','RCS','FSC','None','Other']},
+   {type:'text', label:'Other certification details', ph:'Only if “Other” selected'},
+   {type:'text', label:'Packaging supplier name', req:true, ph:'Company name'},
+   {type:'text', label:'Packaging supplier address', req:true, ph:'Street, city, country'},
+   {type:'ai', label:'Country of manufacture', ai:'China (CN)', hint:'Inferred from the supplier address — Tab to accept or edit'}
+  ]},
+ {t:'Material compliance', d:'Chemical and substance compliance declarations.', phase:'D', nav:'Compliance',
+  fields:[
+   {type:'select', label:'Compliance standard', req:true, options:['EU PPWR / REACH','UK Packaging Regs','Both EU & UK']},
+   {type:'chips', label:'Mineral oils above limits?', name:'minoil', req:true, options:['Yes','No']},
+   {type:'chips', label:'BPA above limits?', name:'bpa', req:true, options:['Yes','No']},
+   {type:'chips', label:'Contains PFAs?', name:'pfas', req:true, options:['Yes','No']},
+   {type:'chips', label:'Chlorine used in manufacture?', name:'chlorine', req:true, options:['Yes','No']}
+  ]}
+];
+const PHASES={B:{label:'Packaging setup',ids:[]},C:{label:'Materials & specs',ids:[]},D:{label:'Finalise',ids:[]}};
+const N=STEPS.length;
+STEPS.forEach((s,i)=>PHASES[s.phase].ids.push('sec'+i));
+let submitted=false;
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+/* Auto-generate a stable packaging ID from the name the user types. */
+function genPkgId(inp){
+  const el=document.getElementById('pkgGenId');
+  const hdr=document.getElementById('phPkgNameVal');
+  const v=inp.value.trim();
+  if(hdr) hdr.textContent = v || 'Untitled component';
+  if(!el) return;
+  if(!v){ el.textContent='—'; return; }
+  const slug=v.toUpperCase().replace(/[^A-Z0-9]+/g,'-').replace(/^-+|-+$/g,'').split('-').filter(Boolean).slice(0,2).join('-');
+  let n=0; for(let i=0;i<v.length;i++) n=(n*31+v.charCodeAt(i))>>>0;
+  el.textContent='PKG-'+(slug||'ITEM')+'-'+String(n%1000).padStart(3,'0');
+}
+
+function fieldHTML(f){
+  const req=f.req?'<span class="req">*</span>':'';
+  const hint=f.hint?`<div class="hint">${esc(f.hint)}</div>`:'';
+  if(f.type==='ro-grid'){
+    const rows=f.items.map(([k,v])=>`<div class="tf-field"><span class="lbl">${esc(k)}</span><input class="fi fi-ro" value="${esc(v)}" readonly></div>`).join('');
+    return `<div class="tf-field"><div class="grid2">${rows}</div></div>`;
+  }
+  if(f.type==='chips'){
+    const opts=f.options.map((o,oi)=>{const L=String.fromCharCode(65+oi),sel=(f.value===o)?' sel':'';
+      return `<button type="button" class="opt${sel}" data-k="${L}" data-val="${esc(o)}" role="radio" aria-checked="${f.value===o}" tabindex="${oi===0?0:-1}" onclick="selectOpt(this)"><span class="key">${L}</span><span class="olbl">${esc(o)}</span><span class="tick">✓</span></button>`;}).join('');
+    return `<div class="tf-field" data-req="${f.req?1:0}" data-kind="chips" data-name="${f.name||''}"><span class="lbl">${esc(f.label)}${req}</span><div class="opts" role="radiogroup">${opts}</div>${hint}</div>`;
+  }
+  if(f.type==='select'){
+    const ph=f.value?'':'<option value="" disabled selected>Select…</option>';
+    const opts=f.options.map(o=>`<option${o===f.value?' selected':''}>${esc(o)}</option>`).join('');
+    return `<div class="tf-field" data-req="${f.req?1:0}"><span class="lbl">${esc(f.label)}${req}</span><select class="fi">${ph}${opts}</select>${hint}</div>`;
+  }
+  if(f.type==='textarea'){
+    return `<div class="tf-field" data-req="${f.req?1:0}"><span class="lbl">${esc(f.label)}${req}</span><textarea class="fi" placeholder="${esc(f.ph||'')}"></textarea>${hint}</div>`;
+  }
+  if(f.type==='ai'){
+    return `<div class="tf-field" data-req="0"><span class="lbl">${esc(f.label)}<span class="ai-tag">AI</span></span><div class="fi-wrap ai-wrap"><input class="fi ai-input" data-ai="${esc(f.ai)}" autocomplete="off"><span class="ai-ghost"></span><span class="ai-badge">✦ AI</span></div>${hint}</div>`;
+  }
+  if(f.type==='nameid'){
+    return `<div class="tf-field" data-req="${f.req?1:0}" data-kind="nameid"><span class="lbl">${esc(f.label)}${req}</span>
+      <div class="nameid-row">
+        <input class="fi nameid-name" placeholder="${esc(f.ph||'')}" autocomplete="off" oninput="genPkgId(this)">
+        <div class="nameid-id" title="Auto-generated identifier"><span class="nameid-id-lbl">ID</span><span class="nameid-id-val" id="pkgGenId">—</span></div>
+      </div>${hint}</div>`;
+  }
+  const unit=f.unit?`<span class="fi-unit">${esc(f.unit)}</span>`:'';
+  const cls='fi'+(f.unit?' fi-has-unit':'');
+  const id=f.id?` id="${f.id}"`:'';
+  const val=f.value!=null?` value="${esc(f.value)}"`:'';
+  const type=f.type==='number'?'number':'text';
+  return `<div class="tf-field" data-req="${f.req?1:0}"><span class="lbl">${esc(f.label)}${req}</span><div class="fi-wrap"><input${id} type="${type}" class="${cls}" placeholder="${esc(f.ph||'')}"${val}>${unit}</div>${hint}</div>`;
+}
+
+function build(){
+  document.getElementById('main').innerHTML=STEPS.map((s,i)=>{
+    const last=i===N-1;
+    const fields=s.fields.map(fieldHTML).join('');
+    const cta=last
+      ? `<div class="sec-cta"><button class="cta-btn" onclick="trySubmit()">Save <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg></button></div>`
+      : `<div class="sec-cta"><button class="cta-btn" onclick="continueFrom(${i})">Continue <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M12 5v14m0 0 6-6m-6 6-6-6"/></svg></button><span class="cta-hint">or press <b>Enter ↵</b></span></div>`;
+    return `<section class="sec" id="sec${i}" data-num="${i+1}">
+      <div class="sec-inner">
+        <div class="sec-head">
+          <div class="qnum">${i+1}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="m9 6 6 6-6 6"/></svg><span class="pill" data-pill="${i}"></span></div>
+          <h1 class="q">${esc(s.t)}</h1>
+          <p class="qdesc">${esc(s.d)}</p>
+        </div>
+        <div class="fields">${fields}</div>
+        <div class="err" id="err-${i}"></div>
+        ${cta}
+      </div>
+    </section>`;
+  }).join('');
+
+  let html='';
+  for(const [ph,obj] of Object.entries(PHASES)){
+    html+=`<div class="snav-phase" data-phase="${ph}"><div class="snav-phase-hdr"><span>${esc(obj.label)}</span><span class="pc" data-pc="${ph}">0/${obj.ids.length}</span></div>`;
+    obj.ids.forEach(id=>{const i=+id.slice(3);
+      html+=`<button class="snav-item" data-target="${id}"><span class="state" data-st="${id}"></span><span class="lbl">${esc(STEPS[i].nav)}</span><span class="snav-badge hide" data-bd="${id}"></span></button>`;});
+    html+='</div>';
+  }
+  document.getElementById('snavGroups').innerHTML=html;
+
+  const pTot=document.querySelector('.prog-top span'); if(pTot) pTot.textContent='of '+N+' sections complete';
+
+  document.querySelectorAll('.fi-ro').forEach(inp=>{inp.title='Click to edit';inp.addEventListener('mousedown',unlockRo);inp.addEventListener('focus',unlockRo);});
+}
+function unlockRo(e){const i=e.currentTarget;if(!i.readOnly)return;i.readOnly=false;i.classList.remove('fi-ro');i.classList.add('fi-unlocked');i.removeAttribute('title');i.focus();try{const l=i.value.length;i.setSelectionRange(l,l)}catch(_){}}
+
+function radioSel(sec,name){return sec.querySelector(`[data-name="${name}"] .opt.sel`)}
+function missingIn(i){
+  const sec=document.getElementById('sec'+i); let n=0;
+  sec.querySelectorAll('.tf-field').forEach(fld=>{
+    if(fld.dataset.req!=='1') return;
+    if(fld.dataset.kind==='chips'){ if(!fld.querySelector('.opt.sel')) n++; return; }
+    const c=fld.querySelector('input.fi,select.fi,textarea.fi'); if(c && !String(c.value).trim()) n++;
+  });
+  if(i===4){ const rec=radioSel(sec,'recycled'); const pcr=document.getElementById('pcr'); if(rec&&rec.dataset.val==='Yes'&&pcr&&!pcr.value.trim()) n++; }
+  return n;
+}
+function firstBadIn(i){
+  const sec=document.getElementById('sec'+i); let bad=null;
+  sec.querySelectorAll('.tf-field').forEach(fld=>{ if(bad||fld.dataset.req!=='1')return;
+    if(fld.dataset.kind==='chips'){ if(!fld.querySelector('.opt.sel')) bad=fld.querySelector('.opt'); return; }
+    const c=fld.querySelector('input.fi,select.fi,textarea.fi'); if(c&&!String(c.value).trim()) bad=c; });
+  if(!bad&&i===4){const rec=radioSel(sec,'recycled');const pcr=document.getElementById('pcr');if(rec&&rec.dataset.val==='Yes'&&pcr&&!pcr.value.trim())bad=pcr;}
+  return bad;
+}
+
+function recompute(popId){
+  let done=0,totalMissing=0;
+  for(let i=0;i<N;i++){
+    const sec=document.getElementById('sec'+i);
+    const miss=missingIn(i); totalMissing+=miss;
+    const touched=sec.dataset.touched==='1';
+    const complete=miss===0; if(complete)done++;
+    const pill=sec.querySelector('[data-pill="'+i+'"]');
+    if(complete){pill.textContent='Complete ✓';pill.className='pill done';}
+    else if(touched){pill.textContent=miss+' field'+(miss>1?'s':'')+' missing';pill.className='pill part';}
+    else{pill.textContent=miss+' required';pill.className='pill todo';}
+    const st=document.querySelector(`[data-st="sec${i}"]`), bd=document.querySelector(`[data-bd="sec${i}"]`);
+    if(complete){ if(!st.classList.contains('done')&&popId==='sec'+i)st.classList.add('pop');
+      st.className='state done'+(popId==='sec'+i?' pop':''); st.innerHTML='<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4"><path d="m4.5 12.5 5 5 10-11"/></svg>'; bd.classList.add('hide'); }
+    else{ st.className='state'+(touched?' part':''); st.innerHTML=''; bd.textContent=miss; bd.classList.remove('hide'); }
+  }
+  for(const [ph,obj] of Object.entries(PHASES)){
+    const d=obj.ids.filter(id=>missingIn(+id.slice(3))===0).length;
+    const el=document.querySelector(`[data-pc="${ph}"]`); el.textContent=d+'/'+obj.ids.length; el.classList.toggle('done',d===obj.ids.length);
+  }
+  document.getElementById('pDone').textContent=done;
+  document.getElementById('pFill').style.width=(done/N*100)+'%';
+  const rem=N-done;
+  document.getElementById('pEta').textContent = submitted?'Saved' : rem===0?'All sections complete — ready to save' : ('~'+Math.max(1,Math.round(rem*35/60))+' min of work remaining');
+  const btn=document.getElementById('submitBtn'),cnt=document.getElementById('submitCnt');
+  if(submitted){btn.className='submit ready';cnt.style.display='none';document.getElementById('submitLbl').textContent='Saved ✓';}
+  else if(rem===0){btn.className='submit ready';cnt.style.display='none';}
+  else{btn.className='submit locked';cnt.style.display='';cnt.textContent=rem+' left';}
+  document.getElementById('nextIncBtn').style.display=(rem===0||submitted)?'none':'';
+  return rem;
+}
+
+function scrollToSec(i){const sec=document.getElementById('sec'+i);if(sec)sec.scrollIntoView({behavior:'smooth',block:'start'});}
+function continueFrom(i){
+  const bad=firstBadIn(i);
+  if(bad){ shake(bad); showErr(i,'Please complete this before continuing.'); return; }
+  clearErr(i);
+  if(i<N-1){ scrollToSec(i+1); setTimeout(()=>focusFirst(i+1),480); }
+}
+function goNextIncomplete(){ for(let i=0;i<N;i++){ if(missingIn(i)>0){ scrollToSec(i); setTimeout(()=>focusFirst(i),480); return; } } }
+function focusFirst(i){
+  const sec=document.getElementById('sec'+i);
+  const el=[...sec.querySelectorAll('.opt, input.fi:not([readonly]), select.fi, textarea.fi')].find(e=>{
+    if(e.offsetParent===null)return false;
+    if(e.classList.contains('opt'))return true;
+    if(e.tagName==='SELECT')return !e.value;
+    return !e.value.trim();});
+  if(el){try{el.focus({preventScroll:true})}catch(_){el.focus()}}
+}
+function shake(el){if(!el)return;el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake');try{el.focus({preventScroll:true})}catch(_){}setTimeout(()=>el.classList.remove('shake'),450);}
+function showErr(i,m){const e=document.getElementById('err-'+i);if(e){e.textContent=m;e.classList.add('show');}}
+function clearErr(i){const e=document.getElementById('err-'+i);if(e)e.classList.remove('show');}
+
+function selectOpt(btn){
+  const grp=btn.closest('.opts');
+  grp.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');o.setAttribute('aria-checked','false');o.tabIndex=-1;});
+  btn.classList.add('sel');btn.setAttribute('aria-checked','true');btn.tabIndex=0;
+  const sec=btn.closest('.sec'); sec.dataset.touched='1';
+  const i=+sec.id.slice(3);
+  const wasComplete=sec.dataset.wc==='1'; const nowComplete=missingIn(i)===0;
+  recompute(nowComplete&&!wasComplete?sec.id:null); sec.dataset.wc=nowComplete?'1':'0';
+  clearErr(i); autosave();
+  const step=STEPS[i];
+  if(step&&step.fields.length===1&&step.fields[0].type==='chips'&&nowComplete&&i<N-1){ setTimeout(()=>continueFrom(i),340); }
+}
+
+function initAIFields(){
+  document.querySelectorAll('.ai-input').forEach(inp=>{
+    const wrap=inp.closest('.ai-wrap'),ghost=wrap.querySelector('.ai-ghost'),badge=wrap.querySelector('.ai-badge'),sugg=inp.dataset.ai||'';
+    ghost.textContent=sugg; inp.classList.add('ai-on');
+    const update=()=>{const empty=!inp.value.trim(),foc=document.activeElement===inp;wrap.classList.toggle('show-ghost',empty);if(badge){badge.textContent=(empty&&foc)?'Tab ⇥':'✦ AI';badge.classList.toggle('badge-hint',empty&&foc);}};
+    inp.addEventListener('focus',update);inp.addEventListener('blur',update);inp.addEventListener('input',update);
+    inp.addEventListener('keydown',ev=>{ if(ev.key==='Tab'&&!ev.shiftKey&&sugg&&!inp.value.trim()){ inp.value=sugg;inp.classList.add('ai-accepted');setTimeout(()=>inp.classList.remove('ai-accepted'),750);inp.dispatchEvent(new Event('input',{bubbles:true}));inp.dispatchEvent(new Event('change',{bubbles:true}));update(); } });
+    update();
+  });
+}
+
+let saveT;
+function autosave(){const s=document.getElementById('savedTxt');s.textContent='Saving…';clearTimeout(saveT);saveT=setTimeout(()=>s.textContent='Draft saved',650);}
+document.addEventListener('input',onEdit,true);
+document.addEventListener('change',onEdit,true);
+function onEdit(e){
+  const sec=e.target.closest&&e.target.closest('.sec'); if(!sec)return;
+  sec.dataset.touched='1';
+  const i=+sec.id.slice(3);
+  const wasComplete=sec.dataset.wc==='1'; const nowComplete=missingIn(i)===0;
+  recompute(nowComplete&&!wasComplete?sec.id:null); sec.dataset.wc=nowComplete?'1':'0';
+  const s=document.getElementById('savedTxt'); s.textContent='Saving…'; clearTimeout(saveT); saveT=setTimeout(()=>s.textContent='Draft saved',650);
+  if(nowComplete&&!wasComplete&&e.type==='change'&&!submitted&&i<N-1){ setTimeout(()=>continueFrom(i),260); }
+}
+
+document.addEventListener('keydown',e=>{
+  const t=document.activeElement;
+  if(e.key==='Enter'){
+    const ta=t&&t.tagName==='TEXTAREA'; if(ta&&e.shiftKey)return;
+    const sec=t&&t.closest&&t.closest('.sec'); if(!sec)return;
+    e.preventDefault(); continueFrom(+sec.id.slice(3)); return;
+  }
+  const grp=(t&&t.classList&&t.classList.contains('opt'))?t.closest('.opts'):null;
+  if(grp){
+    const opts=[...grp.querySelectorAll('.opt')];let idx=opts.indexOf(t);
+    if(e.key==='ArrowDown'||e.key==='ArrowRight'){e.preventDefault();idx=Math.min(opts.length-1,idx+1);opts[idx].focus();selectOpt(opts[idx]);}
+    else if(e.key==='ArrowUp'||e.key==='ArrowLeft'){e.preventDefault();idx=Math.max(0,idx-1);opts[idx].focus();selectOpt(opts[idx]);}
+    else if(e.key===' '){e.preventDefault();selectOpt(t);}
+    else if(/^[a-zA-Z]$/.test(e.key)){const o=opts.find(x=>x.dataset.k===e.key.toUpperCase());if(o){e.preventDefault();o.focus();selectOpt(o);}}
+  }
+});
+
+function initObserver(){
+  const io=new IntersectionObserver(entries=>{
+    entries.forEach(en=>{ if(en.isIntersecting) en.target.classList.add('in-view'); });
+    let best=null,bestR=0;
+    document.querySelectorAll('.sec').forEach(s=>{const r=s.getBoundingClientRect();const vh=innerHeight;const vis=Math.max(0,Math.min(r.bottom,vh)-Math.max(r.top,0));if(vis>bestR){bestR=vis;best=s.id;}});
+    if(best) document.querySelectorAll('.snav-item').forEach(b=>b.classList.toggle('active',b.dataset.target===best));
+  },{threshold:[0,.25,.5,.75]});
+  document.querySelectorAll('.sec').forEach(s=>io.observe(s));
+}
+
+function wireNav(){document.querySelectorAll('.snav-item').forEach(b=>b.addEventListener('click',()=>{const i=+b.dataset.target.slice(3);scrollToSec(i);setTimeout(()=>focusFirst(i),480);}));}
+
+function setVal(sel,v){const el=document.querySelector(sel);if(el){el.value=v;}}
+function pickChip(sec,name,val){const o=document.querySelector(`#sec${sec} [data-name="${name}"] .opt[data-val="${val}"]`);if(o)selectOpt(o);}
+function applyPrefill(){
+  const nameInp=document.querySelector('#sec0 .nameid-name'); if(nameInp){ nameInp.value='LDPE Mailer Bag'; genPkgId(nameInp); }
+  const t5=[...document.querySelectorAll('#sec3 input.fi')];
+  const texts=t5.filter(x=>x.type==='text'), nums=t5.filter(x=>x.type==='number');
+  if(texts[0])texts[0].value='LDPE film'; if(nums[0])nums[0].value='90'; if(texts[1])texts[1].value='Paper label'; if(nums[1])nums[1].value='10';
+  pickChip(4,'recycled','Yes'); setVal('#pcr','20');
+  pickChip(5,'opacity','Transparent'); pickChip(5,'deco','1-colour print');
+  const w=[...document.querySelectorAll('#sec6 input.fi')]; if(w[0])w[0].value='9.8'; if(w[1])w[1].value='46'; if(w[2])w[2].value='55';
+  const dm=[...document.querySelectorAll('#sec7 input.fi:not(.ai-input)')]; if(dm[0])dm[0].value='380'; if(dm[1])dm[1].value='300';
+  const sel10=document.querySelector('#sec8 select.fi'); if(sel10)sel10.value='GRS';
+  const txt10=[...document.querySelectorAll('#sec8 input.fi:not(.ai-input)')]; if(txt10[1])txt10[1].value='FlexPack Converting Ltd'; if(txt10[2])txt10[2].value='12 Baoan District, Shenzhen, CN';
+  const std=document.querySelector('#sec9 select.fi'); if(std)std.value='EU PPWR / REACH';
+  ['minoil','bpa','pfas','chlorine'].forEach(n=>pickChip(9,n,'No'));
+  document.querySelectorAll('.sec').forEach(s=>{s.dataset.touched='1';});
+  document.getElementById('prefillBtn').classList.add('hide');
+  recompute(); document.querySelectorAll('.sec').forEach(s=>s.dataset.wc=missingIn(+s.id.slice(3))===0?'1':'0');
+  toast('Prefilled from PRK-002-JN-BLU — review the values, then submit','good');
+}
+
+function trySubmit(){
+  if(submitted)return;
+  let rem=0;for(let i=0;i<N;i++)if(missingIn(i)>0)rem++;
+  if(rem>0){toast(rem+' section'+(rem>1?'s':'')+' still need attention — jumping to the first','warn');goNextIncomplete();return;}
+  openReview();
+}
+/* Read every answered field straight from the DOM, grouped by section. */
+function reviewFieldLabel(lblEl){
+  if(!lblEl) return '';
+  var t = (lblEl.childNodes[0] && lblEl.childNodes[0].nodeType===3) ? lblEl.childNodes[0].textContent : lblEl.textContent;
+  return (t||'').replace(/\*+$/,'').trim();
+}
+function reviewItem(label,value){
+  var empty = !value || !String(value).trim();
+  return '<div class="rv-item"><div class="rv-lbl">'+esc(label)+'</div><div class="rv-val'+(empty?' empty':'')+'">'+(empty?'Not provided':esc(value))+'</div></div>';
+}
+function buildReview(){
+  var html='';
+  for(var i=0;i<N;i++){
+    var sec=document.getElementById('sec'+i);
+    var title=sec.querySelector('.q').textContent;
+    var rows='';
+    sec.querySelectorAll('.tf-field').forEach(function(fld){
+      var lblEl=fld.querySelector(':scope > .lbl');
+      if(fld.dataset.kind==='chips'){
+        var selOpt=fld.querySelector('.opt.sel .olbl');
+        rows+=reviewItem(reviewFieldLabel(lblEl), selOpt?selOpt.textContent:'');
+      } else if(lblEl){
+        var c=fld.querySelector('input.fi,select.fi,textarea.fi');
+        if(c) rows+=reviewItem(reviewFieldLabel(lblEl), c.value);
+      }
+    });
+    if(rows) html+='<div class="rv-sec"><div class="rv-sec-title">'+(i+1)+'. '+esc(title)+'</div><div class="rv-grid">'+rows+'</div></div>';
+  }
+  return html;
+}
+function openReview(){
+  document.getElementById('rvBody').innerHTML=buildReview();
+  var o=document.getElementById('reviewScreen');
+  o.classList.add('show'); o.setAttribute('aria-hidden','false');
+  o.scrollTop=0; document.body.style.overflow='hidden';
+}
+function closeReview(){
+  var o=document.getElementById('reviewScreen');
+  o.classList.remove('show'); o.setAttribute('aria-hidden','true');
+  document.body.style.overflow='';
+}
+function confirmSubmit(){
+  submitted=true; recompute();
+  document.getElementById('sku').textContent='Saved ✓';
+  closeReview();
+  document.getElementById('successScreen').classList.add('show');
+}
+var WIZ_ORIGIN='products';
+function finishWizard(){
+  var nameEl=document.querySelector('#sec0 .nameid-name');
+  var idEl=document.getElementById('pkgGenId');
+  var nm=nameEl?nameEl.value.trim():''; var id=idEl?idEl.textContent.trim():'';
+  if(window.parent && window.parent!==window && typeof window.parent.gsWizardDone==='function'){ window.parent.gsWizardDone(WIZ_ORIGIN, nm, id); }
+  else if(window.parent && window.parent!==window && typeof window.parent.go==='function'){ window.parent.go('sp2'); }
+  else { document.getElementById('successScreen').classList.remove('show'); }
+}
+function wizBack(){
+  if(window.parent && window.parent!==window && typeof window.parent.go==='function'){
+    window.parent.go('sp2');
+    if(typeof window.parent.switchLandingTab==='function'){ window.parent.switchLandingTab(WIZ_ORIGIN==='packaging'?'packaging':'products'); }
+  }
+}
+
+let toastT;function toast(m,k){const el=document.getElementById('toast');el.textContent=m;el.className='toast show '+(k||'');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),3200);}
+
+build();
+initAIFields();
+initObserver();
+wireNav();
+['sec0','sec1'].forEach(id=>{var el=document.getElementById(id);if(el)el.dataset.touched='1';});
+document.querySelectorAll('.sec').forEach(s=>s.dataset.wc=missingIn(+s.id.slice(3))===0?'1':'0');
+document.getElementById('sec0').classList.add('in-view');
+recompute();
+/* Land the supplier straight on the first incomplete step, focus the first
+   missing field and give it a small shake so it's obvious what's needed. */
+setTimeout(function(){
+  for(var i=0;i<N;i++){
+    if(missingIn(i)>0){
+      scrollToSec(i);
+      (function(ii){ setTimeout(function(){ var bad=firstBadIn(ii); if(bad) shake(bad); }, 620); })(i);
+      return;
+    }
+  }
+}, 360);
+</script>
+
+<script>
+/* Split-build: this wizard is now a top-level page (no parent iframe).  Read the
+   launch context from sessionStorage, patch the header labels, and override the
+   wizard's finishWizard()/wizBack() to navigate the whole window. */
+(function(){
+  var w = {};
+  try { w = JSON.parse(sessionStorage.getItem('gs_wiz')) || {}; } catch(e){ w = {}; }
+  var origin = (w.origin === 'packaging') ? 'packaging' : 'products';
+  var name = w.name || '', code = w.code || '', pi = (w.pi == null ? null : w.pi);
+  var standalone = !name;
+  var backLabel = origin === 'packaging' ? 'Back to packaging components' : 'Back to products';
+  try { WIZ_ORIGIN = origin; } catch(e){}
+
+  var sku = document.getElementById('sku'); if(sku) sku.textContent = code;
+  var forProd = document.querySelector('.ph-forprod');
+  if(forProd){
+    if(standalone){ forProd.parentNode.removeChild(forProd); }
+    else { forProd.innerHTML = 'for <span class="ph-forprod-code">' + code + '</span> · ' + name; }
+  }
+  if(standalone){
+    var skuChip = document.querySelector('.ph-sku');
+    if(skuChip) skuChip.parentNode.removeChild(skuChip);
+  }
+  var backBtn = document.querySelector('.actbar-back');
+  if(backBtn) backBtn.innerHTML = backBtn.innerHTML.replace('Back to products', backLabel);
+  var sxBtn = document.querySelector('.sx-btn');
+  if(sxBtn) sxBtn.innerHTML = sxBtn.innerHTML.replace('Back to products', backLabel);
+
+  finishWizard = function(){
+    var nameEl = document.querySelector('#sec0 .nameid-name');
+    var idEl = document.getElementById('pkgGenId');
+    var nm = nameEl ? nameEl.value.trim() : '';
+    var id = idEl ? idEl.textContent.trim() : '';
+    sessionStorage.setItem('gs_flash', JSON.stringify({ origin: WIZ_ORIGIN, name: nm, id: id, pi: pi }));
+    window.location.href = '04-greenstreets_supplier_portal_Landing.html';
+  };
+  wizBack = function(){
+    sessionStorage.setItem('gs_tab', WIZ_ORIGIN === 'packaging' ? 'packaging' : 'products');
+    window.location.href = '04-greenstreets_supplier_portal_Landing.html';
+  };
+})();
+</script>
+<script src="js/greenstreets-theme.js?v=23"></script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Greenstreets — Retailer User · Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/greenstreets-theme.css?v=22">
+<link rel="stylesheet" href="css/retailer-user.css?v=1">
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true"><defs><symbol id="gsi-0" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></symbol><symbol id="gsi-1" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol><symbol id="gsi-2" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></symbol><symbol id="gsi-3" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></symbol><symbol id="gsi-4" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></symbol><symbol id="gsi-5" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></symbol><symbol id="gsi-6" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol><symbol id="gsi-7" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></symbol><symbol id="gsi-8" viewBox="0 0 24 24"><path d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'/><polyline points='17 8 12 3 7 8'/><line x1='12' y1='3' x2='12' y2='15'/></symbol><symbol id="gsi-9" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></symbol><symbol id="gsi-10" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></symbol><symbol id="gsi-11" viewBox="0 0 24 24"><path d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/><polyline points='14 2 14 8 20 8'/></symbol><symbol id="gsi-12" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></symbol><symbol id="gsi-13" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol><symbol id="gsi-14" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol></defs></svg>
+<div class="screen on" id="ru1">
+  <div class="app-body">
+    <div class="sidebar">
+  <div class="sb-logo-zone"><img class="gs-logo-img sb-logo" src="" alt="Greenstreets"></div>
+  <div class="sb-section">Retailer User</div>
+  <a class="nav-item active" onclick="go('ru1')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#gsi-1"/></svg>Dashboard</a>
+<a class="nav-item" onclick="go('ru3')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#gsi-2"/></svg>Suppliers</a>
+<a class="nav-item" onclick="go('ru6')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#gsi-3"/></svg>Products</a>
+<a class="nav-item" onclick="go('ru7')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#gsi-4"/></svg>Documents</a>
+
+  <div class="sb-divider"></div>
+  <div class="sb-notif-row" onclick="go('ru8')">
+    <div class="sb-bell-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#gsi-5"/></svg><span class="bell-badge">2</span></div>
+    <span class="sb-notif-label">Notifications</span>
+  </div>
+  <a class="nav-item" onclick="go('ru9')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings</a>
+  <div class="sb-user">
+    <div class="sb-avatar" style="background:#2a5298">SC</div>
+    <div class="sb-user-info">
+      <div class="sb-user-name">Sarah Connolly</div>
+      <div class="sb-user-role">Retailer User · <span style="color:var(--gs)">Primark</span></div>
+    </div>
+    <button class="sb-logout"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#gsi-6"/></svg></button>
+  </div>
+</div>
+    <div class="main">
+      <div class="pg-hdr-bar" style="margin-bottom:10px">
+        <div>
+          <div class="pg-title">Compliance dashboard</div>
+          <div class="pg-sub">Primark Stores Ltd · Packaging data collection campaign</div>
+        </div>
+        <div class="pg-actions">
+          <span class="pill pill-grey" style="font-size:11px">Retailer User</span>
+        </div>
+      </div>
+
+      <!-- Overall progress banner -->
+      <div style="background:linear-gradient(135deg,rgba(78,187,129,.12),rgba(78,187,129,.05));border:1px solid rgba(78,187,129,.25);border-radius:10px;padding:12px 16px;margin-bottom:12px;display:flex;align-items:center;gap:16px">
+        <div style="flex:1">
+          <div style="font-size:11px;color:var(--tw3);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em;font-weight:600">Overall packaging data collection</div>
+          <div class="prog" style="width:100%;max-width:400px;height:6px"><div class="prog-f" style="width:62%"></div></div>
+        </div>
+        <div style="font-size:28px;font-weight:700;color:var(--gs)">62%</div>
+        <div style="font-size:12px;color:var(--tw3);text-align:right">15 of 20<br>DoCs ready</div>
+      </div>
+
+      <!-- Metric tiles -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px">
+        <div class="stat" style="cursor:pointer" onclick="go('ru6')">
+          <div class="stat-lbl">Declaration of conformity</div>
+          <div class="stat-val" style="color:#4ebb81">15<span style="font-size:14px;color:var(--tw3);font-weight:400">/20</span></div>
+          <div style="font-size:10px;color:var(--tw3);margin-top:3px">Click to view all DoC products →</div>
+        </div>
+        <div class="stat" style="cursor:pointer">
+          <div class="stat-lbl">Substance compliance (PFAS)</div>
+          <div class="stat-val" style="color:#4ebb81">18<span style="font-size:14px;color:var(--tw3);font-weight:400">/20</span></div>
+          <div style="font-size:10px;color:var(--tw3);margin-top:3px">Click to view failing SKUs →</div>
+        </div>
+        <div class="stat" style="cursor:pointer">
+          <div class="stat-lbl">Technical documentation</div>
+          <div class="stat-val" style="color:#f5a623">14<span style="font-size:14px;color:var(--tw3);font-weight:400">/20</span></div>
+          <div style="font-size:10px;color:#f5a623;margin-top:3px">6 docs outstanding →</div>
+        </div>
+      </div>
+
+      <!-- AI-flagged banner -->
+      <div class="alert" style="background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.2);color:#f5a623;margin-bottom:12px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><use href="#gsi-7"/></svg>
+        <span>Article 21 — AI-flagged: 2 SKUs may have importer/manufacturer role implications. <a onclick="go('ru6')" style="color:#f5a623;cursor:pointer;text-decoration:underline">Review now →</a></span>
+      </div>
+
+      <!-- RAG table -->
+      <div class="grp" style="grid-column:1/-1"><div class="grp-hdr">SKU conformity overview</div><div class="grp-body"><table class="tbl">
+<colgroup><col width="16%"><col width="16%"><col width="10%"><col width="28%"><col width="30%"></colgroup>
+<thead><tr><th>SKU</th><th>Description</th><th>Status</th><th>Failing check</th><th></th></tr></thead>
+<tbody>
+  <tr><td class="tbl-name">PRK-001-SW-BLK</td><td class="tbl-muted">Black Crew Neck Sweatshirt</td><td><span class="rag rag-g">●</span></td><td class="tbl-muted">All checks passed</td><td><a class="view-link" onclick="go('ru6')">View product →</a></td></tr>
+  <tr><td class="tbl-name">PRK-002-JN-BLU</td><td class="tbl-muted">Blue Slim Fit Jeans</td><td><span class="rag rag-a">●</span></td><td style="font-size:11px;color:#f5a623">PCR% below Art. 7 target: 0% declared, 30% required</td><td><a class="view-link" onclick="go('ru6')">View product →</a></td></tr>
+  <tr><td class="tbl-name">PRK-003-DRS-RED</td><td class="tbl-muted">Red Midi Dress</td><td><span class="rag rag-r">●</span></td><td style="font-size:11px;color:#e05252">3 mandatory fields missing — packaging data incomplete</td><td><a class="view-link" onclick="go('ru6')">View product →</a></td></tr>
+  <tr><td class="tbl-name">PRK-004-JKT-KHK</td><td class="tbl-muted">Khaki Utility Jacket</td><td><span class="rag rag-r">●</span></td><td style="font-size:11px;color:#e05252">Supplier data not submitted — hanger component missing</td><td><a class="view-link" onclick="go('ru6')">View product →</a></td></tr>
+  <tr><td class="tbl-name">PRK-005-TEE-WHT</td><td class="tbl-muted">White Essential T-Shirt</td><td><span class="rag rag-g">●</span></td><td class="tbl-muted">All checks passed</td><td><a class="view-link" onclick="go('ru6')">View product →</a></td></tr>
+</tbody></table>
+<div class="tbl-footer">Showing 5 of 380 SKUs · <span style="color:#e05252">5 red</span> · <span style="color:#f5a623">8 amber</span> · <span style="color:#4ebb81">367 green</span></div></div></div>
+    </div>
+  </div>
+</div>
+<script src="js/retailer-user.js?v=1"></script>
+<script src="js/greenstreets-theme.js?v=22"></script>
+</body>
+</html>
