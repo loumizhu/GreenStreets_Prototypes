@@ -1,4 +1,4 @@
-/* On-card reuse dropdown (sections 2-11, top-right of the section header) */
+﻿/* On-card reuse dropdown (sections 2-11, top-right of the section header) */
 .sec-hdr-reuse-wrap{position:relative}
 .sec-hdr-reuse-btn{display:flex;align-items:center;gap:6px;height:28px;padding:0 11px;background:rgba(78,187,129,.1);border:1px solid rgba(78,187,129,.28);color:var(--gs);border-radius:7px;cursor:pointer;font-family:"Inter",sans-serif;font-size:11px;font-weight:600;white-space:nowrap}
 .sec-hdr-reuse-btn:hover{background:rgba(78,187,129,.18)}
@@ -463,6 +463,17 @@ select.cpkg-inp option{background:#1a2f4a}
 .pcmp-count{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.05em}
 .pcmp-count .pcmp-count-num{display:inline-flex;align-items:center;justify-content:center;min-width:17px;height:17px;padding:0 5px;border-radius:9px;background:rgba(78,187,129,.16);border:1px solid rgba(78,187,129,.35);color:var(--gs);font-size:10px;font-weight:800}
 .pcmp-count.pcmp-count-empty .pcmp-count-num{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14);color:rgba(255,255,255,.5)}
+.pcmp-count-slash{color:rgba(255,255,255,.3);font-weight:700;margin:0 1px}
+.pcmp-req-inp{width:38px;height:18px;padding:0 4px;border-radius:6px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:rgba(255,255,255,.7);font-family:"Inter",sans-serif;font-size:10px;font-weight:800;text-align:center;-moz-appearance:textfield}
+.pcmp-req-inp::-webkit-inner-spin-button,.pcmp-req-inp::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.pcmp-req-inp:hover{border-color:rgba(255,255,255,.34)}
+.pcmp-req-inp:focus{outline:none;border-color:var(--gs);background:rgba(78,187,129,.1);color:#fff}
+.pcmp-count.pcmp-count-met .pcmp-count-num{background:rgba(78,187,129,.28);border-color:var(--gs);color:#eafff3}
+.pcmp-count.pcmp-count-met .pcmp-req-inp{border-color:rgba(78,187,129,.5);color:var(--gs)}
+/* Product row action cluster: Mark complete + Submit side by side */
+.prod-actions{display:inline-flex;align-items:center;gap:7px;justify-content:flex-end}
+.prod-markcomplete-btn{display:inline-flex;align-items:center;gap:5px;height:30px;padding:0 11px;border-radius:8px;border:1px solid rgba(78,187,129,.45);background:rgba(78,187,129,.13);color:var(--gs);font-family:"Inter",sans-serif;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .12s}
+.prod-markcomplete-btn:hover{background:rgba(78,187,129,.24);border-color:rgba(78,187,129,.7)}
 .pcmp-list{display:grid;grid-template-columns:1fr 1fr;gap:5px 8px;width:100%}
 .pcmp-pill{display:flex;align-items:center;gap:6px;height:26px;padding:0 4px 0 10px;background:rgba(78,187,129,.12);border:1px solid rgba(78,187,129,.3);border-radius:7px;font-family:"Inter",sans-serif;min-width:0}
 .pcmp-num{font-size:9px;font-weight:800;color:rgba(255,255,255,.4);flex-shrink:0;font-variant-numeric:tabular-nums}
@@ -541,6 +552,14 @@ select.pd-input option{background:#16294a;color:#fff}
 .pd-remove:hover{background:rgba(248,113,113,.2)}
 .pd-collapse{height:32px;padding:0 14px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:transparent;color:rgba(255,255,255,.65);font-family:"Inter",sans-serif;font-size:12px;font-weight:600;cursor:pointer}
 .pd-collapse:hover{color:#fff;border-color:rgba(255,255,255,.3)}
+.pkg-back-btn{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border:1px solid rgba(255,255,255,.16);border-radius:7px;background:rgba(255,255,255,.06);color:rgba(255,255,255,.65);cursor:pointer;transition:all .14s;flex-shrink:0;padding:0}
+.pkg-back-btn:hover{background:rgba(78,187,129,.15);border-color:rgba(78,187,129,.4);color:var(--gs)}
+.docs-view-toggle{display:inline-flex;border-radius:6px;background:rgba(255,255,255,.05);padding:2px}
+.docs-view-btn{padding:4px 8px;font-size:11px;color:rgba(255,255,255,.4);cursor:pointer;border-radius:4px}
+.docs-view-btn.active{background:rgba(255,255,255,.1);color:#fff}
+.docs-check{width:16px;height:16px;border-radius:4px;border:1px solid rgba(255,255,255,.2);background:transparent;cursor:pointer}
+.docs-del-btn{color:rgba(248,113,113,.6);cursor:pointer}
+.docs-pagination{display:flex;align-items:center;gap:4px;font-size:11px;color:rgba(255,255,255,.5)}
 @media(max-width:640px){.pd-sum{display:none}}
 .prod-status-complete{background:rgba(78,187,129,.15);color:#4ebb81;border:1px solid rgba(78,187,129,.35)}
 .prod-tooltip-box.prod-tip-right{left:auto;right:0;transform:none}
@@ -557,3 +576,84 @@ select.pd-input option{background:#16294a;color:#fff}
 /* supplier-portal shell adaptation — let the shared body gradient show through */
 .pshell{background:transparent!important}
 .ph{background:linear-gradient(120deg,rgba(91,156,246,.07),rgba(78,187,129,.05))!important;border-bottom:1px solid var(--line)!important;backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%)}
+
+/* ── Products table: ensure last action column has enough room ── */
+.prod-tbl colgroup col:last-child{width:210px}
+.prod-tbl th:last-child,.prod-tbl td:last-child{width:210px;min-width:210px}
+.prod-tbl td:last-child .prod-actions{display:flex;align-items:center;gap:6px;justify-content:flex-end;flex-wrap:nowrap}
+
+/* ── Icon-only back button in packaging detail page header ── */
+.ph-back-btn{display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:rgba(255,255,255,.7);cursor:pointer;transition:all .14s;flex-shrink:0}
+.ph-back-btn:hover{background:rgba(78,187,129,.15);border-color:rgba(78,187,129,.4);color:var(--gs)}
+
+/* ── Packaging table: improved pagination with prev/next/jump ── */
+.pkg-tbl-pagination{display:flex;align-items:center;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.08);flex-wrap:wrap}
+.pkg-pg-btn{height:28px;padding:0 12px;border-radius:6px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:rgba(255,255,255,.75);font-family:"Inter",sans-serif;font-size:11px;cursor:pointer;transition:all .12s;display:flex;align-items:center;gap:4px;white-space:nowrap}
+.pkg-pg-btn:hover:not(:disabled){background:rgba(78,187,129,.15);border-color:rgba(78,187,129,.4);color:#fff}
+.pkg-pg-btn:disabled{opacity:.35;cursor:not-allowed}
+.pkg-pg-lbl{font-size:11px;color:rgba(255,255,255,.5);margin:0 2px}
+.pkg-pg-jump{height:28px;border-radius:6px;border:1px solid rgba(255,255,255,.14);background:#16283f;color:#fff;font-family:"Inter",sans-serif;font-size:11px;padding:0 6px;cursor:pointer}
+.pkg-pg-of{font-size:11px;color:rgba(255,255,255,.4)}
+
+/* ── Docs: view toggle (list / thumbnails) ── */
+.docs-view-toggle-wrap{display:flex;gap:2px;flex-shrink:0;border:1px solid rgba(255,255,255,.12);border-radius:7px;padding:2px;background:rgba(255,255,255,.04)}
+.docs-vbtn{display:flex;align-items:center;justify-content:center;width:28px;height:26px;border-radius:5px;border:none;background:transparent;color:rgba(255,255,255,.45);cursor:pointer;transition:all .12s}
+.docs-vbtn:hover{color:#fff}
+.docs-vbtn.active{background:rgba(78,187,129,.18);color:var(--gs)}
+
+/* ── Docs: bulk action bar ── */
+.docs-bulk-bar{display:none;align-items:center;gap:10px;padding:7px 12px;background:rgba(78,187,129,.08);border:1px solid rgba(78,187,129,.25);border-radius:8px;margin-bottom:8px}
+.docs-bulk-bar.visible{display:flex}
+.docs-bulk-count{font-size:12px;font-weight:600;color:var(--gs);flex:1}
+.docs-bulk-act{display:inline-flex;align-items:center;gap:5px;height:27px;padding:0 11px;border-radius:6px;font-family:"Inter",sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:filter .12s;border:none}
+.docs-bulk-dl{background:var(--gs);color:#fff}
+.docs-bulk-dl:hover{filter:brightness(1.08)}
+.docs-bulk-del{background:rgba(224,82,82,.18);border:1px solid rgba(224,82,82,.35)!important;color:#f87171}
+.docs-bulk-del:hover{background:rgba(224,82,82,.32)}
+
+/* ── Docs: new table ── */
+.docs-tbl-new{width:100%;border-collapse:collapse;font-size:12px}
+.docs-tbl-new thead tr{background:rgba(255,255,255,.06)}
+.docs-tbl-new thead th{padding:8px 11px;text-align:left;font-size:10px;font-weight:700;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid rgba(255,255,255,.1);white-space:nowrap}
+.docs-tbl-new tbody tr{border-bottom:1px solid rgba(255,255,255,.06);transition:background .1s}
+.docs-tbl-new tbody tr:nth-child(even){background:rgba(255,255,255,.035)}
+.docs-tbl-new tbody tr:hover{background:rgba(78,187,129,.06)}
+.docs-tbl-new tbody tr.doc-row-sel{background:rgba(78,187,129,.11)!important}
+.docs-tbl-new td{padding:9px 11px;vertical-align:middle;color:rgba(255,255,255,.85)}
+.docs-tbl-new .doc-cb-cell{width:36px;text-align:center;padding:9px 6px}
+.docs-tbl-new .doc-cb{width:14px;height:14px;accent-color:var(--gs);cursor:pointer}
+.docs-tbl-new .doc-name-col{font-weight:600;color:#fff}
+.docs-tbl-new .doc-name-wrap{display:flex;align-items:center;gap:8px}
+.docs-tbl-new .doc-secondary{color:rgba(255,255,255,.6);font-size:11px}
+.docs-tbl-new .doc-actions-col{text-align:right;white-space:nowrap;width:110px}
+
+/* ── Docs: per-row delete btn ── */
+.doc-del-btn{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:6px;border:1px solid rgba(255,255,255,.1);background:transparent;color:rgba(255,255,255,.35);cursor:pointer;transition:all .12s;margin-left:5px;vertical-align:middle}
+.doc-del-btn:hover{background:rgba(224,82,82,.18);border-color:rgba(224,82,82,.4);color:#f87171}
+.doc-del-btn.confirming{background:rgba(224,82,82,.28);border-color:rgba(224,82,82,.65);color:#f87171}
+
+/* ── Docs: thumbnail grid view ── */
+.docs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(152px,1fr));gap:12px}
+.docs-thumb{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:11px;cursor:pointer;transition:all .14s;position:relative}
+.docs-thumb:hover{border-color:rgba(78,187,129,.35);background:rgba(78,187,129,.06)}
+.docs-thumb.thumb-sel{border-color:rgba(78,187,129,.55);background:rgba(78,187,129,.1)}
+.docs-thumb-cb{position:absolute;top:8px;left:8px;width:14px;height:14px;accent-color:var(--gs);cursor:pointer}
+.docs-thumb-icon{display:flex;align-items:center;justify-content:center;height:68px;background:rgba(255,255,255,.04);border-radius:6px;margin-bottom:8px;border:1px solid rgba(255,255,255,.07)}
+.docs-thumb-name{font-size:10.5px;font-weight:600;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:2px}
+.docs-thumb-type{font-size:9.5px;color:rgba(255,255,255,.4)}
+.docs-thumb-actions{display:flex;align-items:center;justify-content:space-between;margin-top:8px;gap:4px}
+.docs-thumb-dl{flex:1;display:flex;align-items:center;justify-content:center;gap:4px;height:24px;border-radius:5px;border:none;background:var(--gs);color:#fff;font-family:"Inter",sans-serif;font-size:10px;font-weight:700;cursor:pointer;transition:filter .12s}
+.docs-thumb-dl:hover{filter:brightness(1.1)}
+.docs-thumb-del-btn{display:flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:5px;border:1px solid rgba(255,255,255,.12);background:transparent;color:rgba(255,255,255,.4);cursor:pointer;transition:all .12s;flex-shrink:0}
+.docs-thumb-del-btn:hover{background:rgba(224,82,82,.2);border-color:rgba(224,82,82,.4);color:#f87171}
+.docs-thumb-del-btn.confirming{background:rgba(224,82,82,.3);border-color:rgba(224,82,82,.65);color:#f87171}
+
+/* ── Docs pager ── */
+.docs-foot{display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,255,255,.08);flex-wrap:wrap}
+.docs-foot-count{font-size:11px;color:rgba(255,255,255,.45);flex:1}
+.dpg-btn{height:28px;padding:0 12px;border-radius:6px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:rgba(255,255,255,.75);font-family:"Inter",sans-serif;font-size:11px;cursor:pointer;transition:all .12s;display:flex;align-items:center;gap:4px;white-space:nowrap}
+.dpg-btn:hover:not(:disabled){background:rgba(78,187,129,.15);border-color:rgba(78,187,129,.4);color:#fff}
+.dpg-btn:disabled{opacity:.35;cursor:not-allowed}
+.dpg-lbl{font-size:11px;color:rgba(255,255,255,.5);margin:0 2px}
+.dpg-jump{height:28px;border-radius:6px;border:1px solid rgba(255,255,255,.14);background:#16283f;color:#fff;font-family:"Inter",sans-serif;font-size:11px;padding:0 6px;cursor:pointer}
+.dpg-of{font-size:11px;color:rgba(255,255,255,.4)}

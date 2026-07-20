@@ -91,6 +91,9 @@
     sel.parentNode.insertBefore(wrap, sel);
     wrap.appendChild(sel);
     sel.style.display='none';
+    /* Carry the select's own sizing onto the wrap so the trigger width stays fixed
+       and doesn't jump with the selected option text. */
+    ['width','minWidth','maxWidth','flex','flexBasis'].forEach(function(pr){ if(sel.style[pr]) wrap.style[pr]=sel.style[pr]; });
 
     var trigger=document.createElement('div');
     trigger.className='fi cs-trigger';
@@ -104,7 +107,16 @@
     var menu=document.createElement('div'); menu.className='cs-menu';
     wrap.appendChild(menu);
 
-    function sync(){ var o=sel.options[sel.selectedIndex]; val.textContent=o?o.text:''; }
+    function sync(){
+      var o=sel.options[sel.selectedIndex]; val.textContent=o?o.text:'';
+      /* For content-sized selects (no explicit width), lock the trigger's min-width to
+         the widest it has been so a shorter selection can't shrink it (which also kept
+         the focus ring from mismatching the new width). */
+      if(!wrap.style.width && !wrap.style.flex){
+        var w=trigger.offsetWidth, cur=parseFloat(trigger.style.minWidth)||0;
+        if(w>cur) trigger.style.minWidth=w+'px';
+      }
+    }
     function render(){
       menu.innerHTML='';
       Array.prototype.forEach.call(sel.options,function(o,i){
@@ -143,7 +155,12 @@
       positionMenu();
     }
     function close(){ wrap.classList.remove('open'); menu.classList.remove('open'); }
-    window.addEventListener('scroll',function(){ if(menu.classList.contains('open')) close(); },true);
+    window.addEventListener('scroll',function(e){
+      if(!menu.classList.contains('open')) return;
+      /* don't close while scrolling inside the menu itself (that broke option scrolling) */
+      if(e.target && e.target.closest && e.target.closest('.cs-menu')) return;
+      close();
+    },true);
     window.addEventListener('resize',function(){ if(menu.classList.contains('open')) positionMenu(); });
     function toggle(){ wrap.classList.contains('open')?close():open(); }
 

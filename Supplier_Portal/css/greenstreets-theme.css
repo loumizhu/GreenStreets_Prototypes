@@ -262,7 +262,7 @@ select.fi option{background-color:#0f2038;color:var(--tw)}
 /* when open, lift the whole wrap above later-in-DOM siblings (e.g. a wizard's Back/Next footer) so the
    themed dropdown isn't painted over — the menu's own z-index is only relative to this wrap's context */
 .cs-wrap.open{z-index:1000}
-.cs-trigger{display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer}
+.cs-trigger{display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;width:100%;box-sizing:border-box}
 .cs-trigger .cs-val{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cs-caret{display:flex;flex-shrink:0;color:var(--tw3);transition:transform .18s}
 .cs-wrap.open .cs-caret{transform:rotate(180deg)}

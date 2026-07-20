@@ -173,6 +173,26 @@ function prodStatusMeta(t){
 
 function prodUnitsPallet(p){ return (p.uc!=null && p.cp!=null) ? (p.uc*p.cp) : null; }
 
+/* Retailer-suggested number of packaging components required for this product.
+   Editable by the supplier (stored on p.req). Complete/submitted products default
+   to exactly the number they already have (e.g. "2 / 2"). */
+function prodReq(p){
+  if(p.req!=null) return p.req;
+  return (p.type==='complete'||p.type==='submitted') ? p.comps.length : (p.expected ? p.expected.length : p.comps.length);
+}
+function prodSetReq(pi,val){
+  var p = PRODUCTS.filter(function(x){return x.id===pi;})[0]; if(!p) return;
+  var n = parseInt(val,10); p.req = (isNaN(n)||n<0) ? 0 : n;
+  prodRender();
+}
+/* Row-level "Mark as complete" for incomplete products (mirrors the product-detail action). */
+function prodMarkRowComplete(pi){
+  var p = PRODUCTS.filter(function(x){return x.id===pi;})[0]; if(!p) return;
+  p.type = 'complete'; p.status = 'complete';
+  prodRender();
+  if(typeof gsToast==='function') gsToast('“'+p.code+'” marked complete — ready to submit');
+}
+
 function prodRowHtml(p){
   var m = prodStatusMeta(p.type);
   var expWrap = '<span class="prod-tooltip-wrap" tabindex="0" onclick="event.stopPropagation()">'
@@ -188,7 +208,10 @@ function prodRowHtml(p){
     + '<td class="tac"><span class="prod-num">' + IC_pallet + prodNum(p.cp) + '</span></td>'
     + '<td class="tac"><span class="prod-num">' + IC_stack + prodNum(prodUnitsPallet(p)) + '</span></td>'
     + '<td onclick="event.stopPropagation()">' + compCell + '</td>'
-    + '<td class="tar"><button class="prod-submit-btn"' + (m.enabled?"":" disabled") + ' onclick="event.stopPropagation();submitProduct(' + p.id + ')">' + m.btn + '</button></td>'
+    + '<td class="tar"><div class="prod-actions">'
+    +   (p.type==='incomplete' ? '<button class="prod-markcomplete-btn" onclick="event.stopPropagation();prodMarkRowComplete('+p.id+')" title="Mark this product complete"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><polyline points="20 6 9 17 4 12"/></svg>Mark complete</button>' : '')
+    +   '<button class="prod-submit-btn"' + (m.enabled?"":" disabled") + ' onclick="event.stopPropagation();submitProduct(' + p.id + ')">' + m.btn + '</button>'
+    + '</div></td>'
     + '</tr>';
 }
 
@@ -202,7 +225,13 @@ function prodCompCell(p){
     return '<span class="pcmp-pill"><span class="pcmp-num">'+(idx+1)+'</span><span class="pcmp-txt" title="'+name+'">'+name+'</span>'
       + '<span class="pcmp-x" title="Remove component" onclick="event.stopPropagation();prodRemoveComp('+p.id+','+idx+')">'+X+'</span></span>';
   }).join('');
-  var count = '<div class="pcmp-count'+(n?'':' pcmp-count-empty')+'"><span class="pcmp-count-num">'+n+'</span>'+(n===1?'component':'components')+'</div>';
+  var req = prodReq(p);
+  var met = req>0 && n>=req;
+  var count = '<div class="pcmp-count'+(n?'':' pcmp-count-empty')+(met?' pcmp-count-met':'')+'" onclick="event.stopPropagation()">'
+    + '<span class="pcmp-count-num">'+n+'</span> <span class="pcmp-count-lbl">'+(n===1?'component':'components')+'</span>'
+    + '<span class="pcmp-count-slash">/</span>'
+    + '<input class="pcmp-req-inp" type="number" min="0" step="1" value="'+req+'" title="Components required by the retailer — a suggestion you can change" onclick="event.stopPropagation()" onkeydown="if(event.key===&quot;Enter&quot;)this.blur()" onchange="prodSetReq('+p.id+',this.value)">'
+    + '</div>';
   var list = n ? '<div class="pcmp-list">'+pills+'</div>' : '';
   var addWrap = '<span class="pcmp-add">'
     + '<button class="pcmp-add-btn" data-pi="'+p.id+'" title="Add packaging component" onclick="event.stopPropagation();prodToggleCompMenu('+p.id+')">'
@@ -999,22 +1028,46 @@ function renderPkgTable() {
   if (_pkgTblPage >= totalPages) _pkgTblPage = 0;
   rows.forEach(function(r){ r.style.display = 'none'; });
   visible.slice(_pkgTblPage * PKG_PAGE_SIZE, (_pkgTblPage + 1) * PKG_PAGE_SIZE).forEach(function(r){ r.style.display = ''; });
-  /* update pagination */
-  var pg = document.getElementById('pkg-tbl-pagination');
-  if (pg) {
-    var btns = '';
+  /* update new prev/next/jump pagination */
+  var prevBtn = document.getElementById('pkg-pg-prev');
+  var nextBtn = document.getElementById('pkg-pg-next');
+  var jumpSel = document.getElementById('pkg-pg-jump');
+  var ofLbl   = document.getElementById('pkg-pg-of');
+  if (prevBtn) prevBtn.disabled = (_pkgTblPage <= 0);
+  if (nextBtn) nextBtn.disabled = (_pkgTblPage >= totalPages - 1);
+  if (ofLbl)   ofLbl.textContent = 'of ' + totalPages;
+  if (jumpSel) {
+    jumpSel.innerHTML = '';
     for (var i = 0; i < totalPages; i++) {
-      btns += '<button class="pg-btn' + (i === _pkgTblPage ? ' active' : '') + '" onclick="goPage(' + i + ')">' + (i+1) + '</button>';
+      var o = document.createElement('option');
+      o.value = i; o.textContent = i + 1;
+      if (i === _pkgTblPage) o.selected = true;
+      jumpSel.appendChild(o);
     }
-    btns += '<span id="pg-info" style="font-size:11px;color:rgba(255,255,255,.35);margin-left:8px">Page ' + (_pkgTblPage+1) + ' of ' + totalPages + '</span>';
-    pg.innerHTML = btns;
   }
+  var pgInfo = document.getElementById('pkg-pg-info') || document.getElementById('pg-info');
+  if (pgInfo) pgInfo.textContent = visible.length + ' result' + (visible.length !== 1 ? 's' : '');
   var countEl = document.getElementById('pkg-tbl-count');
   if (countEl) countEl.textContent = visible.length + ' component' + (visible.length !== 1 ? 's' : '');
   renderPkgActiveFilters();
 }
+/* Pkg table pagination helpers */
+function pkgGotoPrev() { if (_pkgTblPage > 0) { _pkgTblPage--; renderPkgTable(); } }
+function pkgGotoNext() {
+  var tbody = document.getElementById('pkg-lib-tbody');
+  if (!tbody) return;
+  var all = Array.from(tbody.querySelectorAll('tr'));
+  var vis = all.filter(function(r){ return r.style.display !== 'none'; });
+  var totalPages = Math.max(1, Math.ceil((vis.length + _pkgTblPage * PKG_PAGE_SIZE) / PKG_PAGE_SIZE));
+  /* easier: just check against the current page count from the select */
+  var jumpSel = document.getElementById('pkg-pg-jump');
+  var maxPage = jumpSel ? jumpSel.options.length - 1 : 0;
+  if (_pkgTblPage < maxPage) { _pkgTblPage++; renderPkgTable(); }
+}
+function pkgGotoPage(p) { _pkgTblPage = p; renderPkgTable(); }
 /* Run on load */
 document.addEventListener('DOMContentLoaded', function(){ pkgInitMaterialFilter(); pkgInitCellFilters(); renderPkgTable(); });
+
 
 /* ── Per-section edit on detail page ── */
 function toggleSectionEdit(sectionEl, btn) {
@@ -1796,4 +1849,183 @@ gsGoLanding = function(tab){ sessionStorage.setItem('gs_tab', tab || 'products')
   }
   if(document.readyState !== 'loading') init();
   else document.addEventListener('DOMContentLoaded', init);
+})();
+
+/* =======================================================================
+   SUPPORTING DOCUMENTS TAB — full JS implementation
+   ======================================================================= */
+(function(){
+  var DOCS_DATA = [
+    {id:1, name:'FSC_CoC_Certificate_2026.pdf',                   type:'Certification', ref:'Swing Tag, Tissue Paper, Wrap Band', date:'12 Jun 2026', size:'342 KB',  color:'#e05252'},
+    {id:2, name:'REACH_Compliance_Declaration_2026.pdf',          type:'Declaration',   ref:'Hanger, Poly Bag',                   date:'3 Jun 2026',  size:'198 KB',  color:'#e05252'},
+    {id:3, name:'RecycledContent_SupplierDeclaration_Apr2026.pdf',type:'Declaration',   ref:'Shipping Carton, Display Box',        date:'28 Apr 2026', size:'87 KB',   color:'#e05252'},
+    {id:4, name:'HeavyMetals_TestReport_Q1_2026.xlsx',            type:'Test Report',   ref:'All primary packaging',              date:'15 Mar 2026', size:'1.2 MB',  color:'#5b9cf6'},
+    {id:5, name:'PEFC_WoodCertification_Pallet_2026.pdf',         type:'Certification', ref:'Pallet',                             date:'29 Jun 2026', size:'512 KB',  color:'#e05252'},
+    {id:6, name:'OEKOTEX_Certificate_SwingTag_2026.pdf',          type:'Certification', ref:'Swing Tag',                          date:'14 Jun 2026', size:'289 KB',  color:'#e05252'}
+  ];
+  var _docsView='list', _docsPage=0, DOCS_PG_SIZE=8;
+  var _docsSearch='', _docsType='all', _docsSelected={}, _docConfirmTimers={};
+
+  function docsVisible(){
+    return DOCS_DATA.filter(function(d){
+      var q=_docsSearch.toLowerCase();
+      var mS=!q||d.name.toLowerCase().indexOf(q)>-1||d.ref.toLowerCase().indexOf(q)>-1;
+      var mT=_docsType==='all'||d.type===_docsType;
+      return mS&&mT;
+    });
+  }
+  function docsPageCount(){ return Math.max(1,Math.ceil(docsVisible().length/DOCS_PG_SIZE)); }
+  function docsSvgFile(c){ return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="'+c+'" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>'; }
+
+  function docsRenderList(){
+    var tbody=document.getElementById('docs-tbody-new'); if(!tbody) return;
+    var vis=docsVisible(), page=Math.min(_docsPage,docsPageCount()-1);
+    var slice=vis.slice(page*DOCS_PG_SIZE,(page+1)*DOCS_PG_SIZE);
+    var html='';
+    slice.forEach(function(d){
+      var sel=!!_docsSelected[d.id], isC=!!_docConfirmTimers[d.id];
+      var sn=d.name.length>42?d.name.slice(0,39)+'...':d.name;
+      html+='<tr class="'+(sel?'doc-row-sel':'')+'" data-doc-id="'+d.id+'">';
+      html+='<td class="doc-cb-cell"><input type="checkbox" class="doc-cb" data-id="'+d.id+'" '+(sel?'checked':'')+' onchange="docsToggleRow('+d.id+',this)"></td>';
+      html+='<td><div class="doc-name-wrap">'+docsSvgFile(d.color)+'<span class="doc-name-col" title="'+d.name+'">'+sn+'</span></div></td>';
+      html+='<td class="doc-secondary">'+d.type+'</td>';
+      html+='<td class="doc-secondary">'+d.ref+'</td>';
+      html+='<td class="doc-secondary">'+d.date+'</td>';
+      html+='<td class="doc-secondary">'+d.size+'</td>';
+      html+='<td class="doc-actions-col"><button class="docs-dl-btn" onclick="docsDownload()" style="margin-right:2px">Download</button>';
+      html+='<button class="doc-del-btn'+(isC?' confirming':'')+'" title="'+(isC?'Click again to confirm':'Delete')+'" onclick="docsDeleteRow('+d.id+',this)">';
+      html+=isC?'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><polyline points="20 6 9 17 4 12"/></svg>'
+              :'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6z"/><path d="M3 6l2-3h14l2 3"/></svg>';
+      html+='</button></td></tr>';
+    });
+    tbody.innerHTML=html;
+    docsUpdateSelectAll(); docsUpdateBulkBar(); docsUpdatePager(vis.length);
+  }
+
+  function docsRenderThumb(){
+    var grid=document.getElementById('docs-thumb-view'); if(!grid) return;
+    var vis=docsVisible(), page=Math.min(_docsPage,docsPageCount()-1);
+    var slice=vis.slice(page*DOCS_PG_SIZE,(page+1)*DOCS_PG_SIZE);
+    var html='';
+    slice.forEach(function(d){
+      var sel=!!_docsSelected[d.id], isC=!!_docConfirmTimers[d.id];
+      var sn=d.name.length>22?d.name.slice(0,20)+'...':d.name;
+      html+='<div class="docs-thumb'+(sel?' thumb-sel':'')+'" data-doc-id="'+d.id+'">';
+      html+='<input type="checkbox" class="docs-thumb-cb" data-id="'+d.id+'" '+(sel?'checked':'')+' onchange="docsToggleRow('+d.id+',this)">';
+      html+='<div class="docs-thumb-icon">'+docsSvgFile(d.color)+'</div>';
+      html+='<div class="docs-thumb-name" title="'+d.name+'">'+sn+'</div>';
+      html+='<div class="docs-thumb-type">'+d.type+'</div>';
+      html+='<div class="docs-thumb-actions"><button class="docs-thumb-dl" onclick="docsDownload()">&#8595; DL</button>';
+      html+='<button class="docs-thumb-del-btn'+(isC?' confirming':'')+'" title="'+(isC?'Confirm?':'Delete')+'" onclick="docsDeleteRow('+d.id+',this)">';
+      html+=isC?'<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><polyline points="20 6 9 17 4 12"/></svg>'
+              :'<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6z"/><path d="M3 6l2-3h14l2 3"/></svg>';
+      html+='</button></div></div>';
+    });
+    grid.innerHTML=html; docsUpdateBulkBar(); docsUpdatePager(vis.length);
+  }
+
+  function docsRender(){
+    if(_docsView==='list') docsRenderList(); else docsRenderThumb();
+    var cl=document.getElementById('docs-count-lbl');
+    if(cl) cl.textContent=DOCS_DATA.length+' document'+(DOCS_DATA.length!==1?'s':'');
+  }
+
+  function docsUpdatePager(visCount){
+    var pages=Math.max(1,Math.ceil(visCount/DOCS_PG_SIZE));
+    if(_docsPage>=pages) _docsPage=pages-1;
+    var pB=document.getElementById('dpg-prev'), nB=document.getElementById('dpg-next');
+    var jmp=document.getElementById('dpg-jump'), of=document.getElementById('dpg-of');
+    var fc=document.getElementById('docs-foot-count');
+    if(pB) pB.disabled=_docsPage<=0;
+    if(nB) nB.disabled=_docsPage>=pages-1;
+    if(of) of.textContent='of '+pages;
+    if(fc) fc.textContent=visCount+' document'+(visCount!==1?'s':'')+(visCount<DOCS_DATA.length?' (filtered)':'');
+    if(jmp){
+      jmp.innerHTML='';
+      for(var i=0;i<pages;i++){var o=document.createElement('option');o.value=i;o.textContent=i+1;if(i===_docsPage)o.selected=true;jmp.appendChild(o);}
+    }
+  }
+
+  function docsUpdateBulkBar(){
+    var n=Object.keys(_docsSelected).length;
+    var bar=document.getElementById('docs-bulk-bar'), cnt=document.getElementById('docs-bulk-count');
+    if(bar) bar.classList.toggle('visible',n>0);
+    if(cnt) cnt.textContent=n+' selected';
+  }
+
+  function docsUpdateSelectAll(){
+    var sa=document.getElementById('docs-select-all'); if(!sa) return;
+    var vis=docsVisible().slice(_docsPage*DOCS_PG_SIZE,(_docsPage+1)*DOCS_PG_SIZE);
+    var allSel=vis.length>0&&vis.every(function(d){return!!_docsSelected[d.id];});
+    sa.checked=allSel;
+    sa.indeterminate=!allSel&&vis.some(function(d){return!!_docsSelected[d.id];});
+  }
+
+  window.docsSetView=function(v){
+    _docsView=v;
+    var lv=document.getElementById('docs-list-view'), tv=document.getElementById('docs-thumb-view');
+    var lb=document.getElementById('docs-vbtn-list'), tb=document.getElementById('docs-vbtn-thumb');
+    if(lv) lv.style.display=v==='list'?'':'none';
+    if(tv) tv.style.display=v==='thumb'?'':'none';
+    if(lb) lb.classList.toggle('active',v==='list');
+    if(tb) tb.classList.toggle('active',v==='thumb');
+    docsRender();
+  };
+  window.docsApplyFilters=function(){
+    var si=document.getElementById('docs-search'), tf=document.getElementById('docs-type-filter');
+    _docsSearch=si?si.value:''; _docsType=tf?tf.value:'all'; _docsPage=0; docsRender();
+  };
+  window.docsSelectAll=function(cb){
+    var vis=docsVisible().slice(_docsPage*DOCS_PG_SIZE,(_docsPage+1)*DOCS_PG_SIZE);
+    if(cb.checked){ vis.forEach(function(d){_docsSelected[d.id]=true;}); }
+    else { vis.forEach(function(d){delete _docsSelected[d.id];}); }
+    docsRender();
+  };
+  window.docsToggleRow=function(id,cb){
+    if(cb.checked) _docsSelected[id]=true; else delete _docsSelected[id];
+    docsUpdateSelectAll(); docsUpdateBulkBar();
+    var row=document.querySelector('[data-doc-id="'+id+'"]');
+    if(row){ row.classList.toggle('doc-row-sel',!!_docsSelected[id]); row.classList.toggle('thumb-sel',!!_docsSelected[id]); }
+  };
+  window.docsDeleteRow=function(id,btn){
+    if(_docConfirmTimers[id]){
+      clearTimeout(_docConfirmTimers[id]); delete _docConfirmTimers[id]; delete _docsSelected[id];
+      DOCS_DATA=DOCS_DATA.filter(function(d){return d.id!==id;});
+      if(typeof gsToast==='function') gsToast('Document deleted');
+      docsRender();
+    } else {
+      btn.classList.add('confirming'); btn.title='Click again to confirm';
+      _docConfirmTimers[id]=setTimeout(function(){ delete _docConfirmTimers[id]; docsRender(); },3000);
+    }
+  };
+  window.docsBulkDownload=function(){ alert('Download would start — files not available in prototype.'); };
+  window.docsBulkDelete=function(){
+    var ids=Object.keys(_docsSelected).map(Number); if(!ids.length) return;
+    DOCS_DATA=DOCS_DATA.filter(function(d){return ids.indexOf(d.id)<0;});
+    _docsSelected={};
+    ids.forEach(function(id){clearTimeout(_docConfirmTimers[id]);delete _docConfirmTimers[id];});
+    if(typeof gsToast==='function') gsToast(ids.length+' document'+(ids.length!==1?'s':'')+' deleted');
+    docsRender();
+  };
+  window.docsHandleUpload=function(files){
+    Array.prototype.forEach.call(files,function(f){
+      var id=Date.now()+Math.floor(Math.random()*1000);
+      DOCS_DATA.push({id:id,name:f.name,type:'Uploaded',ref:'—',
+        date:new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}),
+        size:f.size>1048576?(f.size/1048576).toFixed(1)+' MB':Math.round(f.size/1024)+' KB',
+        color:f.name.endsWith('.xlsx')||f.name.endsWith('.xls')?'#5b9cf6':'#e05252'});
+    });
+    docsRender();
+    if(typeof gsToast==='function') gsToast(files.length+' file'+(files.length!==1?'s':'')+' uploaded');
+  };
+  window.docsGotoPrev=function(){ if(_docsPage>0){_docsPage--;docsRender();} };
+  window.docsGotoNext=function(){ if(_docsPage<docsPageCount()-1){_docsPage++;docsRender();} };
+  window.docsGotoPage=function(p){ _docsPage=p; docsRender(); };
+
+  function init(){
+    if(!document.getElementById('docs-tbody-new')&&!document.getElementById('docs-thumb-view')) return;
+    docsRender();
+  }
+  if(document.readyState!=='loading') init();
+  else document.addEventListener('DOMContentLoaded',init);
 })();
