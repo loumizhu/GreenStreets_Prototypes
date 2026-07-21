@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>500 · Server Error — Greenstreets</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/greenstreets-theme.css?v=23">
+<style>
+  /* Page-specific: error card layout, reusing the shared login-card glass shell */
+  .err-card{width:440px;max-width:100%}
+  .err-logo-zone{padding:26px 30px 6px;text-align:center;position:relative}
+  .err-body-zone{padding:8px 34px 34px;position:relative;text-align:center}
+  .err-code{
+    font-size:88px;line-height:.95;font-weight:700;letter-spacing:-.03em;
+    background:linear-gradient(150deg,#ff8f8f,#e0574f);
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+    margin:6px 0 2px;filter:drop-shadow(0 4px 18px rgba(224,87,79,.2))
+  }
+  .err-badge{
+    display:inline-flex;align-items:center;gap:7px;font-size:10px;font-weight:700;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--red,#e0574f);
+    background:rgba(224,87,79,.12);border:1px solid rgba(224,87,79,.3);
+    padding:5px 11px;border-radius:100px;margin-bottom:4px
+  }
+  .err-title{font-size:19px;font-weight:700;letter-spacing:-.01em;margin:10px 0 6px}
+  .err-sub{font-size:12.5px;color:var(--tw3);line-height:1.6;margin:0 auto 22px;max-width:340px}
+  .err-actions{display:flex;flex-direction:column;gap:10px}
+  .err-actions .btn-p,.err-actions .btn-g{width:100%;justify-content:center}
+  .err-hint{font-size:11px;color:var(--tw3);margin-top:18px;line-height:1.5}
+  .err-hint a{color:var(--gs-l);text-decoration:none;font-weight:600}
+  .err-hint a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+
+<div class="screen on">
+  <div class="login-wrap">
+    <div class="login-bg-img on"></div>
+
+    <div class="login-card err-card">
+      <div class="login-logo-zone err-logo-zone">
+        <div class="zone-spotlight"></div>
+        <div class="login-eyebrow">Greenstreets</div>
+        <img class="gs-logo-img" src="https://greenstreets.ie/wp-content/uploads/sites/2/2026/04/Logo-WG.png" alt="Greenstreets">
+      </div>
+
+      <div class="login-form-zone err-body-zone">
+        <div class="zone-spotlight"></div>
+
+        <div class="err-badge">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Server error
+        </div>
+
+        <div class="err-code">500</div>
+        <div class="err-title">Something went wrong on our end</div>
+        <div class="err-sub">The server hit an unexpected error while handling your request. This one's on us — our team has been notified. Please try again shortly.</div>
+
+        <div class="err-actions">
+          <button class="btn-p" onclick="location.href='01-Greenstreets_GreenStreets_Admin_v7.html'">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 12l9-9 9 9M5 10v10a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V10"/></svg>
+            Return to main portal
+          </button>
+          <button class="btn-g" onclick="location.href='mailto:support@greenstreets.ie?subject=Support%20request%20%E2%80%93%20Error%20500'">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+            Contact administrator
+          </button>
+        </div>
+
+        <div class="err-hint">Error 500 · If this persists, reach us at <a href="mailto:support@greenstreets.ie">support@greenstreets.ie</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/greenstreets-theme.js?v=23"></script>
+</body>
+</html>
