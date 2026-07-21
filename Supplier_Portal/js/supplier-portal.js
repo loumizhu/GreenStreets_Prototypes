@@ -192,6 +192,13 @@ function prodMarkRowComplete(pi){
   prodRender(pi);
   if(typeof gsToast==='function') gsToast('“'+p.code+'” marked complete — ready to submit');
 }
+/* Reverse of prodMarkRowComplete — send a complete product back to incomplete. */
+function prodMarkRowIncomplete(pi){
+  var p = PRODUCTS.filter(function(x){return x.id===pi;})[0]; if(!p) return;
+  p.type = 'incomplete'; p.status = 'incomplete';
+  prodRender(pi);
+  if(typeof gsToast==='function') gsToast('“'+p.code+'” moved back to incomplete');
+}
 
 function prodRowHtml(p){
   var m = prodStatusMeta(p.type);
@@ -210,6 +217,7 @@ function prodRowHtml(p){
     + '<td onclick="event.stopPropagation()">' + compCell + '</td>'
     + '<td class="tar"><div class="prod-actions">'
     +   (p.type==='incomplete' ? '<button class="prod-markcomplete-btn" onclick="event.stopPropagation();prodMarkRowComplete('+p.id+')" title="Mark this product complete"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><polyline points="20 6 9 17 4 12"/></svg>Mark complete</button>' : '')
+    +   (p.type==='complete' ? '<button class="prod-markincomplete-btn" onclick="event.stopPropagation();prodMarkRowIncomplete('+p.id+')" title="Mark this product incomplete again"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-1"/></svg>Mark incomplete</button>' : '')
     +   '<button class="prod-submit-btn"' + (m.enabled?"":" disabled") + ' onclick="event.stopPropagation();submitProduct(' + p.id + ')">' + m.btn + '</button>'
     + '</div></td>'
     + '</tr>';
@@ -282,6 +290,8 @@ function openCompMenuAt(btn, pi, addFn){
   menu.innerHTML = compMenuHTML(pi, addFn);
   document.body.appendChild(menu);
   positionCompMenu(btn, menu);
+  var s = menu.querySelector('.comp-menu-search');
+  if(s) setTimeout(function(){ try{ s.focus(); }catch(_){} }, 30);
 }
 function prodAddComp(pi, key){
   closeAllCompMenus();
@@ -1113,8 +1123,69 @@ function pkgGotoNext() {
   if (_pkgTblPage < maxPage) { _pkgTblPage++; renderPkgTable(); }
 }
 function pkgGotoPage(p) { _pkgTblPage = p; renderPkgTable(); }
+/* Show a small, low-contrast auto-generated ID beneath every packaging name in
+   the components listing (name stays primary; the ID reads as a sub-line). */
+function pkgInitRowIds(){
+  var tbody = document.getElementById('pkg-lib-tbody');
+  if(!tbody) return;
+  var seq = 0;
+  tbody.querySelectorAll('tr').forEach(function(tr){
+    var cell = tr.querySelector('.pkg-tbl-name');
+    if(!cell || cell.querySelector('.pkg-tbl-id')) return;
+    seq++;
+    var id = 'PKG-' + String(seq).padStart(4,'0');
+    var nm = cell.textContent.trim();
+    cell.innerHTML = '<span class="pkg-tbl-name-main">'+nm+'</span><span class="pkg-tbl-id">'+id+'</span>';
+  });
+}
+
+/* ── Generic keyboard navigation for data listings ──────────────────────────
+   Makes a table body arrow-navigable: the table is one Tab stop, ↑/↓ move a
+   highlight across the currently-visible rows, Home/End jump to ends, and Enter
+   activates the row (its onclick, or — for the docs table — toggles its checkbox).
+   Re-render-safe: state lives on a class, handlers are delegated to the table. */
+function gsListKeyNav(tableId, tbodyId){
+  var table = document.getElementById(tableId);
+  var tbody = document.getElementById(tbodyId);
+  if(!table || !tbody || table._gsKbd) return;
+  table._gsKbd = true;
+  if(!table.hasAttribute('tabindex')) table.tabIndex = 0;
+  function visRows(){
+    return Array.prototype.filter.call(tbody.querySelectorAll('tr'), function(r){
+      return r.offsetParent !== null && (r.hasAttribute('onclick') || r.getAttribute('data-doc-id') || r.getAttribute('data-pi'));
+    });
+  }
+  function move(rows, i){
+    rows.forEach(function(r){ r.classList.remove('gs-kbd-row'); });
+    i = Math.max(0, Math.min(rows.length-1, i));
+    if(rows[i]){ rows[i].classList.add('gs-kbd-row'); rows[i].scrollIntoView({block:'nearest'}); }
+  }
+  table.addEventListener('keydown', function(e){
+    if(['ArrowDown','ArrowUp','Home','End','Enter'].indexOf(e.key) < 0) return;
+    var rows = visRows(); if(!rows.length) return;
+    var cur = rows.findIndex(function(r){ return r.classList.contains('gs-kbd-row'); });
+    if(e.key==='Enter'){
+      e.preventDefault();
+      var row = rows[cur<0?0:cur]; if(!row) return;
+      var cb = row.querySelector('input[type=checkbox]');
+      if(row.hasAttribute('onclick')) row.click();
+      else if(cb){ cb.checked = !cb.checked; cb.dispatchEvent(new Event('change',{bubbles:true})); }
+      return;
+    }
+    e.preventDefault();
+    if(e.key==='Home') move(rows, 0);
+    else if(e.key==='End') move(rows, rows.length-1);
+    else move(rows, (cur<0 ? (e.key==='ArrowDown'?0:rows.length-1) : cur + (e.key==='ArrowDown'?1:-1)));
+  });
+}
+
 /* Run on load */
-document.addEventListener('DOMContentLoaded', function(){ pkgInitMaterialFilter(); pkgInitCellFilters(); renderPkgTable(); });
+document.addEventListener('DOMContentLoaded', function(){
+  pkgInitMaterialFilter(); pkgInitCellFilters(); pkgInitRowIds(); renderPkgTable();
+  gsListKeyNav('prod-tbl-el','prod-tbody');
+  gsListKeyNav('pkg-lib-table','pkg-lib-tbody');
+  gsListKeyNav('docs-tbl','docs-tbody-new');
+});
 
 
 /* ── Per-section edit on detail page ── */

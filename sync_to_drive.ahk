@@ -1,5 +1,6 @@
 #NoEnv
 SetWorkingDir %A_ScriptDir%
+#SingleInstance, force
 
 SourceDir = D:\((_atWork_))\DuneTech\GreenStreets-UI-UX\Prototypes
 DestDir = H:\My Drive\GreenStreets-UI-UX\Prototypes
@@ -17,23 +18,23 @@ Loop, %SourceDir%\*.*, 0, 1
 {
     RelativePath := SubStr(A_LoopFileFullPath, PrefixLen)
     RelativeDir := SubStr(A_LoopFileDir, PrefixLen)
-    
+
     ; Apply Exclusions
-    if (InStr(RelativePath, ".claude") || InStr(RelativePath, "old") || A_LoopFileName = "CLAUDE.md" || A_LoopFileName = "SKILL.md" || A_LoopFileName = "desktop.ini" || A_LoopFileName = A_ScriptName)
+    if (InStr(RelativePath, ".claude") || InStr(RelativePath, "old") || A_LoopFileName = "CLAUDE.md" || A_LoopFileName = "SKILL.md" || A_LoopFileName = "desktop.ini" || A_LoopFileName = A_ScriptName || A_LoopFileName = ".git")
     {
         continue
     }
 
     DestFile := DestDir "\" RelativePath
     DestFolder := RelativeDir = "" ? DestDir : DestDir "\" RelativeDir
-    
+
     ; Create destination directory if it doesn't exist
     if !FileExist(DestFolder)
         FileCreateDir, %DestFolder%
-        
+
     ; Copy file and overwrite if exists
     FileCopy, %A_LoopFileFullPath%, %DestFile%, 1
-    
+
     ; Verify the copy was successful
     if (ErrorLevel) {
         LogText .= "[FAILED] Copy Error: " RelativePath "`r`n"
@@ -81,7 +82,7 @@ return
 GuiSize:
     if (A_EventInfo = 1) ; The window has been minimized
         return
-    
+
     ; Resize width for Source and Dest edits
     NewEditWidth := A_GuiWidth - 80
     GuiControl, Move, SourceEdit, w%NewEditWidth%
@@ -93,7 +94,7 @@ GuiSize:
     if (NewHeight < 50)
         NewHeight := 50
     GuiControl, Move, LogEdit, w%NewWidth% h%NewHeight%
-    
+
     ; Center the two buttons
     TotalButtonWidth := 150 + 10 + 100 ; Button1 + Spacing + Button2
     StartX := (A_GuiWidth - TotalButtonWidth) / 2
@@ -107,4 +108,4 @@ return
 
 GuiClose:
 GuiEscape:
-    ExitApp
+ExitApp

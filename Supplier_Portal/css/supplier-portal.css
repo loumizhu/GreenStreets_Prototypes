@@ -474,6 +474,16 @@ select.cpkg-inp option{background:#1a2f4a}
 .prod-actions{display:inline-flex;align-items:center;gap:7px;justify-content:flex-end}
 .prod-markcomplete-btn{display:inline-flex;align-items:center;gap:5px;height:30px;padding:0 11px;border-radius:8px;border:1px solid rgba(78,187,129,.45);background:rgba(78,187,129,.13);color:var(--gs);font-family:"Inter",sans-serif;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .12s}
 .prod-markcomplete-btn:hover{background:rgba(78,187,129,.24);border-color:rgba(78,187,129,.7)}
+.prod-markincomplete-btn{display:inline-flex;align-items:center;gap:5px;height:30px;padding:0 11px;border-radius:8px;border:1px solid rgba(245,166,35,.4);background:rgba(245,166,35,.1);color:#f5a623;font-family:"Inter",sans-serif;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .12s}
+.prod-markincomplete-btn:hover{background:rgba(245,166,35,.2);border-color:rgba(245,166,35,.65)}
+/* Packaging listing: ID sub-line under the name */
+.pkg-tbl-name-main{display:block}
+.pkg-tbl-id{display:block;margin-top:2px;font-size:10px;font-weight:600;letter-spacing:.02em;color:rgba(255,255,255,.4);font-family:"SFMono-Regular",ui-monospace,Menlo,monospace}
+/* Keyboard-nav row highlight (shared by product / packaging / document listings) */
+.gs-kbd-row>td{background:rgba(78,187,129,.12)!important}
+.gs-kbd-row{outline:2px solid rgba(78,187,129,.6);outline-offset:-2px}
+table[tabindex]:focus{outline:none}
+table[tabindex]:focus-visible{outline:none}
 .pcmp-list{display:grid;grid-template-columns:1fr 1fr;gap:5px 8px;width:100%}
 .pcmp-pill{display:flex;align-items:center;gap:6px;height:26px;padding:0 4px 0 10px;background:rgba(78,187,129,.12);border:1px solid rgba(78,187,129,.3);border-radius:7px;font-family:"Inter",sans-serif;min-width:0}
 .pcmp-num{font-size:9px;font-weight:800;color:rgba(255,255,255,.4);flex-shrink:0;font-variant-numeric:tabular-nums}

@@ -117,11 +117,12 @@
         if(w>cur) trigger.style.minWidth=w+'px';
       }
     }
+    var _hi=-1;   // keyboard-highlighted option index while the menu is open
     function render(){
       menu.innerHTML='';
       Array.prototype.forEach.call(sel.options,function(o,i){
         var d=document.createElement('div');
-        d.className='cs-opt'+(i===sel.selectedIndex?' sel':'');
+        d.className='cs-opt'+(i===sel.selectedIndex?' sel':'')+(i===_hi?' cs-hi':'');
         d.textContent=o.text;
         d.addEventListener('mousedown',function(e){
           e.preventDefault();                         // keep focus on the trigger
@@ -130,6 +131,17 @@
         });
         menu.appendChild(d);
       });
+    }
+    function highlight(i){
+      var opts=menu.querySelectorAll('.cs-opt'); if(!opts.length) return;
+      _hi=Math.max(0,Math.min(opts.length-1,i));
+      opts.forEach(function(d,k){ d.classList.toggle('cs-hi',k===_hi); });
+      var el=opts[_hi]; if(el && el.scrollIntoView) el.scrollIntoView({block:'nearest'});
+    }
+    function commitHighlight(){
+      if(_hi<0) return;
+      sel.selectedIndex=_hi; sync(); close();
+      sel.dispatchEvent(new Event('change',{bubbles:true}));
     }
     function positionMenu(){
       /* The menu is a position:fixed portal appended to <body>, so it's anchored to the viewport (not clipped
@@ -149,6 +161,7 @@
     }
     function open(){
       if(sel.disabled)return;
+      _hi=sel.selectedIndex>=0?sel.selectedIndex:0;
       render();
       if(menu.parentNode!==document.body) document.body.appendChild(menu);   // portal out of any transformed/clipping ancestor
       wrap.classList.add('open'); menu.classList.add('open');
@@ -166,8 +179,20 @@
 
     trigger.addEventListener('click',toggle);
     trigger.addEventListener('keydown',function(e){
-      if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggle(); }
-      else if(e.key==='Escape'){ close(); }
+      var isOpen=wrap.classList.contains('open');
+      if(e.key==='Escape'){ if(isOpen){ e.preventDefault(); close(); } return; }
+      if(e.key==='ArrowDown'||e.key==='ArrowUp'){
+        e.preventDefault();                           // never let arrows scroll the page/form
+        if(!isOpen){ open(); return; }
+        highlight(_hi + (e.key==='ArrowDown'?1:-1));
+        return;
+      }
+      if(e.key==='Home'||e.key==='End'){ if(isOpen){ e.preventDefault(); highlight(e.key==='Home'?0:sel.options.length-1); } return; }
+      if(e.key==='Enter'||e.key===' '){
+        e.preventDefault();
+        if(isOpen) commitHighlight(); else open();
+        return;
+      }
     });
     document.addEventListener('click',function(e){ if(!wrap.contains(e.target) && !menu.contains(e.target)) close(); });
     sel.addEventListener('change',sync);   // keep the themed label in sync when value is set programmatically

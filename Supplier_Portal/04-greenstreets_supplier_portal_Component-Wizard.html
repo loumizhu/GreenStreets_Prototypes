@@ -112,6 +112,27 @@ textarea.fi{height:auto;min-height:88px;padding:12px 15px;resize:vertical;line-h
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 @media(max-width:560px){.grid2{grid-template-columns:1fr}}
 
+/* Percentage fields: number input + slider stacked */
+.pct-field{display:flex;flex-direction:column;gap:9px}
+.pct-slider{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:4px;background:linear-gradient(90deg,var(--gs),rgba(78,187,129,.25));outline:none;cursor:pointer}
+.pct-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:18px;height:18px;border-radius:50%;background:#fff;border:3px solid var(--gs);cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.35)}
+.pct-slider::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#fff;border:3px solid var(--gs);cursor:pointer}
+.pct-slider:focus-visible{box-shadow:0 0 0 3px rgba(59,130,246,.25)}
+
+/* Dynamic materials list */
+.mat-list{display:flex;flex-direction:column;gap:12px}
+.mat-row{display:grid;grid-template-columns:1fr 200px 34px;gap:12px;align-items:start}
+.mat-row .mat-name{height:50px}
+.mat-row .mat-pctwrap{gap:7px}
+.mat-del{align-self:center;width:34px;height:34px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border-radius:9px;border:1px solid var(--brd2);background:rgba(255,255,255,.04);color:var(--tx3);cursor:pointer;transition:all .12s}
+.mat-del:hover{border-color:var(--red);color:var(--red);background:rgba(248,113,113,.1)}
+.mat-add{margin-top:14px;display:inline-flex;align-items:center;gap:8px;background:var(--bl-dim);border:1px solid var(--bl-brd);color:#93b4f5;font-family:inherit;font-size:13px;font-weight:700;padding:10px 16px;border-radius:10px;cursor:pointer;transition:all .12s}
+.mat-add:hover{background:rgba(59,130,246,.22)}
+.mat-summary{display:flex;align-items:center;gap:18px;margin-top:14px;font-size:12.5px;color:var(--tx2);flex-wrap:wrap}
+.mat-summary b{color:#fff;font-weight:700}
+.mat-warn{color:var(--amb);font-weight:600}
+@media(max-width:560px){.mat-row{grid-template-columns:1fr 120px 34px}}
+
 .opts{display:flex;flex-direction:column;gap:10px}
 .opt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:rgba(255,255,255,.045);border:1.5px solid rgba(255,255,255,.18);border-radius:12px;padding:13px 15px;cursor:pointer;color:var(--tx);font-size:15px;font-weight:500;transition:all .13s}
 .opt:hover{border-color:rgba(255,255,255,.4);background:rgba(255,255,255,.07)}
@@ -216,7 +237,7 @@ textarea.fi{height:auto;min-height:88px;padding:12px 15px;resize:vertical;line-h
 .nameid-id-lbl{font-size:9.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--tx3)}
 .nameid-id-val{font-family:"SFMono-Regular",ui-monospace,Menlo,monospace;font-size:13.5px;font-weight:700;color:var(--gs);letter-spacing:.01em}
 </style>
-<link rel="stylesheet" href="css/greenstreets-theme.css?v=24">
+<link rel="stylesheet" href="css/greenstreets-theme.css?v=25">
 </head>
 <body>
 
@@ -296,11 +317,7 @@ const STEPS=[
  {t:'Material information', d:'Composition by material and percentage weight (must total 100%).', phase:'C', nav:'Materials',
   fields:[
    {type:'select', label:'Base material', req:true, value:'Plastic', options:['Plastic','Paper / board','Metal','Glass','Composite']},
-   {type:'chips', label:'Number of materials', name:'nummat', req:true, value:'2', options:['1','2','3','4']},
-   {type:'text', label:'Material 1 name', ph:'e.g. LDPE film', req:true},
-   {type:'number', label:'% Material 1', unit:'%', req:true},
-   {type:'text', label:'Material 2 name', ph:'e.g. Paper label'},
-   {type:'number', label:'% Material 2', unit:'%'}
+   {type:'materials', label:'Materials', req:true}
   ]},
  {t:'Recycled content', d:'PPWR Article 7 recycled-content declarations.', phase:'C', nav:'Recycled content',
   fields:[
@@ -395,13 +412,79 @@ function fieldHTML(f){
         <div class="nameid-id" title="Auto-generated identifier"><span class="nameid-id-lbl">ID</span><span class="nameid-id-val" id="pkgGenId">—</span></div>
       </div>${hint}</div>`;
   }
-  const unit=f.unit?`<span class="fi-unit">${esc(f.unit)}</span>`:'';
-  const cls='fi'+(f.unit?' fi-has-unit':'');
+  if(f.type==='materials'){
+    return `<div class="tf-field" data-req="${f.req?1:0}" data-kind="materials"><span class="lbl">${esc(f.label)}${req}</span>
+      <div class="mat-list" id="matList"></div>
+      <button type="button" class="mat-add" onclick="matAddRow()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M12 5v14M5 12h14"/></svg>Add material</button>
+      <div class="mat-summary"><span>Materials: <b id="matCount">0</b></span><span>Total: <b id="matTotal">0</b>%</span><span class="mat-warn" id="matWarn"></span></div>
+      <div class="hint">Add each material and its % by weight — the count and total update automatically and should reach 100%.</div></div>`;
+  }
   const id=f.id?` id="${f.id}"`:'';
   const val=f.value!=null?` value="${esc(f.value)}"`:'';
   const type=f.type==='number'?'number':'text';
+  if(f.type==='number' && f.unit==='%'){
+    const v=f.value!=null?f.value:'';
+    return `<div class="tf-field" data-req="${f.req?1:0}"><span class="lbl">${esc(f.label)}${req}</span>
+      <div class="pct-field"><div class="fi-wrap"><input${id} type="number" min="0" max="100" class="fi fi-has-unit" placeholder="${esc(f.ph||'')}"${val} oninput="pctFromNum(this)"><span class="fi-unit">%</span></div>
+      <input type="range" min="0" max="100" step="1" value="${v||0}" class="pct-slider" oninput="pctFromRange(this)" aria-label="${esc(f.label)} slider"></div>${hint}</div>`;
+  }
+  const unit=f.unit?`<span class="fi-unit">${esc(f.unit)}</span>`:'';
+  const cls='fi'+(f.unit?' fi-has-unit':'');
   return `<div class="tf-field" data-req="${f.req?1:0}"><span class="lbl">${esc(f.label)}${req}</span><div class="fi-wrap"><input${id} type="${type}" class="${cls}" placeholder="${esc(f.ph||'')}"${val}>${unit}</div>${hint}</div>`;
 }
+
+/* ── Dynamic materials + percentage sliders ─────────────────────────────── */
+const MAT_OPTIONS=['LDPE film','HDPE','PP','PET','rPET','Paper','Kraft paper','Cardboard / board','Aluminium foil','Glass','Wood','Adhesive','Ink / coating','Other'];
+function matRowHTML(){
+  const opts=MAT_OPTIONS.map(o=>`<option>${esc(o)}</option>`).join('');
+  return `<div class="mat-row" data-mat-row>
+    <select class="fi mat-name" onchange="matSync()"><option value="" disabled selected>Select material…</option>${opts}</select>
+    <div class="pct-field mat-pctwrap"><div class="fi-wrap"><input type="number" min="0" max="100" class="fi fi-has-unit mat-pct-num" placeholder="0" oninput="pctFromNum(this);matSync()"><span class="fi-unit">%</span></div>
+    <input type="range" min="0" max="100" step="1" value="0" class="pct-slider mat-pct-range" oninput="pctFromRange(this);matSync()" aria-label="Material percentage"></div>
+    <button type="button" class="mat-del" title="Remove material" onclick="matDelRow(this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>`;
+}
+function matList(){ return document.getElementById('matList'); }
+function matAddRow(focus){
+  const list=matList(); if(!list) return;
+  const tmp=document.createElement('div'); tmp.innerHTML=matRowHTML();
+  const row=tmp.firstElementChild; list.appendChild(row);
+  if(window.GSEnhanceSelects) window.GSEnhanceSelects(row);
+  if(window.GSEnhanceNumbers) window.GSEnhanceNumbers(row);
+  matSync();
+  if(focus!==false){ const t=row.querySelector('.cs-trigger')||row.querySelector('.mat-name'); if(t){try{t.focus({preventScroll:true})}catch(_){t.focus()}} }
+  return row;
+}
+function matDelRow(btn){ const r=btn.closest('.mat-row'); if(r) r.remove(); matSync(); }
+/* Replace all material rows with the given [name, pct] pairs (used by prefill). */
+function matSetRows(pairs){
+  const list=matList(); if(!list) return;
+  list.innerHTML='';
+  pairs.forEach(p=>{
+    const row=matAddRow(false);
+    const nm=row.querySelector('.mat-name'); if(nm){ nm.value=p[0]; nm.dispatchEvent(new Event('change',{bubbles:true})); }
+    const num=row.querySelector('.mat-pct-num'); if(num){ num.value=p[1]; pctFromNum(num); }
+  });
+  matSync();
+}
+function matSync(){
+  const list=matList(); if(!list) return;
+  let count=0,total=0;
+  list.querySelectorAll('.mat-row').forEach(r=>{
+    const nm=r.querySelector('.mat-name'), pct=r.querySelector('.mat-pct-num');
+    const hasNm=nm&&nm.value, p=pct?parseFloat(pct.value)||0:0;
+    if(hasNm) count++; total+=p;
+  });
+  const c=document.getElementById('matCount'); if(c) c.textContent=count;
+  const tt=document.getElementById('matTotal'); if(tt) tt.textContent=Math.round(total*10)/10;
+  const w=document.getElementById('matWarn');
+  if(w){ w.textContent = (count && Math.round(total)!==100) ? '⚠ should total 100%' : ''; }
+  const sec=document.getElementById('sec3');
+  if(sec){ sec.dataset.touched='1'; const wc=sec.dataset.wc==='1', now=missingIn(3)===0; recompute(now&&!wc?sec.id:null); sec.dataset.wc=now?'1':'0'; }
+}
+/* Percentage number ⇄ slider two-way sync (shared by materials + PCR fields). */
+function pctFromNum(inp){ const w=inp.closest('.pct-field'); if(!w) return; const r=w.querySelector('.pct-slider'); if(r){ let v=parseFloat(inp.value); if(isNaN(v))v=0; r.value=Math.max(0,Math.min(100,v)); } }
+function pctFromRange(rng){ const w=rng.closest('.pct-field'); if(!w) return; const n=w.querySelector('input[type=number]'); if(n){ n.value=rng.value; n.dispatchEvent(new Event('input',{bubbles:true})); } }
 
 function build(){
   document.getElementById('main').innerHTML=STEPS.map((s,i)=>{
@@ -436,6 +519,26 @@ function build(){
   const pTot=document.querySelector('.prog-top span'); if(pTot) pTot.textContent='of '+N+' sections complete';
 
   document.querySelectorAll('.fi-ro').forEach(inp=>{inp.title='Click to edit';inp.addEventListener('mousedown',unlockRo);inp.addEventListener('focus',unlockRo);});
+  relabelChipKeys();
+}
+
+/* When a step has more than one single-choice (chips) question — e.g. Colour has
+   both Opacity and Decoration — giving every group A/B/C makes the letter
+   shortcut ambiguous. Re-letter the options consecutively across all groups in a
+   step (A,B,C then D,E,F…) so each key is unique yet the keys stay adjacent. */
+function relabelChipKeys(){
+  document.querySelectorAll('.sec').forEach(sec=>{
+    const groups=[...sec.querySelectorAll('.tf-field[data-kind="chips"] .opts')];
+    if(groups.length<2) return;                // single-group steps keep A/B/C
+    let n=0;
+    groups.forEach(grp=>{
+      grp.querySelectorAll('.opt').forEach(opt=>{
+        const L=String.fromCharCode(65+n); n++;
+        opt.dataset.k=L;
+        const key=opt.querySelector('.key'); if(key) key.textContent=L;
+      });
+    });
+  });
 }
 function unlockRo(e){const i=e.currentTarget;if(!i.readOnly)return;i.readOnly=false;i.classList.remove('fi-ro');i.classList.add('fi-unlocked');i.removeAttribute('title');i.focus();try{const l=i.value.length;i.setSelectionRange(l,l)}catch(_){}}
 
@@ -445,6 +548,11 @@ function missingIn(i){
   sec.querySelectorAll('.tf-field').forEach(fld=>{
     if(fld.dataset.req!=='1') return;
     if(fld.dataset.kind==='chips'){ if(!fld.querySelector('.opt.sel')) n++; return; }
+    if(fld.dataset.kind==='materials'){
+      let ok=false;
+      fld.querySelectorAll('.mat-row').forEach(r=>{ const nm=r.querySelector('.mat-name'), p=r.querySelector('.mat-pct-num'); if(nm&&nm.value&&p&&parseFloat(p.value)>0) ok=true; });
+      if(!ok) n++; return;
+    }
     const c=fld.querySelector('input.fi,select.fi,textarea.fi'); if(c && !String(c.value).trim()) n++;
   });
   if(i===4){ const rec=radioSel(sec,'recycled'); const pcr=document.getElementById('pcr'); if(rec&&rec.dataset.val==='Yes'&&pcr&&!pcr.value.trim()) n++; }
@@ -454,6 +562,12 @@ function firstBadIn(i){
   const sec=document.getElementById('sec'+i); let bad=null;
   sec.querySelectorAll('.tf-field').forEach(fld=>{ if(bad||fld.dataset.req!=='1')return;
     if(fld.dataset.kind==='chips'){ if(!fld.querySelector('.opt.sel')) bad=fld.querySelector('.opt'); return; }
+    if(fld.dataset.kind==='materials'){
+      let ok=false;
+      fld.querySelectorAll('.mat-row').forEach(r=>{ const nm=r.querySelector('.mat-name'), p=r.querySelector('.mat-pct-num'); if(nm&&nm.value&&p&&parseFloat(p.value)>0) ok=true; });
+      if(!ok){ const r=fld.querySelector('.mat-row'); bad=(r&&(r.querySelector('.mat-name')))||fld.querySelector('.mat-add'); }
+      return;
+    }
     const c=fld.querySelector('input.fi,select.fi,textarea.fi'); if(c&&!String(c.value).trim()) bad=c; });
   if(!bad&&i===4){const rec=radioSel(sec,'recycled');const pcr=document.getElementById('pcr');if(rec&&rec.dataset.val==='Yes'&&pcr&&!pcr.value.trim())bad=pcr;}
   return bad;
@@ -498,17 +612,25 @@ function continueFrom(i){
   clearErr(i);
   if(i<N-1){ scrollToSec(i+1); setTimeout(()=>focusFirst(i+1),480); }
 }
-function goNextIncomplete(){ for(let i=0;i<N;i++){ if(missingIn(i)>0){ scrollToSec(i); setTimeout(()=>focusFirst(i),480); return; } } }
+function goNextIncomplete(){ for(let i=0;i<N;i++){ if(missingIn(i)>0){ scrollToSec(i); setTimeout(()=>{ const bad=firstBadIn(i); if(bad) shake(bad); else focusFirst(i); },520); return; } } }
+/* Focus the first empty editable control on a step. Handles the themed custom
+   selects (the real <select> is hidden and replaced by a .cs-trigger), which the
+   old query skipped — that's why the Additional-info step never auto-focused. */
 function focusFirst(i){
   const sec=document.getElementById('sec'+i);
-  const el=[...sec.querySelectorAll('.opt, input.fi:not([readonly]), select.fi, textarea.fi')].find(e=>{
+  const el=[...sec.querySelectorAll('.opt, input.fi:not([readonly]), .cs-trigger, select.fi, textarea.fi')].find(e=>{
     if(e.offsetParent===null)return false;
     if(e.classList.contains('opt'))return true;
+    if(e.classList.contains('cs-trigger')){ const s=e.parentNode.querySelector('select'); return !s||!s.value; }
     if(e.tagName==='SELECT')return !e.value;
     return !e.value.trim();});
   if(el){try{el.focus({preventScroll:true})}catch(_){el.focus()}}
 }
-function shake(el){if(!el)return;el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake');try{el.focus({preventScroll:true})}catch(_){}setTimeout(()=>el.classList.remove('shake'),450);}
+function shake(el){if(!el)return;
+  /* A themed <select> is hidden behind a .cs-trigger — shake the trigger so the
+     red border/animation is actually visible. */
+  if(el.tagName==='SELECT' && el.offsetParent===null){ const w=el.closest('.cs-wrap'); const t=w&&w.querySelector('.cs-trigger'); if(t) el=t; }
+  el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake');try{el.focus({preventScroll:true})}catch(_){}setTimeout(()=>el.classList.remove('shake'),450);}
 function showErr(i,m){const e=document.getElementById('err-'+i);if(e){e.textContent=m;e.classList.add('show');}}
 function clearErr(i){const e=document.getElementById('err-'+i);if(e)e.classList.remove('show');}
 
@@ -563,9 +685,29 @@ document.addEventListener('keydown',e=>{
     if(e.key==='ArrowDown'||e.key==='ArrowRight'){e.preventDefault();idx=Math.min(opts.length-1,idx+1);opts[idx].focus();selectOpt(opts[idx]);}
     else if(e.key==='ArrowUp'||e.key==='ArrowLeft'){e.preventDefault();idx=Math.max(0,idx-1);opts[idx].focus();selectOpt(opts[idx]);}
     else if(e.key===' '){e.preventDefault();selectOpt(t);}
-    else if(/^[a-zA-Z]$/.test(e.key)){const o=opts.find(x=>x.dataset.k===e.key.toUpperCase());if(o){e.preventDefault();o.focus();selectOpt(o);}}
+    else if(/^[a-zA-Z]$/.test(e.key)){let o=opts.find(x=>x.dataset.k===e.key.toUpperCase());if(!o){const s=t.closest('.sec');if(s)o=s.querySelector('.opt[data-k="'+e.key.toUpperCase()+'"]');}if(o){e.preventDefault();o.focus();selectOpt(o);}}
+    return;
+  }
+  /* Global letter shortcut: when NOT focused inside an option/field, a letter
+     selects the matching choice in the section the user is currently viewing.
+     With per-step unique keys (see relabelChipKeys) this is unambiguous even on
+     steps with several choice questions. */
+  if(/^[a-zA-Z]$/.test(e.key) && !e.metaKey && !e.ctrlKey && !e.altKey){
+    const tag=t&&t.tagName;
+    if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'||(t&&t.classList&&t.classList.contains('cs-trigger'))) return;
+    const sec=activeSection(); if(!sec) return;
+    const o=sec.querySelector('.opt[data-k="'+e.key.toUpperCase()+'"]');
+    if(o){ e.preventDefault(); o.focus(); selectOpt(o); }
   }
 });
+/* The section currently filling most of the viewport (matches the snav highlight). */
+function activeSection(){
+  const a=document.querySelector('.snav-item.active');
+  if(a&&a.dataset.target){ const s=document.getElementById(a.dataset.target); if(s) return s; }
+  let best=null,bestR=0;
+  document.querySelectorAll('.sec').forEach(s=>{const r=s.getBoundingClientRect();const vis=Math.max(0,Math.min(r.bottom,innerHeight)-Math.max(r.top,0));if(vis>bestR){bestR=vis;best=s;}});
+  return best;
+}
 
 function initObserver(){
   const io=new IntersectionObserver(entries=>{
@@ -583,10 +725,8 @@ function setVal(sel,v){const el=document.querySelector(sel);if(el){el.value=v;}}
 function pickChip(sec,name,val){const o=document.querySelector(`#sec${sec} [data-name="${name}"] .opt[data-val="${val}"]`);if(o)selectOpt(o);}
 function applyPrefill(){
   const nameInp=document.querySelector('#sec0 .nameid-name'); if(nameInp){ nameInp.value='LDPE Mailer Bag'; genPkgId(nameInp); }
-  const t5=[...document.querySelectorAll('#sec3 input.fi')];
-  const texts=t5.filter(x=>x.type==='text'), nums=t5.filter(x=>x.type==='number');
-  if(texts[0])texts[0].value='LDPE film'; if(nums[0])nums[0].value='90'; if(texts[1])texts[1].value='Paper label'; if(nums[1])nums[1].value='10';
-  pickChip(4,'recycled','Yes'); setVal('#pcr','20');
+  matSetRows([['LDPE film',90],['Paper',10]]);
+  pickChip(4,'recycled','Yes'); const pcr=document.getElementById('pcr'); if(pcr){ pcr.value='20'; pctFromNum(pcr); }
   pickChip(5,'opacity','Transparent'); pickChip(5,'deco','1-colour print');
   const w=[...document.querySelectorAll('#sec6 input.fi')]; if(w[0])w[0].value='9.8'; if(w[1])w[1].value='46'; if(w[2])w[2].value='55';
   const dm=[...document.querySelectorAll('#sec7 input.fi:not(.ai-input)')]; if(dm[0])dm[0].value='380'; if(dm[1])dm[1].value='300';
@@ -672,6 +812,7 @@ function wizBack(){
 let toastT;function toast(m,k){const el=document.getElementById('toast');el.textContent=m;el.className='toast show '+(k||'');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),3200);}
 
 build();
+matAddRow(false); matAddRow(false);   // seed two empty material rows
 initAIFields();
 initObserver();
 wireNav();
@@ -734,6 +875,6 @@ setTimeout(function(){
   };
 })();
 </script>
-<script src="js/greenstreets-theme.js?v=24"></script>
+<script src="js/greenstreets-theme.js?v=25"></script>
 </body>
 </html>
