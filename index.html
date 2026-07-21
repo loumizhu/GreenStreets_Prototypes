@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GreenStreets — Prototype Index</title>
+<link rel="stylesheet" href="css/greenstreets-theme.css?v=22">
+<style>
+  body{
+    margin:0; min-height:100vh;
+    background:linear-gradient(135deg,#0b1f17,#0d2a1e 55%,#0a1712);
+    background-image:linear-gradient(135deg,rgba(11,31,23,.92),rgba(10,23,18,.92)),url('img/BackgroundGreenStreets.jpg');
+    background-size:cover; background-position:center; background-attachment:fixed;
+    color:#eaf5ee; font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    display:flex; flex-direction:column; align-items:center;
+    padding:56px 20px 72px;
+  }
+  .idx-head{max-width:900px; text-align:center; margin-bottom:44px;}
+  .idx-logo{font-size:14px; letter-spacing:.28em; text-transform:uppercase; color:#8fe3b6; font-weight:600; margin-bottom:14px;}
+  .idx-head h1{font-size:38px; font-weight:700; margin:0 0 12px; letter-spacing:-.5px;}
+  .idx-head p{font-size:15px; line-height:1.6; color:rgba(234,245,238,.7); margin:0;}
+  .idx-grid{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+    gap:22px; width:100%; max-width:1080px;
+  }
+  .idx-card{
+    position:relative; overflow:hidden;
+    display:flex; flex-direction:column;
+    background:rgba(255,255,255,.06);
+    border:1px solid rgba(143,227,182,.18);
+    border-radius:18px; padding:26px 26px 24px;
+    backdrop-filter:blur(14px) saturate(1.2);
+    -webkit-backdrop-filter:blur(14px) saturate(1.2);
+    box-shadow:0 12px 40px rgba(0,0,0,.28);
+    text-decoration:none; color:inherit;
+    transition:transform .22s ease, border-color .22s ease, box-shadow .22s ease, background .22s ease;
+  }
+  /* slow diagonal shine sweep */
+  .idx-card::after{
+    content:''; position:absolute; top:-60%; left:-75%;
+    width:50%; height:220%; pointer-events:none;
+    background:linear-gradient(105deg,
+      transparent 0%,
+      rgba(255,255,255,.06) 40%,
+      rgba(255,255,255,.28) 50%,
+      rgba(255,255,255,.06) 60%,
+      transparent 100%);
+    transform:rotate(8deg);
+    animation:idxShine 7s ease-in-out infinite;
+  }
+  @keyframes idxShine{
+    0%   {left:-75%; opacity:0;}
+    12%  {opacity:1;}
+    38%  {left:135%; opacity:0;}
+    100% {left:135%; opacity:0;}
+  }
+  /* stagger each card so the sweep ripples across them */
+  .idx-grid .idx-card:nth-child(1)::after{animation-delay:0s;}
+  .idx-grid .idx-card:nth-child(2)::after{animation-delay:.6s;}
+  .idx-grid .idx-card:nth-child(3)::after{animation-delay:1.2s;}
+  .idx-grid .idx-card:nth-child(4)::after{animation-delay:1.8s;}
+  @media (prefers-reduced-motion:reduce){
+    .idx-card::after{animation:none; opacity:0;}
+  }
+  .idx-card:hover{
+    transform:translateY(-5px);
+    border-color:rgba(143,227,182,.5);
+    background:rgba(255,255,255,.09);
+    box-shadow:0 20px 54px rgba(0,0,0,.4), 0 0 0 1px rgba(143,227,182,.25);
+  }
+  .idx-tag{
+    align-self:flex-start; font-size:11px; letter-spacing:.12em; text-transform:uppercase;
+    font-weight:600; padding:4px 11px; border-radius:999px; margin-bottom:16px;
+    background:rgba(143,227,182,.16); color:#a9edc6; border:1px solid rgba(143,227,182,.3);
+  }
+  .idx-tag.admin{background:rgba(126,178,255,.16); color:#aecbff; border-color:rgba(126,178,255,.3);}
+  .idx-tag.wip{background:rgba(255,196,120,.16); color:#ffcf8f; border-color:rgba(255,196,120,.32);}
+  .idx-card h2{font-size:20px; font-weight:650; margin:0 0 8px; letter-spacing:-.2px;}
+  .idx-card p{font-size:13.5px; line-height:1.6; color:rgba(234,245,238,.72); margin:0 0 20px; flex:1;}
+  .idx-open{
+    display:inline-flex; align-items:center; gap:8px; align-self:flex-start;
+    font-size:13px; font-weight:600; color:#8fe3b6;
+  }
+  .idx-open svg{transition:transform .22s ease;}
+  .idx-card:hover .idx-open svg{transform:translateX(4px);}
+  .idx-foot{margin-top:48px; font-size:12px; color:rgba(234,245,238,.45); text-align:center;}
+</style>
+</head>
+<body>
+  <div class="idx-head">
+    <div class="idx-logo">GreenStreets</div>
+    <h1>Prototype Index</h1>
+    <p>Clickable UI/UX prototypes for the GreenStreets packaging-compliance platform. Pick a portal below to open it.</p>
+  </div>
+
+  <div class="idx-grid">
+
+    <a class="idx-card" href="01-Greenstreets_GreenStreets_Admin_v7.html">
+      <span class="idx-tag admin">Platform Admin · v7</span>
+      <h2>GreenStreets Admin</h2>
+      <p>The current platform-operator console — all 16 screens with the glassmorphism design system, live theme customizer, and the full data-grid toolkit on its listings.</p>
+      <span class="idx-open">Open portal
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </span>
+    </a>
+
+    <a class="idx-card" href="Retailer_Admin_Portal/02-Greenstreets_retailer_admin_Login.html">
+      <span class="idx-tag">Retailer Admin</span>
+      <h2>Retailer Admin Portal</h2>
+      <p>Retailer-side administrator experience — supplier onboarding, compliance tracking, EPR reports, DoC generation and audit logs. Opens at the login screen.</p>
+      <span class="idx-open">Open portal
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </span>
+    </a>
+
+    <a class="idx-card" href="Retailer_User_Portal/03-greenstreets_retailer_user_Login.html">
+      <span class="idx-tag">Retailer User</span>
+      <h2>Retailer User Portal</h2>
+      <p>Day-to-day retailer user view — browse products, suppliers and packaging, request Declarations of Conformity, and manage documents. Opens at the login screen.</p>
+      <span class="idx-open">Open portal
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </span>
+    </a>
+
+    <a class="idx-card" href="Supplier_Portal/04-greenstreets_supplier_portal_Login.html">
+      <span class="idx-tag">Supplier</span>
+      <h2>Supplier Portal</h2>
+      <p>The supplier-facing experience — AI-assisted packaging upload &amp; review, the component wizard, and per-packaging detail screens. Opens at the login screen.</p>
+      <span class="idx-open">Open portal
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </span>
+    </a>
+
+  </div>
+
+  <div class="idx-foot">GreenStreets · DuneTech — internal prototype gallery</div>
+</body>
+</html>
