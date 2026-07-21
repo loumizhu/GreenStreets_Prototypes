@@ -292,6 +292,33 @@ function openCompMenuAt(btn, pi, addFn){
   positionCompMenu(btn, menu);
   var s = menu.querySelector('.comp-menu-search');
   if(s) setTimeout(function(){ try{ s.focus(); }catch(_){} }, 30);
+  wireCompMenuKeys(menu);
+}
+/* Keyboard nav for the add-component dropdown: ↑/↓ move a highlight across the
+   visible library items (and the "Create new" action), Enter picks it. */
+function compMenuItems(menu){
+  var items = Array.prototype.filter.call(menu.querySelectorAll('.comp-lib-item'), function(it){ return it.style.display!=='none'; });
+  var create = menu.querySelector('.comp-menu-create-new'); if(create) items.push(create);
+  return items;
+}
+function compMenuMove(menu, dir){
+  var items = compMenuItems(menu); if(!items.length) return;
+  var cur = -1;
+  items.forEach(function(x,i){ if(x.classList.contains('comp-lib-hl')) cur=i; });
+  items.forEach(function(x){ x.classList.remove('comp-lib-hl'); });
+  var ni = cur<0 ? (dir>0?0:items.length-1) : Math.max(0, Math.min(items.length-1, cur+dir));
+  items[ni].classList.add('comp-lib-hl');
+  items[ni].scrollIntoView({block:'nearest'});
+}
+function wireCompMenuKeys(menu){
+  menu.addEventListener('keydown', function(e){
+    if(e.key==='ArrowDown'){ e.preventDefault(); compMenuMove(menu, 1); }
+    else if(e.key==='ArrowUp'){ e.preventDefault(); compMenuMove(menu, -1); }
+    else if(e.key==='Enter'){ var hl=menu.querySelector('.comp-lib-hl')||compMenuItems(menu)[0]; if(hl){ e.preventDefault(); hl.click(); } }
+    else if(e.key==='Escape'){ e.preventDefault(); closeAllCompMenus(); }
+  });
+  var s=menu.querySelector('.comp-menu-search');
+  if(s) s.addEventListener('input', function(){ menu.querySelectorAll('.comp-lib-hl').forEach(function(x){ x.classList.remove('comp-lib-hl'); }); });
 }
 function prodAddComp(pi, key){
   closeAllCompMenus();
@@ -338,19 +365,15 @@ function buildPkgData(name){
   var wt = c.weight ? String(c.weight).replace(/[^0-9.]/g,'') : '';
   var pcrM = String(c.recycled||'').match(/(\d+)/); var pcr = pcrM ? pcrM[1] : '0';
   var rec = (pcr && pcr!=='0') ? 'Yes' : 'No';
-  return { name:name, img:c.img||'', groups:[
+  return { name:name, img:c.img||'', materials:[{name:mat||'', pct:100}], groups:[
     {title:'Level & format', fields:[
       {k:'Packaging Level', v:lvl, type:'select', opt:['Primary','Secondary','Tertiary']},
-      {k:'Packaging Type', v:c.pkg_type||name, type:'text'},
+      {k:'Packaging Type', v:c.pkg_type||name, type:'text', req:true},
       {k:'Other Type Description', v:'', type:'text'} ]},
     {title:'Source', fields:[
       {k:'Packaging Source Type', v:'Supplier-manufactured', type:'select', opt:['Supplier-manufactured','Third-party converter','Primark-nominated']} ]},
     {title:'Material information', fields:[
-      {k:'Base Material', v:mat, type:'text'},
-      {k:'No. of materials', v:'1', type:'select', opt:['1','2','3','4']},
-      {k:'Material 1 Name', v:mat, type:'text'},
-      {k:'% Material 1', v:'100', type:'number'},
-      {k:'Total %', v:'100', type:'number'} ]},
+      {k:'Base Material', v:mat, type:'text', req:true} ]},
     {title:'Recycled content', fields:[
       {k:'Recycled Content', v:rec, type:'select', opt:['Yes','No']},
       {k:'Post-Consumer %', v:pcr, type:'number'},
@@ -362,17 +385,17 @@ function buildPkgData(name){
       {k:'Opacity', v:'Opaque', type:'select', opt:['Transparent','Translucent','Opaque']},
       {k:'Decoration', v:'None', type:'select', opt:['None','1-colour print','2-colour print','Full print']} ]},
     {title:'Weight & grammage', fields:[
-      {k:'Weight (g)', v:wt, type:'number'},
+      {k:'Weight (g)', v:wt, type:'number', req:true},
       {k:'Grammage (gsm)', v:'', type:'number'},
       {k:'Gauge (µm)', v:'', type:'number'} ]},
     {title:'Dimensions (mm)', fields:[
-      {k:'Length', v:'', type:'number'},
-      {k:'Width', v:'', type:'number'},
+      {k:'Length', v:'', type:'number', req:true},
+      {k:'Width', v:'', type:'number', req:true},
       {k:'Height / Depth', v:'', type:'number'} ]},
     {title:'Additional information', fields:[
       {k:'Certification', v:c.cert||'None', type:'select', opt:['GRS','RCS','FSC','FSC Recycled','FSC Mixed','PEFC','None','Other']},
-      {k:'Packaging Supplier Name', v:'Windy Apparels Ltd', type:'text'},
-      {k:'Packaging Supplier Address', v:'Dhaka, Bangladesh', type:'text'} ]},
+      {k:'Packaging Supplier Name', v:'Windy Apparels Ltd', type:'text', req:true},
+      {k:'Packaging Supplier Address', v:'Dhaka, Bangladesh', type:'text', req:true} ]},
     {title:'Material compliance', fields:[
       {k:'Compliance Standard', v:'EU PPWR / REACH', type:'select', opt:['EU PPWR / REACH','UK Packaging Regs','Both EU & UK']},
       {k:'Mineral oils above limits?', v:'No', type:'select', opt:['Yes','No']},
@@ -390,7 +413,8 @@ function openProductDetail(pi){
 }
 function pdFieldHTML(pi,pk,gi,fi,field){
   var h = 'pdEditField('+pi+','+pk+','+gi+','+fi+',this.value)';
-  var lbl = '<div class="pd-flabel">'+pdEsc(field.k)+'</div>';
+  var missing = field.req && !String(field.v==null?'':field.v).trim();
+  var lbl = '<div class="pd-flabel">'+pdEsc(field.k)+(field.req?' <span class="pd-req">*</span>':'')+'</div>';
   var ctrl;
   if(field.type==='select'){
     ctrl = '<select class="pd-input" onchange="'+h+'">'+field.opt.map(function(o){return '<option'+(o===field.v?' selected':'')+'>'+pdEsc(o)+'</option>';}).join('')+'</select>';
@@ -399,8 +423,17 @@ function pdFieldHTML(pi,pk,gi,fi,field){
   } else {
     ctrl = '<input type="'+(field.type==='number'?'number':'text')+'" class="pd-input" value="'+pdEsc(field.v)+'" oninput="'+h+'" placeholder="—">';
   }
-  return '<div class="pd-field">'+lbl+ctrl+'</div>';
+  return '<div class="pd-field'+(missing?' pd-field-missing':'')+'"'+(field.req?' data-req="1"':'')+'>'+lbl+ctrl+'</div>';
 }
+/* Required product-detail fields flip out of the orange "missing" state as soon
+   as they hold a value (and back to orange if cleared). */
+document.addEventListener('input', function(e){
+  var inp = e.target.closest && e.target.closest('.pd-input');
+  if(!inp) return;
+  var f = inp.closest('.pd-field');
+  if(!f || f.dataset.req!=='1') return;
+  f.classList.toggle('pd-field-missing', !String(inp.value).trim());
+}, true);
 function pdCardHeadInner(pi,pk){
   var pkg = PRODUCTS.filter(function(x){return x.id===pi;})[0]._pkgs[pk];
   var lvl = fval(pkg,'Packaging Level')||'Primary';
@@ -419,7 +452,9 @@ function pdCardHeadInner(pi,pk){
   return '<span class="pkg-level-pill-sm" style="background:'+col+'22;color:'+col+';border:1px solid '+col+'55">'+pdEsc(lvl)+'</span>'
     + '<div class="pd-card-name">'+pdEsc(pkg.name)+'</div>'
     + '<div class="pd-sum">'+sum+'</div>'
-    + '<span class="pkg-status-pill '+scls+'">'+st+'</span>'
+    + (pkg._saved
+        ? '<span class="pkg-status-pill compliant">Saved ✓</span>'
+        : '<span class="pkg-status-pill '+scls+'">'+st+'</span>')
     + '<svg class="pd-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="6 9 12 15 18 9"/></svg>';
 }
 function renderProductDetail(pi){
@@ -449,13 +484,15 @@ function renderProductDetail(pi){
   var cards = p._pkgs.map(function(pkg,pk){
     var body = pkg.groups.map(function(grp,gi){
       var fields = grp.fields.map(function(fld,fi){ return pdFieldHTML(pi,pk,gi,fi,fld); }).join('');
-      return '<div class="pd-group"><div class="pd-group-t">'+pdEsc(grp.title)+'</div><div class="pd-fgrid">'+fields+'</div></div>';
+      var extra = (grp.title==='Material information') ? pdMatBlockHTML(pi,pk) : '';
+      return '<div class="pd-group"><div class="pd-group-t">'+pdEsc(grp.title)+'</div><div class="pd-fgrid">'+fields+'</div>'+extra+'</div>';
     }).join('');
     return '<div class="pd-card" id="pd-card-'+pi+'-'+pk+'">'
       + '<div class="pd-card-head" id="pd-head-'+pi+'-'+pk+'" onclick="pdToggleCard('+pi+','+pk+')">'+pdCardHeadInner(pi,pk)+'</div>'
       + '<div class="pd-card-body">'+body
       +   '<div class="pd-card-foot"><button class="pd-remove" onclick="pdRemoveComp('+pi+','+pk+')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 6h18M8 6V4h8v2m-9 0v14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V6"/></svg>Remove packaging</button>'
-      +   '<button class="pd-collapse" onclick="pdToggleCard('+pi+','+pk+')">Collapse ▲</button></div>'
+      +   '<div class="pd-foot-right"><button class="pd-save-card" id="pd-savebtn-'+pi+'-'+pk+'" onclick="pdSaveCard('+pi+','+pk+')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg>Save</button>'
+      +   '<button class="pd-collapse" onclick="pdToggleCard('+pi+','+pk+')">Collapse ▲</button></div></div>'
       + '</div></div>';
   }).join('');
   if(!p._pkgs.length) cards = '<div class="pd-empty">No packaging components yet — add the first one.</div>';
@@ -465,13 +502,87 @@ function renderProductDetail(pi){
     + '<div class="pd-comp-list">'+cards+'</div>'
     + '<button class="pd-add-card" id="pd-addcard-'+pi+'" onclick="event.stopPropagation();pdToggleAddMenu(this,'+pi+')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>Add packaging component</button>';
 
-  document.getElementById('pd-body').innerHTML = '<div class="pd-wrap">'+head+comp+'</div>';
+  var matDL = '<datalist id="pd-mat-opts">'+PD_MAT_OPTIONS.map(function(o){return '<option value="'+pdEsc(o)+'"></option>';}).join('')+'</datalist>';
+  document.getElementById('pd-body').innerHTML = '<div class="pd-wrap">'+matDL+head+comp+'</div>';
+}
+/* ── Dynamic materials inside a product-detail packaging card ──────────────
+   Mirrors the multi-step wizard: one material to start, an "Add material" button
+   for as many as needed, each with a name (type or pick) and a % (input+slider).
+   The material count and total are derived, not asked. */
+var PD_MAT_OPTIONS=['LDPE film','HDPE','PP','PET','rPET','Paper','Kraft paper','Cardboard / board','Aluminium foil','Glass','Wood','Adhesive','Ink / coating','Other'];
+function pdMats(pi,pk){
+  var p=PRODUCTS.filter(function(x){return x.id===pi;})[0];
+  if(!p||!p._pkgs||!p._pkgs[pk]) return [];
+  if(!p._pkgs[pk].materials) p._pkgs[pk].materials=[{name:'',pct:0}];
+  return p._pkgs[pk].materials;
+}
+function pdMatRowHTML(pi,pk,idx,m){
+  return '<div class="pd-mat-row" data-idx="'+idx+'">'
+    + '<div class="pd-field"><div class="pd-flabel">Material '+(idx+1)+' name</div>'
+    +   '<input class="pd-input" list="pd-mat-opts" value="'+pdEsc(m.name||'')+'" placeholder="Type or pick a material" oninput="pdMatEdit('+pi+','+pk+','+idx+',\'name\',this.value)"></div>'
+    + '<div class="pd-field pd-mat-pct"><div class="pd-flabel">% Material '+(idx+1)+'</div>'
+    +   '<div class="pd-pct"><input type="number" min="0" max="100" class="pd-input" value="'+(m.pct==null?'':m.pct)+'" oninput="var r=this.parentNode.querySelector(\'.pd-pct-range\');if(r)r.value=this.value||0;pdMatEdit('+pi+','+pk+','+idx+',\'pct\',this.value)">'
+    +   '<input type="range" min="0" max="100" step="1" value="'+(parseFloat(m.pct)||0)+'" class="pd-pct-range" oninput="var n=this.parentNode.querySelector(\'input[type=number]\');if(n)n.value=this.value;pdMatEdit('+pi+','+pk+','+idx+',\'pct\',this.value)"></div></div>'
+    + '<button class="pd-mat-del" title="Remove material" onclick="pdMatDelRow('+pi+','+pk+','+idx+')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>'
+    + '</div>';
+}
+function pdMatListHTML(pi,pk){
+  return pdMats(pi,pk).map(function(m,idx){ return pdMatRowHTML(pi,pk,idx,m); }).join('');
+}
+function pdMatBlockHTML(pi,pk){
+  var ms=pdMats(pi,pk);
+  var count=ms.filter(function(m){return (m.name||'').trim();}).length;
+  var total=ms.reduce(function(s,m){return s+(parseFloat(m.pct)||0);},0);
+  return '<div class="pd-mat-block">'
+    + '<div class="pd-mat-list" id="pd-mat-'+pi+'-'+pk+'">'+pdMatListHTML(pi,pk)+'</div>'
+    + '<button class="pd-mat-add" onclick="pdMatAddRow('+pi+','+pk+')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M12 5v14M5 12h14"/></svg>Add material</button>'
+    + '<div class="pd-mat-sum"><span>Materials: <b id="pd-matc-'+pi+'-'+pk+'">'+count+'</b></span><span>Total: <b id="pd-matt-'+pi+'-'+pk+'">'+(Math.round(total*10)/10)+'</b>%</span><span class="pd-mat-warn" id="pd-matw-'+pi+'-'+pk+'">'+((count&&Math.round(total)!==100)?'⚠ should total 100%':'')+'</span></div>'
+    + '</div>';
+}
+function pdMatUpdateSum(pi,pk){
+  var ms=pdMats(pi,pk);
+  var count=ms.filter(function(m){return (m.name||'').trim();}).length;
+  var total=ms.reduce(function(s,m){return s+(parseFloat(m.pct)||0);},0);
+  var c=document.getElementById('pd-matc-'+pi+'-'+pk); if(c) c.textContent=count;
+  var t=document.getElementById('pd-matt-'+pi+'-'+pk); if(t) t.textContent=Math.round(total*10)/10;
+  var w=document.getElementById('pd-matw-'+pi+'-'+pk); if(w) w.textContent=(count&&Math.round(total)!==100)?'⚠ should total 100%':'';
+}
+function pdMatEdit(pi,pk,idx,field,val){
+  var ms=pdMats(pi,pk); if(!ms[idx]) return;
+  ms[idx][field]= field==='pct' ? (val===''?'':(parseFloat(val)||0)) : val;
+  var p=PRODUCTS.filter(function(x){return x.id===pi;})[0]; if(p&&p._pkgs&&p._pkgs[pk]) p._pkgs[pk]._saved=false;
+  pdMatUpdateSum(pi,pk);
+}
+function pdMatAddRow(pi,pk){
+  pdMats(pi,pk).push({name:'',pct:0});
+  var list=document.getElementById('pd-mat-'+pi+'-'+pk);
+  if(list){ list.innerHTML=pdMatListHTML(pi,pk); var rows=list.querySelectorAll('.pd-mat-row'); var last=rows[rows.length-1]; var inp=last&&last.querySelector('.pd-input'); if(inp){try{inp.focus()}catch(_){}} }
+  pdMatUpdateSum(pi,pk);
+}
+function pdMatDelRow(pi,pk,idx){
+  var ms=pdMats(pi,pk); if(idx<0||idx>=ms.length) return;
+  ms.splice(idx,1); if(!ms.length) ms.push({name:'',pct:0});
+  var list=document.getElementById('pd-mat-'+pi+'-'+pk);
+  if(list) list.innerHTML=pdMatListHTML(pi,pk);
+  pdMatUpdateSum(pi,pk);
 }
 function pdEditField(pi,pk,gi,fi,val){
   var p = PRODUCTS.filter(function(x){return x.id===pi;})[0]; if(!p||!p._pkgs) return;
   p._pkgs[pk].groups[gi].fields[fi].v = val;
+  p._pkgs[pk]._saved = false;   // an edit reopens the "review / incomplete" status
   var head = document.getElementById('pd-head-'+pi+'-'+pk);
   if(head) head.innerHTML = pdCardHeadInner(pi,pk);
+}
+/* Per-component Save: reassures the user their edits are kept (auto-save already
+   runs). Marks the card saved so its Review/Incomplete pill turns to "Saved ✓". */
+function pdSaveCard(pi,pk){
+  var p = PRODUCTS.filter(function(x){return x.id===pi;})[0]; if(!p||!p._pkgs||!p._pkgs[pk]) return;
+  p._pkgs[pk]._saved = true;
+  var head = document.getElementById('pd-head-'+pi+'-'+pk);
+  if(head) head.innerHTML = pdCardHeadInner(pi,pk);
+  var btn = document.getElementById('pd-savebtn-'+pi+'-'+pk);
+  if(btn){ btn.classList.add('pd-save-done'); var o=btn.innerHTML; btn.innerHTML='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><path d="M20 6 9 17l-5-5"/></svg>Saved'; setTimeout(function(){ if(btn){ btn.classList.remove('pd-save-done'); btn.innerHTML=o; } }, 1600); }
+  if(typeof gsToast==='function') gsToast('Packaging component saved');
 }
 function pdEditProduct(pi,field,val){
   var p = PRODUCTS.filter(function(x){return x.id===pi;})[0]; if(!p) return;
@@ -591,8 +702,9 @@ function gsFlashNewPackaging(name, id){
   var tr = document.createElement('tr');
   tr.className = 'gs-row-flash';
   tr.style.cursor = 'pointer';
+  var idHtml = (id && id!=='—') ? '<span class="pkg-tbl-id">'+id+'</span>' : '';
   tr.innerHTML =
-    '<td class="pkg-tbl-name">'+name+(id?' <span style="font-size:10px;color:rgba(255,255,255,.45);font-weight:600">'+id+'</span>':'')+'</td>'
+    '<td class="pkg-tbl-name"><span class="pkg-tbl-name-main">'+name+'</span>'+idHtml+'</td>'
     + '<td><span class="pkg-level-pill-sm" style="background:#3aa8d822;color:#3aa8d8;border:1px solid #3aa8d855">Primary</span></td>'
     + '<td class="pkg-tbl-secondary">'+name+'</td>'
     + '<td class="pkg-tbl-secondary">—</td><td class="pkg-tbl-secondary">—</td><td class="pkg-tbl-secondary">—</td><td class="pkg-tbl-secondary">—</td>'
@@ -1984,14 +2096,26 @@ gsGoLanding = function(tab){ sessionStorage.setItem('gs_tab', tab || 'products')
   ];
   var _docsView='list', _docsPage=0, DOCS_PG_SIZE=8;
   var _docsSearch='', _docsType='all', _docsSelected={}, _docConfirmTimers={};
+  var _docsSort={key:null,dir:1};
+  var _docsThumbSize=152;
+  var DOCS_X_SVG='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+
+  function docsParseDate(s){ var t=Date.parse(s); return isNaN(t)?0:t; }
+  function docsParseSize(s){ var m=(s||'').match(/([\d.]+)\s*(KB|MB|GB)?/i); if(!m) return 0; var v=parseFloat(m[1])||0; var u=(m[2]||'KB').toUpperCase(); return v*(u==='GB'?1048576:u==='MB'?1024:1); }
+  function docsSortVal(d,k){ if(k==='date') return docsParseDate(d.date); if(k==='size') return docsParseSize(d.size); return (d[k]||'').toString().toLowerCase(); }
 
   function docsVisible(){
-    return DOCS_DATA.filter(function(d){
+    var list=DOCS_DATA.filter(function(d){
       var q=_docsSearch.toLowerCase();
       var mS=!q||d.name.toLowerCase().indexOf(q)>-1||d.ref.toLowerCase().indexOf(q)>-1;
       var mT=_docsType==='all'||d.type===_docsType;
       return mS&&mT;
     });
+    if(_docsSort.key){
+      var k=_docsSort.key, dir=_docsSort.dir;
+      list=list.slice().sort(function(a,b){ var av=docsSortVal(a,k),bv=docsSortVal(b,k); if(av<bv)return -1*dir; if(av>bv)return 1*dir; return 0; });
+    }
+    return list;
   }
   function docsPageCount(){ return Math.max(1,Math.ceil(docsVisible().length/DOCS_PG_SIZE)); }
   function docsSvgFile(c){ return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="'+c+'" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>'; }
@@ -2002,45 +2126,49 @@ gsGoLanding = function(tab){ sessionStorage.setItem('gs_tab', tab || 'products')
     var slice=vis.slice(page*DOCS_PG_SIZE,(page+1)*DOCS_PG_SIZE);
     var html='';
     slice.forEach(function(d){
-      var sel=!!_docsSelected[d.id], isC=!!_docConfirmTimers[d.id];
+      var sel=!!_docsSelected[d.id];
       var sn=d.name.length>42?d.name.slice(0,39)+'...':d.name;
-      html+='<tr class="'+(sel?'doc-row-sel':'')+'" data-doc-id="'+d.id+'">';
-      html+='<td class="doc-cb-cell"><input type="checkbox" class="doc-cb" data-id="'+d.id+'" '+(sel?'checked':'')+' onchange="docsToggleRow('+d.id+',this)"></td>';
+      html+='<tr class="'+(sel?'doc-row-sel':'')+'" data-doc-id="'+d.id+'" onclick="docsPreview('+d.id+')" style="cursor:pointer" title="Click to preview">';
+      html+='<td class="doc-cb-cell" onclick="event.stopPropagation()"><input type="checkbox" class="doc-cb" data-id="'+d.id+'" '+(sel?'checked':'')+' onchange="docsToggleRow('+d.id+',this)"></td>';
       html+='<td><div class="doc-name-wrap">'+docsSvgFile(d.color)+'<span class="doc-name-col" title="'+d.name+'">'+sn+'</span></div></td>';
       html+='<td class="doc-secondary">'+d.type+'</td>';
       html+='<td class="doc-secondary">'+d.ref+'</td>';
       html+='<td class="doc-secondary">'+d.date+'</td>';
       html+='<td class="doc-secondary">'+d.size+'</td>';
-      html+='<td class="doc-actions-col"><button class="docs-dl-btn" onclick="docsDownload()" style="margin-right:2px">Download</button>';
-      html+='<button class="doc-del-btn'+(isC?' confirming':'')+'" title="'+(isC?'Click again to confirm':'Delete')+'" onclick="docsDeleteRow('+d.id+',this)">';
-      html+=isC?'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><polyline points="20 6 9 17 4 12"/></svg>'
-              :'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6z"/><path d="M3 6l2-3h14l2 3"/></svg>';
-      html+='</button></td></tr>';
+      html+='<td class="doc-actions-col" onclick="event.stopPropagation()"><button class="docs-dl-btn" onclick="docsDownload()" style="margin-right:2px">Download</button>';
+      html+='<button class="doc-del-btn" title="Delete" onclick="docsAskDelete('+d.id+',this)">'+DOCS_X_SVG+'</button>';
+      html+='</td></tr>';
     });
     tbody.innerHTML=html;
-    docsUpdateSelectAll(); docsUpdateBulkBar(); docsUpdatePager(vis.length);
+    docsUpdateSelectAll(); docsUpdateBulkBar(); docsUpdatePager(vis.length); docsUpdateSortArrows();
   }
 
   function docsRenderThumb(){
     var grid=document.getElementById('docs-thumb-view'); if(!grid) return;
+    grid.style.setProperty('--dt-size', _docsThumbSize+'px');
     var vis=docsVisible(), page=Math.min(_docsPage,docsPageCount()-1);
     var slice=vis.slice(page*DOCS_PG_SIZE,(page+1)*DOCS_PG_SIZE);
     var html='';
     slice.forEach(function(d){
-      var sel=!!_docsSelected[d.id], isC=!!_docConfirmTimers[d.id];
-      var sn=d.name.length>22?d.name.slice(0,20)+'...':d.name;
-      html+='<div class="docs-thumb'+(sel?' thumb-sel':'')+'" data-doc-id="'+d.id+'">';
-      html+='<input type="checkbox" class="docs-thumb-cb" data-id="'+d.id+'" '+(sel?'checked':'')+' onchange="docsToggleRow('+d.id+',this)">';
+      var sel=!!_docsSelected[d.id];
+      var sn=d.name.length>28?d.name.slice(0,26)+'...':d.name;
+      html+='<div class="docs-thumb'+(sel?' thumb-sel':'')+'" data-doc-id="'+d.id+'" onclick="docsPreview('+d.id+')" title="Click to preview">';
+      html+='<input type="checkbox" class="docs-thumb-cb" data-id="'+d.id+'" '+(sel?'checked':'')+' onclick="event.stopPropagation()" onchange="docsToggleRow('+d.id+',this)">';
       html+='<div class="docs-thumb-icon">'+docsSvgFile(d.color)+'</div>';
       html+='<div class="docs-thumb-name" title="'+d.name+'">'+sn+'</div>';
       html+='<div class="docs-thumb-type">'+d.type+'</div>';
-      html+='<div class="docs-thumb-actions"><button class="docs-thumb-dl" onclick="docsDownload()">&#8595; DL</button>';
-      html+='<button class="docs-thumb-del-btn'+(isC?' confirming':'')+'" title="'+(isC?'Confirm?':'Delete')+'" onclick="docsDeleteRow('+d.id+',this)">';
-      html+=isC?'<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><polyline points="20 6 9 17 4 12"/></svg>'
-              :'<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6z"/><path d="M3 6l2-3h14l2 3"/></svg>';
-      html+='</button></div></div>';
+      html+='<div class="docs-thumb-actions" onclick="event.stopPropagation()"><button class="docs-thumb-dl" onclick="docsDownload()">&#8595; DL</button>';
+      html+='<button class="docs-thumb-del-btn" title="Delete" onclick="docsAskDelete('+d.id+',this)">'+DOCS_X_SVG+'</button>';
+      html+='</div></div>';
     });
     grid.innerHTML=html; docsUpdateBulkBar(); docsUpdatePager(vis.length);
+  }
+  function docsUpdateSortArrows(){
+    document.querySelectorAll('#docs-tbl thead th[data-sort]').forEach(function(th){
+      var a=th.querySelector('.doc-sort-arrow'); if(!a) return;
+      if(th.getAttribute('data-sort')===_docsSort.key){ th.classList.add('sorted'); a.textContent=_docsSort.dir===1?'▲':'▼'; }
+      else { th.classList.remove('sorted'); a.textContent='↕'; }
+    });
   }
 
   function docsRender(){
@@ -2088,6 +2216,7 @@ gsGoLanding = function(tab){ sessionStorage.setItem('gs_tab', tab || 'products')
     if(tv) tv.style.display=v==='thumb'?'':'none';
     if(lb) lb.classList.toggle('active',v==='list');
     if(tb) tb.classList.toggle('active',v==='thumb');
+    var sz=document.getElementById('docs-thumb-size-wrap'); if(sz) sz.style.display=v==='thumb'?'flex':'none';
     docsRender();
   };
   window.docsApplyFilters=function(){
@@ -2106,17 +2235,82 @@ gsGoLanding = function(tab){ sessionStorage.setItem('gs_tab', tab || 'products')
     var row=document.querySelector('[data-doc-id="'+id+'"]');
     if(row){ row.classList.toggle('doc-row-sel',!!_docsSelected[id]); row.classList.toggle('thumb-sel',!!_docsSelected[id]); }
   };
-  window.docsDeleteRow=function(id,btn){
-    if(_docConfirmTimers[id]){
-      clearTimeout(_docConfirmTimers[id]); delete _docConfirmTimers[id]; delete _docsSelected[id];
-      DOCS_DATA=DOCS_DATA.filter(function(d){return d.id!==id;});
-      if(typeof gsToast==='function') gsToast('Document deleted');
-      docsRender();
-    } else {
-      btn.classList.add('confirming'); btn.title='Click again to confirm';
-      _docConfirmTimers[id]=setTimeout(function(){ delete _docConfirmTimers[id]; docsRender(); },3000);
-    }
+  /* Sort by a column header (toggles asc/desc). */
+  window.docsSort=function(key){
+    if(_docsSort.key===key) _docsSort.dir*=-1; else { _docsSort.key=key; _docsSort.dir=1; }
+    _docsPage=0; docsRender();
   };
+  /* Thumbnail size slider (list "extra large" up to ~3×). */
+  window.docsSetThumbSize=function(v){
+    _docsThumbSize=+v;
+    var g=document.getElementById('docs-thumb-view'); if(g) g.style.setProperty('--dt-size', _docsThumbSize+'px');
+  };
+
+  /* ── Inline delete confirmation (a small popover next to the button) ── */
+  function docsCloseDelPop(){
+    var p=document.getElementById('doc-del-pop'); if(p) p.remove();
+    document.querySelectorAll('.doc-del-btn.confirming,.docs-thumb-del-btn.confirming').forEach(function(b){ b.classList.remove('confirming'); });
+  }
+  window.docsCloseDelPop=docsCloseDelPop;
+  window.docsAskDelete=function(id,btn){
+    var open=document.getElementById('doc-del-pop');
+    docsCloseDelPop();
+    if(open && open.dataset.id===String(id)) return;   // toggle closed if same button
+    btn.classList.add('confirming');
+    var pop=document.createElement('div'); pop.className='doc-del-pop'; pop.id='doc-del-pop'; pop.dataset.id=id;
+    pop.innerHTML='<div class="doc-del-pop-msg"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Delete this document?</div>'
+      +'<div class="doc-del-pop-btns"><button class="doc-del-pop-cancel" onclick="docsCloseDelPop()">Cancel</button><button class="doc-del-pop-yes" onclick="docsDoDelete('+id+')">Delete</button></div>';
+    document.body.appendChild(pop);
+    var r=btn.getBoundingClientRect(), pw=pop.offsetWidth||188, ph=pop.offsetHeight||78;
+    var left=Math.max(8, Math.min(r.right-pw, window.innerWidth-pw-8));
+    var top=r.bottom+6; if(top+ph>window.innerHeight-8) top=r.top-ph-6;
+    pop.style.left=left+'px'; pop.style.top=Math.max(8,top)+'px';
+  };
+  window.docsDoDelete=function(id){
+    docsCloseDelPop();
+    delete _docsSelected[id];
+    DOCS_DATA=DOCS_DATA.filter(function(d){return d.id!==id;});
+    if(typeof gsToast==='function') gsToast('Document deleted');
+    docsRender();
+  };
+  document.addEventListener('click',function(e){ if(!e.target.closest('.doc-del-pop') && !e.target.closest('.doc-del-btn') && !e.target.closest('.docs-thumb-del-btn')) docsCloseDelPop(); });
+  window.addEventListener('scroll',docsCloseDelPop,true);
+
+  /* ── Document preview (prototype: a mocked page/sheet render) ── */
+  function docsMockPage(d){
+    var lines=''; for(var i=0;i<7;i++){ lines+='<div class="dpv-line" style="width:'+(96-(i%3)*14)+'%"></div>'; }
+    return '<div class="dpv-page"><div class="dpv-page-badge">'+d.type+'</div>'
+      +'<div class="dpv-page-title">'+d.name.replace(/\.[a-z]+$/i,'')+'</div>'
+      +'<div class="dpv-page-meta">Reference: '+d.ref+' · Issued '+d.date+'</div>'
+      +'<div class="dpv-hr"></div>'+lines
+      +'<div class="dpv-line" style="width:40%"></div><div class="dpv-sign">Authorised signature</div></div>';
+  }
+  function docsMockSheet(d){
+    var head='<tr><th>#</th><th>Component</th><th>Result</th><th>Limit</th><th>Status</th></tr>';
+    var rows=['Swing Tag','Poly Bag','Shipping Carton','Pallet','Hanger'].map(function(n,i){
+      return '<tr><td>'+(i+1)+'</td><td>'+n+'</td><td>'+(10+i*3)+' ppm</td><td>100 ppm</td><td class="dpv-pass">Pass</td></tr>';
+    }).join('');
+    return '<div class="dpv-sheet-title">'+d.name+'</div><table class="dpv-sheet">'+head+rows+'</table>';
+  }
+  window.docsPreview=function(id){
+    var d=DOCS_DATA.filter(function(x){return x.id===id;})[0]; if(!d) return;
+    docsCloseDelPop();
+    var old=document.getElementById('docs-preview'); if(old) old.remove();
+    var isSheet=/\.xlsx?$/i.test(d.name);
+    var body=isSheet?docsMockSheet(d):docsMockPage(d);
+    var el=document.createElement('div'); el.id='docs-preview'; el.className='docs-preview-overlay';
+    el.innerHTML='<div class="docs-preview-card"><div class="docs-preview-hdr">'+docsSvgFile(d.color)
+      +'<div class="docs-preview-meta"><div class="docs-preview-name">'+d.name+'</div><div class="docs-preview-sub">'+d.type+' · '+d.size+' · '+d.date+'</div></div>'
+      +'<button class="docs-preview-close" title="Close" onclick="docsClosePreview()">✕</button></div>'
+      +'<div class="docs-preview-body">'+body+'</div>'
+      +'<div class="docs-preview-foot"><span class="docs-preview-tag">Prototype preview — not the real file</span><button class="docs-preview-dl" onclick="docsDownload()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download</button></div></div>';
+    el.addEventListener('click',function(e){ if(e.target===el) docsClosePreview(); });
+    document.body.appendChild(el);
+    document.body.style.overflow='hidden';
+    document.addEventListener('keydown',docsPreviewEsc);
+  };
+  function docsPreviewEsc(e){ if(e.key==='Escape') docsClosePreview(); }
+  window.docsClosePreview=function(){ var el=document.getElementById('docs-preview'); if(el) el.remove(); document.body.style.overflow=''; document.removeEventListener('keydown',docsPreviewEsc); };
   window.docsBulkDownload=function(){ alert('Download would start — files not available in prototype.'); };
   window.docsBulkDelete=function(){
     var ids=Object.keys(_docsSelected).map(Number); if(!ids.length) return;

@@ -20,9 +20,12 @@ echo.
 :: -- Step 1: Check for anything to commit ------------------------------------
 echo  [1/4] Checking for changes...
 git status --short > "%TEMP%\gs_gitstatus.txt" 2>&1
-set /p STATUS_LINE=<"%TEMP%\gs_gitstatus.txt"
 
-if "%STATUS_LINE%"=="" (
+:: Count lines in the status file - if 0, nothing to commit
+set "HAS_CHANGES=0"
+for /f "usebackq" %%L in ("%TEMP%\gs_gitstatus.txt") do set "HAS_CHANGES=1"
+
+if "%HAS_CHANGES%"=="0" (
     echo.
     echo  [OK] No changes detected - everything is already up to date.
     echo       Nothing to commit. Exiting.
