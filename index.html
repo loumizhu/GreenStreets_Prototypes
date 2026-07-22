@@ -83,7 +83,33 @@
   }
   .idx-open svg{transition:transform .22s ease;}
   .idx-card:hover .idx-open svg{transform:translateX(4px);}
-  .idx-foot{margin-top:48px; font-size:12px; color:rgba(234,245,238,.45); text-align:center;}
+  /* error-page mini section */
+  .idx-sub-h{width:100%; max-width:1080px; margin:40px 0 14px; font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:rgba(234,245,238,.45); font-weight:600;}
+  .idx-mini-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px; width:100%; max-width:1080px;}
+  .idx-mini{
+    display:flex; align-items:center; gap:14px; text-decoration:none; color:inherit;
+    background:rgba(255,255,255,.05); border:1px solid rgba(143,227,182,.14);
+    border-radius:14px; padding:16px 18px;
+    backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    transition:transform .2s ease, border-color .2s ease, background .2s ease;
+  }
+  .idx-mini:hover{transform:translateY(-3px); border-color:rgba(143,227,182,.4); background:rgba(255,255,255,.08);}
+  .idx-mini-code{
+    flex-shrink:0; width:52px; height:52px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+    font-size:17px; font-weight:700; letter-spacing:-.5px;
+    background:rgba(255,150,120,.14); color:#ffb59b; border:1px solid rgba(255,150,120,.3);
+  }
+  .idx-mini-code.warn{background:rgba(255,196,120,.14); color:#ffcf8f; border-color:rgba(255,196,120,.3);}
+  .idx-mini h3{font-size:14px; font-weight:650; margin:0 0 3px;}
+  .idx-mini p{font-size:12px; line-height:1.5; color:rgba(234,245,238,.6); margin:0;}
+  .idx-foot{margin-top:48px; font-size:12px; color:rgba(234,245,238,.45); text-align:center; line-height:1.9;}
+  .idx-foot a{color:#8fe3b6; text-decoration:none; font-weight:600;}
+  .idx-foot a:hover{text-decoration:underline;}
+  .idx-foot-links{display:flex; gap:10px; justify-content:center; align-items:center; flex-wrap:wrap; margin-bottom:14px;}
+  .idx-foot-links a{display:inline-flex; align-items:center; gap:7px; padding:8px 15px; border-radius:10px; background:rgba(255,255,255,.05); border:1px solid rgba(143,227,182,.2); font-size:12.5px; transition:border-color .2s, background .2s;}
+  .idx-foot-links a:hover{text-decoration:none; border-color:rgba(143,227,182,.5); background:rgba(255,255,255,.09);}
+  .idx-sig{margin-top:16px; font-size:12px; color:rgba(234,245,238,.55);}
+  .idx-sig b{color:#eaf5ee; font-weight:600;}
 </style>
 </head>
 <body>
@@ -133,6 +159,31 @@
 
   </div>
 
-  <div class="idx-foot">GreenStreets · DuneTech — internal prototype gallery</div>
+  <div class="idx-sub-h">Error pages</div>
+  <div class="idx-mini-grid">
+    <a class="idx-mini" href="error-400.html">
+      <span class="idx-mini-code">400</span>
+      <div><h3>Bad Request</h3><p>Client-error page — malformed or invalid request.</p></div>
+    </a>
+    <a class="idx-mini" href="error-500.html">
+      <span class="idx-mini-code warn">500</span>
+      <div><h3>Server Error</h3><p>Server-error page — something went wrong on our end.</p></div>
+    </a>
+  </div>
+
+  <div class="idx-foot">
+    <div class="idx-foot-links">
+      <a href="https://github.com/loumizhu/GreenStreets_Prototypes/" target="_blank" rel="noopener">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.09.68-.22.68-.49 0-.24-.01-.87-.01-1.71-2.78.62-3.37-1.37-3.37-1.37-.45-1.18-1.11-1.49-1.11-1.49-.91-.64.07-.62.07-.62 1 .07 1.53 1.06 1.53 1.06.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.36-2.22-.26-4.55-1.14-4.55-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.4 9.4 0 0 1 2.5-.34c.85 0 1.71.12 2.5.34 1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.81-4.57 5.06.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.59.69.49A10.02 10.02 0 0 0 22 12.25C22 6.58 17.52 2 12 2z"/></svg>
+        GitHub repository
+      </a>
+      <a href="https://drive.google.com/open?id=1n32lb_0SoUpciwM2_ej9iRjDfBC84VGI&usp=drive_fs" target="_blank" rel="noopener">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M7.71 3.5 1.15 15l3.43 5.5 6.56-11.5-3.43-5.5zm8.58 0H9.43l6.56 11.5h6.86L16.29 3.5zM8.29 16 4.86 21.5h13.71L22 16H8.29z"/></svg>
+        Google Drive
+      </a>
+    </div>
+    <div>GreenStreets · DuneTech — internal prototype gallery</div>
+    <div class="idx-sig">Designed by <b>Zou</b> · UI/UX Designer · <a href="mailto:Zou.gharbi@gmail.com">Zou.gharbi@gmail.com</a></div>
+  </div>
 </body>
 </html>

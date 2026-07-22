@@ -144,8 +144,9 @@
     } else {
       ctrl = '<input class="fi" type="text" value="' + esc(v) + '" placeholder="Enter value" oninput="airSet(this,\'' + f.k + '\')">';
     }
+    var lblCls = 'air-field-lbl' + (conf === 'missing' ? ' lbl-missing' : '');
     return '<div class="air-field" data-k="' + f.k + '">' +
-      '<div class="air-field-lbl">' + esc(f.l) + req + '</div>' +
+      '<div class="' + lblCls + '">' + esc(f.l) + req + '</div>' +
       '<div class="air-ctrl-row">' + ctrl + '<span class="air-badge-slot">' + badge(conf) + '</span></div>' +
       '</div>';
   }
@@ -154,6 +155,8 @@
   function markEdited(el) {
     var field = fieldOf(el); if (!field) return;
     field.classList.remove('air-invalid');
+    var lbl = field.querySelector('.air-field-lbl');
+    if (lbl) lbl.classList.remove('lbl-missing');
     var slot = field.querySelector('.air-badge-slot');
     if (slot) slot.innerHTML = badge('user');
   }

@@ -789,6 +789,7 @@ select.pd-input option{background:#16294a;color:#fff}
 .air-field{display:flex;flex-direction:column;gap:5px}
 .air-field-lbl{font-size:10px;color:rgba(255,255,255,.42);text-transform:uppercase;letter-spacing:.05em;font-weight:600;display:flex;align-items:center;gap:6px}
 .air-field-lbl .req-star{color:#e0605a}
+.air-field-lbl.lbl-missing{color:#e0605a}
 .air-ctrl-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;max-width:100%}
 .air-ctrl-row .fi{flex:1 1 130px;min-width:0;padding:7px 10px;font-size:12.5px}
 .air-ctrl-row .cs-wrap{flex:1 1 130px;min-width:0}

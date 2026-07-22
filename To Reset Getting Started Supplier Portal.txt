@@ -1,0 +1,2 @@
+run this on the url
+javascript:localStorage.removeItem('gs_onb')

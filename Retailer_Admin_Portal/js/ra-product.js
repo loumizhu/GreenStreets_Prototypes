@@ -115,7 +115,13 @@
       '.rap-pick-item:hover{background:rgba(78,187,129,.08);border-color:var(--gs)}' +
       '.rap-pick-name{font-size:12.5px;font-weight:600;color:var(--tw)}' +
       '.rap-pick-meta{font-size:10.5px;color:var(--tw3);margin-top:2px}' +
-      '.rap-modal-foot{padding:12px 16px;border-top:1px solid var(--bw,rgba(255,255,255,.09));display:flex;align-items:center}';
+      '.rap-modal-foot{padding:12px 16px;border-top:1px solid var(--bw,rgba(255,255,255,.09));display:flex;align-items:center}' +
+      '.rap-exp{position:relative;display:inline-flex;align-items:center}' +
+      '.rap-exp-in{width:64px;padding:6px 24px 6px 10px !important;-moz-appearance:textfield;appearance:textfield;text-align:left}' +
+      '.rap-exp-in::-webkit-outer-spin-button,.rap-exp-in::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}' +
+      '.rap-exp-steps{position:absolute;right:4px;top:3px;bottom:3px;display:flex;flex-direction:column;justify-content:center;gap:2px}' +
+      '.rap-exp-steps button{width:17px;height:12px;padding:0;border:none;background:rgba(255,255,255,.09);color:var(--tw2,rgba(255,255,255,.74));cursor:pointer;border-radius:3px;display:flex;align-items:center;justify-content:center}' +
+      '.rap-exp-steps button:hover{background:var(--gs);color:#04130c}';
     document.head.appendChild(st);
   }
 
@@ -173,6 +179,7 @@
     var crumb = document.getElementById('ra-prod-crumb'); if (crumb) crumb.textContent = PROD.sku;
     var awaiting = awaitingCount();
     var canApprove = !APPROVED && COMPS.length > 0 && awaiting === 0;
+    var expOpts = ''; for (var eo = 1; eo <= 12; eo++) expOpts += '<option value="' + eo + '">';
 
     var header =
       '<div class="pg-hdr-bar"><div>' +
@@ -205,8 +212,15 @@
       '<div class="grp" style="margin-bottom:12px"><div class="grp-hdr">Expected packaging components' +
         '<span style="margin-left:8px;font-size:10px;font-weight:600;color:var(--tw3)">' + COMPS.length + ' total · ' + awaiting + ' awaiting supplier</span>' +
         '<div style="margin-left:auto;display:flex;align-items:center;gap:12px">' +
-          '<label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--tw2);white-space:nowrap"># expected' +
-            '<input type="number" min="0" max="20" value="' + COMPS.length + '" class="fi" style="width:58px;padding:5px 8px" onchange="rapSetExpected(this.value)" title="Number of packaging components you expect for this product">' +
+          '<label style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--tw2);white-space:nowrap"># expected' +
+            '<span class="rap-exp">' +
+              '<input type="text" inputmode="numeric" list="rap-exp-list" value="' + COMPS.length + '" class="fi rap-exp-in" onchange="rapSetExpected(this.value)" title="Number of packaging components you expect for this product — pick from the list or type a value">' +
+              '<datalist id="rap-exp-list">' + expOpts + '</datalist>' +
+              '<span class="rap-exp-steps">' +
+                '<button type="button" tabindex="-1" aria-label="Increase" onclick="rapExpStep(1)"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 15 12 9 18 15"/></svg></button>' +
+                '<button type="button" tabindex="-1" aria-label="Decrease" onclick="rapExpStep(-1)"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg></button>' +
+              '</span>' +
+            '</span>' +
           '</label>' +
           '<button class="btn-g-sm" onclick="rapAdd()"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>Add packaging component</button>' +
         '</div>' +
@@ -248,6 +262,7 @@
     render();
     toast(n + ' expected component' + (n === 1 ? '' : 's'));
   };
+  window.rapExpStep = function (d) { window.rapSetExpected(COMPS.length + d); };
 
   /* Add packaging component -> picker (pick from library or create new),
      mirroring the supplier portal's add-component flow. */
