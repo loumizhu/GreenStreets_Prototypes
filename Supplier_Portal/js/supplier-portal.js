@@ -1988,6 +1988,8 @@ document.addEventListener('change',gsAirEdited,true);
    ========================================================================== */
 var GS_PAGES = {
   'sp1':                   '04-greenstreets_supplier_portal_Login.html',
+  'sp_welcome':            '04-greenstreets_supplier_portal_Welcome.html',
+  'sp_settings':           '04-greenstreets_supplier_portal_Settings.html',
   'sp2':                   '04-greenstreets_supplier_portal_Landing.html',
   's_upload_0':            '04-greenstreets_supplier_portal_AI-Upload.html',
   'sp_ai':                 '04-greenstreets_supplier_portal_AI-Processing.html',
@@ -2038,9 +2040,65 @@ gsWizardDone = function(origin, name, id){
 /* Land on a specific Landing tab (used by sp9 buttons + wizard Back). */
 gsGoLanding = function(tab){ sessionStorage.setItem('gs_tab', tab || 'products'); go('sp2'); };
 
+/* ==========================================================================
+   ONBOARDING — first-run welcome + 3-step guided walkthrough.
+   State in localStorage 'gs_onb' = {seen:bool, step:1..3}. First login shows
+   the Welcome screen; thereafter it goes straight to the Landing. Re-openable
+   from the Landing header + Settings.
+   ========================================================================== */
+function gsOnbGet(){
+  try { return JSON.parse(localStorage.getItem('gs_onb')) || {seen:false, step:1}; }
+  catch(e){ return {seen:false, step:1}; }
+}
+function gsOnbSet(o){ try { localStorage.setItem('gs_onb', JSON.stringify(o)); } catch(e){} }
+
+/* Login button -> first-timers see onboarding, returning users go to Landing. */
+supplierLogin = function(){
+  var o = gsOnbGet();
+  go(o.seen ? 'sp2' : 'sp_welcome');
+};
+
+/* Skip / finish onboarding. */
+gsOnbSkip = function(){ var o = gsOnbGet(); o.seen = true; gsOnbSet(o); go('sp2'); };
+
+/* Launch a specific step (also marks it as the current position). */
+gsOnbStep = function(n){
+  var o = gsOnbGet(); o.step = n; o.seen = true; gsOnbSet(o);
+  if(n === 1) go('s_upload_0');
+  else if(n === 2) gsGoLanding('products');
+  else go('sp2');
+};
+
+/* "Get started" -> launch whatever the current step is. */
+gsOnbStart = function(){ gsOnbStep(gsOnbGet().step || 1); };
+
+/* Render the Welcome screen's stepper against saved progress. */
+function gsOnbRenderWelcome(){
+  var host = document.getElementById('onb-steps');
+  if(!host) return;
+  var cur = gsOnbGet().step || 1;
+  var steps = host.querySelectorAll('.onb-step');
+  for(var i = 0; i < steps.length; i++){
+    var n = +steps[i].getAttribute('data-step');
+    steps[i].classList.toggle('active', n === cur);
+    steps[i].classList.toggle('done', n < cur);
+    var state = steps[i].querySelector('.onb-state');
+    if(state) state.textContent = (n < cur) ? 'Done' : (n === cur ? 'Current' : 'Step ' + n);
+  }
+  var curLbl = document.getElementById('onb-cur');
+  if(curLbl) curLbl.textContent = cur;
+}
+
 /* Per-page onload dispatcher. */
 (function(){
   function init(){
+    /* --- Welcome / onboarding page --- */
+    if(document.getElementById('onb-steps')) gsOnbRenderWelcome();
+    /* --- Confirmation page: mark import step complete, advance to "assign" --- */
+    if(document.getElementById('sp9')){
+      var o = gsOnbGet();
+      if((o.step || 1) < 2){ o.step = 2; gsOnbSet(o); }
+    }
     /* --- Product-Detail page --- */
     var piRaw = sessionStorage.getItem('gs_pi');
     if(document.getElementById('pd-body') && piRaw != null &&

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Greenstreets — Supplier Portal · Welcome</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/greenstreets-theme.css?v=25">
+<link rel="stylesheet" href="css/supplier-portal.css?v=11">
+<style>
+  .onb-body{max-width:920px;margin:0 auto;padding:8px 4px 40px}
+  .onb-hero{text-align:center;margin-bottom:34px}
+  .onb-eyebrow{font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:var(--gs-l);font-weight:600;margin-bottom:14px}
+  .onb-hero h1{font-size:32px;font-weight:700;color:#fff;margin:0 0 14px;letter-spacing:-.5px}
+  .onb-hero p{font-size:14px;line-height:1.7;color:rgba(255,255,255,.72);margin:0 auto;max-width:620px}
+  .onb-hero p strong{color:#fff;font-weight:600}
+  .onb-steps{display:flex;flex-direction:column;gap:14px;margin-bottom:30px}
+  .onb-step{display:flex;gap:18px;align-items:flex-start;background:rgba(255,255,255,.045);border:1px solid var(--line-2);border-radius:16px;padding:20px 22px;transition:border-color .2s,background .2s,transform .2s}
+  .onb-step.active{border-color:var(--gs);background:rgba(78,187,129,.09);box-shadow:0 0 0 1px var(--gs),0 16px 40px -22px rgba(0,0,0,.7)}
+  .onb-step.done{opacity:.72}
+  .onb-num{flex-shrink:0;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.6);border:1px solid var(--line-2)}
+  .onb-step.active .onb-num{background:var(--gs);color:#04130c;border-color:var(--gs)}
+  .onb-step.done .onb-num{background:rgba(78,187,129,.2);color:var(--gs-l);border-color:var(--gs)}
+  .onb-txt{flex:1;min-width:0}
+  .onb-txt h3{font-size:15px;font-weight:650;color:#fff;margin:0 0 5px;display:flex;align-items:center;gap:9px}
+  .onb-txt p{font-size:12.5px;line-height:1.6;color:rgba(255,255,255,.62);margin:0 0 14px}
+  .onb-tag{font-size:9.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.55)}
+  .onb-step.done .onb-tag{background:rgba(78,187,129,.18);color:var(--gs-l)}
+  .onb-cta{font-family:inherit;font-size:12.5px;font-weight:650;cursor:pointer;border-radius:9px;padding:9px 16px;border:1px solid var(--gs);background:var(--gs);color:#04130c;display:inline-flex;align-items:center;gap:8px}
+  .onb-cta.ghost{background:rgba(255,255,255,.05);color:#fff;border-color:var(--line-2)}
+  .onb-cta:hover{filter:brightness(1.06)}
+  .onb-foot{display:flex;align-items:center;justify-content:space-between;gap:16px;border-top:1px solid var(--line);padding-top:22px}
+  .onb-progress{font-size:12px;color:rgba(255,255,255,.5)}
+  .onb-progress b{color:var(--gs-l)}
+  .onb-skip{background:none;border:none;color:rgba(255,255,255,.5);font-family:inherit;font-size:12px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+  .onb-skip:hover{color:#fff}
+</style>
+</head>
+<body>
+<div class="screen on" id="sp_welcome"><div class="pshell">
+  <div class="ph">
+    <div>
+      <div style="font-size:16px;font-weight:700;color:#fff">Getting started</div>
+      <div style="font-size:10px;color:rgba(255,255,255,.5)">Greenstreets Supplier Portal</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <button class="onb-skip" onclick="gsOnbSkip()">Skip for now</button>
+    </div>
+  </div>
+  <div class="pbody"><div class="onb-body">
+
+    <div class="onb-hero">
+      <div class="onb-eyebrow">Greenstreets Supplier Portal</div>
+      <h1>Welcome, Luntai Packaging Co.</h1>
+      <p><strong>Primark Stores Ltd</strong> has asked you to declare the packaging you supply, so it can meet its EU &amp; UK packaging compliance obligations (EPR &amp; PPWR). This portal walks you through it in three steps — start by building a library of your packaging components, then match them to the products Primark buys from you.</p>
+    </div>
+
+    <div class="onb-steps" id="onb-steps">
+
+      <div class="onb-step" data-step="1">
+        <div class="onb-num">1</div>
+        <div class="onb-txt">
+          <h3>Build your packaging component library <span class="onb-tag onb-state">Step 1</span></h3>
+          <p>Import a list of the packaging components you produce — swing tags, poly bags, cartons, pallets and so on. You can upload a spreadsheet or let the AI read your spec sheets and build the list for you.</p>
+          <button class="onb-cta" onclick="gsOnbStep(1)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>Import components</button>
+        </div>
+      </div>
+
+      <div class="onb-step" data-step="2">
+        <div class="onb-num">2</div>
+        <div class="onb-txt">
+          <h3>Assign packaging to products <span class="onb-tag onb-state">Step 2</span></h3>
+          <p>For each product Primark requested, assign the packaging components it ships in. This is what tells Primark exactly what packaging goes onto every product they buy from you.</p>
+          <button class="onb-cta" onclick="gsOnbStep(2)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Assign packaging</button>
+        </div>
+      </div>
+
+      <div class="onb-step" data-step="3">
+        <div class="onb-num">3</div>
+        <div class="onb-txt">
+          <h3>Review &amp; track compliance <span class="onb-tag onb-state">Step 3</span></h3>
+          <p>Check the compliance status of each component, resolve anything flagged for review, and download Declarations of Conformity. You're done — the portal keeps everything up to date.</p>
+          <button class="onb-cta ghost" onclick="gsOnbStep(3)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>Go to the portal</button>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="onb-foot">
+      <div class="onb-progress">Step <b id="onb-cur">1</b> of 3</div>
+      <button class="onb-cta" id="onb-getstarted" onclick="gsOnbStart()">Get started<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    </div>
+
+  </div></div>
+</div></div>
+<script src="js/supplier-portal.js?v=9"></script>
+<script src="js/greenstreets-theme.js?v=25"></script>
+<script src="js/gs-appearance.js?v=1"></script>
+</body>
+</html>

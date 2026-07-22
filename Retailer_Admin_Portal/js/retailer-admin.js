@@ -36,6 +36,9 @@ var GS_PAGES = {
 };
 function go(id){ var u = GS_PAGES[id]; if(u) window.location.href = u; }
 
+/* Open the product detail page for a given SKU (round-trips via sessionStorage). */
+function openProductRA(sku){ try{ sessionStorage.setItem('ra_pi', sku); }catch(e){} go('ra_product'); }
+
 /* ===== supplier contact rows (Add-Supplier) ===== */
 (function(){
   window.addSupContact = function(){
@@ -274,7 +277,7 @@ ptInit('ra', PRODUCTS_RA, {
   noun: 'products',
   searchFields: ['sku','desc'],
   rowHtml: function(r){
-    return '<tr><td><div class="tbl-name">'+r.sku+'</div></td><td class="tbl-muted">'+r.desc+'</td><td class="tbl-muted">'+r.cat+'</td><td class="tbl-muted">'+r.supplier+'</td><td class="tbl-muted">'+r.pkg+'</td><td><span class="pill '+r.pill+'">'+r.status+'</span></td><td style="padding:6px 11px"><a class="bc-link" style="font-size:11px" onclick="go(\'ra_product\')">View →</a></td></tr>';
+    return '<tr style="cursor:pointer" onclick="openProductRA(\''+r.sku+'\')"><td><div class="tbl-name">'+r.sku+'</div></td><td class="tbl-muted">'+r.desc+'</td><td class="tbl-muted">'+r.cat+'</td><td class="tbl-muted">'+r.supplier+'</td><td class="tbl-muted">'+r.pkg+'</td><td><span class="pill '+r.pill+'">'+r.status+'</span></td><td style="padding:6px 11px"><a class="bc-link" style="font-size:11px" onclick="event.stopPropagation();openProductRA(\''+r.sku+'\')">View →</a></td></tr>';
   }
 });
 
