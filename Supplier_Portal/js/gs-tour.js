@@ -25,6 +25,24 @@ function _gsTourSetFlag()  { try{ sessionStorage.setItem(GS_TOUR_KEY,'1'); }catc
 function _gsTourClearFlag(){ try{ sessionStorage.removeItem(GS_TOUR_KEY); }catch(_){} }
 function _gsTourIsActive() { try{ return sessionStorage.getItem(GS_TOUR_KEY)==='1'; }catch(_){ return false; } }
 
+/* ── Packaging-components tour flag ───────────────────────────────────────
+   Armed by the "I don't have documents right now" button on the AI-Upload
+   page; consumed on the Landing page's Packaging Components tab.            */
+var GS_PKG_TOUR_KEY = 'gs_pkg_tour_active';
+function _gsPkgTourSetFlag()  { try{ sessionStorage.setItem(GS_PKG_TOUR_KEY,'1'); }catch(_){} }
+function _gsPkgTourClearFlag(){ try{ sessionStorage.removeItem(GS_PKG_TOUR_KEY); }catch(_){} }
+function _gsPkgTourIsActive() { try{ return sessionStorage.getItem(GS_PKG_TOUR_KEY)==='1'; }catch(_){ return false; } }
+
+/* "I don't have documents right now" (AI-Upload page) → arm the packaging
+   tour and land on the Packaging Components tab where it runs. */
+function gsNoDocsToPackaging(){
+  _gsPkgTourSetFlag();
+  if(typeof gsGoLanding === 'function') gsGoLanding('packaging');
+  else { try{ sessionStorage.setItem('gs_tab','packaging'); }catch(_){}
+         if(typeof go === 'function') go('sp2'); }
+}
+try{ window.gsNoDocsToPackaging = gsNoDocsToPackaging; }catch(_){}
+
 /* ── Wrap gsOnbStep to inject tour flag on step 2 ────────────────────── */
 /* supplier-portal.js sets gsOnbStep in the "SPLIT-BUILD OVERRIDES" block,
    which runs synchronously.  gs-tour.js loads after it, so by the time this
@@ -55,6 +73,16 @@ function _gsTourIsActive() { try{ return sessionStorage.getItem(GS_TOUR_KEY)==='
 (function(){
   if(!document.getElementById('prod-tbody')) return;   // Landing page only
   function tryBegin(){
+    /* Packaging-components tour takes priority (armed from AI-Upload). */
+    if(_gsPkgTourIsActive()){
+      if(typeof switchLandingTab === 'function'){ try{ switchLandingTab('packaging'); }catch(_){} }
+      var ptries = 0;
+      (function waitForPkg(){
+        if(document.querySelector('#pkg-lib-tbody tr')){ _gsPkgTourBegin(); }
+        else if(ptries++ < 25){ setTimeout(waitForPkg, 140); }
+      })();
+      return;
+    }
     if(!_gsTourIsActive()) return;
     if(typeof switchLandingTab === 'function'){ try{ switchLandingTab('products'); }catch(_){} }
     var tries = 0;
@@ -100,6 +128,8 @@ var _tourStep    = 0;
 var _tourRunning = false;
 var _tourOverlay = null;
 var _highlighted = [];
+/* The step set the engine is currently walking — swapped per tour. */
+var _activeSteps = null;
 
 /* Tour step definitions — all on the Landing "Products" screen. */
 var _TOUR_STEPS = [
@@ -168,7 +198,7 @@ var _TOUR_STEPS = [
            'to open the step-by-step <strong>wizard</strong>, where you can declare a brand-new packaging type ' +
            'with all of its compliance details.',
     targetFn: function(){ return document.querySelector('.pcmp-menu[data-pi] .comp-menu-create-new'); },
-    position: 'above',
+    position: 'left',
     isLast: true,
     onShow: function(){
       var self = this;
@@ -183,6 +213,87 @@ var _TOUR_STEPS = [
     onHide: function(){
       var c = document.querySelector('.comp-menu-create-new');
       if(c) c.classList.remove('gst-pulse-target');
+    }
+  }
+];
+
+/* ══════════════════════════════════════════════════════════════════════════
+   PACKAGING-COMPONENTS TOUR  — Landing "Packaging Components" tab.
+   Armed by the AI-Upload page's "I don't have documents right now" button, so
+   a supplier without files still understands the listing and its two ways in:
+   import uploaded documents, or create a component by hand.
+   ══════════════════════════════════════════════════════════════════════════ */
+var _PKG_TOUR_STEPS = [
+  /* Step 1 – the listing itself ────────────────────────────────────────── */
+  {
+    icon:  '📦',
+    title: 'Your packaging components',
+    body:  'This is your <strong>packaging library</strong> — every component you supply lives here. These are fictitious examples that will not show up later. ' +
+           'In a ensuing step you\'ll simply <strong>attach these to the products</strong> Primark buys from you, ' +
+           'so it\'s worth building the list up first.',
+    targetFn: function(){ return document.getElementById('pkg-lib-scroll') || document.getElementById('pkg-lib-table'); },
+    position: 'above',
+    onShow: function(){
+      /* Contour around the whole listing (the scroll wrapper isn't clipped
+         horizontally the way the inner table would be). */
+      var t = document.getElementById('pkg-lib-scroll') || document.getElementById('pkg-lib-table');
+      if(t){ t.classList.add('gst-highlight'); _highlighted.push(t); }
+    }
+  },
+  /* Step 2 – Status column: focus on the non-compliant ones ─────────────── */
+  {
+    icon:  '🚦',
+    title: 'Watch the compliance status',
+    body:  'This is the <strong>most important thing to keep an eye on</strong>. The ' +
+           '<strong>Status</strong> column shows whether each component is ready: a green ' +
+           '<strong>Compliant</strong> is done, while this <strong>Review needed</strong> one ' +
+           '(and any <strong>Incomplete</strong> rows) still need you. ' +
+           'Focus on the packagings that are <strong>not compliant</strong> first — they\'re what could hold up your submission.',
+    targetFn: function(){ return document.querySelector('#pkg-lib-tbody .pkg-status-pill.review') || document.querySelector('#pkg-lib-tbody .pkg-status-pill'); },
+    position: 'left',
+    onShow: function(){
+      var p = document.querySelector('#pkg-lib-tbody .pkg-status-pill.review') || document.querySelector('#pkg-lib-tbody .pkg-status-pill');
+      if(p){ try{ p.scrollIntoView({block:'center'}); }catch(_){}
+             p.classList.add('gst-highlight','gst-pulse-target'); _highlighted.push(p); }
+    },
+    onHide: function(){
+      var p = document.querySelector('#pkg-lib-tbody .pkg-status-pill.gst-pulse-target');
+      if(p) p.classList.remove('gst-pulse-target');
+    }
+  },
+  /* Step 3 – Import with AI (uploaded documents) ───────────────────────── */
+  {
+    icon:  '🪄',
+    title: 'Have documents? Import them',
+    body:  'When you do have spec sheets, photos or spreadsheets, click <strong>Import with AI</strong> — ' +
+           'it reads your files and fills in the component details for you, so you don\'t type them by hand.',
+    targetFn: function(){ return document.getElementById('pkg-import-ai-btn'); },
+    position: 'below',
+    onShow: function(){
+      var b = _tourHL('#pkg-import-ai-btn');
+      if(b) b.classList.add('gst-pulse-target');
+    },
+    onHide: function(){
+      var b = document.getElementById('pkg-import-ai-btn');
+      if(b) b.classList.remove('gst-pulse-target');
+    }
+  },
+  /* Step 4 – Add component manually ────────────────────────────────────── */
+  {
+    icon:  '✏️',
+    title: 'Or add one by hand',
+    body:  'No file for it? Click <strong>Add component</strong> to open the step-by-step form ' +
+           'and enter the packaging details yourself. You can mix and match — import some, type others.',
+    targetFn: function(){ return document.getElementById('pkg-add-comp-btn'); },
+    position: 'below',
+    isLast: true,
+    onShow: function(){
+      var b = _tourHL('#pkg-add-comp-btn');
+      if(b) b.classList.add('gst-pulse-target');
+    },
+    onHide: function(){
+      var b = document.getElementById('pkg-add-comp-btn');
+      if(b) b.classList.remove('gst-pulse-target');
     }
   }
 ];
@@ -241,6 +352,7 @@ function _tourKeyDown(e){
 /* ── Begin tour ──────────────────────────────────────────────────────── */
 function _gsTourBegin(){
   if(_tourRunning) return;
+  _activeSteps = _TOUR_STEPS;
   _tourStep   = 0;
   _tourRunning = true;
   _gsTourClearFlag();  // consumed — clear it so refresh doesn't re-fire
@@ -248,22 +360,34 @@ function _gsTourBegin(){
   _gsTourShow(0);
 }
 
+/* ── Begin the packaging-components tour (Landing → Packaging tab) ─────── */
+function _gsPkgTourBegin(){
+  if(_tourRunning) return;
+  _activeSteps = _PKG_TOUR_STEPS;
+  _tourStep    = 0;
+  _tourRunning = true;
+  _gsPkgTourClearFlag();  // consumed
+  _buildOverlay();
+  _gsTourShow(0);
+}
+
 /* ── Show a specific step ────────────────────────────────────────────── */
 function _gsTourShow(idx){
   if(!_tourOverlay) return;
-  idx = Math.max(0, Math.min(idx, _TOUR_STEPS.length - 1));
+  var STEPS = _activeSteps || _TOUR_STEPS;
+  idx = Math.max(0, Math.min(idx, STEPS.length - 1));
   _tourStep = idx;
-  var step = _TOUR_STEPS[idx];
+  var step = STEPS[idx];
 
   /* Clear previous highlights */
   _clearHighlights();
   /* Call prev step's onHide */
-  if(idx > 0 && _TOUR_STEPS[idx-1].onHide) _TOUR_STEPS[idx-1].onHide();
+  if(idx > 0 && STEPS[idx-1].onHide) STEPS[idx-1].onHide();
 
   /* Step indicator dots */
   var dots = document.getElementById('gst-dots');
   if(dots){
-    dots.innerHTML = _TOUR_STEPS.map(function(_,i){
+    dots.innerHTML = STEPS.map(function(_,i){
       return '<span class="gst-dot'+(i===idx?' gst-dot-active':'')+'"></span>';
     }).join('');
   }
@@ -381,9 +505,10 @@ function _positionBubble(step){
 
 /* ── Navigation ──────────────────────────────────────────────────────── */
 function _gsTourNext(){
-  var step = _TOUR_STEPS[_tourStep];
+  var STEPS = _activeSteps || _TOUR_STEPS;
+  var step = STEPS[_tourStep];
   if(step && step.onHide) step.onHide();
-  if(_tourStep >= _TOUR_STEPS.length - 1){
+  if(_tourStep >= STEPS.length - 1){
     _gsTourDone();
   } else {
     _gsTourShow(_tourStep + 1);
@@ -397,6 +522,7 @@ function _gsTourPrev(){
 function _gsTourDone(){
   _tourRunning = false;
   _gsTourClearFlag();
+  _gsPkgTourClearFlag();
   _clearHighlights();
   _tourCloseMenu();
   document.removeEventListener('keydown', _tourKeyDown);

@@ -207,7 +207,7 @@ function prodRowHtml(p){
     + prodTip("Expected packaging", p.expected) + '</span>';
   var compCell = prodCompCell(p);
   return '<tr class="prod-tr ' + m.st + '" data-pi="' + p.id + '" data-status="' + p.status + '" onclick="openProductDetail(' + p.id + ')">'
-    + '<td><div class="prod-cell-code">' + p.code + expWrap + '</div><div class="prod-cell-name">' + p.name + '</div></td>'
+    + '<td><div class="gs-name-cell"><input type="checkbox" class="gs-row-check" title="Select" onclick="event.stopPropagation()" onchange="gsProdRowToggle(' + p.id + ',this)"><div class="gs-name-textcol"><div class="prod-cell-code">' + p.code + expWrap + '</div><div class="prod-cell-name">' + p.name + '</div></div></div></td>'
     + '<td>' + p.category + '</td>'
     + '<td><span class="prod-status-pill ' + m.cls + '">' + m.lbl + '</span></td>'
     + '<td>' + p.packing + '</td>'
@@ -882,6 +882,7 @@ function prodRender(animatingPi){
   if((b=document.getElementById('prod-last')))  b.disabled = atLast;
 
   updateProdArrows();
+  if(typeof gsProdBulkAfterRender==='function') gsProdBulkAfterRender();
 }
 
 var prodActiveFilter = 'all';
@@ -1297,6 +1298,420 @@ document.addEventListener('DOMContentLoaded', function(){
   gsListKeyNav('prod-tbl-el','prod-tbody');
   gsListKeyNav('pkg-lib-table','pkg-lib-tbody');
   gsListKeyNav('docs-tbl','docs-tbody-new');
+});
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PACKAGING DETAIL — richer edit controls + auto-save   (gs pass)
+   Runs generically over any packaging detail page (.pkg-detail-body):
+     • editable packaging name + auto-generated ID chip
+     • % fields  → slider + number stepper
+     • material name fields → typeable combobox (datalist)
+     • Yes/No selects → toggle switches
+     • small selects (≤4 opts) → segmented "choice list"
+     • an auto-save status chip that reacts to any edit
+   ═══════════════════════════════════════════════════════════════════════════ */
+var GS_MATERIAL_NAMES = ['Paper','Paperboard','Cardboard','Kraft Paper','Corrugate',
+  'Plastic LDPE','Plastic HDPE','Plastic PP','Plastic PET','Plastic PVC','Plastic PS',
+  'Bioplastic PLA','Wood','Metal','Aluminium','Steel','Tinplate','Glass','Textile',
+  'Cotton','Jute','Cellulose','Adhesive','Ink','Other'];
+
+function gsPkgId(key){
+  var i = (typeof COMPONENT_LIBRARY_JS!=='undefined')
+    ? COMPONENT_LIBRARY_JS.findIndex(function(c){return c.key===key;}) : -1;
+  return 'PKG-' + String((i<0?0:i)+1).padStart(4,'0');
+}
+
+/* Idle → "saving" → "saved" auto-save status chip in the page header. */
+var _gsSaveT = null;
+function gsAutoSave(){
+  var chip = document.getElementById('gs-autosave');
+  if(!chip) return;
+  chip.className = 'gs-autosave gs-as-saving';
+  chip.innerHTML = '<span class="gs-as-spin"></span>Saving…';
+  clearTimeout(_gsSaveT);
+  _gsSaveT = setTimeout(function(){
+    chip.className = 'gs-autosave gs-as-saved';
+    chip.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>All changes saved';
+  }, 650);
+}
+
+function gsBuildAutoSaveChip(body){
+  if(document.getElementById('gs-autosave')) return;
+  var hdr = document.querySelector('.pshell .ph');
+  var right = hdr ? hdr.lastElementChild : null;
+  var chip = document.createElement('span');
+  chip.id = 'gs-autosave';
+  chip.className = 'gs-autosave gs-as-idle';
+  chip.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Auto-save on';
+  if(right) right.insertBefore(chip, right.firstChild);
+  else if(hdr) hdr.appendChild(chip);
+  /* any edit anywhere in the detail body pings the chip */
+  body.addEventListener('input',  gsAutoSave);
+  body.addEventListener('change', gsAutoSave);
+}
+
+/* Editable packaging name + ID chip in the detail header. */
+function gsPkgDetailName(body, key){
+  var nameEl = body.querySelector('div[style*="font-weight:800"]');
+  if(!nameEl || nameEl.querySelector('.gs-pkg-name-input')) return;
+  var cur = nameEl.textContent.trim();
+  nameEl.textContent = '';
+  nameEl.classList.add('gs-pkg-namewrap');
+  var input = document.createElement('input');
+  input.className = 'gs-pkg-name-input';
+  input.value = cur;
+  input.setAttribute('aria-label','Packaging name');
+  input.title = 'Click to rename this packaging';
+  var pencil = document.createElement('button');
+  pencil.type = 'button';
+  pencil.className = 'gs-pkg-name-edit';
+  pencil.title = 'Rename';
+  pencil.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
+  pencil.addEventListener('click',function(){ input.focus(); input.select(); });
+  var id = document.createElement('span');
+  id.className = 'gs-pkg-id-chip';
+  id.title = 'Packaging ID (auto-generated)';
+  id.textContent = gsPkgId(key);
+  input.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); input.blur(); } });
+  nameEl.appendChild(input);
+  nameEl.appendChild(pencil);
+  nameEl.appendChild(id);
+}
+
+function gsIsYesNo(texts){
+  if(texts.length!==2) return false;
+  var s = texts.map(function(t){return t.toLowerCase();}).sort();
+  return s[0]==='no' && s[1]==='yes';
+}
+
+/* Yes/No select → toggle switch (shown in section edit mode). */
+function gsBuildToggle(feat, sel, input){
+  if(feat.classList.contains('gs-has-toggle')) return;
+  feat.classList.add('gs-has-toggle');
+  var on = /yes/i.test((input&&input.value)||'') || /yes/i.test(sel.value||'');
+  var t = document.createElement('button');
+  t.type='button';
+  t.className='gs-toggle'+(on?' on':'');
+  t.setAttribute('role','switch');
+  t.setAttribute('aria-checked', on?'true':'false');
+  t.innerHTML='<span class="gs-toggle-track"><span class="gs-toggle-thumb"></span></span><span class="gs-toggle-lbl">'+(on?'Yes':'No')+'</span>';
+  t.addEventListener('click',function(){
+    var now = !t.classList.contains('on');
+    t.classList.toggle('on', now);
+    t.setAttribute('aria-checked', now?'true':'false');
+    t.querySelector('.gs-toggle-lbl').textContent = now?'Yes':'No';
+    gsSetSelectValue(sel, now?'Yes':'No');
+    if(input) input.value = now?'Yes':'No';
+    sel.dispatchEvent(new Event('change',{bubbles:true}));
+  });
+  feat.appendChild(t);
+}
+
+/* Small select → segmented "choice list" (shown in section edit mode). */
+function gsBuildSegmented(feat, sel, input, texts){
+  if(feat.classList.contains('gs-has-seg')) return;
+  feat.classList.add('gs-has-seg');
+  var wrap = document.createElement('div');
+  wrap.className='gs-seg';
+  var curr = (input&&input.value) || sel.value;
+  texts.forEach(function(txt){
+    var b = document.createElement('button');
+    b.type='button';
+    b.className='gs-seg-opt'+((txt===curr)?' on':'');
+    b.textContent = txt;
+    b.addEventListener('click',function(){
+      wrap.querySelectorAll('.gs-seg-opt').forEach(function(o){o.classList.remove('on');});
+      b.classList.add('on');
+      gsSetSelectValue(sel, txt);
+      if(input) input.value = txt;
+      sel.dispatchEvent(new Event('change',{bubbles:true}));
+    });
+    wrap.appendChild(b);
+  });
+  feat.appendChild(wrap);
+}
+
+/* % field → slider + number stepper (shown in section edit mode). */
+function gsBuildPct(feat, input){
+  if(feat.classList.contains('gs-has-pct')) return;
+  feat.classList.add('gs-has-pct');
+  var n = parseFloat(String(input.value).replace(/[^0-9.]/g,''));
+  if(isNaN(n)) n = 0;
+  n = Math.max(0, Math.min(100, n));
+  var wrap = document.createElement('div');
+  wrap.className='gs-pct';
+  var slider = document.createElement('input');
+  slider.type='range'; slider.min='0'; slider.max='100'; slider.step='1';
+  slider.value=String(n); slider.className='gs-pct-slider';
+  var numWrap = document.createElement('div');
+  numWrap.className='gs-pct-numwrap';
+  var num = document.createElement('input');
+  num.type='number'; num.min='0'; num.max='100'; num.step='1';
+  num.value=String(n); num.className='gs-pct-num fi';
+  var unit = document.createElement('span');
+  unit.className='fi-unit'; unit.textContent='%';
+  numWrap.appendChild(num); numWrap.appendChild(unit);
+  function commit(v){
+    v = Math.max(0, Math.min(100, parseFloat(v)||0));
+    slider.value=String(v); num.value=String(v);
+    input.value = v + '%';
+    slider.style.setProperty('--gs-pct', v + '%');
+    input.dispatchEvent(new Event('change',{bubbles:true}));
+  }
+  slider.addEventListener('input',function(){ commit(slider.value); });
+  num.addEventListener('input',function(){ commit(num.value); });
+  slider.style.setProperty('--gs-pct', n + '%');
+  wrap.appendChild(slider);
+  wrap.appendChild(numWrap);
+  feat.appendChild(wrap);
+  if(typeof window.GSEnhanceNumbers==='function'){ try{ window.GSEnhanceNumbers(wrap); }catch(_){} }
+}
+
+/* Material-name free-text field → typeable combobox (datalist). */
+function gsEnsureMaterialDatalist(){
+  if(document.getElementById('gs-mat-datalist')) return;
+  var dl = document.createElement('datalist');
+  dl.id='gs-mat-datalist';
+  GS_MATERIAL_NAMES.forEach(function(m){ var o=document.createElement('option'); o.value=m; dl.appendChild(o); });
+  document.body.appendChild(dl);
+}
+function gsBuildCombobox(input){
+  if(input.getAttribute('list')) return;
+  gsEnsureMaterialDatalist();
+  input.setAttribute('list','gs-mat-datalist');
+  input.setAttribute('autocomplete','off');
+  input.classList.add('gs-combo');
+  if(!input.placeholder) input.placeholder='Type or pick a material';
+}
+
+function gsSetSelectValue(sel, val){
+  var found=false;
+  for(var i=0;i<sel.options.length;i++){
+    if(sel.options[i].text.trim()===val || sel.options[i].value===val){ sel.selectedIndex=i; found=true; break; }
+  }
+  if(!found){ var o=document.createElement('option'); o.text=val; o.value=val; o.selected=true; sel.appendChild(o); }
+}
+
+function gsIsMaterialNameFeat(feat, label){
+  if(feat.getAttribute('data-mt')==='name') return true;
+  return /material\s*\d*\s*name/i.test(label);
+}
+
+function gsEnhanceFeat(feat){
+  var sel   = feat.querySelector('.pkg-detail-feat-select');
+  var input = feat.querySelector('.pkg-detail-feat-input');
+  var lblEl = feat.querySelector('.pkg-detail-feat-lbl');
+  var label = lblEl ? lblEl.textContent.trim() : '';
+  if(feat.classList.contains('air-feat')) return; /* AI-review fields keep their own UI */
+  if(sel){
+    var opts  = Array.prototype.filter.call(sel.options, function(o){ return !o.disabled && o.value!=='' ; });
+    var texts = opts.map(function(o){ return o.text.trim(); });
+    if(gsIsYesNo(texts)){ gsBuildToggle(feat, sel, input); }
+    else if(opts.length<=4 && label.toLowerCase().indexOf('no. of materials')<0){ gsBuildSegmented(feat, sel, input, texts); }
+    /* else: leave as the themed dropdown */
+  } else if(input){
+    if(/%/.test(label) || /\bpercent/i.test(label)){ gsBuildPct(feat, input); }
+    else if(gsIsMaterialNameFeat(feat, label)){ gsBuildCombobox(input); }
+  }
+}
+
+function gsEnhancePkgDetail(){
+  var body = document.querySelector('.pkg-detail-body');
+  if(!body || body._gsEnhanced) return;
+  body._gsEnhanced = true;
+  var key = (body.id||'').replace('pkgdetail-body-','');
+  gsBuildAutoSaveChip(body);
+  gsPkgDetailName(body, key);
+  body.querySelectorAll('.pkg-detail-feat').forEach(gsEnhanceFeat);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PACKAGING COMPONENTS LISTING — bulk select + bulk edit/remove/download
+   A checkbox is placed inside the Name cell/header (no new column, so the
+   existing column-index logic in renderPkgTable/filters/sort is untouched).
+   ═══════════════════════════════════════════════════════════════════════════ */
+function gsPkgBulkVisibleRows(){
+  var tbody = document.getElementById('pkg-lib-tbody');
+  if(!tbody) return [];
+  return Array.prototype.filter.call(tbody.querySelectorAll('tr'), function(r){ return r.style.display!=='none'; });
+}
+function gsPkgRowKey(tr){
+  var oc = tr.getAttribute('onclick')||'';
+  var m = oc.match(/pkgdetail-([a-z0-9_]+)/i);
+  return m ? m[1] : null;
+}
+function gsPkgSelectedRows(){
+  var tbody = document.getElementById('pkg-lib-tbody');
+  if(!tbody) return [];
+  return Array.prototype.filter.call(tbody.querySelectorAll('.gs-row-check'), function(c){ return c.checked; })
+    .map(function(c){ return c.closest('tr'); });
+}
+function gsPkgBulkSync(){
+  var sel = gsPkgSelectedRows();
+  var n = sel.length;
+  var bar = document.getElementById('gs-pkg-bulkbar');
+  if(bar){
+    bar.classList.toggle('on', n>0);
+    var lbl = bar.querySelector('.gs-bulk-count');
+    if(lbl) lbl.textContent = n + ' selected';
+  }
+  var all = gsPkgBulkVisibleRows();
+  var checkedVis = all.filter(function(r){ var c=r.querySelector('.gs-row-check'); return c&&c.checked; }).length;
+  var sa = document.querySelector('.gs-check-all');
+  if(sa){
+    sa.checked = all.length>0 && checkedVis===all.length;
+    sa.indeterminate = checkedVis>0 && checkedVis<all.length;
+  }
+}
+function gsPkgBulkClear(){
+  document.querySelectorAll('#pkg-lib-tbody .gs-row-check').forEach(function(c){ c.checked=false; });
+  gsPkgBulkSync();
+}
+function gsPkgBulkEdit(){
+  var rows = gsPkgSelectedRows();
+  if(!rows.length) return;
+  if(rows.length===1){ var k=gsPkgRowKey(rows[0]); if(k && typeof go==='function'){ go('pkgdetail-'+k); return; } }
+  if(typeof gsToast==='function') gsToast('Bulk-editing '+rows.length+' components');
+}
+function gsPkgBulkDownload(){
+  var rows = gsPkgSelectedRows();
+  if(!rows.length) return;
+  if(typeof gsToast==='function') gsToast('Downloading '+rows.length+' Declaration'+(rows.length>1?'s':'')+' of Conformity');
+  rows.forEach(function(r){ var k=gsPkgRowKey(r); if(k && typeof downloadDoC==='function'){ try{ downloadDoC(k); }catch(_){} } });
+}
+function gsPkgBulkRemove(){
+  var rows = gsPkgSelectedRows();
+  if(!rows.length) return;
+  if(!confirm('Remove '+rows.length+' selected component'+(rows.length>1?'s':'')+' from your library?')) return;
+  rows.forEach(function(r){ r.remove(); });
+  if(typeof renderPkgTable==='function') renderPkgTable();
+  gsPkgBulkSync();
+  if(typeof gsToast==='function') gsToast(rows.length+' component'+(rows.length>1?'s':'')+' removed');
+}
+function gsPkgBuildBulkBar(){
+  if(document.getElementById('gs-pkg-bulkbar')) return;
+  var bar = document.createElement('div');
+  bar.id='gs-pkg-bulkbar';
+  bar.className='gs-bulkbar';
+  bar.innerHTML =
+    '<span class="gs-bulk-count">0 selected</span>'+
+    '<div class="gs-bulk-actions">'+
+      '<button class="gs-bulk-btn" onclick="gsPkgBulkEdit()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button>'+
+      '<button class="gs-bulk-btn" onclick="gsPkgBulkDownload()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download</button>'+
+      '<button class="gs-bulk-btn gs-bulk-danger" onclick="gsPkgBulkRemove()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Remove</button>'+
+      '<button class="gs-bulk-btn gs-bulk-ghost" onclick="gsPkgBulkClear()">Clear</button>'+
+    '</div>';
+  document.body.appendChild(bar);
+}
+function gsPkgBulkInit(){
+  var table = document.getElementById('pkg-lib-table');
+  var tbody = document.getElementById('pkg-lib-tbody');
+  if(!table || !tbody || table._gsBulk) return;
+  table._gsBulk = true;
+  /* header select-all inside the Name th */
+  var th0 = table.querySelector('thead th');
+  if(th0 && !th0.querySelector('.gs-check-all')){
+    var sa = document.createElement('input');
+    sa.type='checkbox'; sa.className='gs-check-all'; sa.title='Select all on this page';
+    sa.addEventListener('click', function(e){ e.stopPropagation(); });
+    sa.addEventListener('change', function(){
+      gsPkgBulkVisibleRows().forEach(function(r){ var c=r.querySelector('.gs-row-check'); if(c) c.checked=sa.checked; });
+      gsPkgBulkSync();
+    });
+    th0.insertBefore(sa, th0.firstChild);
+    th0.classList.add('gs-name-th');
+  }
+  /* per-row checkbox inside each Name cell */
+  tbody.querySelectorAll('tr').forEach(function(r){
+    var cell = r.querySelector('.pkg-tbl-name');
+    if(!cell || cell.querySelector('.gs-row-check')) return;
+    /* wrap the name+id in a flex row so the checkbox sits on the same line */
+    var flex = document.createElement('div'); flex.className='gs-name-cell';
+    var col  = document.createElement('div'); col.className='gs-name-textcol';
+    while(cell.firstChild) col.appendChild(cell.firstChild);
+    var cb = document.createElement('input');
+    cb.type='checkbox'; cb.className='gs-row-check'; cb.title='Select';
+    cb.addEventListener('click', function(e){ e.stopPropagation(); });
+    cb.addEventListener('change', gsPkgBulkSync);
+    flex.appendChild(cb); flex.appendChild(col);
+    cell.appendChild(flex);
+  });
+  gsPkgBuildBulkBar();
+  gsPkgBulkSync();
+}
+
+/* ── Products listing: bulk select + edit/export/remove ──────────────────────
+   Product rows are re-rendered by prodRender(), so selection is tracked by
+   product id in _gsProdSel and restored after each render. The checkbox is
+   baked into prodRowHtml's first cell (no new column → sort/filter untouched). */
+var _gsProdSel = {};
+function gsProdSelectedIds(){ _gsProdSel = _gsProdSel || {}; return Object.keys(_gsProdSel).map(Number); }
+function gsProdRowToggle(id, cb){ _gsProdSel = _gsProdSel || {}; if(cb.checked) _gsProdSel[id]=true; else delete _gsProdSel[id]; gsProdBulkSync(); }
+function gsProdSelectAll(cb){
+  _gsProdSel = _gsProdSel || {};
+  document.querySelectorAll('#prod-tbody tr[data-pi]').forEach(function(r){
+    var id = +r.getAttribute('data-pi');
+    var c = r.querySelector('.gs-row-check'); if(c) c.checked = cb.checked;
+    if(cb.checked) _gsProdSel[id]=true; else delete _gsProdSel[id];
+  });
+  gsProdBulkSync();
+}
+function gsProdBulkAfterRender(){
+  _gsProdSel = _gsProdSel || {};
+  document.querySelectorAll('#prod-tbody tr[data-pi]').forEach(function(r){
+    var id = +r.getAttribute('data-pi');
+    var c = r.querySelector('.gs-row-check'); if(c) c.checked = !!_gsProdSel[id];
+  });
+  gsProdBulkSync();
+}
+function gsProdBulkSync(){
+  _gsProdSel = _gsProdSel || {};
+  var n = gsProdSelectedIds().length;
+  var bar = document.getElementById('gs-prod-bulkbar');
+  if(bar){ bar.classList.toggle('on', n>0); var lbl=bar.querySelector('.gs-bulk-count'); if(lbl) lbl.textContent = n+' selected'; }
+  var rows = Array.prototype.slice.call(document.querySelectorAll('#prod-tbody tr[data-pi]'));
+  var checked = rows.filter(function(r){ return !!_gsProdSel[+r.getAttribute('data-pi')]; }).length;
+  var sa = document.getElementById('prod-check-all');
+  if(sa){ sa.checked = rows.length>0 && checked===rows.length; sa.indeterminate = checked>0 && checked<rows.length; }
+}
+function gsProdBulkClear(){ _gsProdSel = {}; gsProdBulkAfterRender(); }
+function gsProdBulkEdit(){
+  var ids = gsProdSelectedIds(); if(!ids.length) return;
+  if(ids.length===1 && typeof openProductDetail==='function'){ openProductDetail(ids[0]); return; }
+  if(typeof gsToast==='function') gsToast('Bulk-editing '+ids.length+' products');
+}
+function gsProdBulkExport(){
+  var ids = gsProdSelectedIds(); if(!ids.length) return;
+  if(typeof gsToast==='function') gsToast('Exporting '+ids.length+' product'+(ids.length>1?'s':''));
+}
+function gsProdBulkRemove(){
+  var ids = gsProdSelectedIds(); if(!ids.length) return;
+  if(!confirm('Remove '+ids.length+' selected product'+(ids.length>1?'s':'')+' from the list?')) return;
+  if(typeof PRODUCTS!=='undefined'){ PRODUCTS = PRODUCTS.filter(function(p){ return ids.indexOf(p.id)<0; }); }
+  _gsProdSel = {};
+  if(typeof prodRender==='function') prodRender();
+  if(typeof gsToast==='function') gsToast(ids.length+' product'+(ids.length>1?'s':'')+' removed');
+}
+function gsProdBuildBulkBar(){
+  if(document.getElementById('gs-prod-bulkbar')) return;
+  var bar = document.createElement('div');
+  bar.id='gs-prod-bulkbar';
+  bar.className='gs-bulkbar';
+  bar.innerHTML =
+    '<span class="gs-bulk-count">0 selected</span>'+
+    '<div class="gs-bulk-actions">'+
+      '<button class="gs-bulk-btn" onclick="gsProdBulkEdit()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button>'+
+      '<button class="gs-bulk-btn" onclick="gsProdBulkExport()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button>'+
+      '<button class="gs-bulk-btn gs-bulk-danger" onclick="gsProdBulkRemove()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Remove</button>'+
+      '<button class="gs-bulk-btn gs-bulk-ghost" onclick="gsProdBulkClear()">Clear</button>'+
+    '</div>';
+  document.body.appendChild(bar);
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  gsEnhancePkgDetail();
+  gsPkgBulkInit();
+  if(document.getElementById('prod-tbody')){ gsProdBuildBulkBar(); gsProdBulkAfterRender(); }
 });
 
 

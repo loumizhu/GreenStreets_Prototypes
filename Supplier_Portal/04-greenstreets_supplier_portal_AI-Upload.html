@@ -6,7 +6,7 @@
 <title>Greenstreets — Supplier Portal · AI-Upload</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/greenstreets-theme.css?v=25">
-<link rel="stylesheet" href="css/supplier-portal.css?v=16">
+<link rel="stylesheet" href="css/supplier-portal.css?v=18">
 </head>
 <body>
 <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true"><defs><symbol id="gsi-0" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></symbol><symbol id="gsi-1" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></symbol><symbol id="gsi-2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></symbol><symbol id="gsi-3" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></symbol><symbol id="gsi-4" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/>
@@ -15,8 +15,24 @@
   <div style="display:flex;align-items:center;gap:10px"><span style="font-size:10px;background:rgba(139,92,246,.14);color:#c084fc;border:1px solid rgba(139,92,246,.3);padding:3px 8px;border-radius:4px;font-weight:600">AI Import</span><span style="font-size:11px;color:rgba(255,255,255,.5)">Due: <strong style="color:#f5a623">26 Jul 2026</strong></span></div></div><div class="pbody"><div style="max-width:520px;margin:0 auto">
   <div style="margin-bottom:12px"><a onclick="go('sp2')" style="color:var(--gs);cursor:pointer;font-size:11px">All products</a><span style="color:rgba(255,255,255,.2);font-size:11px;margin:0 3px">›</span><span style="color:rgba(255,255,255,.65);font-size:11px">Import spec sheet</span></div>
   <div class="stepbar"><div class="sp-step"><div class="sp-dot curr">1</div><div class="sp-lbl curr">Upload</div></div><div class="sp-line" style="background:rgba(255,255,255,.1)"></div><div class="sp-step"><div class="sp-dot">2</div><div class="sp-lbl">AI review</div></div><div class="sp-line" style="background:rgba(255,255,255,.1)"></div><div class="sp-step"><div class="sp-dot">3</div><div class="sp-lbl">Confirm</div></div></div>
-  <div style="font-size:15px;font-weight:600;color:#fff;margin:14px 0 4px">Upload your packaging(s) spec sheet</div>
-  <div style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:14px">Our AI will read your document and pre-fill the packaging component form. Upload a single spec sheet, or a spreadsheet listing <strong style="color:rgba(255,255,255,.75)">multiple components</strong> — each one is detected and reviewed separately. You can check every value before submitting.</div>
+  <div style="font-size:21px;font-weight:700;color:#fff;margin:16px 0 6px;letter-spacing:-.3px">Let AI do the typing for you</div>
+  <div style="font-size:13px;line-height:1.6;color:rgba(255,255,255,.6);margin-bottom:18px">Already have your packaging details in a file? Just upload it — our AI reads it and fills in the form for you. It takes three easy steps:</div>
+
+  <!-- Simple stepped explanation -->
+  <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px">
+    <div style="display:flex;gap:13px;align-items:flex-start;background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.18);border-radius:11px;padding:13px 15px">
+      <div style="flex-shrink:0;width:26px;height:26px;border-radius:50%;background:rgba(139,92,246,.85);color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center">1</div>
+      <div><div style="font-size:13.5px;font-weight:650;color:#fff;margin-bottom:2px">Grab your files</div><div style="font-size:12px;line-height:1.55;color:rgba(255,255,255,.6)">A <strong style="color:rgba(255,255,255,.82)">PDF</strong>, <strong style="color:rgba(255,255,255,.82)">Word doc</strong>, <strong style="color:rgba(255,255,255,.82)">spreadsheet</strong> or even a <strong style="color:rgba(255,255,255,.82)">photo</strong> of a spec sheet — whatever you already have works.</div></div>
+    </div>
+    <div style="display:flex;gap:13px;align-items:flex-start;background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.18);border-radius:11px;padding:13px 15px">
+      <div style="flex-shrink:0;width:26px;height:26px;border-radius:50%;background:rgba(139,92,246,.85);color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center">2</div>
+      <div><div style="font-size:13.5px;font-weight:650;color:#fff;margin-bottom:2px">Drop them in below</div><div style="font-size:12px;line-height:1.55;color:rgba(255,255,255,.6)">Add <strong style="color:rgba(255,255,255,.82)">one file or several at once</strong>. If a spreadsheet lists many components, each one is picked out separately.</div></div>
+    </div>
+    <div style="display:flex;gap:13px;align-items:flex-start;background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.18);border-radius:11px;padding:13px 15px">
+      <div style="flex-shrink:0;width:26px;height:26px;border-radius:50%;background:rgba(139,92,246,.85);color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center">3</div>
+      <div><div style="font-size:13.5px;font-weight:650;color:#fff;margin-bottom:2px">Check &amp; confirm</div><div style="font-size:12px;line-height:1.55;color:rgba(255,255,255,.6)">The AI pre-fills everything. You <strong style="color:rgba(255,255,255,.82)">review every value</strong> before it's saved — nothing is submitted without you.</div></div>
+    </div>
+  </div>
   <div onclick="go('sp_ai')" style="border:2px dashed rgba(139,92,246,.4);border-radius:12px;padding:28px 20px;text-align:center;cursor:pointer;margin-bottom:12px;transition:all .12s" onmouseover="this.style.borderColor='rgba(139,92,246,.7)';this.style.background='rgba(139,92,246,.04)'" onmouseout="this.style.borderColor='rgba(139,92,246,.4)';this.style.background='transparent'">
     <div style="width:44px;height:44px;border-radius:50%;background:rgba(139,92,246,.12);display:flex;align-items:center;justify-content:center;margin:0 auto 10px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="1.8"><use href="#gsi-9"/></svg></div>
     <div style="font-size:13px;font-weight:500;color:#fff;margin-bottom:3px">Drop your spec sheet here</div>
@@ -31,9 +47,13 @@
     <span style="position:relative;z-index:1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><use href="#gsi-15"/></svg> Extract data with AI →</span>
   </button>
   <button onclick="downloadSpecTemplate()" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);color:rgba(255,255,255,.8);padding:10px;border-radius:8px;font-family:inherit;font-size:12.5px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;margin-top:10px" onmouseover="this.style.background='rgba(255,255,255,.09)'" onmouseout="this.style.background='rgba(255,255,255,.05)'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#gsi-10"/></svg> Download blank template</button>
-  <div style="text-align:center;margin-top:10px"><a onclick="openStandaloneCompWizard()" style="font-size:11px;color:rgba(255,255,255,.4);cursor:pointer;text-decoration:underline">← Fill in the form manually instead</a></div>
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08)">
+    <button onclick="gsNoDocsToPackaging()" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.16);color:rgba(255,255,255,.82);padding:9px 14px;border-radius:8px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:7px" onmouseover="this.style.background='rgba(255,255,255,.11)'" onmouseout="this.style.background='rgba(255,255,255,.06)'"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#gsi-3"/></svg> I don't have documents right now</button>
+    <a onclick="openStandaloneCompWizard()" style="font-size:11px;color:rgba(255,255,255,.4);cursor:pointer;text-decoration:underline;white-space:nowrap">Fill in the form manually instead →</a>
+  </div>
 </div></div></div></div>
-<script src="js/supplier-portal.js?v=10"></script>
+<script src="js/supplier-portal.js?v=13"></script>
+<script src="js/gs-tour.js?v=8"></script>
 <script src="js/greenstreets-theme.js?v=25"></script>
 <script src="js/gs-appearance.js?v=1"></script>
 </body>
