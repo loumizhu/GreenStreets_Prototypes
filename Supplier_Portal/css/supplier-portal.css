@@ -807,7 +807,7 @@ select.pd-input option{background:#16294a;color:#fff}
 .air-badge svg{width:10px;height:10px}
 .air-badge.high{background:rgba(78,187,129,.15);color:#4ebb81;border:1px solid rgba(78,187,129,.3)}
 .air-badge.med{background:rgba(245,166,35,.12);color:#f5a623;border:1px solid rgba(245,166,35,.3)}
-.air-badge.missing{background:rgba(255,255,255,.04);color:#9ca3af;border:1px solid rgba(255,255,255,.15)}
+.air-badge.missing{background:rgba(224,96,90,.14);color:#e0605a;border:1px solid rgba(224,96,90,.34)}
 .air-badge.user{background:rgba(91,156,246,.14);color:#9dc4ff;border:1px solid rgba(91,156,246,.32)}
 
 /* Yes/No toggle */
@@ -836,7 +836,9 @@ select.pd-input option{background:#16294a;color:#fff}
 
 /* Backdrop — semi-transparent wash that dims everything behind the bubble */
 .gst-overlay{position:fixed;inset:0;z-index:9000;pointer-events:none}
-.gst-backdrop{position:fixed;inset:0;background:rgba(6,14,28,.55);backdrop-filter:blur(1.5px);pointer-events:all}
+/* During the guided tour, lift the add-component library menu above the backdrop */
+.pcmp-menu.gst-above{z-index:9400}
+.gst-backdrop{position:fixed;inset:0;background:rgba(6,14,28,.30);pointer-events:all}
 
 /* Bubble card */
 .gst-bubble{

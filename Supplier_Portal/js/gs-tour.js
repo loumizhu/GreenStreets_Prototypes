@@ -46,24 +46,51 @@ function _gsTourIsActive() { try{ return sessionStorage.getItem(GS_TOUR_KEY)==='
   };
 })();
 
-/* ── On Product-Detail.html: wrap openProductDetail to start tour ──────
-   The Product-Detail page uses the split-build override of openProductDetail
-   (sessionStorage gs_pi + page navigation), but on the actual product-detail
-   HTML page the *original* monolith openProductDetail is the one that
-   renders and stays.  We hook into renderProductDetail instead.           */
+/* ── On the Landing products screen: auto-start the tour ───────────────
+   Step 2 of onboarding ("Assign packaging to products") calls gsOnbStep(2),
+   which arms the flag and navigates to the Landing (products tab). The whole
+   assign flow — the Packaging-components column, the per-row chips, the
+   "Add component" button, its library menu and the "Create a new component"
+   wizard shortcut — all live on this screen, so the tour runs here.        */
 (function(){
-  /* Only run the tour hook on the Product-Detail page */
-  if(!document.getElementById('proddetail') && !document.querySelector('#pd-body')) return;
-  if(typeof renderProductDetail !== 'function') return;
-
-  var _origRender = renderProductDetail;
-  renderProductDetail = function(pi){
-    _origRender(pi);
-    if(_gsTourIsActive()){
-      setTimeout(function(){ _gsTourBegin(); }, 480);
-    }
-  };
+  if(!document.getElementById('prod-tbody')) return;   // Landing page only
+  function tryBegin(){
+    if(!_gsTourIsActive()) return;
+    if(typeof switchLandingTab === 'function'){ try{ switchLandingTab('products'); }catch(_){} }
+    var tries = 0;
+    (function waitForRows(){
+      if(document.querySelector('#prod-tbody .prod-tr')){ _gsTourBegin(); }
+      else if(tries++ < 25){ setTimeout(waitForRows, 140); }
+    })();
+  }
+  if(document.readyState !== 'loading') setTimeout(tryBegin, 450);
+  else document.addEventListener('DOMContentLoaded', function(){ setTimeout(tryBegin, 450); });
 })();
+
+/* ── Tour target helpers (first product row + its add-component menu) ─── */
+var _tourPi = null;
+function _tourFirstRow(){ return document.querySelector('#prod-tbody .prod-tr'); }
+function _tourEnsurePi(){ var r = _tourFirstRow(); _tourPi = r ? +r.getAttribute('data-pi') : null; return _tourPi; }
+function _tourCloseMenu(){ if(typeof closeAllCompMenus === 'function'){ try{ closeAllCompMenus(); }catch(_){} } }
+function _tourOpenMenu(){
+  if(_tourPi == null) _tourEnsurePi();
+  if(_tourPi == null) return null;
+  var m = document.querySelector('.pcmp-menu[data-pi="' + _tourPi + '"]');
+  if(!m && typeof prodToggleCompMenu === 'function'){
+    var btn = document.querySelector('.pcmp-add-btn[data-pi="' + _tourPi + '"]');
+    if(btn){ try{ btn.scrollIntoView({block:'center'}); }catch(_){} }
+    prodToggleCompMenu(_tourPi);
+    m = document.querySelector('.pcmp-menu[data-pi="' + _tourPi + '"]');
+  }
+  if(m) m.classList.add('gst-above');   // lift above the tour backdrop
+  return m;
+}
+/* Add a highlight ring to a live element and register it for cleanup. */
+function _tourHL(sel){
+  var el = document.querySelector(sel);
+  if(el){ el.classList.add('gst-highlight'); _highlighted.push(el); }
+  return el;
+}
 
 /* ══════════════════════════════════════════════════════════════════════════
    TOUR ENGINE
@@ -74,65 +101,89 @@ var _tourRunning = false;
 var _tourOverlay = null;
 var _highlighted = [];
 
-/* Tour step definitions */
+/* Tour step definitions — all on the Landing "Products" screen. */
 var _TOUR_STEPS = [
-  /* Step 1 – Packaging components section ──────────────────────────────── */
+  /* Step 1 – Packaging-components column + first row ────────────────────── */
   {
     icon:  '📦',
     title: 'Packaging components',
-    body:  'This section lists all the packaging components assigned to this product. ' +
-           'Primark has pre-defined which components are <strong>expected</strong> — ' +
-           'you can see them by hovering the <strong>ⓘ</strong> icon next to the product code on the list page.',
-    targetFn: function(){ return document.querySelector('.pd-comp-hdr') || document.querySelector('#pd-body'); },
-    highlight: ['.pd-comp-hdr'],
-    position: 'below'
+    body:  'This is where you assign packaging to each product. The ' +
+           '<strong>Packaging Components</strong> column shows what each product ships in — ' +
+           'the chips are the components you\'ve already added, and the <strong>/ number</strong> ' +
+           'next to the count is how many Primark <strong>expects</strong>. ' +
+           'Hover the <strong>ⓘ</strong> beside a product code to see the exact expected list.',
+    targetFn: function(){ return document.querySelector('#prod-tbody .prod-tr:first-child .pcmp-cell') || document.querySelector('th[data-sort="comps"]'); },
+    position: 'left',
+    onShow: function(){
+      _tourCloseMenu();
+      _tourEnsurePi();
+      _tourHL('#prod-tbody .prod-tr:first-child .pcmp-cell');
+      _tourHL('#prod-tbody .prod-tr:first-child .prod-tooltip-wrap');
+    }
   },
-  /* Step 2 – Existing cards ────────────────────────────────────────────── */
-  {
-    icon:  '✅',
-    title: 'Components already assigned',
-    body:  'Each card represents one packaging component. ' +
-           'Click a card to expand it and review or fill in the compliance fields — ' +
-           '<strong>material, weight, recycled content</strong> and more — that Primark requires.',
-    targetFn: function(){
-      return document.querySelector('.pd-card') ||
-             document.querySelector('.pd-comp-list') ||
-             document.querySelector('.pd-comp-hdr');
-    },
-    highlight: ['.pd-comp-list'],
-    position: 'right'
-  },
-  /* Step 3 – Add packaging component button ────────────────────────────── */
+  /* Step 2 – Add component button ──────────────────────────────────────── */
   {
     icon:  '➕',
     title: 'Add a packaging component',
-    body:  'Need to add another component? Click <strong>"Add packaging component"</strong>. ' +
-           'A searchable list of your saved packaging library will appear — ' +
-           'just pick the component that applies to this product.',
-    targetFn: function(){ return document.querySelector('[id^="pd-addcard-"]'); },
-    highlight: ['[id^="pd-addcard-"]'],
-    position: 'above',
+    body:  'To add a component to a product, click <strong>Add component</strong> in this column. ' +
+           'A searchable list of your saved packaging library opens so you can pick the one that applies.',
+    targetFn: function(){ return document.querySelector('#prod-tbody .prod-tr:first-child .pcmp-add-btn'); },
+    position: 'left',
     onShow: function(){
-      var btn = document.querySelector('[id^="pd-addcard-"]');
+      _tourCloseMenu();
+      var btn = _tourHL('#prod-tbody .prod-tr:first-child .pcmp-add-btn');
       if(btn) btn.classList.add('gst-pulse-target');
     },
     onHide: function(){
-      var btn = document.querySelector('[id^="pd-addcard-"]');
+      var btn = document.querySelector('#prod-tbody .prod-tr:first-child .pcmp-add-btn');
       if(btn) btn.classList.remove('gst-pulse-target');
     }
   },
-  /* Step 4 – Create new via wizard ─────────────────────────────────────── */
+  /* Step 3 – Pick from the saved library ───────────────────────────────── */
+  {
+    icon:  '📚',
+    title: 'Pick from your library',
+    body:  'Here\'s your saved packaging library. Search by name and click any component ' +
+           'to add it to the product instantly — no re-typing its details.',
+    targetFn: function(){ return document.querySelector('.pcmp-menu[data-pi] .comp-menu-items'); },
+    position: 'left',
+    onShow: function(){
+      var self = this;
+      _tourEnsurePi();
+      /* Open AFTER the current click finishes bubbling, else the global
+         outside-click closer (supplier-portal.js) kills the just-opened menu.
+         Then re-anchor the bubble to the now-visible list. */
+      setTimeout(function(){
+        _tourOpenMenu();
+        _tourHL('.pcmp-menu[data-pi="' + _tourPi + '"] .comp-menu-items');
+        _positionBubble(self);
+      }, 80);
+    }
+  },
+  /* Step 4 – Create a new component via the wizard ─────────────────────── */
   {
     icon:  '🧙',
     title: 'Create a new component',
-    body:  'If a component isn\'t in your library yet, click <strong>"Add packaging component"</strong> ' +
-           'and choose <strong>"Create a new component"</strong> at the bottom of the list. ' +
-           'This opens the step-by-step wizard where you can declare a brand-new packaging type ' +
-           'with all its compliance details.',
-    targetFn: function(){ return document.querySelector('[id^="pd-addcard-"]'); },
-    highlight: ['[id^="pd-addcard-"]'],
+    body:  'Not in your library yet? Click <strong>Create a new component</strong> at the bottom of the list ' +
+           'to open the step-by-step <strong>wizard</strong>, where you can declare a brand-new packaging type ' +
+           'with all of its compliance details.',
+    targetFn: function(){ return document.querySelector('.pcmp-menu[data-pi] .comp-menu-create-new'); },
     position: 'above',
-    isLast: true
+    isLast: true,
+    onShow: function(){
+      var self = this;
+      _tourEnsurePi();
+      setTimeout(function(){
+        _tourOpenMenu();
+        var c = document.querySelector('.pcmp-menu[data-pi="' + _tourPi + '"] .comp-menu-create-new');
+        if(c){ c.classList.add('gst-highlight','gst-pulse-target'); _highlighted.push(c); }
+        _positionBubble(self);
+      }, 80);
+    },
+    onHide: function(){
+      var c = document.querySelector('.comp-menu-create-new');
+      if(c) c.classList.remove('gst-pulse-target');
+    }
   }
 ];
 
@@ -347,6 +398,7 @@ function _gsTourDone(){
   _tourRunning = false;
   _gsTourClearFlag();
   _clearHighlights();
+  _tourCloseMenu();
   document.removeEventListener('keydown', _tourKeyDown);
   document.querySelectorAll('.gst-pulse-target').forEach(function(el){
     el.classList.remove('gst-pulse-target');

@@ -2400,3 +2400,22 @@ function gsOnbRenderWelcome(){
   if(document.readyState!=='loading') init();
   else document.addEventListener('DOMContentLoaded',init);
 })();
+
+/* ── Header company/portal name → back to the Landing (products) ──────────
+   The ".ph" header's left title block (company name + subtitle) acts as a
+   "home" link on every portal screen that has it. Login has no .ph, so this
+   is a no-op there. */
+(function(){
+  function wireHomeTitle(){
+    var ph = document.querySelector('.ph');
+    if(!ph) return;
+    var title = ph.firstElementChild;
+    if(!title || title.getAttribute('data-home')==='1') return;
+    title.setAttribute('data-home','1');
+    title.style.cursor = 'pointer';
+    title.title = 'Back to portal';
+    title.addEventListener('click', function(){ if(typeof go==='function') go('sp2'); });
+  }
+  if(document.readyState !== 'loading') wireHomeTitle();
+  else document.addEventListener('DOMContentLoaded', wireHomeTitle);
+})();
