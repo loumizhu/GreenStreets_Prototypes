@@ -1048,11 +1048,18 @@ select.pd-input option{background:#16294a;color:#fff}
 /* Joined nested group: the parent tab squares its right edge, the child squares
    its left edge and sits flush against it, with a chevron at the seam — so the
    two pills touch and the arrow is on the side where they meet. */
+/* Parent tab that owns a nested child (e.g. "Packaging Components") — the paler
+   green: it's the ancestor, not the current leaf. */
 .gs-crumbs-tabs .gs-crumb-current:has(+ .gs-crumb-nested){
-  border-top-right-radius:0;border-bottom-right-radius:0;border-right:none;padding-right:12px}
+  border-top-right-radius:0;border-bottom-right-radius:0;border-right:none;padding-right:12px;
+  background:linear-gradient(120deg,rgba(78,187,129,.12),rgba(78,187,129,.05));
+  border-color:rgba(78,187,129,.4);color:rgba(143,227,182,.82)}
+/* Nested child = the current leaf (e.g. "Swing Tag") — the FULL solid green. */
 .gs-crumbs-tabs .gs-crumb-current + .gs-crumb-nested{
-  margin-left:-9px;border-top-left-radius:0;border-bottom-left-radius:0;border-left:none}
+  margin-left:-9px;border-top-left-radius:0;border-bottom-left-radius:0;border-left:none;
+  background:var(--gs);border-color:var(--gs);color:#04130c;font-weight:700}
 .gs-crumb-nested::before{content:"›";margin-right:6px;color:var(--gs-l,#8fe3b6);font-weight:800;font-size:14px}
+.gs-crumbs-tabs .gs-crumb-current + .gs-crumb-nested::before{color:rgba(4,19,12,.5)}
 .gs-crumb{display:inline-flex;align-items:center;gap:6px;font-family:"Inter",sans-serif;font-size:12.5px;font-weight:600;color:rgba(255,255,255,.72);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:6px 14px;cursor:pointer;transition:background .14s,border-color .14s,color .14s;line-height:1}
 button.gs-crumb:hover{background:rgba(78,187,129,.15);border-color:rgba(78,187,129,.42);color:#fff}
 .gs-crumb-current{background:linear-gradient(120deg,rgba(78,187,129,.22),rgba(78,187,129,.12));border-color:var(--gs);color:var(--gs-l);cursor:default}
@@ -1066,3 +1073,40 @@ button.gs-crumb:hover{background:rgba(78,187,129,.15);border-color:rgba(78,187,1
 .gs-switch input:checked + .gs-switch-track{background:var(--gs);border-color:var(--gs)}
 .gs-switch input:checked + .gs-switch-track .gs-switch-thumb{left:22px}
 .gs-switch input:focus-visible + .gs-switch-track{box-shadow:0 0 0 3px rgba(78,187,129,.3)}
+
+/* ══ Retailer note tooltip (listing) ═════════════════════════════════════ */
+.prod-note-wrap .prod-note-icon{color:#f5a623;transition:color .12s;flex-shrink:0}
+.prod-note-wrap:hover .prod-note-icon,.prod-note-wrap:focus .prod-note-icon{color:#ffc46b}
+.prod-tooltip-note{white-space:normal;max-width:260px;min-width:220px}
+.prod-tooltip-note .prod-tooltip-title{color:#f5a623}
+.prod-tooltip-text{font-size:11px;line-height:1.45;color:rgba(255,255,255,.82)}
+
+/* ══ Suggested-component pill (listing component cell) ═══════════════════ */
+.pcmp-pill-sugg{background:rgba(245,166,35,.13);border:1px solid rgba(245,166,35,.45);color:#ffc46b}
+.pcmp-pill-sugg .pcmp-sugg-ic{color:#f5a623;flex-shrink:0}
+.pcmp-pill-sugg .pcmp-txt{color:#ffc46b}
+
+/* ══ Retailer note banner (product detail) ══════════════════════════════ */
+.pd-note{display:flex;gap:11px;align-items:flex-start;margin:0 0 18px;padding:13px 16px;
+  background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.3);border-left:3px solid #f5a623;border-radius:10px}
+.pd-note-ic{color:#f5a623;flex-shrink:0;margin-top:1px}
+.pd-note-t{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#f5a623;margin-bottom:4px}
+.pd-note-b{font-size:12.5px;line-height:1.5;color:rgba(255,255,255,.85)}
+
+/* ══ Suggested-component cards (product detail) ═════════════════════════ */
+.pd-sugg-list{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+.pd-sugg-card{position:relative;padding:15px 16px;border-radius:12px;
+  background:rgba(245,166,35,.07);border:1px dashed rgba(245,166,35,.5)}
+.pd-sugg-badge{display:inline-flex;align-items:center;gap:5px;font-size:9.5px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;color:#f5a623;margin-bottom:7px}
+.pd-sugg-name{font-size:14px;font-weight:650;color:#ffce80;margin-bottom:5px}
+.pd-sugg-hint{font-size:11.5px;line-height:1.5;color:rgba(255,255,255,.6);max-width:560px;margin-bottom:11px}
+.pd-sugg-btn{display:inline-flex;align-items:center;gap:6px;font-family:inherit;font-size:12px;font-weight:650;
+  cursor:pointer;border-radius:9px;padding:8px 14px;border:1px solid #f5a623;
+  background:rgba(245,166,35,.16);color:#ffc46b;transition:all .14s}
+.pd-sugg-btn:hover{background:#f5a623;color:#241603}
+.pd-sugg-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pd-sugg-remove{display:inline-flex;align-items:center;gap:6px;font-family:inherit;font-size:12px;font-weight:600;
+  cursor:pointer;border-radius:9px;padding:8px 14px;border:1px solid rgba(255,255,255,.16);
+  background:rgba(255,255,255,.04);color:rgba(255,255,255,.7);transition:all .14s}
+.pd-sugg-remove:hover{border-color:rgba(224,96,90,.55);background:rgba(224,96,90,.14);color:#ff9c96}

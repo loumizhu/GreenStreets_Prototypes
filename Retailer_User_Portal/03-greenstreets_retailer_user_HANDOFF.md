@@ -178,7 +178,7 @@ table. (`ru2` was unused in the original and is absent.)
 | `ru8` | `Notifications` | Notifications | typed feed + filter chips |
 | `ru9` | `Settings` | Settings | profile + toggles |
 
-`03-greenstreets_retailer_user_index.html` is a dev-only hub linking all screens — drop it.
+`index.html` is a dev-only hub linking all screens — drop it.
 
 ---
 

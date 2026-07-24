@@ -10,20 +10,20 @@ and `img/`. The original monolith is kept unchanged as a reference in the parent
 
 Open any page directly in a browser, **or** open the hub:
 
-- **`04-greenstreets_supplier_portal_index.html`** — a directory of all 26 screens. Start here.
+- **`index.html`** — a directory of all 26 screens. Start here.
 
 Tip: for best results serve over HTTP (relative asset paths behave better than `file://`):
 
 ```
 # from the Prototypes/ root:
 python -m http.server 8777
-# then visit http://localhost:8777/Supplier_Portal/04-greenstreets_supplier_portal_index.html
+# then visit http://localhost:8777/Supplier_Portal/index.html
 ```
 
 ## File layout
 
 ```
-04-greenstreets_supplier_portal_index.html      ← screen directory / hub
+index.html      ← screen directory / hub
 04-greenstreets_supplier_portal_<Screen>.html   ← 26 screen pages (one each)
 
 css/

@@ -200,7 +200,7 @@ route table. Sidebar order first, then flow/sub-screens.
 | `ra_config` | `Settings` | Settings / config | profile, compliance, security, danger zone |
 | `ra_custom_invite` | `Custom-Invite` | Custom invite | |
 
-`02-Greenstreets_retailer_admin_index.html` is a dev-only hub linking all screens — drop it.
+`index.html` is a dev-only hub linking all screens — drop it.
 
 ---
 

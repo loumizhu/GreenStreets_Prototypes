@@ -67,6 +67,17 @@
       var imgs = document.querySelectorAll('.gs-logo-img,.sb-logo,.login-logo,img[alt="Greenstreets"]');
       for (var i = 0; i < imgs.length; i++) imgs[i].src = s.logo;
     }
+    /* Text / UI size — a zoom on the page content so text AND layout scale. */
+    var scale = s.textScale || 1;
+    var containers = document.querySelectorAll('.main,.login-wrap');
+    for (var c = 0; c < containers.length; c++) containers[c].style.zoom = (scale === 1 ? '' : scale);
+    /* Density — table row / card spacing via a root class. */
+    var cl = document.documentElement.classList;
+    cl.remove('gs-density-compact', 'gs-density-comfortable');
+    if (s.density === 'compact') cl.add('gs-density-compact');
+    else if (s.density === 'comfortable') cl.add('gs-density-comfortable');
+    /* Reduced motion (other option). */
+    if (s.reduceMotion) cl.add('gs-reduce-motion'); else cl.remove('gs-reduce-motion');
   }
 
   /* run as early as possible so pages paint themed */
@@ -102,6 +113,10 @@
       '.gsa-btn:hover{border-color:var(--gs)}' +
       '.gsa-btn.pri{background:var(--gs);border-color:var(--gs);color:#04130c}' +
       '.gsa-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;border-top:1px solid var(--line);padding-top:16px}' +
+      '.gsa-seg{display:flex;flex-wrap:wrap;gap:6px}' +
+      '.gsa-seg-btn{font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;border-radius:8px;padding:7px 14px;border:1px solid var(--line-2);background:rgba(255,255,255,.05);color:var(--tw);transition:all .12s}' +
+      '.gsa-seg-btn:hover{border-color:var(--gs);color:#fff}' +
+      '.gsa-seg-btn.sel{background:var(--gs);border-color:var(--gs);color:#04130c}' +
       '.gsa-saved{font-size:11px;color:var(--gs-l);opacity:0;transition:opacity .3s}' +
       '.gsa-saved.on{opacity:1}';
     document.head.appendChild(st);
@@ -194,6 +209,38 @@
     logoSec.appendChild(logoRow);
     wrap.appendChild(logoSec);
 
+    /* Display: text size + density + motion (segmented choice groups) */
+    function segRow(label, hint, options, current, onPick){
+      var sec = document.createElement('div'); sec.className = 'gsa-sec';
+      sec.innerHTML = '<div class="gsa-lbl">' + label + '</div>' + (hint ? '<div class="gsa-hint">' + hint + '</div>' : '');
+      var seg = document.createElement('div'); seg.className = 'gsa-seg';
+      options.forEach(function(o){
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'gsa-seg-btn' + (o.val === current ? ' sel' : '');
+        b.textContent = o.label;
+        b.onclick = function(){ onPick(o.val); };
+        seg.appendChild(b);
+      });
+      sec.appendChild(seg);
+      return sec;
+    }
+    var dispSec = document.createElement('div'); dispSec.className = 'gsa-sec';
+    dispSec.innerHTML = '<div class="gsa-lbl">Display</div><div class="gsa-hint">Text size, spacing density and motion across the portal.</div>';
+    wrap.appendChild(dispSec);
+
+    wrap.appendChild(segRow('Text &amp; UI size', '', [
+      {label:'Small', val:0.9},{label:'Default', val:1},{label:'Large', val:1.1},{label:'Larger', val:1.2}
+    ], (s.textScale || 1), function(v){ s = load(); s.textScale = v; save(s); apply(s); refresh(); }));
+
+    wrap.appendChild(segRow('Spacing density', '', [
+      {label:'Compact', val:'compact'},{label:'Default', val:'default'},{label:'Comfortable', val:'comfortable'}
+    ], (s.density || 'default'), function(v){ s = load(); s.density = v; save(s); apply(s); refresh(); }));
+
+    wrap.appendChild(segRow('Motion', '', [
+      {label:'Full', val:false},{label:'Reduced', val:true}
+    ], !!s.reduceMotion, function(v){ s = load(); s.reduceMotion = v; save(s); apply(s); refresh(); }));
+
     /* Footer: reset + saved indicator */
     var foot = document.createElement('div'); foot.className = 'gsa-foot';
     var saved = document.createElement('span'); saved.className = 'gsa-saved'; saved.textContent = '✓ Saved';
@@ -221,8 +268,8 @@
     var mount = document.getElementById('gs-appearance');
     if (mount) buildPanel(mount);
   }
-  if (document.readyState !== 'loading') initPanel();
-  else document.addEventListener('DOMContentLoaded', initPanel);
+  if (document.readyState !== 'loading') { initPanel(); apply(); }
+  else document.addEventListener('DOMContentLoaded', function(){ initPanel(); apply(); });
 
   /* expose */
   window.GSAppearance = { apply: apply, load: load, save: save, PRESETS: PRESETS };

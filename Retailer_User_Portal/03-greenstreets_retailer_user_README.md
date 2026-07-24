@@ -15,20 +15,20 @@ into **one HTML file per screen** so it can be handed to developers. This
 
 Open any page directly in a browser, **or** open the hub:
 
-- **`03-greenstreets_retailer_user_index.html`** — a directory of all 11 screens. Start here.
+- **`index.html`** — a directory of all 11 screens. Start here.
 
 Tip: for best results serve over HTTP (relative asset paths behave better than `file://`):
 
 ```
 # from inside the Retailer_User_Portal/ folder:
 python -m http.server 8777
-# then visit http://localhost:8777/03-greenstreets_retailer_user_index.html
+# then visit http://localhost:8777/index.html
 ```
 
 ## File layout
 
 ```
-03-greenstreets_retailer_user_index.html      ← screen directory / hub
+index.html      ← screen directory / hub
 03-greenstreets_retailer_user_<Screen>.html   ← 11 screen pages (one each)
 
 css/

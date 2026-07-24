@@ -107,14 +107,14 @@ function duplicatePackaging(key) {
 }
 
 var PRODUCTS = [
- {id:0, code:"PRK-003-DRS-RED", name:"Red Midi Dress",            category:"Dresses",     status:"incomplete", type:"incomplete", packing:"Flat", uc:35,  cp:null, comps:["Swing Tag","Box / Carton","Tissue Paper"],           expected:["Swing Tag","Poly Bag","Shipping Carton","Pallet","Pallet Wrap","Pallet Label"]},
+ {id:0, code:"PRK-003-DRS-RED", name:"Red Midi Dress",            category:"Dresses",     status:"incomplete", type:"incomplete", packing:"Flat", uc:35,  cp:null, comps:["Swing Tag","Box / Carton","Tissue Paper"],           expected:["Swing Tag","Poly Bag","Shipping Carton","Pallet","Pallet Wrap","Pallet Label"], note:"Please confirm the swing tag is FSC-certified — our EPR return needs the certificate reference. Also switch the poly bag to a recycled-content mailer where possible.", sugg:["Recycled Poly Mailer"]},
  {id:1, code:"PRK-004-JKT-KHK", name:"Khaki Utility Jacket",      category:"Jackets",     status:"incomplete", type:"incomplete", packing:"GOH",  uc:50,  cp:40,   comps:["Hanger","Garment Bag"],                              expected:["Hanger","GOH Polybag","Swing Tag","Shipping Carton","Pallet","Pallet Wrap"]},
  {id:2, code:"PRK-002-JN-BLU",  name:"Blue Slim Fit Jeans",       category:"Jeans",       status:"complete",   type:"submitted",  packing:"Flat", uc:100, cp:null, comps:["Poly Bag","Wrap Band"],                              expected:["Poly Bag","Wrap Band","Swing Tag","Shipping Carton","Pallet"]},
  {id:3, code:"PRK-001-SW-BLK",  name:"Black Crew Neck Sweatshirt",category:"Sweatshirts", status:"none",       type:"none",       packing:"—", uc:null, cp:null, comps:[],                                                    expected:["Swing Tag","Poly Bag","Shipping Carton","Pallet","Pallet Wrap"]},
  {id:4, code:"PRK-005-TOP-WHT", name:"White Cropped Top",         category:"Tops",        status:"delisted",   type:"delisted",   packing:"Flat", uc:35,  cp:null, comps:["Swing Tag","Shipping Carton"],                       expected:["Swing Tag","Tissue Paper","Shipping Carton","Pallet"]},
- {id:5, code:"PRK-006-SKT-NVY", name:"Navy Pleated Skirt",        category:"Skirts",      status:"complete",   type:"complete",   packing:"Flat", uc:60,  cp:30,   comps:["Swing Tag","Poly Bag","Shipping Carton"],            expected:["Swing Tag","Poly Bag","Shipping Carton","Pallet"]},
+ {id:5, code:"PRK-006-SKT-NVY", name:"Navy Pleated Skirt",        category:"Skirts",      status:"complete",   type:"complete",   packing:"Flat", uc:60,  cp:30,   comps:["Swing Tag","Poly Bag","Shipping Carton"],            expected:["Swing Tag","Poly Bag","Shipping Carton","Pallet"], note:"Looks good — just double-check the shipping carton dimensions match the new pallet configuration."},
  {id:6, code:"PRK-007-SHT-STR", name:"Striped Oxford Shirt",      category:"Shirts",      status:"complete",   type:"submitted",  packing:"Boxed",uc:40,  cp:45,   comps:["Swing Tag","Tissue Paper","Shipping Carton"],        expected:["Swing Tag","Tissue Paper","Shipping Carton","Pallet"]},
- {id:7, code:"PRK-008-SHO-BEG", name:"Beige Chino Shorts",        category:"Shorts",      status:"incomplete", type:"incomplete", packing:"Flat", uc:80,  cp:25,   comps:["Poly Bag"],                                          expected:["Poly Bag","Swing Tag","Shipping Carton","Pallet"]},
+ {id:7, code:"PRK-008-SHO-BEG", name:"Beige Chino Shorts",        category:"Shorts",      status:"incomplete", type:"incomplete", packing:"Flat", uc:80,  cp:25,   comps:["Poly Bag"],                                          expected:["Poly Bag","Swing Tag","Shipping Carton","Pallet"], note:"Belt loops need a branded kraft swing tag rather than a plain one. We've suggested two components below — please review and confirm the exact spec.", sugg:["Kraft Swing Tag","Corrugated Shipper"]},
  {id:8, code:"PRK-009-CO-CAM",  name:"Camel Wool Coat",           category:"Coats",       status:"incomplete", type:"incomplete", packing:"GOH",  uc:20,  cp:30,   comps:["Hanger"],                                            expected:["Hanger","GOH Polybag","Swing Tag","Shipping Carton","Pallet","Pallet Wrap"]},
  {id:9, code:"PRK-010-KNT-GRY", name:"Grey Cable Knit Jumper",    category:"Knitwear",    status:"none",       type:"none",       packing:"—", uc:null, cp:null, comps:[],                                                    expected:["Swing Tag","Poly Bag","Shipping Carton","Pallet"]},
  {id:10,code:"PRK-011-ACT-BLK", name:"Black Leggings",            category:"Activewear",  status:"complete",   type:"submitted",  packing:"Flat", uc:120, cp:20,   comps:["Poly Bag","Wrap Band","Shipping Carton"],            expected:["Poly Bag","Wrap Band","Swing Tag","Shipping Carton","Pallet"]},
@@ -206,6 +206,20 @@ function prodTip(title, items, cls){
   return box + '</div>';
 }
 
+/* Free-text tooltip box (used for the retailer's note on a product). */
+function prodNoteTip(text){
+  return '<div class="prod-tooltip-box prod-tooltip-note">'
+    + '<div class="prod-tooltip-title">Note from retailer</div>'
+    + '<div class="prod-tooltip-text">'+String(text||'')+'</div></div>';
+}
+/* The note "ⓘ" trigger shown beside a product code (listing) — amber when a note exists. */
+function prodNoteWrap(p){
+  if(!p.note) return '';
+  return '<span class="prod-tooltip-wrap prod-note-wrap" tabindex="0" title="Note from retailer" onclick="event.stopPropagation()">'
+    + '<svg class="prod-note-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>'
+    + prodNoteTip(p.note) + '</span>';
+}
+
 function prodStatusMeta(t){
   return ({
     incomplete:{cls:"prod-status-incomplete", lbl:"Incomplete",   st:"st-incomplete", enabled:false, btn:"Submit"},
@@ -250,9 +264,10 @@ function prodRowHtml(p){
   var expWrap = '<span class="prod-tooltip-wrap" tabindex="0" onclick="event.stopPropagation()">'
     + '<svg class="prod-tooltip-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-3"/></svg>'
     + prodTip("Expected packaging", p.expected) + '</span>';
+  var noteWrap = prodNoteWrap(p);
   var compCell = prodCompCell(p);
   return '<tr class="prod-tr ' + m.st + '" data-pi="' + p.id + '" data-status="' + p.status + '" onclick="openProductDetail(' + p.id + ')">'
-    + '<td><div class="gs-name-cell"><input type="checkbox" class="gs-row-check" title="Select" onclick="event.stopPropagation()" onchange="gsProdRowToggle(' + p.id + ',this)"><div class="gs-name-textcol"><div class="prod-cell-code">' + p.code + expWrap + '</div><div class="prod-cell-name">' + p.name + '</div></div></div></td>'
+    + '<td><div class="gs-name-cell"><input type="checkbox" class="gs-row-check" title="Select" onclick="event.stopPropagation()" onchange="gsProdRowToggle(' + p.id + ',this)"><div class="gs-name-textcol"><div class="prod-cell-code">' + p.code + expWrap + noteWrap + '</div><div class="prod-cell-name">' + p.name + '</div></div></div></td>'
     + '<td>' + p.category + '</td>'
     + '<td><span class="prod-status-pill ' + m.cls + '">' + m.lbl + '</span></td>'
     + '<td>' + p.packing + '</td>'
@@ -285,7 +300,12 @@ function prodCompCell(p){
     + '<span class="pcmp-count-slash">/</span>'
     + '<input class="pcmp-req-inp" type="number" min="0" step="1" value="'+req+'" title="Components required by the retailer — a suggestion you can change" onclick="event.stopPropagation()" onkeydown="if(event.key===&quot;Enter&quot;)this.blur()" onchange="prodSetReq('+p.id+',this.value)">'
     + '</div>';
-  var list = n ? '<div class="pcmp-list">'+pills+'</div>' : '';
+  var suggPills = (p.sugg && p.sugg.length) ? p.sugg.map(function(name){
+    return '<span class="pcmp-pill pcmp-pill-sugg" title="Suggested by retailer — open the product to review">'
+      + '<svg class="pcmp-sugg-ic" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 9v4m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>'
+      + '<span class="pcmp-txt">'+name+'</span></span>';
+  }).join('') : '';
+  var list = (n||suggPills) ? '<div class="pcmp-list">'+pills+suggPills+'</div>' : '';
   var addWrap = '<span class="pcmp-add">'
     + '<button class="pcmp-add-btn" data-pi="'+p.id+'" title="Add packaging component" onclick="event.stopPropagation();prodToggleCompMenu('+p.id+')">'
     + '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Add component</button></span>';
@@ -294,8 +314,9 @@ function prodCompCell(p){
 /* Dropdown is built on demand and appended to <body> so it isn't trapped by the
    transformed .landing-tab-panel (the screen-entrance animation leaves a
    transform that would otherwise become the containing block for position:fixed). */
-function compMenuHTML(pi, addFn){
+function compMenuHTML(pi, addFn, createFn){
   addFn = addFn || 'prodAddComp';
+  createFn = createFn || 'openNewCompWizard';
   var libItems = COMPONENT_LIBRARY_JS.map(function(c){
     var lvl = c.level.charAt(0).toUpperCase()+c.level.slice(1);
     return '<div class="comp-lib-item" data-name="'+c.name.toLowerCase()+'" onclick="event.stopPropagation();'+addFn+'('+pi+',\''+c.key+'\')">'
@@ -305,7 +326,7 @@ function compMenuHTML(pi, addFn){
   return '<div class="product-card-menu-hdr">Add a saved component</div>'
     + '<div class="comp-menu-search-wrap"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input class="comp-menu-search" placeholder="Search components..." onclick="event.stopPropagation()" oninput="filterCompMenu(this)"></div>'
     + '<div class="comp-menu-items">'+libItems+'</div>'
-    + '<button class="comp-menu-create-new" onclick="event.stopPropagation();openNewCompWizard('+pi+')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Create a new component</button>';
+    + '<button class="comp-menu-create-new" onclick="event.stopPropagation();'+createFn+'('+pi+')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Create a new component</button>';
 }
 /* Position a floating menu next to a trigger button (fixed, viewport-clamped, flips up). */
 function positionCompMenu(btn, menu){
@@ -328,11 +349,11 @@ function positionCompMenu(btn, menu){
   menu.style.left = left + 'px';
   menu.style.top = Math.max(12, top) + 'px';
 }
-function openCompMenuAt(btn, pi, addFn){
+function openCompMenuAt(btn, pi, addFn, createFn){
   var menu = document.createElement('div');
   menu.className = 'pcmp-menu pcmp-open';
   menu.setAttribute('data-pi', pi);
-  menu.innerHTML = compMenuHTML(pi, addFn);
+  menu.innerHTML = compMenuHTML(pi, addFn, createFn);
   document.body.appendChild(menu);
   positionCompMenu(btn, menu);
   var s = menu.querySelector('.comp-menu-search');
@@ -542,13 +563,30 @@ function renderProductDetail(pi){
   }).join('');
   if(!p._pkgs.length) cards = '<div class="pd-empty">No packaging components yet — add the first one.</div>';
 
+  var noteBanner = p.note ? '<div class="pd-note">'
+    + '<svg class="pd-note-ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>'
+    + '<div><div class="pd-note-t">Note from retailer</div><div class="pd-note-b">'+pdEsc(p.note)+'</div></div></div>' : '';
+
+  var suggCards = (p.sugg && p.sugg.length) ? p.sugg.map(function(name,si){
+    return '<div class="pd-sugg-card">'
+      + '<div class="pd-sugg-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 9v4m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>Suggested by retailer</div>'
+      + '<div class="pd-sugg-name">'+pdEsc(name)+'</div>'
+      + '<div class="pd-sugg-hint">The retailer suggested this component. Pick a matching one from your library or create a new component — either will replace this suggestion — or remove it if it doesn\'t apply.</div>'
+      + '<div class="pd-sugg-actions">'
+      +   '<button class="pd-sugg-btn" onclick="event.stopPropagation();pdSuggClick(this,'+pi+','+si+')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>Choose or replace</button>'
+      +   '<button class="pd-sugg-remove" onclick="event.stopPropagation();pdDismissSugg('+pi+','+si+')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Remove</button>'
+      + '</div>'
+      + '</div>';
+  }).join('') : '';
+
   var comp = '<div class="pd-comp-hdr"><div class="pd-comp-title">Packaging components <span class="pd-comp-count">'+p._pkgs.length+'</span></div></div>'
     + '<div class="pd-hint">Tap a component to expand — every field can be edited on the spot.</div>'
+    + (suggCards ? '<div class="pd-sugg-list">'+suggCards+'</div>' : '')
     + '<div class="pd-comp-list">'+cards+'</div>'
     + '<button class="pd-add-card" id="pd-addcard-'+pi+'" onclick="event.stopPropagation();pdToggleAddMenu(this,'+pi+')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>Add packaging component</button>';
 
   var matDL = '<datalist id="pd-mat-opts">'+PD_MAT_OPTIONS.map(function(o){return '<option value="'+pdEsc(o)+'"></option>';}).join('')+'</datalist>';
-  document.getElementById('pd-body').innerHTML = '<div class="pd-wrap">'+matDL+head+comp+'</div>';
+  document.getElementById('pd-body').innerHTML = '<div class="pd-wrap">'+matDL+head+noteBanner+comp+'</div>';
   if(typeof gsBuildBreadcrumb==='function') gsBuildBreadcrumb();
 }
 /* ── Dynamic materials inside a product-detail packaging card ──────────────
@@ -680,6 +718,58 @@ function pdAddComp(pi,key){
 function pdRemoveComp(pi,pk){
   var p = PRODUCTS.filter(function(x){return x.id===pi;})[0];
   if(p && p._pkgs && pk>=0 && pk<p._pkgs.length){ p._pkgs.splice(pk,1); p.comps.splice(pk,1); prodRender(); renderProductDetail(pi); }
+}
+/* ── Retailer-suggested components ────────────────────────────────────────
+   A suggestion (free-typed name from the retailer) shows as an orange card.
+   Clicking "Choose or replace" opens the component menu; picking a library
+   item OR creating a new component removes the suggestion and adds the real
+   component in its place. */
+var _suggFill = { pi:null, idx:null };
+function pdSuggClick(btn, pi, si){
+  var existing = document.querySelector('.pcmp-menu[data-pi="'+pi+'"]');
+  closeAllCompMenus();
+  if(existing) return;
+  _suggFill = { pi:pi, idx:si };
+  openCompMenuAt(btn, pi, 'pdFillSuggestPick', 'pdFillSuggestNew');
+}
+function _suggRemove(p){
+  if(!p.sugg) return;
+  var i = _suggFill.idx;
+  if(i!=null && i>=0 && i<p.sugg.length) p.sugg.splice(i,1);
+  _suggFill = { pi:null, idx:null };
+}
+/* Supplier dismisses a retailer suggestion without adding a component (it
+   doesn't apply to this product). Drops it from the listing + detail. */
+function pdDismissSugg(pi, si){
+  closeAllCompMenus();
+  var p = PRODUCTS.filter(function(x){return x.id===pi;})[0];
+  if(!p || !p.sugg || si<0 || si>=p.sugg.length) return;
+  var name = p.sugg[si];
+  p.sugg.splice(si,1);
+  prodRender(); renderProductDetail(pi);
+  if(typeof gsToast==='function') gsToast('Suggestion “'+name+'” removed');
+}
+function pdFillSuggestPick(pi, key){
+  closeAllCompMenus();
+  var p = PRODUCTS.filter(function(x){return x.id===pi;})[0];
+  var comp = COMPONENT_LIBRARY_JS.find(function(c){return c.key===key;});
+  if(!p||!comp) return;
+  _suggRemove(p);
+  if(!p._pkgs) p._pkgs=[];
+  p.comps.push(comp.name); p._pkgs.push(buildPkgData(comp.name));
+  prodRender(); renderProductDetail(pi);
+  if(typeof gsToast==='function') gsToast('Suggestion replaced with “'+comp.name+'”');
+}
+function pdFillSuggestNew(pi){
+  closeAllCompMenus();
+  var p = PRODUCTS.filter(function(x){return x.id===pi;})[0];
+  if(!p) return;
+  var suggName = (p.sugg && _suggFill.idx!=null) ? p.sugg[_suggFill.idx] : 'New component';
+  _suggRemove(p);
+  if(!p._pkgs) p._pkgs=[];
+  p.comps.push(suggName); p._pkgs.push(buildPkgData(suggName));
+  prodRender(); renderProductDetail(pi);
+  if(typeof gsToast==='function') gsToast('New component “'+suggName+'” created — fill in its details below');
 }
 function pdToggleAddMenu(btn,pi){
   var existing = document.querySelector('.pcmp-menu[data-pi="'+pi+'"]');
@@ -2040,16 +2130,26 @@ document.addEventListener('DOMContentLoaded', pkgInitMaterialControls);
 
 /* Clicking a picklist-backed field in view mode enters edit mode and opens the
    dropdown, so the chevron affordance is actually functional. */
+/* Click ANY field on a packaging-detail section → instantly enter edit mode and
+   focus that field. Previously this only fired for fields backed by a <select>,
+   so plain-text / % / combobox fields felt "sometimes editable, sometimes not". */
 document.addEventListener('click', function(e){
-  var inp = e.target.closest && e.target.closest('.pkg-detail-feat-input');
-  if (!inp) return;
-  var feat = inp.closest('.pkg-detail-feat');
-  var sel = feat && feat.querySelector('.pkg-detail-feat-select');
-  if (!sel) return;
-  var section = inp.closest('.pkg-detail-section');
-  if (section && section.classList.contains('pkg-sec-edit-mode')) return; /* already editing */
-  pkgEnterSectionEdit(inp);
-  if (sel) { try { sel.focus(); } catch(_) {} }
+  if (!e.target.closest) return;
+  var feat = e.target.closest('.pkg-detail-feat');
+  if (!feat) return;
+  if (feat.classList.contains('air-feat')) return; /* AI-review fields have their own edit flow */
+  /* Ignore clicks on the section's own controls (edit/save button, reuse menu, material remove). */
+  if (e.target.closest('.sec-edit-btn') || e.target.closest('.sec-hdr-reuse-wrap') || e.target.closest('.pkg-mat-remove')) return;
+  var section = feat.closest('.pkg-detail-section');
+  if (!section) return;
+  if (section.classList.contains('pkg-sec-edit-mode')) return; /* already editing */
+  pkgEnterSectionEdit(feat);
+  /* Focus the primary control so the user can type/pick immediately. */
+  var ctrl = feat.querySelector('.pkg-detail-feat-select, .pkg-detail-feat-input');
+  if (ctrl) {
+    try { ctrl.focus(); } catch(_) {}
+    if (ctrl.tagName === 'INPUT' && ctrl.type !== 'checkbox') { try { ctrl.select(); } catch(_) {} }
+  }
 });
 
 function toggleSecHdrMenu(sectionNum, pi) {

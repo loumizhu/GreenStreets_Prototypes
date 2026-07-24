@@ -125,7 +125,7 @@ your route table.
 | `Packaging-Pallet-Label` | `pkgdetail-pallet_label` | Pallet Label |
 | `Packaging-Fastener` | `pkgdetail-fastener` | Fastener |
 
-`04-greenstreets_supplier_portal_index.html` is a dev-only hub linking all screens — drop it.
+`index.html` is a dev-only hub linking all screens — drop it.
 
 ---
 

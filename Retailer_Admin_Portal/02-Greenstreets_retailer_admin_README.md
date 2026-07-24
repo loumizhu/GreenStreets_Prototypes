@@ -10,20 +10,20 @@ parent `Prototypes/` folder.
 
 Open any page directly in a browser, **or** open the hub:
 
-- **`02-Greenstreets_retailer_admin_index.html`** — a directory of all 23 screens. Start here.
+- **`index.html`** — a directory of all 23 screens. Start here.
 
 Tip: for best results serve over HTTP (relative asset paths behave better than `file://`):
 
 ```
 # from inside the Retailer_Admin_Portal/ folder:
 python -m http.server 8777
-# then visit http://localhost:8777/02-Greenstreets_retailer_admin_index.html
+# then visit http://localhost:8777/index.html
 ```
 
 ## File layout
 
 ```
-02-Greenstreets_retailer_admin_index.html      ← screen directory / hub
+index.html      ← screen directory / hub
 02-Greenstreets_retailer_admin_<Screen>.html   ← 23 screen pages (one each)
 
 css/
