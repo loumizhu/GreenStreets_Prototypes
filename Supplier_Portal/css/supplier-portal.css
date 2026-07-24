@@ -268,7 +268,7 @@ html,body{height:100%;font-family:"Inter",sans-serif;color:var(--tw)}
 /* Saved packaging components table */
 .pkg-lib-table{width:100%;border-collapse:collapse;font-size:12px;min-width:700px}
 .pkg-lib-table thead tr{background:rgba(255,255,255,.06);position:sticky;top:0;z-index:2}
-.pkg-lib-table thead th{padding:8px 11px;text-align:left;font-size:10px;font-weight:700;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid rgba(255,255,255,.1);white-space:nowrap}
+.pkg-lib-table thead th{padding:8px 11px;text-align:left;font-size:9.5px;font-weight:700;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid rgba(255,255,255,.1);white-space:normal;vertical-align:middle;line-height:1.25}
 .pkg-lib-table tbody tr{border-bottom:1px solid rgba(255,255,255,.06);transition:background .1s,transform .1s}
 .pkg-lib-table tbody tr:nth-child(even){background:rgba(255,255,255,.035)}
 .pkg-lib-table tbody tr:hover{background:rgba(78,187,129,.07)}
@@ -694,7 +694,7 @@ select.pd-input option{background:#16294a;color:#fff}
 
 /* Thumbnail size (slider-driven) */
 .docs-grid{grid-template-columns:repeat(auto-fill,minmax(var(--dt-size,152px),1fr))}
-.docs-thumb-icon{height:calc(var(--dt-size,152px) * .46)}
+.docs-thumb-icon{height:var(--dt-vsize, calc(var(--dt-size,152px) * .46))}
 .docs-thumb-size-wrap{display:flex;align-items:center;gap:7px;flex-shrink:0;color:rgba(255,255,255,.45);padding:0 4px}
 .docs-thumb-size-slider{-webkit-appearance:none;appearance:none;width:96px;height:5px;border-radius:3px;background:linear-gradient(90deg,var(--gs),rgba(78,187,129,.25));outline:none;cursor:pointer}
 .docs-thumb-size-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:15px;height:15px;border-radius:50%;background:#fff;border:3px solid var(--gs);cursor:pointer}
@@ -851,11 +851,12 @@ select.pd-input option{background:#16294a;color:#fff}
   box-shadow:0 24px 64px rgba(0,0,0,.6),0 0 0 1px rgba(78,187,129,.12),0 0 40px -10px rgba(78,187,129,.18);
   pointer-events:all;
   opacity:0;
-  transform:translateY(8px) scale(.97);
-  transition:opacity .24s ease,transform .24s ease;
+  transform:scale(.88);
+  transform-origin:center center;
+  transition:opacity .18s ease,transform .28s cubic-bezier(.34,1.56,.64,1);
 }
-.gst-bubble.gst-bubble-in{opacity:1;transform:translateY(0) scale(1)}
-.gst-overlay.gst-overlay-out .gst-bubble{opacity:0;transform:translateY(6px) scale(.97)}
+.gst-bubble.gst-bubble-in{opacity:1;transform:scale(1)}
+.gst-overlay.gst-overlay-out .gst-bubble{opacity:0;transform:scale(.96);transition:opacity .22s ease,transform .22s ease}
 .gst-overlay.gst-overlay-out .gst-backdrop{opacity:0;transition:opacity .3s ease}
 
 .gst-bubble-inner{padding:18px 18px 14px}
@@ -1008,3 +1009,60 @@ select.pd-input option{background:#16294a;color:#fff}
 .gs-bulk-btn.gs-bulk-danger:hover{background:rgba(224,82,82,.22);border-color:rgba(224,82,82,.5);color:#ffb4b4}
 .gs-bulk-btn.gs-bulk-ghost{background:transparent;border-color:transparent;color:rgba(255,255,255,.55)}
 .gs-bulk-btn.gs-bulk-ghost:hover{color:#fff;background:rgba(255,255,255,.08)}
+
+/* ── Listing motion: first-load row fade-in ── */
+@keyframes gsRowIn{from{opacity:0;transform:translateY(-7px)}to{opacity:1;transform:translateY(0)}}
+
+/* Supporting-documents checkboxes → themed dark (match the other listings) */
+.doc-cb,.docs-thumb-cb,#docs-select-all{
+  -webkit-appearance:none;appearance:none;-moz-appearance:none;
+  width:16px;height:16px;flex-shrink:0;margin:0;border-radius:4px;
+  border:1.5px solid rgba(255,255,255,.32);background:rgba(255,255,255,.05);
+  cursor:pointer;position:relative;vertical-align:middle;transition:background .12s,border-color .12s}
+.docs-thumb-cb{position:absolute;top:8px;left:8px}
+.doc-cb:hover,.docs-thumb-cb:hover,#docs-select-all:hover{border-color:var(--gs)}
+.doc-cb:checked,.docs-thumb-cb:checked,#docs-select-all:checked{background:var(--gs);border-color:var(--gs)}
+.doc-cb:checked::after,.docs-thumb-cb:checked::after,#docs-select-all:checked::after{
+  content:"";position:absolute;left:4.5px;top:1px;width:4px;height:8px;
+  border:solid #04130c;border-width:0 2px 2px 0;transform:rotate(45deg)}
+#docs-select-all:indeterminate{background:var(--gs);border-color:var(--gs)}
+#docs-select-all:indeterminate::after{content:"";position:absolute;left:3px;top:6px;width:8px;height:2px;background:#04130c;border-radius:1px}
+
+/* ── Appearance: spacing density + reduced motion ── */
+.gs-density-compact .prod-tbl td,.gs-density-compact .prod-tbl th,
+.gs-density-compact .pkg-lib-table td,.gs-density-compact .pkg-lib-table th,
+.gs-density-compact .docs-tbl-new td,.gs-density-compact .docs-tbl-new th{padding-top:4px;padding-bottom:4px}
+.gs-density-comfortable .prod-tbl td,.gs-density-comfortable .prod-tbl th,
+.gs-density-comfortable .pkg-lib-table td,.gs-density-comfortable .pkg-lib-table th,
+.gs-density-comfortable .docs-tbl-new td,.gs-density-comfortable .docs-tbl-new th{padding-top:14px;padding-bottom:14px}
+.gs-reduce-motion *,.gs-reduce-motion *::before,.gs-reduce-motion *::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.02ms!important}
+
+/* ── Breadcrumb / section nav integrated INLINE in the header (.ph),
+   to the right of the company name ── */
+.gs-crumbs{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-left:54px;margin-right:auto;min-width:0}
+.gs-crumbs-tabs{gap:9px}
+/* Nested detail sub-pill (e.g. "Product Detail") — smaller, sits tight to its
+   parent tab. The parent shows a chevron on its right, the child on its left,
+   pulled close together so they read as one nested group. */
+.gs-crumb-nested{font-size:11px;font-weight:600;padding:4px 12px 4px 10px;background:rgba(255,255,255,.045);border-color:rgba(255,255,255,.14);color:rgba(255,255,255,.68)}
+/* Joined nested group: the parent tab squares its right edge, the child squares
+   its left edge and sits flush against it, with a chevron at the seam — so the
+   two pills touch and the arrow is on the side where they meet. */
+.gs-crumbs-tabs .gs-crumb-current:has(+ .gs-crumb-nested){
+  border-top-right-radius:0;border-bottom-right-radius:0;border-right:none;padding-right:12px}
+.gs-crumbs-tabs .gs-crumb-current + .gs-crumb-nested{
+  margin-left:-9px;border-top-left-radius:0;border-bottom-left-radius:0;border-left:none}
+.gs-crumb-nested::before{content:"›";margin-right:6px;color:var(--gs-l,#8fe3b6);font-weight:800;font-size:14px}
+.gs-crumb{display:inline-flex;align-items:center;gap:6px;font-family:"Inter",sans-serif;font-size:12.5px;font-weight:600;color:rgba(255,255,255,.72);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:6px 14px;cursor:pointer;transition:background .14s,border-color .14s,color .14s;line-height:1}
+button.gs-crumb:hover{background:rgba(78,187,129,.15);border-color:rgba(78,187,129,.42);color:#fff}
+.gs-crumb-current{background:linear-gradient(120deg,rgba(78,187,129,.22),rgba(78,187,129,.12));border-color:var(--gs);color:var(--gs-l);cursor:default}
+.gs-crumb-sep{color:rgba(255,255,255,.3);font-size:14px;padding:0 1px;user-select:none}
+
+/* ── Settings toggle switch ── */
+.gs-switch{position:relative;display:inline-flex;flex-shrink:0;cursor:pointer}
+.gs-switch input{position:absolute;opacity:0;width:0;height:0}
+.gs-switch-track{width:44px;height:24px;border-radius:999px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.2);transition:background .16s,border-color .16s;display:inline-block;position:relative}
+.gs-switch-thumb{position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.4);transition:left .16s}
+.gs-switch input:checked + .gs-switch-track{background:var(--gs);border-color:var(--gs)}
+.gs-switch input:checked + .gs-switch-track .gs-switch-thumb{left:22px}
+.gs-switch input:focus-visible + .gs-switch-track{box-shadow:0 0 0 3px rgba(78,187,129,.3)}

@@ -28,6 +28,28 @@ button{font-family:inherit}
 
 /* Product identity — sits at the top of the left sidebar, above progress */
 .snav-product{background:var(--card);border:1px solid var(--brd);border-radius:14px;padding:15px}
+.wiz-crumbs{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:13px}
+.wiz-crumb{display:inline-flex;align-items:center;gap:6px;font-family:inherit;font-size:12px;font-weight:600;color:var(--tx2);background:rgba(255,255,255,.05);border:1px solid var(--brd);border-radius:999px;padding:5px 12px;cursor:pointer;line-height:1;transition:background .14s,border-color .14s,color .14s}
+button.wiz-crumb:hover{background:rgba(78,187,129,.14);border-color:var(--gs);color:var(--tx)}
+.wiz-crumb-home{padding:5px 9px}
+/* Supporting-document picker */
+.wdoc-chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:9px}
+.wdoc-chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:500;background:rgba(78,187,129,.12);border:1px solid rgba(78,187,129,.32);color:var(--tx);border-radius:8px;padding:6px 10px}
+.wdoc-chip button{background:none;border:none;color:var(--tx2);cursor:pointer;font-size:15px;line-height:1;padding:0;margin-left:2px}
+.wdoc-chip button:hover{color:#f87171}
+.wdoc-actions{display:flex;gap:9px;flex-wrap:wrap}
+.wdoc-btn{display:inline-flex;align-items:center;gap:7px;font-family:inherit;font-size:12.5px;font-weight:600;cursor:pointer;border-radius:9px;padding:9px 14px;border:1px solid var(--brd);background:rgba(255,255,255,.05);color:var(--tx)}
+.wdoc-btn:hover{border-color:var(--gs);color:#fff}
+.wdoc-btn.on{border-color:var(--gs);color:#fff}
+.wdoc-btn.on .wdoc-chev{transform:rotate(180deg)}
+.wdoc-chev{transition:transform .15s}
+/* Inline, in-flow panel so it stays contained within the step (no overlay). */
+.wdoc-menu{margin-top:9px;border:1px solid var(--brd);border-radius:11px;padding:6px;background:rgba(255,255,255,.03);display:none;max-height:230px;overflow:auto}
+.wdoc-menu.open{display:block}
+.wdoc-opt{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:8px;cursor:pointer;font-size:12.5px;color:var(--tx2)}
+.wdoc-opt:hover{background:rgba(78,187,129,.13);color:#fff}
+.wiz-crumb-current{background:linear-gradient(120deg,rgba(78,187,129,.22),rgba(78,187,129,.12));border-color:var(--gs);color:var(--gs);cursor:default}
+.wiz-crumb-sep{color:var(--tx3);font-size:13px;user-select:none}
 .snav-product .ph-eyebrow{font-size:9.5px;color:var(--tx3);text-transform:uppercase;letter-spacing:.09em;font-weight:700;margin-bottom:6px}
 .snav-product .ph-product{font-size:21px;font-weight:800;line-height:1.12;letter-spacing:-.015em;display:block;color:var(--tx)}
 .snav-product .ph-forprod{font-size:11.5px;color:var(--tx2);margin-top:6px;line-height:1.35}
@@ -244,6 +266,13 @@ textarea.fi{height:auto;min-height:88px;padding:12px 15px;resize:vertical;line-h
 <div class="layout">
   <aside class="snav" aria-label="Form sections">
     <div class="snav-product ph-brand">
+      <div class="wiz-crumbs">
+        <button class="wiz-crumb wiz-crumb-home" title="Home" aria-label="Home" onclick="window.location.href='04-greenstreets_supplier_portal_Landing.html'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9.5 21v-6h5v6"/></svg></button>
+        <span class="wiz-crumb-sep">›</span>
+        <button class="wiz-crumb" onclick="sessionStorage.setItem('gs_tab','packaging');window.location.href='04-greenstreets_supplier_portal_Landing.html'">Packaging Components</button>
+        <span class="wiz-crumb-sep">›</span>
+        <span class="wiz-crumb wiz-crumb-current">New component</span>
+      </div>
       <div class="ph-eyebrow">New packaging component</div>
       <b class="ph-product" id="phPkgNameVal">Untitled component</b>
       <div class="ph-forprod">for <span class="ph-forprod-code"></span> · New packaging component</div>
@@ -351,7 +380,8 @@ const STEPS=[
    {type:'text', label:'Other certification details', ph:'Only if “Other” selected'},
    {type:'text', label:'Packaging supplier name', req:true, ph:'Company name'},
    {type:'text', label:'Packaging supplier address', req:true, ph:'Street, city, country'},
-   {type:'ai', label:'Country of manufacture', ai:'China (CN)', hint:'Inferred from the supplier address — Tab to accept or edit'}
+   {type:'ai', label:'Country of manufacture', ai:'China (CN)', hint:'Inferred from the supplier address — Tab to accept or edit'},
+   {type:'docpick', label:'Supporting document', hint:'Attach a certificate or report — choose one you\'ve already uploaded, or add a new file.'}
   ]},
  {t:'Material compliance', d:'Chemical and substance compliance declarations.', phase:'D', nav:'Compliance',
   fields:[
@@ -412,6 +442,18 @@ function fieldHTML(f){
         <div class="nameid-id" title="Auto-generated identifier"><span class="nameid-id-lbl">ID</span><span class="nameid-id-val" id="pkgGenId">—</span></div>
       </div>${hint}</div>`;
   }
+  if(f.type==='docpick'){
+    var menuOpts=WIZ_EXISTING_DOCS.map(function(n){
+      return `<div class="wdoc-opt" onclick="wizDocChoose('${esc(n)}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>${esc(n)}</div>`;
+    }).join('');
+    return `<div class="tf-field" data-req="0" data-kind="docpick"><span class="lbl">${esc(f.label)}</span>
+      <div class="wdoc-chips" id="wdocChips">${wizDocChipsHTML()}</div>
+      <div class="wdoc-actions">
+        <button type="button" class="wdoc-btn" id="wdocToggleBtn" onclick="wizDocToggle(event)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>Choose existing<svg class="wdoc-chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" style="margin-left:2px"><polyline points="6 9 12 15 18 9"/></svg></button>
+        <label class="wdoc-btn wdoc-upload"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Upload file<input type="file" hidden onchange="wizDocUpload(this)"></label>
+      </div>
+      <div class="wdoc-menu" id="wdocMenu">${menuOpts}</div>${hint}</div>`;
+  }
   if(f.type==='materials'){
     const dl=MAT_OPTIONS.map(o=>`<option value="${esc(o)}"></option>`).join('');
     return `<div class="tf-field" data-req="${f.req?1:0}" data-kind="materials"><span class="lbl">${esc(f.label)}${req}</span>
@@ -434,6 +476,22 @@ function fieldHTML(f){
   const cls='fi'+(f.unit?' fi-has-unit':'');
   return `<div class="tf-field" data-req="${f.req?1:0}"><span class="lbl">${esc(f.label)}${req}</span><div class="fi-wrap"><input${id} type="${type}" class="${cls}" placeholder="${esc(f.ph||'')}"${val}>${unit}</div>${hint}</div>`;
 }
+
+/* ── Supporting-document picker (Additional info): pick existing or upload ── */
+const WIZ_EXISTING_DOCS=['FSC_CoC_Certificate_2026.pdf','REACH_Compliance_Declaration_2026.pdf','GRS_Scope_Certificate.pdf','Migration_Test_Report.pdf','OEKO-TEX_Standard100.pdf'];
+var wizDocs=[];
+function wizDocChipsHTML(){
+  return wizDocs.map(function(n,i){
+    return `<span class="wdoc-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>${esc(n)}</span><button type="button" title="Remove" onclick="wizDocRemove(${i})">×</button></span>`;
+  }).join('');
+}
+function wizDocRender(){ var c=document.getElementById('wdocChips'); if(c) c.innerHTML=wizDocChipsHTML(); }
+function wizDocSetOpen(open){ var m=document.getElementById('wdocMenu'), b=document.getElementById('wdocToggleBtn'); if(m) m.classList.toggle('open',open); if(b) b.classList.toggle('on',open); }
+function wizDocToggle(e){ if(e&&e.stopPropagation)e.stopPropagation(); var m=document.getElementById('wdocMenu'); wizDocSetOpen(!(m&&m.classList.contains('open'))); }
+function wizDocChoose(n){ if(wizDocs.indexOf(n)<0) wizDocs.push(n); wizDocSetOpen(false); wizDocRender(); }
+function wizDocUpload(inp){ var f=inp.files&&inp.files[0]; if(f && wizDocs.indexOf(f.name)<0) wizDocs.push(f.name); inp.value=''; wizDocRender(); }
+function wizDocRemove(i){ wizDocs.splice(i,1); wizDocRender(); }
+document.addEventListener('click',function(e){ if(!e.target.closest('.wdoc-menu') && !e.target.closest('#wdocToggleBtn')) wizDocSetOpen(false); });
 
 /* ── Dynamic materials + percentage sliders ─────────────────────────────── */
 const MAT_OPTIONS=['LDPE film','HDPE','PP','PET','rPET','Paper','Kraft paper','Cardboard / board','Aluminium foil','Glass','Wood','Adhesive','Ink / coating','Other'];
@@ -883,6 +941,6 @@ setTimeout(function(){
 })();
 </script>
 <script src="js/greenstreets-theme.js?v=25"></script>
-<script src="js/gs-appearance.js?v=1"></script>
+<script src="js/gs-appearance.js?v=2"></script>
 </body>
 </html>

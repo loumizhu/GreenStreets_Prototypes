@@ -416,16 +416,20 @@ function _gsTourShow(idx){
   /* Step-specific callback */
   if(step.onShow) step.onShow();
 
-  /* Position bubble */
-  _positionBubble(step);
-
-  /* Animate in */
+  /* Hide the bubble, then let _positionBubble pop it in AT its final spot
+     (avoids the old "appear, then jump to position" clunk). */
   var bubble = document.getElementById('gst-bubble');
-  if(bubble){
-    bubble.classList.remove('gst-bubble-in');
-    void bubble.offsetWidth;
-    bubble.classList.add('gst-bubble-in');
-  }
+  if(bubble) bubble.classList.remove('gst-bubble-in');
+  _positionBubble(step);
+}
+
+/* Scale-pop the bubble in at its current (already-positioned) location. */
+function _popBubbleIn(){
+  var bubble = document.getElementById('gst-bubble');
+  if(!bubble) return;
+  bubble.classList.remove('gst-bubble-in');
+  void bubble.offsetWidth;   /* restart the transition */
+  bubble.classList.add('gst-bubble-in');
 }
 
 function _clearHighlights(){
@@ -434,6 +438,7 @@ function _clearHighlights(){
 }
 
 /* ── Position bubble next to its target element ─────────────────────── */
+var _posT = null;
 function _positionBubble(step){
   var bubble = document.getElementById('gst-bubble');
   var arrow  = document.getElementById('gst-arrow');
@@ -443,15 +448,21 @@ function _positionBubble(step){
   var pos    = step.position || 'below';
 
   if(!target){
-    /* Fallback: centre of screen */
-    bubble.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);right:auto;bottom:auto';
+    /* Fallback: centre of screen (numeric, so the CSS scale-pop still plays) */
+    var fbw = bubble.offsetWidth || 320, fbh = bubble.offsetHeight || 230;
+    bubble.style.position = 'fixed';
+    bubble.style.left = Math.max(14, (window.innerWidth  - fbw)/2) + 'px';
+    bubble.style.top  = Math.max(14, (window.innerHeight - fbh)/2) + 'px';
+    bubble.style.right = 'auto'; bubble.style.bottom = 'auto';
     if(arrow) arrow.style.display = 'none';
+    _popBubbleIn();
     return;
   }
 
   try{ target.scrollIntoView({behavior:'smooth', block:'center'}); }catch(_){}
 
-  setTimeout(function(){
+  clearTimeout(_posT);
+  _posT = setTimeout(function(){
     var tr  = target.getBoundingClientRect();
     var bw  = bubble.offsetWidth  || 320;
     var bh  = bubble.offsetHeight || 230;
@@ -460,7 +471,6 @@ function _positionBubble(step){
     var pad = 14;
 
     bubble.style.position  = 'fixed';
-    bubble.style.transform = 'none';
 
     var left, top, arrowCls;
 
@@ -500,7 +510,8 @@ function _positionBubble(step){
         arrow.style.left = '';
       }
     }
-  }, 370);
+    _popBubbleIn();
+  }, 300);
 }
 
 /* ── Navigation ──────────────────────────────────────────────────────── */

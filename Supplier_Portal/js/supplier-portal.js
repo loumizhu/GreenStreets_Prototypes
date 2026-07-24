@@ -37,6 +37,51 @@ function go(id){
   document.querySelectorAll('[data-sw]').forEach(function(el){el.src='img/swoosh.png'});
 })();
 
+/* ── Listing motion: FLIP reorder animation + first-load fade-in ───────────
+   gsFlipCapture(container,sel) records the on-screen top of each visible item
+   (keyed by data-flip-key); gsFlipPlay(...) animates them from the old spot to
+   the new one after a re-sort/re-render. gsFadeInRows staggers a quick fade for
+   first paints. Hidden (paginated-out) items are skipped. */
+function gsFlipCapture(container, sel){
+  var m = {}; if(!container) return m;
+  container.querySelectorAll(sel).forEach(function(el){
+    if(el.offsetParent === null) return;
+    var k = el.getAttribute('data-flip-key'); if(k != null) m[k] = el.getBoundingClientRect().top;
+  });
+  return m;
+}
+function gsFlipPlay(container, sel, first){
+  if(!container || !first) return;
+  var moved = false;
+  container.querySelectorAll(sel).forEach(function(el){
+    if(el.offsetParent === null) return;
+    var k = el.getAttribute('data-flip-key'); if(k == null || !(k in first)) return;
+    var dy = first[k] - el.getBoundingClientRect().top;
+    if(Math.abs(dy) > 0.5){ el.style.transition = 'none'; el.style.transform = 'translateY(' + dy + 'px)'; moved = true; }
+  });
+  if(!moved) return;
+  void container.offsetHeight;
+  requestAnimationFrame(function(){ requestAnimationFrame(function(){
+    container.querySelectorAll(sel).forEach(function(el){
+      if(el.style.transform){ el.style.transition = 'transform .42s cubic-bezier(.2,0,.2,1)'; el.style.transform = ''; }
+    });
+    setTimeout(function(){ container.querySelectorAll(sel).forEach(function(el){ el.style.transition = ''; }); }, 480);
+  }); });
+}
+function gsFadeInRows(container, sel){
+  if(!container) return;
+  var i = 0;
+  container.querySelectorAll(sel).forEach(function(el){
+    if(el.offsetParent === null) return;
+    el.style.animation = 'none'; void el.offsetWidth;
+    el.style.animationDelay = (i*28) + 'ms';
+    el.style.animation = 'gsRowIn .4s ease both';
+    el.style.animationDelay = (i*28) + 'ms';
+    i++;
+    setTimeout((function(e){ return function(){ e.style.animation=''; e.style.animationDelay=''; }; })(el), 460 + i*28);
+  });
+}
+
 function togglePkgEditMode(key) {
   var body = document.getElementById('pkgdetail-body-' + key);
   if(!body) return;
@@ -504,6 +549,7 @@ function renderProductDetail(pi){
 
   var matDL = '<datalist id="pd-mat-opts">'+PD_MAT_OPTIONS.map(function(o){return '<option value="'+pdEsc(o)+'"></option>';}).join('')+'</datalist>';
   document.getElementById('pd-body').innerHTML = '<div class="pd-wrap">'+matDL+head+comp+'</div>';
+  if(typeof gsBuildBreadcrumb==='function') gsBuildBreadcrumb();
 }
 /* ── Dynamic materials inside a product-detail packaging card ──────────────
    Mirrors the multi-step wizard: one material to start, an "Add material" button
@@ -883,6 +929,10 @@ function prodRender(animatingPi){
 
   updateProdArrows();
   if(typeof gsProdBulkAfterRender==='function') gsProdBulkAfterRender();
+  if(!prodRender._faded && tb.querySelector('tr[data-pi]') && tb.querySelector('tr[data-pi]').offsetParent!==null){
+    prodRender._faded = true;
+    gsFadeInRows(tb, 'tr[data-pi]');
+  }
 }
 
 var prodActiveFilter = 'all';
@@ -1099,6 +1149,7 @@ function sortPkgTable(col) {
   else { _pkgTblSort.col = col; _pkgTblSort.dir = 1; }
   var tbody = document.getElementById('pkg-lib-tbody');
   if (!tbody) return;
+  var _flip = gsFlipCapture(tbody, 'tr');
   var rows = Array.from(tbody.querySelectorAll('tr'));
   rows.sort(function(a, b) {
     var av, bv;
@@ -1118,6 +1169,7 @@ function sortPkgTable(col) {
   });
   _pkgTblPage = 0;
   renderPkgTable();
+  gsFlipPlay(tbody, 'tr', _flip);
 }
 
 /* Clicking a Level / Material / Recycled / Status value filters the table by it. */
@@ -1249,6 +1301,7 @@ function pkgInitRowIds(){
     var id = 'PKG-' + String(seq).padStart(4,'0');
     var nm = cell.textContent.trim();
     cell.innerHTML = '<span class="pkg-tbl-name-main">'+nm+'</span><span class="pkg-tbl-id">'+id+'</span>';
+    tr.setAttribute('data-flip-key', id);
   });
 }
 
@@ -1295,6 +1348,7 @@ function gsListKeyNav(tableId, tbodyId){
 /* Run on load */
 document.addEventListener('DOMContentLoaded', function(){
   pkgInitMaterialFilter(); pkgInitCellFilters(); pkgInitRowIds(); renderPkgTable();
+  gsFadeInRows(document.getElementById('pkg-lib-tbody'), 'tr');
   gsListKeyNav('prod-tbl-el','prod-tbody');
   gsListKeyNav('pkg-lib-table','pkg-lib-tbody');
   gsListKeyNav('docs-tbl','docs-tbody-new');
@@ -1523,6 +1577,7 @@ function gsEnhancePkgDetail(){
   gsBuildAutoSaveChip(body);
   gsPkgDetailName(body, key);
   body.querySelectorAll('.pkg-detail-feat').forEach(gsEnhanceFeat);
+  if(typeof gsBuildBreadcrumb==='function') gsBuildBreadcrumb();
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -1708,10 +1763,95 @@ function gsProdBuildBulkBar(){
   document.body.appendChild(bar);
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   BREADCRUMB NAV — themed pill breadcrumb integrated into the header (.ph)
+   as a second "bottom line". Rendered on detail views (packaging / product),
+   the listings, and updated when the Landing tab changes.
+   ═══════════════════════════════════════════════════════════════════════════ */
+var GS_HOME_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9.5 21v-6h5v6"/></svg>';
+function gsRenderCrumbBar(crumbs, sep){
+  var bar = document.createElement('div'); bar.className = 'gs-crumbs';
+  crumbs.forEach(function(c, i){
+    /* Separator: nested pills carry their own connecting arrow (::before) and
+       join their parent, so they get no text separator. Otherwise: before an
+       arrow-flagged item, or between every item in breadcrumb mode. */
+    if(i > 0 && !c.nested && (c.arrow || sep !== false)) bar.insertAdjacentHTML('beforeend', '<span class="gs-crumb-sep">›</span>');
+    var el = document.createElement(c.act ? 'button' : 'span');
+    el.className = 'gs-crumb' + (c.current ? ' gs-crumb-current' : '') + (c.nested ? ' gs-crumb-nested' : '');
+    if(c.act) el.setAttribute('onclick', c.act);
+    el.innerHTML = (c.icon || '') + '<span class="gs-crumb-lbl">' + c.label + '</span>';
+    bar.appendChild(el);
+  });
+  return bar;
+}
+function gsBuildBreadcrumb(){
+  /* Wizard page has its own .snav layout (no .ph) — inject crumbs there. */
+  var snav = document.querySelector('.snav-product');
+  if(snav && !document.querySelector('.ph')){
+    if(!snav.querySelector('.gs-crumbs')){
+      snav.insertBefore(gsRenderCrumbBar([
+        {label:'Home',icon:GS_HOME_ICON,act:"go('sp2')"},
+        {label:'Packaging Components',act:"gsGoLanding('packaging')"},
+        {label:'New component',current:true}
+      ]), snav.firstChild);
+    }
+    return;
+  }
+  var ph = document.querySelector('.ph'); if(!ph) return;
+  var crumbs = null, isTabs = false;
+  var body = document.querySelector('.pkg-detail-body');
+  if(body){
+    /* Packaging-component detail: keep the 3 tabs; nest the detail under the
+       "Packaging Components" tab. */
+    isTabs = true;
+    var nm = (body.querySelector('.gs-pkg-name-input')||{}).value;
+    if(!nm){ var h = body.querySelector('div[style*="font-weight:800"]'); nm = h ? h.textContent.trim() : 'Component'; }
+    crumbs = [
+      {label:'Products',              act:"gsGoLanding('products')"},
+      {label:'Packaging Components',  act:"gsGoLanding('packaging')", current:true},
+      {label:nm,                      nested:true, arrow:true},
+      {label:'Supporting Documents',  act:"gsGoLanding('docs')"}
+    ];
+  } else if(document.getElementById('pd-body')){
+    /* Product detail: keep the 3 tabs; nest "Product Detail" under Products. */
+    isTabs = true;
+    crumbs = [
+      {label:'Products',              act:"gsGoLanding('products')", current:true},
+      {label:'Product Detail',        nested:true, arrow:true},
+      {label:'Packaging Components',  act:"gsGoLanding('packaging')"},
+      {label:'Supporting Documents',  act:"gsGoLanding('docs')"}
+    ];
+  } else if(document.getElementById('prod-tbody')){
+    /* Landing: the three section tabs live in the header now — hide the old row. */
+    isTabs = true;
+    var active = (document.querySelector('.landing-tab.active')||{}).id || 'tab-btn-products';
+    var act = active.replace('tab-btn-','');
+    crumbs = [
+      {label:'Products',              act:"switchLandingTab('products')",  current:act==='products'},
+      {label:'Packaging Components',  act:"switchLandingTab('packaging')", current:act==='packaging'},
+      {label:'Supporting Documents',  act:"switchLandingTab('docs')",      current:act==='docs'}
+    ];
+    var lt = document.querySelector('.landing-tabs'); if(lt) lt.style.display = 'none';
+  }
+  if(!crumbs) return;
+
+  /* Insert the nav INLINE — right of the company name, before the right-hand
+     block (due date / buttons). Keeps the header a single row. */
+  var old = ph.querySelector('.gs-crumbs'); if(old) old.remove();
+  var bar = gsRenderCrumbBar(crumbs, isTabs ? false : true);
+  if(isTabs) bar.classList.add('gs-crumbs-tabs');
+  ph.insertBefore(bar, ph.lastElementChild);
+
+  /* Hide the old in-page back/breadcrumb rows now that the header carries it. */
+  if(body){ var b1 = body.querySelector('.pkg-back-btn'); if(b1){ var w = b1.closest('div'); if(w) w.style.display = 'none'; } }
+  var pdBack = document.querySelector('.pd-back-row'); if(pdBack) pdBack.style.display = 'none';
+}
+
 document.addEventListener('DOMContentLoaded', function(){
   gsEnhancePkgDetail();
   gsPkgBulkInit();
   if(document.getElementById('prod-tbody')){ gsProdBuildBulkBar(); gsProdBulkAfterRender(); }
+  gsBuildBreadcrumb();
 });
 
 
@@ -2021,6 +2161,17 @@ function switchLandingTab(tab) {
   var panel = document.getElementById('tab-panel-' + tab);
   if(btn) btn.classList.add('active');
   if(panel){ panel.classList.add('active'); panel.style.display = 'block'; }
+  /* Fade the listing in the first time each tab is revealed. */
+  switchLandingTab._faded = switchLandingTab._faded || {};
+  if(!switchLandingTab._faded[tab]){
+    switchLandingTab._faded[tab] = true;
+    requestAnimationFrame(function(){
+      if(tab==='products') gsFadeInRows(document.getElementById('prod-tbody'), 'tr[data-pi]');
+      else if(tab==='packaging') gsFadeInRows(document.getElementById('pkg-lib-tbody'), 'tr');
+      else if(tab==='docs'){ var tv=document.getElementById('docs-thumb-view'); if(tv && tv.style.display!=='none') gsFadeInRows(tv,'.docs-thumb'); else gsFadeInRows(document.getElementById('docs-tbody-new'),'tr'); }
+    });
+  }
+  if(typeof gsBuildBreadcrumb==='function') gsBuildBreadcrumb();
 }
 
 var pkgActiveLevel = 'all';
@@ -2467,14 +2618,31 @@ function gsOnbGet(){
 }
 function gsOnbSet(o){ try { localStorage.setItem('gs_onb', JSON.stringify(o)); } catch(e){} }
 
-/* Login button -> first-timers see onboarding, returning users go to Landing. */
+/* Login button -> first-timers (or users who opted to always see it) get the
+   onboarding walkthrough; everyone else goes straight to the Landing. */
 supplierLogin = function(){
   var o = gsOnbGet();
-  go(o.seen ? 'sp2' : 'sp_welcome');
+  go((o.always || !o.seen) ? 'sp_welcome' : 'sp2');
 };
 
 /* Skip / finish onboarding. */
 gsOnbSkip = function(){ var o = gsOnbGet(); o.seen = true; gsOnbSet(o); go('sp2'); };
+
+/* Settings: reset the "already seen onboarding" record so it shows next sign-in. */
+function gsOnbReset(){
+  var o = gsOnbGet(); o.seen = false; o.step = 1; gsOnbSet(o);
+  if(typeof gsToast==='function') gsToast('Getting Started reset — it will show at your next sign-in');
+}
+/* Settings: keep showing the walkthrough on every sign-in until turned off. */
+function gsOnbSetAlways(on){
+  var o = gsOnbGet(); o.always = !!on; gsOnbSet(o);
+  if(typeof gsToast==='function') gsToast(on ? 'Getting Started will show every sign-in' : 'Getting Started will only show once');
+}
+/* Reflect the saved "always show" preference in the Settings toggle on load. */
+document.addEventListener('DOMContentLoaded', function(){
+  var t = document.getElementById('onb-always');
+  if(t) t.checked = !!gsOnbGet().always;
+});
 
 /* Launch a specific step (also marks it as the current position). */
 gsOnbStep = function(n){
@@ -2601,7 +2769,7 @@ function gsOnbRenderWelcome(){
     slice.forEach(function(d){
       var sel=!!_docsSelected[d.id];
       var sn=d.name.length>42?d.name.slice(0,39)+'...':d.name;
-      html+='<tr class="'+(sel?'doc-row-sel':'')+'" data-doc-id="'+d.id+'" onclick="docsPreview('+d.id+')" style="cursor:pointer" title="Click to preview">';
+      html+='<tr class="'+(sel?'doc-row-sel':'')+'" data-doc-id="'+d.id+'" data-flip-key="'+d.id+'" onclick="docsPreview('+d.id+')" style="cursor:pointer" title="Click to preview">';
       html+='<td class="doc-cb-cell" onclick="event.stopPropagation()"><input type="checkbox" class="doc-cb" data-id="'+d.id+'" '+(sel?'checked':'')+' onchange="docsToggleRow('+d.id+',this)"></td>';
       html+='<td><div class="doc-name-wrap">'+docsSvgFile(d.color)+'<span class="doc-name-col" title="'+d.name+'">'+sn+'</span></div></td>';
       html+='<td class="doc-secondary">'+d.type+'</td>';
@@ -2625,7 +2793,7 @@ function gsOnbRenderWelcome(){
     slice.forEach(function(d){
       var sel=!!_docsSelected[d.id];
       var sn=d.name.length>28?d.name.slice(0,26)+'...':d.name;
-      html+='<div class="docs-thumb'+(sel?' thumb-sel':'')+'" data-doc-id="'+d.id+'" onclick="docsPreview('+d.id+')" title="Click to preview">';
+      html+='<div class="docs-thumb'+(sel?' thumb-sel':'')+'" data-doc-id="'+d.id+'" data-flip-key="'+d.id+'" onclick="docsPreview('+d.id+')" title="Click to preview">';
       html+='<input type="checkbox" class="docs-thumb-cb" data-id="'+d.id+'" '+(sel?'checked':'')+' onclick="event.stopPropagation()" onchange="docsToggleRow('+d.id+',this)">';
       html+='<div class="docs-thumb-icon">'+docsSvgFile(d.color)+'</div>';
       html+='<div class="docs-thumb-name" title="'+d.name+'">'+sn+'</div>';
@@ -2710,13 +2878,21 @@ function gsOnbRenderWelcome(){
   };
   /* Sort by a column header (toggles asc/desc). */
   window.docsSort=function(key){
+    var contId = _docsView==='list' ? 'docs-tbody-new' : 'docs-thumb-view';
+    var sel = _docsView==='list' ? 'tr' : '.docs-thumb';
+    var flip = gsFlipCapture(document.getElementById(contId), sel);
     if(_docsSort.key===key) _docsSort.dir*=-1; else { _docsSort.key=key; _docsSort.dir=1; }
     _docsPage=0; docsRender();
+    gsFlipPlay(document.getElementById(contId), sel, flip);
   };
-  /* Thumbnail size slider (list "extra large" up to ~3×). */
+  /* Thumbnail horizontal size slider (list "extra large" up to ~3×). */
   window.docsSetThumbSize=function(v){
     _docsThumbSize=+v;
     var g=document.getElementById('docs-thumb-view'); if(g) g.style.setProperty('--dt-size', _docsThumbSize+'px');
+  };
+  /* Thumbnail vertical size slider — controls the preview-tile height only. */
+  window.docsSetThumbVSize=function(v){
+    var g=document.getElementById('docs-thumb-view'); if(g) g.style.setProperty('--dt-vsize', (+v)+'px');
   };
 
   /* ── Inline delete confirmation (a small popover next to the button) ── */
