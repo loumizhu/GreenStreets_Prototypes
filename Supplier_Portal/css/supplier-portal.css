@@ -1110,3 +1110,78 @@ button.gs-crumb:hover{background:rgba(78,187,129,.15);border-color:rgba(78,187,1
   cursor:pointer;border-radius:9px;padding:8px 14px;border:1px solid rgba(255,255,255,.16);
   background:rgba(255,255,255,.04);color:rgba(255,255,255,.7);transition:all .14s}
 .pd-sugg-remove:hover{border-color:rgba(224,96,90,.55);background:rgba(224,96,90,.14);color:#ff9c96}
+
+/* ══ AI Review — dynamic materials + Supporting Documents (air-review.js) ══ */
+.air-field-wide{grid-column:1/-1}
+.air-materials{display:flex;flex-direction:column;gap:7px;background:rgba(255,255,255,.03);border:1px solid rgba(148,180,230,.16);border-radius:10px;padding:11px 12px}
+.air-mat-head{display:grid;grid-template-columns:1fr 130px 28px;gap:9px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,.4)}
+.air-mat-row{display:grid;grid-template-columns:1fr 130px 28px;gap:9px;align-items:center}
+.air-mat-pct{position:relative;display:flex;align-items:center}
+.air-mat-pct .fi{padding-right:26px}
+.air-mat-pct .air-unit{position:absolute;right:10px;font-size:11px;color:rgba(255,255,255,.45);pointer-events:none}
+.air-mat-del{width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:7px;border:1px solid rgba(224,96,90,.3);background:rgba(224,96,90,.1);color:#ff9c96;cursor:pointer}
+.air-mat-del:hover{background:rgba(224,96,90,.2)}
+.air-mat-del-spacer{width:26px;height:26px;display:inline-block}
+.air-mat-add{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;font-family:inherit;font-size:11.5px;font-weight:600;cursor:pointer;border-radius:8px;padding:6px 12px;border:1px dashed rgba(148,180,230,.35);background:rgba(255,255,255,.04);color:var(--gs-l);margin-top:2px}
+.air-mat-add:hover{border-color:var(--gs);color:#fff}
+.air-mat-sum{display:flex;flex-wrap:wrap;gap:12px;align-items:center;font-size:11.5px;color:rgba(255,255,255,.6);border-top:1px solid rgba(255,255,255,.08);padding-top:8px;margin-top:3px}
+.air-mat-sum b{color:#fff}
+.air-mat-sum .air-mat-ok{color:var(--gs-l);font-weight:600}
+.air-mat-sum .air-mat-bad{color:#ffb0aa;font-weight:600}
+.air-mat-sum.warn{color:#ffb0aa}
+.air-docs{display:flex;flex-direction:column;gap:9px}
+.air-doc-chips{display:flex;flex-wrap:wrap;gap:7px}
+.air-doc-empty{font-size:11.5px;color:rgba(255,255,255,.4)}
+.air-doc-chip{display:inline-flex;align-items:center;gap:7px;background:rgba(91,156,246,.12);border:1px solid rgba(91,156,246,.3);border-radius:8px;padding:5px 9px;font-size:11.5px;color:#cfe0ff}
+.air-doc-chip .air-doc-x{width:18px;height:18px;display:flex;align-items:center;justify-content:center;border:none;background:none;color:rgba(255,255,255,.55);cursor:pointer;border-radius:5px}
+.air-doc-chip .air-doc-x:hover{background:rgba(224,96,90,.25);color:#ff9c96}
+.air-doc-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.air-doc-pick{max-width:280px}
+.air-doc-add{display:inline-flex;align-items:center;gap:6px;font-family:inherit;font-size:11.5px;font-weight:600;cursor:pointer;border-radius:8px;padding:7px 13px;border:1px solid var(--gs);background:rgba(78,187,129,.14);color:var(--gs-l)}
+.air-doc-add:hover{background:var(--gs);color:#04130c}
+
+/* ══ Product-detail Supporting Documents block (Additional Info) ══════════ */
+.pd-docs-block{margin-top:12px;border-top:1px solid rgba(255,255,255,.07);padding-top:12px}
+.pd-doc-chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:9px}
+.pd-doc-empty{font-size:11.5px;color:rgba(255,255,255,.4)}
+.pd-doc-chip{display:inline-flex;align-items:center;gap:7px;background:rgba(91,156,246,.12);border:1px solid rgba(91,156,246,.3);border-radius:8px;padding:5px 9px;font-size:11.5px;color:#cfe0ff}
+.pd-doc-chip .pd-doc-x{width:18px;height:18px;display:flex;align-items:center;justify-content:center;border:none;background:none;color:rgba(255,255,255,.55);cursor:pointer;border-radius:5px}
+.pd-doc-chip .pd-doc-x:hover{background:rgba(224,96,90,.25);color:#ff9c96}
+.pd-doc-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pd-doc-pick{max-width:300px}
+.pd-doc-add{display:inline-flex;align-items:center;gap:6px;font-family:inherit;font-size:11.5px;font-weight:600;cursor:pointer;border-radius:8px;padding:8px 13px;border:1px solid var(--gs);background:rgba(78,187,129,.14);color:var(--gs-l)}
+.pd-doc-add:hover{background:var(--gs);color:#04130c}
+
+/* ══ Combined product tooltip (expected packaging + retailer note) ════════ */
+.prod-cell-ind{margin-left:5px;vertical-align:-2px;flex-shrink:0}
+.prod-cell-ind-exp{color:rgba(255,255,255,.32)}
+.prod-cell-ind-note{color:#f5a623}
+.prod-name-td{cursor:pointer}
+.prod-name-td:hover .prod-cell-ind-exp{color:rgba(255,255,255,.6)}
+#gs-cell-tip{position:fixed;z-index:9999;max-width:300px;min-width:220px;display:none;
+  background:#16233b;border:1px solid rgba(148,180,230,.28);border-radius:12px;
+  padding:13px 15px;box-shadow:0 16px 40px rgba(0,0,0,.55);
+  font-family:'Inter',sans-serif;pointer-events:auto}
+#gs-cell-tip.on{display:block;animation:gsRowIn .14s ease both}
+#gs-cell-tip .gct-sec + .gct-sec{margin-top:11px;padding-top:11px;border-top:1px solid rgba(255,255,255,.1)}
+#gs-cell-tip .gct-h{display:flex;align-items:center;gap:6px;font-size:9.5px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
+#gs-cell-tip .gct-h-exp{color:rgba(159,191,247,.9)}
+#gs-cell-tip .gct-h-note{color:#f5a623}
+#gs-cell-tip .gct-list{margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:5px}
+#gs-cell-tip .gct-list li{font-size:11px;color:#dce6f7;background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:3px 8px}
+#gs-cell-tip .gct-empty{font-size:11px;color:rgba(255,255,255,.5)}
+#gs-cell-tip .gct-note-txt{font-size:11.5px;line-height:1.5;color:#f3e6cf}
+#gs-cell-tip .gct-note .gct-note-txt{background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.22);border-radius:8px;padding:8px 10px}
+
+/* ══ Product table headers — vertically centered + breathing room ═════════ */
+.prod-tbl thead th{vertical-align:middle;line-height:1.25;padding-top:11px;padding-bottom:11px}
+.prod-tbl thead th.tac{padding-left:12px;padding-right:12px}
+
+/* ══ Suggestion pill remove (X) + clickable pill/card ════════════════════ */
+.pcmp-pill-sugg{cursor:pointer}
+.pcmp-pill-sugg:hover{background:rgba(245,166,35,.2);border-color:rgba(245,166,35,.6)}
+.pcmp-x-sugg{color:#ffc46b}
+.pcmp-x-sugg:hover{color:#fff;background:rgba(224,96,90,.3)}
+.pd-sugg-card{cursor:pointer}

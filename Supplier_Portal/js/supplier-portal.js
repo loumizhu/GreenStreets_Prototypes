@@ -51,7 +51,7 @@ function gsFlipCapture(container, sel){
   return m;
 }
 function gsFlipPlay(container, sel, first){
-  if(!container || !first) return;
+  if(!container || !first || gsReduceMotion()) return;
   var moved = false;
   container.querySelectorAll(sel).forEach(function(el){
     if(el.offsetParent === null) return;
@@ -68,8 +68,11 @@ function gsFlipPlay(container, sel, first){
     setTimeout(function(){ container.querySelectorAll(sel).forEach(function(el){ el.style.transition = ''; }); }, 480);
   }); });
 }
+/* Honours the Settings → Appearance → Motion → Reduced toggle (root class
+   gs-reduce-motion) so listing sort/fade animations can be turned off. */
+function gsReduceMotion(){ return document.documentElement.classList.contains('gs-reduce-motion'); }
 function gsFadeInRows(container, sel){
-  if(!container) return;
+  if(!container || gsReduceMotion()) return;
   var i = 0;
   container.querySelectorAll(sel).forEach(function(el){
     if(el.offsetParent === null) return;
@@ -81,6 +84,69 @@ function gsFadeInRows(container, sel){
     setTimeout((function(e){ return function(){ e.style.animation=''; e.style.animationDelay=''; }; })(el), 460 + i*28);
   });
 }
+
+/* ── Combined product tooltip (Expected packaging + Note from retailer) ─────
+   Shown when hovering anywhere in a product's name cell (.prod-name-td), not
+   just the icons. Rendered on a single body-level element so it can never be
+   clipped by the table's overflow, and formatted so the expected components and
+   any retailer note are both grasped at a glance. */
+(function(){
+  var tip = null;
+  function ensure(){
+    if(tip) return tip;
+    tip = document.createElement('div');
+    tip.id = 'gs-cell-tip';
+    tip.setAttribute('role','tooltip');
+    document.body.appendChild(tip);
+    tip.addEventListener('mouseenter', function(){ tip._over = true; });
+    tip.addEventListener('mouseleave', function(){ tip._over = false; hide(); });
+    return tip;
+  }
+  function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function build(p){
+    var exp = (p.expected && p.expected.length)
+      ? '<ul class="gct-list">'+p.expected.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul>'
+      : '<div class="gct-empty">No expected components specified</div>';
+    var html = '<div class="gct-sec"><div class="gct-h gct-h-exp">'
+      + '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-3"/></svg>Expected packaging</div>'
+      + exp + '</div>';
+    if(p.note){
+      html += '<div class="gct-sec gct-note"><div class="gct-h gct-h-note">'
+        + '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Note from retailer</div>'
+        + '<div class="gct-note-txt">'+esc(p.note)+'</div></div>';
+    }
+    return html;
+  }
+  function show(td){
+    var pi = parseInt(td.getAttribute('data-pi'),10);
+    var p = (typeof PRODUCTS!=='undefined') ? PRODUCTS.filter(function(x){return x.id===pi;})[0] : null;
+    if(!p) return;
+    var t = ensure();
+    t.innerHTML = build(p);
+    t.classList.add('on');
+    var r = td.getBoundingClientRect();
+    var tw = t.offsetWidth, th = t.offsetHeight;
+    var left = r.right + 12;
+    if(left + tw > window.innerWidth - 12) left = Math.max(12, r.left - tw - 12);
+    var top = r.top;
+    if(top + th > window.innerHeight - 12) top = Math.max(12, window.innerHeight - th - 12);
+    t.style.left = left + 'px';
+    t.style.top = top + 'px';
+  }
+  function hide(){ if(tip && !tip._over){ tip.classList.remove('on'); } }
+  document.addEventListener('mouseover', function(e){
+    var td = e.target.closest && e.target.closest('.prod-name-td');
+    if(td){ show(td); }
+  });
+  document.addEventListener('mouseout', function(e){
+    var td = e.target.closest && e.target.closest('.prod-name-td');
+    if(!td) return;
+    var to = e.relatedTarget;
+    if(to && (td.contains(to) || (tip && tip.contains(to)))) return;
+    setTimeout(hide, 60);
+  });
+  window.addEventListener('scroll', function(){ if(tip) tip.classList.remove('on'); }, true);
+})();
 
 function togglePkgEditMode(key) {
   var body = document.getElementById('pkgdetail-body-' + key);
@@ -261,13 +327,13 @@ function prodMarkRowIncomplete(pi){
 
 function prodRowHtml(p){
   var m = prodStatusMeta(p.type);
-  var expWrap = '<span class="prod-tooltip-wrap" tabindex="0" onclick="event.stopPropagation()">'
-    + '<svg class="prod-tooltip-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-3"/></svg>'
-    + prodTip("Expected packaging", p.expected) + '</span>';
-  var noteWrap = prodNoteWrap(p);
+  /* Indicator icons beside the code — the combined tooltip (expected packaging
+     + retailer note) is shown on hovering the whole name cell (see gsCellTip). */
+  var expIcon = '<svg class="prod-cell-ind prod-cell-ind-exp" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-3"/></svg>';
+  var noteIcon = p.note ? '<svg class="prod-cell-ind prod-cell-ind-note" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>' : '';
   var compCell = prodCompCell(p);
   return '<tr class="prod-tr ' + m.st + '" data-pi="' + p.id + '" data-status="' + p.status + '" onclick="openProductDetail(' + p.id + ')">'
-    + '<td><div class="gs-name-cell"><input type="checkbox" class="gs-row-check" title="Select" onclick="event.stopPropagation()" onchange="gsProdRowToggle(' + p.id + ',this)"><div class="gs-name-textcol"><div class="prod-cell-code">' + p.code + expWrap + noteWrap + '</div><div class="prod-cell-name">' + p.name + '</div></div></div></td>'
+    + '<td class="prod-name-td" data-pi="' + p.id + '"><div class="gs-name-cell"><input type="checkbox" class="gs-row-check" title="Select" onclick="event.stopPropagation()" onchange="gsProdRowToggle(' + p.id + ',this)"><div class="gs-name-textcol"><div class="prod-cell-code">' + p.code + expIcon + noteIcon + '</div><div class="prod-cell-name">' + p.name + '</div></div></div></td>'
     + '<td>' + p.category + '</td>'
     + '<td><span class="prod-status-pill ' + m.cls + '">' + m.lbl + '</span></td>'
     + '<td>' + p.packing + '</td>'
@@ -300,10 +366,11 @@ function prodCompCell(p){
     + '<span class="pcmp-count-slash">/</span>'
     + '<input class="pcmp-req-inp" type="number" min="0" step="1" value="'+req+'" title="Components required by the retailer — a suggestion you can change" onclick="event.stopPropagation()" onkeydown="if(event.key===&quot;Enter&quot;)this.blur()" onchange="prodSetReq('+p.id+',this.value)">'
     + '</div>';
-  var suggPills = (p.sugg && p.sugg.length) ? p.sugg.map(function(name){
-    return '<span class="pcmp-pill pcmp-pill-sugg" title="Suggested by retailer — open the product to review">'
+  var suggPills = (p.sugg && p.sugg.length) ? p.sugg.map(function(name,si){
+    return '<span class="pcmp-pill pcmp-pill-sugg" title="Suggested by retailer — click to choose a component or create one" data-pi="'+p.id+'" data-si="'+si+'" onclick="event.stopPropagation();suggListClick(this,'+p.id+','+si+')">'
       + '<svg class="pcmp-sugg-ic" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 9v4m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>'
-      + '<span class="pcmp-txt">'+name+'</span></span>';
+      + '<span class="pcmp-txt">'+name+'</span>'
+      + '<span class="pcmp-x pcmp-x-sugg" title="Remove this suggestion" onclick="event.stopPropagation();pdDismissSugg('+p.id+','+si+')">'+X+'</span></span>';
   }).join('') : '';
   var list = (n||suggPills) ? '<div class="pcmp-list">'+pills+suggPills+'</div>' : '';
   var addWrap = '<span class="pcmp-add">'
@@ -424,51 +491,51 @@ function pkgStatus(pkg){
   return 'Review needed';
 }
 /* Build the full editable field model for a packaging component (spreadsheet sections 3–11). */
+/* Build the editable field model for a packaging component from the CANONICAL
+   shared schema (js/gs-schema.js), seeded from the component library. This keeps
+   the product-detail packaging cards on the exact same sections, labels,
+   controlled vocab and Yes/No controls as the AI Review and the saved detail
+   pages. Materials + Supporting Documents are held on the record (rendered by
+   the material block / docs block) rather than as plain group fields. */
 function buildPkgData(name){
   var c = COMPONENT_LIBRARY_JS.find(function(x){return x.name.toLowerCase()===String(name).toLowerCase();}) || {};
   var lvl = c.level ? (c.level.charAt(0).toUpperCase()+c.level.slice(1)) : 'Primary';
   var mat = c.material || '';
   var wt = c.weight ? String(c.weight).replace(/[^0-9.]/g,'') : '';
-  var pcrM = String(c.recycled||'').match(/(\d+)/); var pcr = pcrM ? pcrM[1] : '0';
-  var rec = (pcr && pcr!=='0') ? 'Yes' : 'No';
-  return { name:name, img:c.img||'', materials:[{name:mat||'', pct:100}], groups:[
-    {title:'Level & format', fields:[
-      {k:'Packaging Level', v:lvl, type:'select', opt:['Primary','Secondary','Tertiary']},
-      {k:'Packaging Type', v:c.pkg_type||name, type:'text', req:true},
-      {k:'Other Type Description', v:'', type:'text'} ]},
-    {title:'Source', fields:[
-      {k:'Packaging Source Type', v:'Supplier-manufactured', type:'select', opt:['Supplier-manufactured','Third-party converter','Primark-nominated']} ]},
-    {title:'Material information', fields:[
-      {k:'Base Material', v:mat, type:'text', req:true} ]},
-    {title:'Recycled content', fields:[
-      {k:'Recycled Content', v:rec, type:'select', opt:['Yes','No']},
-      {k:'Post-Consumer %', v:pcr, type:'number'},
-      {k:'Post-Industrial %', v:'0', type:'number'},
-      {k:'Supporting Evidence', v:c.doc_ref||'', type:'text'},
-      {k:'Comments', v:'', type:'textarea'} ]},
-    {title:'Colour & decoration', fields:[
-      {k:'Material Colour', v:c.colour||'', type:'text'},
-      {k:'Opacity', v:'Opaque', type:'select', opt:['Transparent','Translucent','Opaque']},
-      {k:'Decoration', v:'None', type:'select', opt:['None','1-colour print','2-colour print','Full print']} ]},
-    {title:'Weight & grammage', fields:[
-      {k:'Weight (g)', v:wt, type:'number', req:true},
-      {k:'Grammage (gsm)', v:'', type:'number'},
-      {k:'Gauge (µm)', v:'', type:'number'} ]},
-    {title:'Dimensions (mm)', fields:[
-      {k:'Length', v:'', type:'number', req:true},
-      {k:'Width', v:'', type:'number', req:true},
-      {k:'Height / Depth', v:'', type:'number'} ]},
-    {title:'Additional information', fields:[
-      {k:'Certification', v:c.cert||'None', type:'select', opt:['GRS','RCS','FSC','FSC Recycled','FSC Mixed','PEFC','None','Other']},
-      {k:'Packaging Supplier Name', v:'Windy Apparels Ltd', type:'text', req:true},
-      {k:'Packaging Supplier Address', v:'Dhaka, Bangladesh', type:'text', req:true} ]},
-    {title:'Material compliance', fields:[
-      {k:'Compliance Standard', v:'EU PPWR / REACH', type:'select', opt:['EU PPWR / REACH','UK Packaging Regs','Both EU & UK']},
-      {k:'Mineral oils above limits?', v:'No', type:'select', opt:['Yes','No']},
-      {k:'BPA above limits?', v:'No', type:'select', opt:['Yes','No']},
-      {k:'Contains PFAs?', v:'No', type:'select', opt:['Yes','No']},
-      {k:'Chlorine used?', v:'No', type:'select', opt:['Yes','No']} ]}
-  ]};
+  var pcrM = String(c.recycled||'').match(/(\d+)/); var pcr = pcrM ? pcrM[1] : '';
+  var rec = (pcr && pcr!=='0' && pcr!=='') ? 'Yes' : 'No';
+  /* seed values keyed by canonical field key */
+  var seed = {
+    packagingLevel: lvl,
+    packagingType: c.pkg_type || name,
+    sourceType: 'Local',
+    baseMaterial: mat,
+    recycledContent: rec, pcr: (rec==='Yes'?pcr:''), pir: '',
+    colour: c.colour || '',
+    weight: wt,
+    certification: c.cert || 'None',
+    supplierName: 'Windy Apparels Ltd', supplierAddress: 'Dhaka, Bangladesh',
+    materialCompliance: 'No', mineralOils: 'No', bpa: 'No', pfas: 'No', chlorine: 'None'
+  };
+  var rec0 = { name:name, img:c.img||'', materials:[{name:mat||'', pct:100}], documents:(c.doc_ref?[c.doc_ref]:[]), groups:[] };
+  var schema = window.GS_COMPONENT_SCHEMA;
+  if(!schema){ return rec0; }
+  function typeFor(ctrl){ return ctrl==='number'?'number':(ctrl==='textarea'?'textarea':(ctrl==='text'?'text':'select')); }
+  schema.forEach(function(sec){
+    var g = { title:sec.title, fields:[] };
+    if(sec.key==='material_info') g._mat = true;
+    if(sec.key==='additional') g._docs = true;
+    sec.fields.forEach(function(f){
+      if(f.control==='materials' || f.control==='docs') return; /* rendered specially */
+      var opt = (f.control==='select'||f.control==='source'||f.control==='yesno')
+        ? (window.GSSchema ? window.GSSchema.fieldOptions(f) : []) : null;
+      var v = (seed[f.key]!=null && seed[f.key]!=='') ? seed[f.key] : '';
+      if(opt && v && opt.indexOf(v)<0) opt = [v].concat(opt); /* keep seeded value visible */
+      g.fields.push({ k:f.label, key:f.key, v:v, type:typeFor(f.control), opt:opt, req:!!f.req });
+    });
+    rec0.groups.push(g);
+  });
+  return rec0;
 }
 function openProductDetail(pi){
   var p = PRODUCTS.filter(function(x){return x.id===pi;})[0]; if(!p) return;
@@ -550,7 +617,8 @@ function renderProductDetail(pi){
   var cards = p._pkgs.map(function(pkg,pk){
     var body = pkg.groups.map(function(grp,gi){
       var fields = grp.fields.map(function(fld,fi){ return pdFieldHTML(pi,pk,gi,fi,fld); }).join('');
-      var extra = (grp.title==='Material information') ? pdMatBlockHTML(pi,pk) : '';
+      var extra = (grp._mat || grp.title==='Material information') ? pdMatBlockHTML(pi,pk) : '';
+      if(grp._docs) extra += pdDocsBlockHTML(pi,pk);
       return '<div class="pd-group"><div class="pd-group-t">'+pdEsc(grp.title)+'</div><div class="pd-fgrid">'+fields+'</div>'+extra+'</div>';
     }).join('');
     return '<div class="pd-card" id="pd-card-'+pi+'-'+pk+'">'
@@ -568,7 +636,7 @@ function renderProductDetail(pi){
     + '<div><div class="pd-note-t">Note from retailer</div><div class="pd-note-b">'+pdEsc(p.note)+'</div></div></div>' : '';
 
   var suggCards = (p.sugg && p.sugg.length) ? p.sugg.map(function(name,si){
-    return '<div class="pd-sugg-card">'
+    return '<div class="pd-sugg-card" onclick="event.stopPropagation();pdSuggClick(this.querySelector(\'.pd-sugg-btn\'),'+pi+','+si+')">'
       + '<div class="pd-sugg-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 9v4m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>Suggested by retailer</div>'
       + '<div class="pd-sugg-name">'+pdEsc(name)+'</div>'
       + '<div class="pd-sugg-hint">The retailer suggested this component. Pick a matching one from your library or create a new component — either will replace this suggestion — or remove it if it doesn\'t apply.</div>'
@@ -650,6 +718,50 @@ function pdMatDelRow(pi,pk,idx){
   if(list) list.innerHTML=pdMatListHTML(pi,pk);
   pdMatUpdateSum(pi,pk);
 }
+/* ── Supporting Documents on a product-detail packaging card (Additional
+   Packaging Information). Unlimited: pick an existing portal document, add a
+   new one, or remove a link. Lives in Additional Info per the canonical schema. */
+var GS_DOC_LIBRARY = ['FSC_CoC_Certificate_2026.pdf','REACH_Compliance_Declaration_2026.pdf','GRS_Scope_Certificate.pdf','Migration_Test_Report.pdf','OEKO-TEX_Standard100.pdf'];
+function pdDocs(pi,pk){
+  var p=PRODUCTS.filter(function(x){return x.id===pi;})[0];
+  if(!p||!p._pkgs||!p._pkgs[pk]) return [];
+  if(!p._pkgs[pk].documents) p._pkgs[pk].documents=[];
+  return p._pkgs[pk].documents;
+}
+function pdDocsBlockHTML(pi,pk){
+  var docs=pdDocs(pi,pk);
+  var chips=docs.map(function(d,i){
+    return '<span class="pd-doc-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>'+pdEsc(d)+'</span>'
+      + '<button class="pd-doc-x" title="Remove document" onclick="pdDocDel('+pi+','+pk+','+i+')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></span>';
+  }).join('');
+  var avail=GS_DOC_LIBRARY.filter(function(d){return docs.indexOf(d)===-1;});
+  var pick='<select class="pd-input pd-doc-pick" onchange="pdDocPick('+pi+','+pk+',this)"><option value="" selected disabled hidden>Select an existing document…</option>'+avail.map(function(d){return '<option>'+pdEsc(d)+'</option>';}).join('')+'</select>';
+  return '<div class="pd-docs-block"><div class="pd-flabel" style="margin-bottom:6px">Supporting Documents</div>'
+    + '<div class="pd-doc-chips">'+(chips||'<span class="pd-doc-empty">No documents linked yet</span>')+'</div>'
+    + '<div class="pd-doc-actions">'+pick+'<button class="pd-doc-add" onclick="pdDocNew('+pi+','+pk+')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M12 5v14M5 12h14"/></svg>Add new document</button></div></div>';
+}
+function pdDocsRefresh(pi,pk){
+  var card=document.getElementById('pd-card-'+pi+'-'+pk);
+  var block=card&&card.querySelector('.pd-docs-block');
+  if(block){ block.outerHTML=pdDocsBlockHTML(pi,pk); if(typeof window.GSEnhanceSelects==='function'){ try{ window.GSEnhanceSelects(card); }catch(e){} } }
+}
+function pdDocPick(pi,pk,sel){ if(!sel.value) return; var d=pdDocs(pi,pk); if(d.indexOf(sel.value)===-1) d.push(sel.value); pdDocsRefresh(pi,pk); }
+function pdDocNew(pi,pk){ var n=prompt('Name of the new supporting document (e.g. Test_Report.pdf):'); if(n&&n.trim()){ pdDocs(pi,pk).push(n.trim()); pdDocsRefresh(pi,pk); } }
+function pdDocDel(pi,pk,idx){ var d=pdDocs(pi,pk); if(idx>=0&&idx<d.length){ d.splice(idx,1); pdDocsRefresh(pi,pk); } }
+
+/* Fill any [data-gs-text="key"] element from the active retailer config, so
+   retailer-specific reusable copy (legal name, "…buys from you", etc.) is never
+   hard-coded in shared markup — it resolves from GS_RETAILER. */
+function gsApplyRetailerText(root){
+  if(typeof window.gsRetailerText!=='function') return;
+  (root||document).querySelectorAll('[data-gs-text]').forEach(function(el){
+    var t=window.gsRetailerText(el.getAttribute('data-gs-text'));
+    if(t) el.textContent=t;
+  });
+}
+if(document.readyState!=='loading') gsApplyRetailerText();
+else document.addEventListener('DOMContentLoaded', function(){ gsApplyRetailerText(); });
+window.gsApplyRetailerText = gsApplyRetailerText;
 function pdEditField(pi,pk,gi,fi,val){
   var p = PRODUCTS.filter(function(x){return x.id===pi;})[0]; if(!p||!p._pkgs) return;
   p._pkgs[pk].groups[gi].fields[fi].v = val;
@@ -726,12 +838,22 @@ function pdRemoveComp(pi,pk){
    component in its place. */
 var _suggFill = { pi:null, idx:null };
 function pdSuggClick(btn, pi, si){
-  var existing = document.querySelector('.pcmp-menu[data-pi="'+pi+'"]');
+  var open = document.querySelector('.pcmp-menu');
   closeAllCompMenus();
-  if(existing) return;
+  if(open) return;               /* second click closes the menu */
   _suggFill = { pi:pi, idx:si };
   openCompMenuAt(btn, pi, 'pdFillSuggestPick', 'pdFillSuggestNew');
 }
+/* Same replace flow, triggered from the orange suggestion pill in the product
+   listing (no detail page open — just re-render the listing afterwards). */
+function suggListClick(el, pi, si){
+  var open = document.querySelector('.pcmp-menu');
+  closeAllCompMenus();
+  if(open) return;
+  _suggFill = { pi:pi, idx:si };
+  openCompMenuAt(el, pi, 'pdFillSuggestPick', 'pdFillSuggestNew');
+}
+function _pdReRender(pi){ if(document.getElementById('pd-body') && typeof _pdOpen!=='undefined' && _pdOpen===pi) renderProductDetail(pi); }
 function _suggRemove(p){
   if(!p.sugg) return;
   var i = _suggFill.idx;
@@ -746,7 +868,7 @@ function pdDismissSugg(pi, si){
   if(!p || !p.sugg || si<0 || si>=p.sugg.length) return;
   var name = p.sugg[si];
   p.sugg.splice(si,1);
-  prodRender(); renderProductDetail(pi);
+  prodRender(); _pdReRender(pi);
   if(typeof gsToast==='function') gsToast('Suggestion “'+name+'” removed');
 }
 function pdFillSuggestPick(pi, key){
@@ -757,7 +879,7 @@ function pdFillSuggestPick(pi, key){
   _suggRemove(p);
   if(!p._pkgs) p._pkgs=[];
   p.comps.push(comp.name); p._pkgs.push(buildPkgData(comp.name));
-  prodRender(); renderProductDetail(pi);
+  prodRender(); _pdReRender(pi);
   if(typeof gsToast==='function') gsToast('Suggestion replaced with “'+comp.name+'”');
 }
 function pdFillSuggestNew(pi){
@@ -768,7 +890,7 @@ function pdFillSuggestNew(pi){
   _suggRemove(p);
   if(!p._pkgs) p._pkgs=[];
   p.comps.push(suggName); p._pkgs.push(buildPkgData(suggName));
-  prodRender(); renderProductDetail(pi);
+  prodRender(); _pdReRender(pi);
   if(typeof gsToast==='function') gsToast('New component “'+suggName+'” created — fill in its details below');
 }
 function pdToggleAddMenu(btn,pi){
@@ -956,9 +1078,10 @@ function prodRender(animatingPi){
 
   var newTrs = tb.querySelectorAll('tr[data-pi]');
   var hasMoved = false;
+  var _reduce = gsReduceMotion();
   newTrs.forEach(function(tr){
     var pi = tr.getAttribute('data-pi');
-    var first = firstPositions[pi];
+    var first = _reduce ? null : firstPositions[pi];
     if(first){
       var last = tr.getBoundingClientRect();
       var dy = first.top - last.top;
@@ -1666,8 +1789,73 @@ function gsEnhancePkgDetail(){
   var key = (body.id||'').replace('pkgdetail-body-','');
   gsBuildAutoSaveChip(body);
   gsPkgDetailName(body, key);
+  gsHydrateAcceptedDetail(body, key);   /* apply an AI-accepted record if one exists */
   body.querySelectorAll('.pkg-detail-feat').forEach(gsEnhanceFeat);
   if(typeof gsBuildBreadcrumb==='function') gsBuildBreadcrumb();
+}
+/* If this component was just accepted from AI Upload Review, its canonical
+   record is in sessionStorage (gs_accepted_components, keyed by name). Apply it
+   to the saved-detail fields so opening it shows the exact reviewed values —
+   proving the manual, AI and saved-detail experiences share one record shape. */
+function gsHydrateAcceptedDetail(body, key){
+  try{
+    var store = JSON.parse(sessionStorage.getItem('gs_accepted_components')||'{}');
+    if(!store || !Object.keys(store).length) return;
+    var comp = (typeof COMPONENT_LIBRARY_JS!=='undefined') ? COMPONENT_LIBRARY_JS.find(function(c){return c.key===key;}) : null;
+    var name = comp ? comp.name : null;
+    var rec = null;
+    if(name && store[name]) rec = store[name];
+    else { /* fall back to matching on the displayed component name */
+      var nm = (body.querySelector('.pkg-name-input')||{}).value || (body.querySelector('input')||{}).value;
+      if(nm && store[nm]) rec = store[nm];
+    }
+    if(!rec || !window.GS_COMPONENT_SCHEMA) return;
+    /* label → field key + control, from the canonical schema */
+    var byLabel = {};
+    window.GS_COMPONENT_SCHEMA.forEach(function(sec){ sec.fields.forEach(function(f){ byLabel[f.label] = f; }); });
+    body.querySelectorAll('.pkg-detail-feat').forEach(function(feat){
+      if(feat.hasAttribute('data-mr')) return; /* material rows handled below */
+      var lblEl = feat.querySelector('.pkg-detail-feat-lbl'); if(!lblEl) return;
+      var f = byLabel[lblEl.textContent.trim()]; if(!f) return;
+      var v = rec.fields ? rec.fields[f.key] : undefined; if(v===undefined || v==='') return;
+      if(f.control==='source' && typeof window.gsSourceTypeLabel==='function') v = window.gsSourceTypeLabel(v);
+      var inp = feat.querySelector('.pkg-detail-feat-input');
+      var selEl = feat.querySelector('.pkg-detail-feat-select');
+      if(inp) inp.value = v;
+      if(selEl){
+        if(!Array.prototype.some.call(selEl.options,function(o){return o.value===v||o.text===v;})){
+          var op=document.createElement('option'); op.textContent=v; selEl.appendChild(op);
+        }
+        selEl.value = v;
+        Array.prototype.forEach.call(selEl.options,function(o){ o.selected = (o.text===v||o.value===v); });
+      }
+    });
+    /* materials */
+    if(rec.materials && rec.materials.length){
+      var matName = body.querySelector('[data-mr][data-mt="name"]');
+      var grid = matName ? matName.closest('.pkg-detail-grid') : null;
+      if(grid){
+        var totalFeat = null;
+        grid.querySelectorAll('.pkg-detail-feat').forEach(function(ft){ if(/Total of all/.test(ft.textContent)) totalFeat = ft; });
+        grid.querySelectorAll('[data-mr]').forEach(function(ft){ ft.remove(); });
+        var totalPct = 0;
+        rec.materials.forEach(function(m,i){
+          totalPct += (parseFloat(m.pct)||0);
+          var n=document.createElement('div'); n.className='pkg-detail-feat'; n.setAttribute('data-mr',i+1); n.setAttribute('data-mt','name');
+          n.innerHTML='<div class="pkg-detail-feat-lbl">Material '+(i+1)+' Name</div><input class="pkg-detail-feat-input editable-text" value="'+pdEsc(m.name||'')+'" readonly>';
+          var p=document.createElement('div'); p.className='pkg-detail-feat'; p.setAttribute('data-mr',i+1); p.setAttribute('data-mt','pct');
+          p.innerHTML='<div class="pkg-detail-feat-lbl">% Material '+(i+1)+'</div><input class="pkg-detail-feat-input editable-text" value="'+pdEsc((m.pct!==''&&m.pct!=null)?(m.pct+'%'):'')+'" readonly>';
+          if(totalFeat){ grid.insertBefore(n,totalFeat); grid.insertBefore(p,totalFeat); }
+          else { grid.appendChild(n); grid.appendChild(p); }
+        });
+        if(totalFeat){ var ti=totalFeat.querySelector('input'); if(ti) ti.value=(Math.round(totalPct*100)/100)+'%'; }
+      }
+    }
+    /* supporting documents → chips in Additional Info */
+    if(rec.documents && rec.documents.length && typeof addDocChip==='function'){
+      rec.documents.forEach(function(d){ addDocChip('sd_'+key, d); });
+    }
+  }catch(e){ /* non-fatal */ }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -2550,12 +2738,13 @@ document.addEventListener('change',gsAirEdited,true);
 
 
 (function(){
+  var GS_IMPORTER = (typeof window.gsRetailerText==='function') ? window.gsRetailerText('name') : 'Primark';
   var DATA = {
     'PRK-003-DRS-RED': {
       'product details':[['Product','Red Midi Dress'],['SKU','PRK-003-DRS-RED'],['ORIN','991171505'],['Category','Womenswear › Dresses'],['Season','SS26']],
       'packaging':[['Component','Garment polybag'],['Role','Primary'],['Items / pack','1'],['Reusable','No']],
       'level & format':[['Level','Primary packaging'],['Format','Flexible film bag']],
-      'source type':[['Source','Supplier-manufactured'],['Placed on market','Ireland (EU)'],['Importer','Primark']],
+      'source type':[['Source','Local'],['Placed on market','Ireland (EU)'],['Importer',GS_IMPORTER]],
       'materials':[['Main body','LDPE film (plastic)'],['Hangtag','Paper (FSC)'],['Care label','Woven polyester']],
       'recycled content':[['Recycled (PCR)','30%'],['Basis','Post-consumer'],['Certified','GRS']],
       'colour & decoration':[['Colour','Transparent'],['Print','1-colour logo'],['Inks','Water-based']],
@@ -2568,7 +2757,7 @@ document.addEventListener('change',gsAirEdited,true);
       'product details':[['Product','Khaki Utility Jacket'],['SKU','PRK-004-JKT-KHK'],['ORIN','991172103'],['Category','Menswear › Outerwear'],['Season','AW26']],
       'packaging':[['Component','Polybag + hanger'],['Role','Primary'],['Items / pack','1'],['Reusable','No']],
       'level & format':[['Level','Primary packaging'],['Format','Bag + rigid hanger']],
-      'source type':[['Source','Supplier-manufactured'],['Placed on market','United Kingdom'],['Importer','Primark']],
+      'source type':[['Source','Local'],['Placed on market','United Kingdom'],['Importer',GS_IMPORTER]],
       'materials':[['Main body','LDPE film (plastic)'],['Hanger','rPET'],['Hangtag','Paper (FSC)']],
       'recycled content':[['Recycled (PCR)','25%'],['Basis','Post-consumer'],['Certified','Pending verification']],
       'colour & decoration':[['Colour','Transparent'],['Print','None'],['Inks','—']],
@@ -2581,7 +2770,7 @@ document.addEventListener('change',gsAirEdited,true);
       'product details':[['Product','Blue Slim Fit Jeans'],['SKU','PRK-002-JN-BLU'],['ORIN','991169841'],['Category','Menswear › Denim'],['Season','Core']],
       'packaging':[['Component','Garment polybag'],['Role','Primary'],['Items / pack','1'],['Reusable','No']],
       'level & format':[['Level','Primary packaging'],['Format','Flexible film bag']],
-      'source type':[['Source','Supplier-manufactured'],['Placed on market','Ireland (EU)'],['Importer','Primark']],
+      'source type':[['Source','Local'],['Placed on market','Ireland (EU)'],['Importer',GS_IMPORTER]],
       'materials':[['Main body','LDPE film (plastic)'],['Brand card','Recycled board'],['Rivet card','Paper']],
       'recycled content':[['Recycled (PCR)','20%'],['Basis','Post-consumer'],['Certified','GRS']],
       'colour & decoration':[['Colour','Blue tint'],['Print','2-colour'],['Inks','Water-based']],
@@ -2594,7 +2783,7 @@ document.addEventListener('change',gsAirEdited,true);
       'product details':[['Product','Black Crew Neck Sweatshirt'],['SKU','PRK-001-SW-BLK'],['ORIN','991175801'],['Category','Menswear › Tops'],['Season','Core']],
       'packaging':[['Component','Garment polybag'],['Role','Primary'],['Items / pack','1'],['Reusable','No']],
       'level & format':[['Level','Primary packaging'],['Format','Flexible film bag']],
-      'source type':[['Source','Supplier-manufactured'],['Placed on market','Ireland (EU)'],['Importer','Primark']],
+      'source type':[['Source','Local'],['Placed on market','Ireland (EU)'],['Importer',GS_IMPORTER]],
       'materials':[['Main body','LDPE film (plastic)'],['Hangtag','Paper (FSC)'],['Size sticker','Paper']],
       'recycled content':[['Recycled (PCR)','35%'],['Basis','Post-consumer'],['Certified','GRS']],
       'colour & decoration':[['Colour','Transparent'],['Print','1-colour logo'],['Inks','Water-based']],
@@ -2607,7 +2796,7 @@ document.addEventListener('change',gsAirEdited,true);
       'product details':[['Product','White Cropped Top'],['SKU','PRK-005-TOP-WHT'],['ORIN','991178220'],['Category','Womenswear › Tops'],['Season','SS26']],
       'packaging':[['Component','Garment polybag'],['Role','Primary'],['Items / pack','1'],['Reusable','No']],
       'level & format':[['Level','Primary packaging'],['Format','Flexible film bag']],
-      'source type':[['Source','Supplier-manufactured'],['Placed on market','Ireland (EU)'],['Importer','Primark']],
+      'source type':[['Source','Local'],['Placed on market','Ireland (EU)'],['Importer',GS_IMPORTER]],
       'materials':[['Main body','LDPE film (plastic)'],['Hangtag','Paper (FSC)'],['Size sticker','Paper']],
       'recycled content':[['Recycled (PCR)','30%'],['Basis','Post-consumer'],['Certified','GRS']],
       'colour & decoration':[['Colour','Transparent'],['Print','1-colour logo'],['Inks','Water-based']],

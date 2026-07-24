@@ -1,104 +1,29 @@
 /* ==========================================================================
-   air-review.js — data-driven AI-Review with multi-component support.
-   Rebuilds the review experience: proper wizard-style field controls
-   (dropdown / Yes-No toggle / % with slider / number+unit / text), a sticky
-   left sidebar listing every packaging component detected in an import (only
-   shown when >1), per-component Accept (with validation) + Delete, and a
-   single "Finish upload" action. Renders into #air-root.
-   Depends on globals from supplier-portal.js / greenstreets-theme.js:
-   go(), gsToast(), window.GSEnhanceSelects().
+   air-review.js — AI Upload Review rendered from the CANONICAL component
+   schema (js/gs-schema.js), so it shows the exact same sections, labels,
+   dropdown vocabularies, Yes/No controls, dynamic material rows and Supporting
+   Documents as the manual Component Wizard and the saved detail/edit page.
+
+   Confidence is AI-review METADATA only (High confidence / Check value /
+   Missing / User verified). It never changes a field's meaning, location,
+   options, validation or export mapping. An accepted component produces the
+   SAME record structure a manually-created component does, so opening it from
+   Packaging Components shows identical fields, values, material rows, documents,
+   dropdown selections and compliance answers.
+
+   Renders into #air-root (#air-side + #air-main). Depends on globals from
+   gs-schema.js, supplier-portal.js and greenstreets-theme.js.
    ========================================================================== */
 (function () {
   'use strict';
 
-  var AIR_MATERIALS = ['Paper', 'Cardboard', 'Corrugate', 'LDPE', 'HDPE', 'PP', 'PET', 'PVC', 'PS', 'Glass', 'Aluminium', 'Steel', 'Wood', 'Textile', 'Composite', 'Other'];
+  var SCHEMA = (window.GS_COMPONENT_SCHEMA || []);
+  var VOCAB = (window.GS_VOCAB || {});
 
-  var AIR_SCHEMA = [
-    { n: 'Packaging Level & Format', f: [
-      { k: 'level', l: 'Packaging Level', t: 'select', o: ['Primary', 'Secondary', 'Tertiary'] },
-      { k: 'format', l: 'Packaging Format', t: 'select', o: ['Swing Tag', 'Label', 'Poly Bag', 'Box / Carton', 'Hanger', 'Wrap', 'Tissue Paper', 'Pallet', 'Fastener', 'Other'] },
-      { k: 'reusable', l: 'Reusable', t: 'bool' },
-      { k: 'refillable', l: 'Refillable', t: 'bool' }
-    ] },
-    { n: 'Packaging Source Type', f: [
-      { k: 'source', l: 'Packaging Source Type', t: 'select', o: ['Paper / Cardboard', 'Plastic', 'Metal', 'Glass', 'Composite', 'Wood', 'Textile'] },
-      { k: 'hasRecycled', l: 'Contains Recycled Content', t: 'bool' }
-    ] },
-    { n: 'Material Information', f: [
-      { k: 'mat1', l: 'Material 1 Name', t: 'select', o: AIR_MATERIALS },
-      { k: 'mat1pct', l: '% Material 1', t: 'pct' },
-      { k: 'mat2', l: 'Material 2 Name', t: 'select', o: AIR_MATERIALS, opt: true },
-      { k: 'mat2pct', l: '% Material 2', t: 'pct', opt: true }
-    ] },
-    { n: 'Post-Consumer & Recycled Content', f: [
-      { k: 'pcr', l: 'PCR %', t: 'pct' },
-      { k: 'pir', l: 'PIR %', t: 'pct' },
-      { k: 'rctype', l: 'Recycled Content Type', t: 'select', o: ['PCR Paper', 'PCR Plastic', 'PIR Plastic', 'Ocean-bound', 'None'], opt: true },
-      { k: 'evidence', l: 'Supporting Evidence', t: 'text', opt: true }
-    ] },
-    { n: 'Colour & Decoration', f: [
-      { k: 'colour', l: 'Colour', t: 'select', o: ['Clear', 'White', 'Natural / Kraft', 'Full colour print', 'Black', 'Other'] },
-      { k: 'ink', l: 'Ink Type', t: 'select', o: ['None', 'Water-based', 'Solvent-based', 'UV-cured', 'Soy-based'], opt: true },
-      { k: 'coating', l: 'Coating', t: 'select', o: ['None', 'Varnish', 'Lamination', 'Aqueous', 'Wax'], opt: true }
-    ] },
-    { n: 'Weight, Grammage & Dimensions', f: [
-      { k: 'gsm', l: 'Grammage', t: 'num', u: 'gsm', opt: true },
-      { k: 'weight', l: 'Unit Weight', t: 'num', u: 'g' },
-      { k: 'width', l: 'Width', t: 'num', u: 'mm' },
-      { k: 'height', l: 'Height', t: 'num', u: 'mm' },
-      { k: 'depth', l: 'Depth', t: 'num', u: 'mm', opt: true }
-    ] },
-    { n: 'Material Compliance', f: [
-      { k: 'reach', l: 'REACH Compliant', t: 'bool' },
-      { k: 'heavy', l: 'Heavy Metals <100ppm', t: 'bool' },
-      { k: 'bpa', l: 'BPA Free', t: 'bool' }
-    ] }
-  ];
+  function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function toast(m) { if (typeof window.gsToast === 'function') window.gsToast(m); }
 
-  function makeComp(name, level, map) {
-    var vals = {};
-    AIR_SCHEMA.forEach(function (sec) {
-      sec.f.forEach(function (f) {
-        var e = map[f.k];
-        var v = e ? e[0] : '';
-        var conf = e ? e[1] : 'missing';
-        if (v === '' || v == null) { v = ''; conf = 'missing'; }
-        vals[f.k] = { v: String(v), conf: conf };
-      });
-    });
-    return { name: name, level: level, reviewed: false, vals: vals };
-  }
-
-  var COMPONENTS = [
-    makeComp('Swing Tag', 'Primary', {
-      level: ['Primary', 'high'], format: ['Swing Tag', 'high'], reusable: ['No', 'high'], refillable: ['No', 'high'],
-      source: ['Paper / Cardboard', 'high'], hasRecycled: ['Yes', 'med'],
-      mat1: ['Paper', 'high'], mat1pct: ['100', 'high'],
-      pcr: ['30', 'med'], pir: ['0', 'high'], rctype: ['PCR Paper', 'med'],
-      colour: ['Full colour print', 'high'], ink: ['Water-based', 'med'],
-      gsm: ['300', 'high'], weight: ['2.1', 'high'], width: ['55', 'high'], height: ['90', 'high'],
-      reach: ['Yes', 'high'], heavy: ['Yes', 'high']
-    }),
-    makeComp('Poly Bag', 'Primary', {
-      level: ['Primary', 'high'], format: ['Poly Bag', 'high'], reusable: ['No', 'high'], refillable: ['No', 'high'],
-      source: ['Plastic', 'high'], hasRecycled: ['No', 'med'],
-      mat1: ['LDPE', 'high'], mat1pct: ['100', 'high'],
-      colour: ['Clear', 'high'], ink: ['None', 'high'], coating: ['None', 'high'],
-      weight: ['8.5', 'med'], width: ['320', 'high'], height: ['450', 'high']
-    }),
-    makeComp('Shipping Carton', 'Secondary', {
-      level: ['Secondary', 'high'], format: ['Box / Carton', 'high'], reusable: ['No', 'high'], refillable: ['No', 'high'],
-      source: ['Paper / Cardboard', 'high'], hasRecycled: ['Yes', 'high'],
-      mat1: ['Corrugate', 'high'], mat1pct: ['100', 'high'],
-      pcr: ['65', 'high'], pir: ['10', 'med'], rctype: ['PCR Paper', 'high'], evidence: ['FSC-cert.pdf', 'high'],
-      colour: ['Natural / Kraft', 'high'], ink: ['Water-based', 'high'], coating: ['None', 'high'],
-      gsm: ['180', 'high'], weight: ['180', 'high'], width: ['400', 'high'], height: ['300', 'high'], depth: ['250', 'high'],
-      reach: ['Yes', 'high'], heavy: ['Yes', 'high'], bpa: ['Yes', 'high']
-    })
-  ];
-
-  var cur = 0;
-
+  /* ---- confidence metadata ---- */
   function svg(kind) {
     if (kind === 'check') return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>';
     if (kind === 'alert') return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
@@ -107,107 +32,258 @@
   function badge(conf) {
     if (conf === 'high') return '<span class="air-badge high">' + svg('check') + 'High confidence</span>';
     if (conf === 'med') return '<span class="air-badge med">' + svg('alert') + 'Check value</span>';
-    if (conf === 'user') return '<span class="air-badge user">' + svg('check') + 'Edited</span>';
+    if (conf === 'user') return '<span class="air-badge user">' + svg('check') + 'User verified</span>';
     return '<span class="air-badge missing">' + svg('info') + 'Missing</span>';
   }
-  function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 
-  function toast(m) { if (typeof window.gsToast === 'function') window.gsToast(m); }
+  /* ---- component record: canonical shape shared with manual/detail flows ----
+     vals[fieldKey] = { v, conf }, plus materials[] and documents[]. */
+  function findField(key) {
+    for (var s = 0; s < SCHEMA.length; s++) for (var f = 0; f < SCHEMA[s].fields.length; f++) if (SCHEMA[s].fields[f].key === key) return SCHEMA[s].fields[f];
+    return null;
+  }
+  function blankVals() {
+    var v = {};
+    SCHEMA.forEach(function (sec) {
+      sec.fields.forEach(function (f) {
+        if (f.control === 'materials' || f.control === 'docs') return;
+        v[f.key] = { v: '', conf: 'missing' };
+      });
+    });
+    return v;
+  }
+  function makeComp(name, seed) {
+    seed = seed || {};
+    var vals = blankVals();
+    Object.keys(seed).forEach(function (k) {
+      if (k === 'materials' || k === 'documents') return;
+      var e = seed[k];
+      if (!vals[k]) vals[k] = { v: '', conf: 'missing' };
+      vals[k] = { v: String(e[0]), conf: e[1] || 'high' };
+    });
+    return {
+      name: name,
+      reviewed: false,
+      vals: vals,
+      materials: (seed.materials || [{ name: '', pct: '' }]).map(function (m) { return { name: m.name || '', pct: (m.pct == null ? '' : m.pct) }; }),
+      documents: (seed.documents || []).slice()
+    };
+  }
+
+  /* Demo import (values only — the schema decides how each renders). One
+     component intentionally carries 6 materials + 3 documents. */
+  var COMPONENTS = [
+    makeComp('Swing Tag', {
+      packagingLevel: ['Primary', 'high'], packagingType: ['Swing Tag', 'high'], otherTypeDesc: ['', 'missing'],
+      sourceType: ['Local', 'high'], baseMaterial: ['Paper_Cardboard', 'high'],
+      materials: [{ name: 'Paper Kraft', pct: 100 }],
+      recycledContent: ['Yes', 'med'], pcr: ['30', 'med'], pir: ['0', 'high'], recycledEvidence: ['Product specification', 'med'], recycledComments: ['', 'missing'],
+      colour: ['Multi', 'high'], opacity: ['Coloured - opaque and sortable', 'high'], decoration: ['Printed - Flexo', 'high'],
+      weight: ['1.72', 'high'], grammage: ['300', 'high'], gauge: ['', 'missing'],
+      length: ['139', 'high'], width: ['40', 'high'], height: ['', 'missing'],
+      certification: ['OEKOTEX', 'high'], otherCertDetails: ['', 'missing'], supplierName: ['Misma', 'high'], supplierAddress: ['Motijheel, Dhaka', 'med'],
+      documents: ['FSC_CoC_Certificate_2026.pdf'],
+      materialCompliance: ['No', 'high'], mineralOils: ['No', 'high'], bpa: ['No', 'high'], pfas: ['No', 'high'], chlorine: ['None', 'high']
+    }),
+    makeComp('Poly Bag', {
+      packagingLevel: ['Primary', 'high'], packagingType: ['Bag (Poly)', 'high'],
+      sourceType: ['Local', 'high'], baseMaterial: ['Plastic_Single_MonoLayer', 'high'],
+      materials: [{ name: 'Plastic LDPE (Low Density Polyethylene)', pct: 100 }],
+      recycledContent: ['No', 'med'],
+      colour: ['Clear', 'high'], opacity: ['Colourless', 'high'], decoration: ['None', 'high'],
+      weight: ['8.5', 'med'], length: ['320', 'high'], width: ['450', 'high'],
+      certification: ['None', 'high'], supplierName: ['Windy Apparels Ltd', 'high'], supplierAddress: ['Dhaka, Bangladesh', 'high'],
+      materialCompliance: ['No', 'high'], mineralOils: ['No', 'high'], bpa: ['No', 'high'], pfas: ['No', 'high'], chlorine: ['None', 'high']
+    }),
+    makeComp('Shipping Carton', {
+      packagingLevel: ['Secondary', 'high'], packagingType: ['Box/Carton', 'high'],
+      sourceType: ['Local', 'high'], baseMaterial: ['Corrugate', 'high'],
+      materials: [
+        { name: 'Paper Kraft', pct: 55 }, { name: 'Paper FBB - Folding Box Board', pct: 20 },
+        { name: 'Plastic LDPE (Low Density Polyethylene)', pct: 10 }, { name: 'Plastic PP (Polypropylene)', pct: 8 },
+        { name: 'Metal Aluminium', pct: 5 }, { name: 'Other', pct: 2 }
+      ],
+      recycledContent: ['Yes', 'high'], pcr: ['65', 'high'], pir: ['10', 'med'], recycledEvidence: ['Production certificates and certificates of conformity', 'high'],
+      colour: ['Brown', 'high'], opacity: ['Coloured - opaque and sortable', 'high'], decoration: ['Printed - Flexo', 'high'],
+      weight: ['180', 'high'], grammage: ['180', 'high'],
+      length: ['400', 'high'], width: ['300', 'high'], height: ['250', 'high'],
+      certification: ['FSC Recycled', 'high'], supplierName: ['Windy Apparels Ltd', 'high'], supplierAddress: ['Dhaka, Bangladesh', 'high'],
+      documents: ['FSC_CoC_Certificate_2026.pdf', 'REACH_Compliance_Declaration_2026.pdf', 'Migration_Test_Report.pdf'],
+      materialCompliance: ['TPCH/PROP65/REACH/EU directive 94/62/EC', 'high'], mineralOils: ['No', 'high'], bpa: ['No', 'high'], pfas: ['No', 'high'], chlorine: ['ECF (Elemental Chlorine Free)', 'med']
+    })
+  ];
+
+  var DOC_LIBRARY = ['FSC_CoC_Certificate_2026.pdf', 'REACH_Compliance_Declaration_2026.pdf', 'GRS_Scope_Certificate.pdf', 'Migration_Test_Report.pdf', 'OEKO-TEX_Standard100.pdf'];
+  var cur = 0;
+
+  /* ---- controls ---- */
+  function optionsFor(f) {
+    if (window.GSSchema) return window.GSSchema.fieldOptions(f);
+    if (f.control === 'yesno') return ['Yes', 'No'];
+    return (f.vocab && VOCAB[f.vocab]) ? VOCAB[f.vocab].slice() : [];
+  }
+
+  function ctrlHtml(f, cell) {
+    var v = cell.v;
+    if (f.control === 'yesno') {
+      return '<div class="air-toggle" data-k="' + f.key + '">' +
+        '<button type="button" class="' + (v === 'Yes' ? 'on-yes' : '') + '" onclick="airBool(this,\'' + f.key + '\',\'Yes\')">Yes</button>' +
+        '<button type="button" class="' + (v === 'No' ? 'on-no' : '') + '" onclick="airBool(this,\'' + f.key + '\',\'No\')">No</button>' +
+        '</div>';
+    }
+    if (f.control === 'number') {
+      return '<div class="air-num-unit"><input class="fi" type="number" value="' + esc(v) + '" placeholder="Enter value" oninput="airSet(this,\'' + f.key + '\')">' +
+        (f.unit ? '<span class="air-unit">' + esc(f.unit) + '</span>' : '') + '</div>';
+    }
+    if (f.control === 'select' || f.control === 'source') {
+      var list = optionsFor(f);
+      if (v !== '' && list.indexOf(v) === -1) list = [v].concat(list);
+      var opts = '<option value="" ' + (v === '' ? 'selected' : '') + ' disabled hidden>Select…</option>';
+      list.forEach(function (o) { opts += '<option' + (o === v ? ' selected' : '') + '>' + esc(o) + '</option>'; });
+      return '<select class="fi" onchange="airSet(this,\'' + f.key + '\')">' + opts + '</select>';
+    }
+    if (f.control === 'textarea') {
+      return '<textarea class="fi" rows="2" placeholder="Enter value" oninput="airSet(this,\'' + f.key + '\')">' + esc(v) + '</textarea>';
+    }
+    return '<input class="fi" type="text" value="' + esc(v) + '" placeholder="Enter value" oninput="airSet(this,\'' + f.key + '\')">';
+  }
 
   function fieldHtml(f) {
     var c = COMPONENTS[cur];
-    var cell = c.vals[f.k] || { v: '', conf: 'missing' };
-    var v = cell.v, conf = cell.conf;
-    var req = f.opt ? '' : '<span class="req-star">*</span>';
-    var ctrl = '';
-    if (f.t === 'bool') {
-      ctrl = '<div class="air-toggle" data-k="' + f.k + '">' +
-        '<button type="button" class="' + (v === 'Yes' ? 'on-yes' : '') + '" onclick="airBool(this,\'' + f.k + '\',\'Yes\')">Yes</button>' +
-        '<button type="button" class="' + (v === 'No' ? 'on-no' : '') + '" onclick="airBool(this,\'' + f.k + '\',\'No\')">No</button>' +
-        '</div>';
-    } else if (f.t === 'pct') {
-      var num = (v === '' ? '' : v);
-      ctrl = '<div class="air-pct" data-k="' + f.k + '">' +
-        '<input class="air-pct-num" type="number" min="0" max="100" value="' + esc(num) + '" placeholder="0" oninput="airPctNum(this,\'' + f.k + '\')">' +
-        '<span class="air-pct-suffix">%</span>' +
-        '<input class="air-pct-range" type="range" min="0" max="100" step="1" value="' + (num === '' ? 0 : esc(num)) + '" oninput="airPctRange(this,\'' + f.k + '\')">' +
-        '</div>';
-    } else if (f.t === 'num') {
-      ctrl = '<div class="air-num-unit"><input class="fi" type="number" value="' + esc(v) + '" placeholder="Enter value" oninput="airSet(this,\'' + f.k + '\')">' +
-        (f.u ? '<span class="air-unit">' + esc(f.u) + '</span>' : '') + '</div>';
-    } else if (f.t === 'select') {
-      var opts = '<option value="" ' + (v === '' ? 'selected' : '') + ' disabled hidden>Select…</option>';
-      var list = f.o.slice();
-      if (v !== '' && list.indexOf(v) === -1) list.unshift(v);
-      list.forEach(function (o) { opts += '<option' + (o === v ? ' selected' : '') + '>' + esc(o) + '</option>'; });
-      ctrl = '<select class="fi" onchange="airSet(this,\'' + f.k + '\')">' + opts + '</select>';
-    } else {
-      ctrl = '<input class="fi" type="text" value="' + esc(v) + '" placeholder="Enter value" oninput="airSet(this,\'' + f.k + '\')">';
-    }
+    var cell = c.vals[f.key] || { v: '', conf: 'missing' };
+    var conf = cell.conf;
+    var req = f.req ? '<span class="req-star">*</span>' : '';
     var lblCls = 'air-field-lbl' + (conf === 'missing' ? ' lbl-missing' : '');
-    return '<div class="air-field" data-k="' + f.k + '">' +
-      '<div class="' + lblCls + '">' + esc(f.l) + req + '</div>' +
-      '<div class="air-ctrl-row">' + ctrl + '<span class="air-badge-slot">' + badge(conf) + '</span></div>' +
+    return '<div class="air-field" data-k="' + f.key + '">' +
+      '<div class="' + lblCls + '">' + esc(f.label) + req + '</div>' +
+      '<div class="air-ctrl-row">' + ctrlHtml(f, cell) + '<span class="air-badge-slot">' + badge(conf) + '</span></div>' +
       '</div>';
   }
 
+  /* ---- dynamic materials (unlimited) ---- */
+  function materialsHtml() {
+    var c = COMPONENTS[cur];
+    var rows = c.materials.map(function (m, i) {
+      var nmeList = VOCAB.materialName ? VOCAB.materialName.slice() : [];
+      if (m.name && nmeList.indexOf(m.name) === -1) nmeList = [m.name].concat(nmeList);
+      var opts = '<option value="" ' + (m.name === '' ? 'selected' : '') + ' disabled hidden>Select material…</option>';
+      nmeList.forEach(function (o) { opts += '<option' + (o === m.name ? ' selected' : '') + '>' + esc(o) + '</option>'; });
+      var canRemove = i > 0;
+      return '<div class="air-mat-row" data-i="' + i + '">' +
+        '<div class="air-mat-name"><select class="fi" onchange="airMat(' + i + ',\'name\',this.value)">' + opts + '</select></div>' +
+        '<div class="air-mat-pct"><input class="fi" type="number" min="0" max="100" value="' + esc(m.pct) + '" placeholder="%" oninput="airMat(' + i + ',\'pct\',this.value)"><span class="air-unit">%</span></div>' +
+        (canRemove ? '<button class="air-mat-del" title="Remove material" onclick="airMatDel(' + i + ')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>' : '<span class="air-mat-del-spacer"></span>') +
+        '</div>';
+    }).join('');
+    var used = c.materials.filter(function (m) { return (m.name || '').trim(); }).length;
+    var total = c.materials.reduce(function (s, m) { return s + (parseFloat(m.pct) || 0); }, 0);
+    total = Math.round(total * 100) / 100;
+    var ok = total === 100;
+    return '<div class="air-materials" data-k="materials">' +
+      '<div class="air-mat-head"><span>Material name</span><span>% by weight</span><span></span></div>' +
+      rows +
+      '<button class="air-mat-add" onclick="airMatAdd()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M12 5v14M5 12h14"/></svg>Add material</button>' +
+      '<div class="air-mat-sum' + (ok ? ' ok' : ' warn') + '"><span>Materials used: <b>' + used + '</b></span>' +
+      '<span>Total by weight: <b>' + total + '%</b></span>' +
+      (ok ? '<span class="air-mat-ok">✓ Totals 100%</span>' : '<span class="air-mat-bad">Must total 100% (currently ' + total + '%)</span>') + '</div>' +
+      '</div>';
+  }
+
+  /* ---- Supporting Documents (unlimited) ---- */
+  function docsHtml() {
+    var c = COMPONENTS[cur];
+    var chips = c.documents.map(function (d, i) {
+      return '<span class="air-doc-chip">' +
+        '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' +
+        '<span class="air-doc-name">' + esc(d) + '</span>' +
+        '<button class="air-doc-x" title="Remove document" onclick="airDocDel(' + i + ')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>' +
+        '</span>';
+    }).join('');
+    var avail = DOC_LIBRARY.filter(function (d) { return c.documents.indexOf(d) === -1; });
+    var picker = '<select class="fi air-doc-pick" onchange="airDocPick(this)"><option value="" selected disabled hidden>Select an existing document…</option>' +
+      avail.map(function (d) { return '<option>' + esc(d) + '</option>'; }).join('') + '</select>';
+    return '<div class="air-docs" data-k="documents">' +
+      '<div class="air-doc-chips">' + (chips || '<span class="air-doc-empty">No documents linked yet</span>') + '</div>' +
+      '<div class="air-doc-actions">' + picker +
+      '<button class="air-doc-add" onclick="airDocNew()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M12 5v14M5 12h14"/></svg>Add new document</button></div>' +
+      '</div>';
+  }
+
+  function sectionFieldHtml(f) {
+    if (f.control === 'materials') return '<div class="air-field air-field-wide" data-k="materials"><div class="air-field-lbl">Material composition<span class="req-star">*</span></div>' + materialsHtml() + '</div>';
+    if (f.control === 'docs') return '<div class="air-field air-field-wide" data-k="documents"><div class="air-field-lbl">' + esc(f.label) + '</div>' + docsHtml() + '</div>';
+    return fieldHtml(f);
+  }
+
+  /* ---- edit tracking ---- */
   function fieldOf(el) { return el.closest ? el.closest('.air-field') : null; }
   function markEdited(el) {
     var field = fieldOf(el); if (!field) return;
     field.classList.remove('air-invalid');
-    var lbl = field.querySelector('.air-field-lbl');
-    if (lbl) lbl.classList.remove('lbl-missing');
-    var slot = field.querySelector('.air-badge-slot');
-    if (slot) slot.innerHTML = badge('user');
+    var lbl = field.querySelector('.air-field-lbl'); if (lbl) lbl.classList.remove('lbl-missing');
+    var slot = field.querySelector('.air-badge-slot'); if (slot) slot.innerHTML = badge('user');
   }
-
-  window.airSet = function (el, key) {
-    var c = COMPONENTS[cur]; if (!c) return;
-    c.vals[key] = { v: el.value, conf: 'user' };
-    markEdited(el);
-  };
+  window.airSet = function (el, key) { var c = COMPONENTS[cur]; if (!c) return; c.vals[key] = { v: el.value, conf: 'user' }; markEdited(el); };
   window.airBool = function (btn, key, val) {
     var c = COMPONENTS[cur]; if (!c) return;
     c.vals[key] = { v: val, conf: 'user' };
     var btns = btn.parentNode.querySelectorAll('button');
-    btns[0].className = (val === 'Yes' ? 'on-yes' : '');
-    btns[1].className = (val === 'No' ? 'on-no' : '');
+    btns[0].className = (val === 'Yes' ? 'on-yes' : ''); btns[1].className = (val === 'No' ? 'on-no' : '');
     markEdited(btn);
   };
-  window.airPctNum = function (inp, key) {
-    var v = parseFloat(inp.value);
-    if (isNaN(v)) v = ''; else v = Math.max(0, Math.min(100, v));
-    var r = inp.closest('.air-pct').querySelector('.air-pct-range');
-    if (r && v !== '') r.value = v;
-    var c = COMPONENTS[cur]; if (c) c.vals[key] = { v: (v === '' ? '' : String(v)), conf: 'user' };
-    markEdited(inp);
+  window.airMat = function (i, key, val) { var c = COMPONENTS[cur]; if (!c || !c.materials[i]) return; c.materials[i][key] = val; refreshMaterials(); };
+  window.airMatAdd = function () { var c = COMPONENTS[cur]; if (!c) return; c.materials.push({ name: '', pct: '' }); refreshMaterials(); };
+  window.airMatDel = function (i) { var c = COMPONENTS[cur]; if (!c || i <= 0) return; c.materials.splice(i, 1); refreshMaterials(); };
+  function refreshMaterials() {
+    var host = document.querySelector('.air-field[data-k="materials"]'); if (!host) return;
+    host.innerHTML = '<div class="air-field-lbl">Material composition<span class="req-star">*</span></div>' + materialsHtml();
+    if (typeof window.GSEnhanceSelects === 'function') { try { window.GSEnhanceSelects(host); } catch (e) {} }
+  }
+  window.airDocPick = function (sel) { var c = COMPONENTS[cur]; if (!c || !sel.value) return; if (c.documents.indexOf(sel.value) === -1) c.documents.push(sel.value); refreshDocs(); };
+  window.airDocNew = function () {
+    var c = COMPONENTS[cur]; if (!c) return;
+    var n = prompt('Name of the new supporting document (e.g. Test_Report.pdf):');
+    if (n && n.trim()) { c.documents.push(n.trim()); refreshDocs(); }
   };
-  window.airPctRange = function (r, key) {
-    var v = Math.max(0, Math.min(100, parseInt(r.value, 10) || 0));
-    var n = r.closest('.air-pct').querySelector('.air-pct-num');
-    if (n) n.value = v;
-    var c = COMPONENTS[cur]; if (c) c.vals[key] = { v: String(v), conf: 'user' };
-    markEdited(r);
-  };
+  window.airDocDel = function (i) { var c = COMPONENTS[cur]; if (!c) return; c.documents.splice(i, 1); refreshDocs(); };
+  function refreshDocs() {
+    var host = document.querySelector('.air-field[data-k="documents"]'); if (!host) return;
+    host.innerHTML = '<div class="air-field-lbl">Supporting Documents</div>' + docsHtml();
+    if (typeof window.GSEnhanceSelects === 'function') { try { window.GSEnhanceSelects(host); } catch (e) {} }
+  }
 
+  /* ---- counts / validation (confidence is metadata only) ---- */
   function counts(c) {
     var o = { confirmed: 0, attention: 0, missing: 0 };
-    AIR_SCHEMA.forEach(function (sec) { sec.f.forEach(function (f) {
-      var cell = c.vals[f.k] || { conf: 'missing' };
+    SCHEMA.forEach(function (sec) { sec.fields.forEach(function (f) {
+      if (f.control === 'materials' || f.control === 'docs') return;
+      var cell = c.vals[f.key] || { conf: 'missing' };
       if (cell.conf === 'high' || cell.conf === 'user') o.confirmed++;
       else if (cell.conf === 'med') o.attention++;
       else o.missing++;
     }); });
     return o;
   }
-  function reqMissing(c) {
-    var n = 0;
-    AIR_SCHEMA.forEach(function (sec) { sec.f.forEach(function (f) {
-      if (f.opt) return;
-      var cell = c.vals[f.k]; var v = cell ? String(cell.v).trim() : '';
-      if (v === '') n++;
+  function isRequired(f, c) {
+    if (f.req) return true;
+    if (f.reqIf) { var d = c.vals[f.reqIf.field]; return d && String(d.v) === f.reqIf.value; }
+    return false;
+  }
+  function validate(c) {
+    var bad = [];
+    SCHEMA.forEach(function (sec) { sec.fields.forEach(function (f) {
+      if (f.control === 'materials') {
+        var used = c.materials.filter(function (m) { return (m.name || '').trim(); }).length;
+        var total = c.materials.reduce(function (s, m) { return s + (parseFloat(m.pct) || 0); }, 0);
+        if (used < 1 || Math.round(total * 100) / 100 !== 100) bad.push('materials');
+        return;
+      }
+      if (f.control === 'docs') return;
+      if (!isRequired(f, c)) return;
+      var cell = c.vals[f.key]; var v = cell ? String(cell.v).trim() : '';
+      if (v === '') bad.push(f.key);
     }); });
-    return n;
+    return bad;
   }
 
   function navBtns() {
@@ -218,8 +294,7 @@
         ';border:1px solid rgba(255,255,255,' + (dis ? '.07' : '.15') + ');color:rgba(255,255,255,' + (dis ? '.2' : '.6') +
         ');border-radius:7px;font-family:inherit;font-size:12px;cursor:' + (dis ? 'default' : 'pointer') + '">' + label + '</button>';
     }
-    return '<div style="display:flex;align-items:center;gap:6px">' +
-      b(-1, '‹ Prev', prevDis) +
+    return '<div style="display:flex;align-items:center;gap:6px">' + b(-1, '‹ Prev', prevDis) +
       '<span style="font-size:11px;color:rgba(255,255,255,.35);white-space:nowrap">' + (cur + 1) + ' / ' + total + '</span>' +
       b(1, 'Next ›', nextDis) + '</div>';
   }
@@ -228,22 +303,18 @@
     var host = document.getElementById('air-main'); if (!host) return;
     var c = COMPONENTS[cur]; if (!c) return;
     var total = COMPONENTS.length, cnt = counts(c);
-    var secHtml = AIR_SCHEMA.map(function (sec, si) {
-      var attn = 0;
-      sec.f.forEach(function (f) { var cell = c.vals[f.k] || { conf: 'missing' }; if (!f.opt && (cell.conf === 'med' || cell.conf === 'missing')) attn++; });
-      var attnPill = attn ? '<span style="font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;background:rgba(245,166,35,.1);color:rgba(245,166,35,.8);border:1px solid rgba(245,166,35,.25);margin-left:8px">' + attn + ' need attention</span>' : '';
-      return '<div class="pkg-detail-section"><div class="pkg-detail-section-hdr"><span class="pkg-detail-section-num">' + (si + 1) + '</span>' + esc(sec.n) + attnPill + '</div><div class="pkg-detail-grid">' + sec.f.map(fieldHtml).join('') + '</div></div>';
+    var secHtml = SCHEMA.map(function (sec) {
+      return '<div class="pkg-detail-section"><div class="pkg-detail-section-hdr"><span class="pkg-detail-section-num">' + sec.num + '</span>' + esc(sec.title) + '</div>' +
+        '<div class="pkg-detail-grid">' + sec.fields.map(sectionFieldHtml).join('') + '</div></div>';
     }).join('');
-
     var nav = navBtns();
     var header = '<div style="display:flex;align-items:center;justify-content:space-between;margin:0 0 12px;gap:12px;flex-wrap:wrap"><div>' +
       '<div style="font-size:15px;font-weight:700;color:#fff">' + esc(c.name) + (c.reviewed ? ' <span style="font-size:10px;font-weight:700;color:#4ebb81;background:rgba(78,187,129,.14);border:1px solid rgba(78,187,129,.3);padding:2px 7px;border-radius:4px;vertical-align:2px">Accepted</span>' : '') + '</div>' +
-      '<div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px">Component ' + (cur + 1) + ' of ' + total + '<span style="margin:0 6px;opacity:.3">·</span><span style="color:#4ebb81">' + cnt.confirmed + ' confirmed</span><span style="margin:0 4px;opacity:.3">·</span><span style="color:#f5a623">' + cnt.attention + ' to check</span><span style="margin:0 4px;opacity:.3">·</span><span style="color:rgba(255,255,255,.35)">' + cnt.missing + ' missing</span></div>' +
+      '<div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px">AI import · ' + esc((window.gsRetailerText ? window.gsRetailerText('name') : '') ) + ' schema<span style="margin:0 6px;opacity:.3">·</span><span style="color:#4ebb81">' + cnt.confirmed + ' confirmed</span><span style="margin:0 4px;opacity:.3">·</span><span style="color:#f5a623">' + cnt.attention + ' to check</span><span style="margin:0 4px;opacity:.3">·</span><span style="color:rgba(255,255,255,.35)">' + cnt.missing + ' missing</span></div>' +
       '</div>' + nav + '</div>';
     var footer = '<div style="margin-top:18px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">' + nav +
-      '<button onclick="airAccept()" style="display:flex;align-items:center;gap:8px;height:40px;padding:0 26px;background:var(--gs);border:none;color:#04130c;border-radius:9px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;transition:filter .12s">' +
+      '<button onclick="airAccept()" style="display:flex;align-items:center;gap:8px;height:40px;padding:0 26px;background:var(--gs);border:none;color:#04130c;border-radius:9px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer">' +
       '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>' + (c.reviewed ? 'Re-accept component' : 'Accept component') + '</button></div>';
-
     host.innerHTML = header + secHtml + footer;
     if (typeof window.GSEnhanceSelects === 'function') { try { window.GSEnhanceSelects(host); } catch (e) {} }
   }
@@ -255,12 +326,13 @@
     side.style.display = 'flex';
     var reviewed = COMPONENTS.filter(function (c) { return c.reviewed; }).length;
     var items = COMPONENTS.map(function (c, i) {
-      var miss = reqMissing(c);
+      var miss = validate(c).length;
       var dot = c.reviewed ? 'reviewed' : 'attention';
-      var meta = c.reviewed ? 'Accepted' : (miss ? miss + ' required left' : 'Ready to accept');
+      var meta = c.reviewed ? 'Accepted' : (miss ? miss + ' to resolve' : 'Ready to accept');
+      var lvl = (c.vals.packagingLevel && c.vals.packagingLevel.v) || '';
       return '<div class="air-comp' + (i === cur ? ' active' : '') + '" onclick="airSelect(' + i + ')">' +
         '<span class="air-comp-dot ' + dot + '"></span>' +
-        '<div class="air-comp-body"><div class="air-comp-name">' + esc(c.name) + '</div><div class="air-comp-meta">' + esc(c.level) + ' · ' + meta + '</div></div>' +
+        '<div class="air-comp-body"><div class="air-comp-name">' + esc(c.name) + '</div><div class="air-comp-meta">' + esc(lvl) + (lvl ? ' · ' : '') + meta + '</div></div>' +
         '<button class="air-comp-del" title="Remove this component" onclick="airDelete(' + i + ',event)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>' +
         '</div>';
     }).join('');
@@ -276,21 +348,33 @@
 
   window.airSelect = function (i) {
     if (i < 0 || i >= COMPONENTS.length) return;
-    cur = i;
-    render();
+    cur = i; render();
     var root = document.getElementById('air-root');
     if (root && root.scrollIntoView) root.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
+  /* Accepted component → canonical record (same shape the manual & detail flows
+     use), persisted so opening it from Packaging Components shows identical data. */
+  function toRecord(c) {
+    var rec = { name: c.name, materials: c.materials.slice(), documents: c.documents.slice(), fields: {} };
+    SCHEMA.forEach(function (sec) { sec.fields.forEach(function (f) {
+      if (f.control === 'materials' || f.control === 'docs') return;
+      rec.fields[f.key] = (c.vals[f.key] || {}).v || '';
+    }); });
+    return rec;
+  }
+  function persistAccepted(c) {
+    try {
+      var store = JSON.parse(sessionStorage.getItem('gs_accepted_components') || '{}');
+      store[c.name] = toRecord(c);
+      sessionStorage.setItem('gs_accepted_components', JSON.stringify(store));
+    } catch (e) {}
+  }
+
   window.airAccept = function () {
     var c = COMPONENTS[cur]; if (!c) return;
     document.querySelectorAll('.air-field.air-invalid').forEach(function (x) { x.classList.remove('air-invalid'); });
-    var invalid = [];
-    AIR_SCHEMA.forEach(function (sec) { sec.f.forEach(function (f) {
-      if (f.opt) return;
-      var cell = c.vals[f.k]; var v = cell ? String(cell.v).trim() : '';
-      if (v === '') invalid.push(f.k);
-    }); });
+    var invalid = validate(c);
     if (invalid.length) {
       var first = null;
       invalid.forEach(function (k) {
@@ -302,12 +386,15 @@
           if (!first) first = fld;
         }
       });
-      toast(invalid.length + ' required field' + (invalid.length > 1 ? 's' : '') + ' still need a value');
+      var hasMat = invalid.indexOf('materials') > -1;
+      toast(invalid.length + ' item' + (invalid.length > 1 ? 's' : '') + ' still need attention' + (hasMat ? ' (materials must total 100%)' : ''));
       if (first && first.scrollIntoView) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
     c.reviewed = true;
-    toast('“' + c.name + '” accepted');
+    persistAccepted(c);
+    var note = window.GSSchema ? window.GSSchema.materialExportNote(c.materials) : '';
+    toast('“' + c.name + '” accepted' + (note ? ' — ' + note : ''));
     var next = -1;
     for (var i = 0; i < COMPONENTS.length; i++) { if (!COMPONENTS[i].reviewed) { next = i; break; } }
     if (next !== -1 && next !== cur) { window.airSelect(next); }
@@ -319,8 +406,7 @@
     if (COMPONENTS.length <= 1) { toast('At least one component is required'); return; }
     var name = COMPONENTS[idx] ? COMPONENTS[idx].name : '';
     COMPONENTS.splice(idx, 1);
-    if (cur >= COMPONENTS.length) cur = COMPONENTS.length - 1;
-    else if (idx < cur) cur--;
+    if (cur >= COMPONENTS.length) cur = COMPONENTS.length - 1; else if (idx < cur) cur--;
     render();
     toast('“' + name + '” removed');
   };
@@ -333,7 +419,6 @@
     if (typeof window.go === 'function') window.go('sp9');
   };
 
-  /* keep old entry points working (aiNav/aiAccept from other pages) */
   window.aiNav = function (i) { window.airSelect(i); };
   window.aiAccept = function () { window.airAccept(); };
 

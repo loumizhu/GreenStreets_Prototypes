@@ -292,7 +292,7 @@ textarea.fi{height:auto;min-height:88px;padding:12px 15px;resize:vertical;line-h
 
 <div class="actbar">
   <div class="act-left">
-    <button class="actbar-back" onclick="wizBack()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M19 12H5m0 0 6 6m-6-6 6-6"/></svg>Save &amp; Back to products</button>
+    <button class="actbar-back" onclick="wizBack()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M19 12H5m0 0 6 6m-6-6 6-6"/></svg>Back to products</button>
     <span class="saved"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="m4.5 12.5 5 5 10-11"/></svg><span id="savedTxt">Draft saved</span></span>
   </div>
   <div class="act-right">
@@ -326,8 +326,14 @@ textarea.fi{height:auto;min-height:88px;padding:12px 15px;resize:vertical;line-h
   </div>
 </div>
 
+<script src="js/gs-schema.js?v=1"></script>
 <script>
 /* Step model — Product details + palletisation steps removed; starts at level & format */
+/* Controlled vocabularies + neutral source-type labels come from the shared
+   canonical schema (js/gs-schema.js) so the wizard matches AI Review and the
+   saved detail pages exactly. */
+var V = window.GS_VOCAB || {};
+var SRC = (typeof window.gsSourceTypeOptions==='function') ? window.gsSourceTypeOptions().map(function(o){return o.label;}) : ['Local'];
 const STEPS=[
  {t:'Packaging name & ID', d:'Give this packaging component a name — a unique ID is generated automatically.', phase:'B', nav:'Name & ID',
   fields:[
@@ -335,61 +341,60 @@ const STEPS=[
   ]},
  {t:'Packaging level & format', d:'Identify the hierarchy and type of this component.', phase:'B', nav:'Level & format',
   fields:[
-   {type:'chips', label:'Packaging level', name:'level', req:true, value:'Primary — touches the product', options:['Primary — touches the product','Secondary — groups units','Tertiary — transport']},
-   {type:'select', label:'Packaging type', req:true, value:'Flexible film bag', options:['Flexible film bag','Rigid box / carton','Hanger','Label / tag','Wrap / band','Other']},
-   {type:'text', label:'Other type description', ph:'Only if “Other” selected'}
+   {type:'chips', label:'Packaging Level', name:'level', req:true, value:'Primary', options:V.packagingLevel||['Primary','Secondary','Tertiary']},
+   {type:'select', label:'Packaging Type (name)', req:true, options:V.packagingType||[]},
+   {type:'text', label:'Other Packaging Type Description', ph:'Only if the type isn’t listed'}
   ]},
- {t:'Who supplies this packaging?', d:'Who manufactures or supplies this packaging component.', phase:'B', nav:'Source type',
+ {t:'Who supplies this packaging?', d:'Whether this packaging is locally sourced, retailer-preferred or retailer-nominated.', phase:'B', nav:'Source type',
   fields:[
-   {type:'chips', label:'Packaging source type', name:'source', req:true, value:'Supplier-manufactured', options:['Supplier-manufactured','Third-party converter','Primark-nominated source']}
+   {type:'select', label:'Packaging Source Type', name:'source', req:true, options:SRC}
   ]},
  {t:'Material information', d:'Composition by material and percentage weight (must total 100%).', phase:'C', nav:'Materials',
   fields:[
-   {type:'select', label:'Base material', req:true, value:'Plastic', options:['Plastic','Paper / board','Metal','Glass','Composite']},
+   {type:'select', label:'Base Material', req:true, options:V.baseMaterial||[]},
    {type:'materials', label:'Materials', req:true}
   ]},
- {t:'Recycled content', d:'PPWR Article 7 recycled-content declarations.', phase:'C', nav:'Recycled content',
+ {t:'Recycled content', d:'Post-consumer and post-industrial recycled-content declarations.', phase:'C', nav:'Recycled content',
   fields:[
-   {type:'chips', label:'Does this component contain recycled content?', name:'recycled', req:true, options:['Yes','No']},
-   {type:'number', label:'Post-consumer recycled content', unit:'%', id:'pcr', hint:'Required when recycled content = Yes'},
-   {type:'number', label:'Post-industrial recycled content', unit:'%'},
-   {type:'textarea', label:'Additional comments', ph:'Anything the compliance team should know'}
+   {type:'chips', label:'Recycled Content', name:'recycled', req:true, options:['Yes','No']},
+   {type:'number', label:'Post-Consumer Recycled Content', unit:'%', id:'pcr', hint:'Required when recycled content = Yes'},
+   {type:'number', label:'Post-Industrial Recycled Content', unit:'%'},
+   {type:'select', label:'Supporting evidence of recycled content', options:V.recycledEvidence||[]},
+   {type:'textarea', label:'Recycled Content Comments', ph:'Anything the compliance team should know'}
   ]},
  {t:'Colour & decoration', d:'Visual properties of this packaging component.', phase:'C', nav:'Colour',
   fields:[
-   {type:'ai', label:'Colour reference', ai:'PMS Cool Gray 1C', hint:'Focus the field and press Tab to accept — or type your own'},
-   {type:'chips', label:'Opacity / transparency', name:'opacity', req:true, options:['Transparent','Translucent','Opaque']},
-   {type:'chips', label:'Decoration / printing', name:'deco', req:true, options:['None','1-colour print','2-colour print','Full print']}
+   {type:'select', label:'Material Colour', req:true, options:V.colour||[]},
+   {type:'select', label:'Opacity', name:'opacity', req:true, options:V.opacity||[]},
+   {type:'select', label:'Decoration', name:'deco', req:true, options:V.decoration||[]}
   ]},
  {t:'Weight & grammage', d:'Physical weight properties of this component.', phase:'C', nav:'Weight',
   fields:[
-   {type:'number', label:'Weight per unit', unit:'g', req:true, ph:'e.g. 6.2'},
-   {type:'number', label:'Grammage', unit:'gsm', req:true, ph:'e.g. 46'},
-   {type:'number', label:'Gauge', unit:'µm', ph:'e.g. 50 — film only'}
+   {type:'number', label:'Weight (g)', unit:'g', req:true, ph:'e.g. 6.2'},
+   {type:'number', label:'Grammage (gsm)', unit:'gsm', ph:'e.g. 46'},
+   {type:'number', label:'Gauge in Micron (um)', unit:'um', ph:'e.g. 50 — film only'}
   ]},
- {t:'Material dimensions', d:'Flat / unassembled dimensions of this component.', phase:'C', nav:'Dimensions',
+ {t:'Material dimensions', d:'Flat / unassembled dimensions — leave any that don’t apply blank.', phase:'C', nav:'Dimensions',
   fields:[
-   {type:'number', label:'Length (or diameter)', unit:'mm', req:true, ph:'e.g. 400'},
-   {type:'number', label:'Width', unit:'mm', req:true, ph:'e.g. 320'},
-   {type:'number', label:'Height / depth', unit:'mm', ph:'Leave blank for flat components'},
-   {type:'ai', label:'Wall thickness / gauge (µm)', ai:'18', hint:'Suggested from similar film components — Tab to accept'}
+   {type:'number', label:'Length (mm) (or diameter if applicable)', unit:'mm', ph:'e.g. 400'},
+   {type:'number', label:'Width (mm)', unit:'mm', ph:'e.g. 320'},
+   {type:'number', label:'Height or Depth (mm)', unit:'mm', ph:'Leave blank for flat components'}
   ]},
- {t:'Additional information', d:'Certifications and packaging supplier details.', phase:'D', nav:'Additional info',
+ {t:'Additional information', d:'Certifications, packaging supplier details and supporting documents.', phase:'D', nav:'Additional info',
   fields:[
-   {type:'select', label:'Certification', req:true, options:['GRS','RCS','FSC','None','Other']},
-   {type:'text', label:'Other certification details', ph:'Only if “Other” selected'},
-   {type:'text', label:'Packaging supplier name', req:true, ph:'Company name'},
-   {type:'text', label:'Packaging supplier address', req:true, ph:'Street, city, country'},
-   {type:'ai', label:'Country of manufacture', ai:'China (CN)', hint:'Inferred from the supplier address — Tab to accept or edit'},
-   {type:'docpick', label:'Supporting document', hint:'Attach a certificate or report — choose one you\'ve already uploaded, or add a new file.'}
+   {type:'select', label:'Certification', req:true, options:V.certification||[]},
+   {type:'text', label:'Other Certification Details', ph:'Only if “Other” selected'},
+   {type:'text', label:'Packaging Supplier Name', req:true, ph:'Company name'},
+   {type:'text', label:'Packaging Supplier Address', req:true, ph:'Street, city, country'},
+   {type:'docpick', label:'Supporting Documents', hint:'Attach as many certificates or reports as needed — choose ones you’ve already uploaded, or add new files.'}
   ]},
  {t:'Material compliance', d:'Chemical and substance compliance declarations.', phase:'D', nav:'Compliance',
   fields:[
-   {type:'select', label:'Compliance standard', req:true, options:['EU PPWR / REACH','UK Packaging Regs','Both EU & UK']},
-   {type:'chips', label:'Mineral oils above limits?', name:'minoil', req:true, options:['Yes','No']},
-   {type:'chips', label:'BPA above limits?', name:'bpa', req:true, options:['Yes','No']},
-   {type:'chips', label:'Contains PFAs?', name:'pfas', req:true, options:['Yes','No']},
-   {type:'chips', label:'Chlorine used in manufacture?', name:'chlorine', req:true, options:['Yes','No']}
+   {type:'select', label:'Material Compliance', req:true, options:V.materialCompliance||[]},
+   {type:'chips', label:'Does the material and/or inks contain mineral oils above allowable limits?', name:'minoil', req:true, options:['Yes','No']},
+   {type:'chips', label:'Does the material contain BPA above allowable limits?', name:'bpa', req:true, options:['Yes','No']},
+   {type:'chips', label:'Does the material contain PFAs?', name:'pfas', req:true, options:['Yes','No']},
+   {type:'select', label:'Is chlorine used in the manufacture of the material/component?', name:'chlorine', req:true, options:V.chlorine||[]}
   ]}
 ];
 const PHASES={B:{label:'Packaging setup',ids:[]},C:{label:'Materials & specs',ids:[]},D:{label:'Finalise',ids:[]}};
@@ -908,7 +913,7 @@ setTimeout(function(){
   var origin = (w.origin === 'packaging') ? 'packaging' : 'products';
   var name = w.name || '', code = w.code || '', pi = (w.pi == null ? null : w.pi);
   var standalone = !name;
-  var backLabel = origin === 'packaging' ? 'Back to packaging components' : 'Back to products';
+  var backLabel = origin === 'packaging' ? 'Save and return to Packaging Components' : 'Save and return to product';
   try { WIZ_ORIGIN = origin; } catch(e){}
 
   var sku = document.getElementById('sku'); if(sku) sku.textContent = code;
