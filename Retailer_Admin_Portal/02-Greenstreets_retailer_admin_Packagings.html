@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Greenstreets — Retailer Admin · Packagings</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/greenstreets-theme.css?v=22">
+<link rel="stylesheet" href="css/greenstreets-theme.css?v=23">
 <link rel="stylesheet" href="css/retailer-admin.css?v=4">
 </head>
 <body>
@@ -42,26 +42,14 @@
 </div>
     <div class="main">
       <div class="pg-hdr-bar">
-        <div><div class="pg-title">Packagings</div><div class="pg-sub">Import packaging SKUs and link them to suppliers</div></div>
-        <div class="pg-actions" style="display:flex;align-items:center;gap:8px">
-          <div class="view-toggle">
-            <button class="view-btn active" id="btn-list-view" onclick="setView('list')">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-              List
-            </button>
-            <button class="view-btn" id="btn-grid-view" onclick="setView('grid')">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-              Thumbnails
-            </button>
-          </div>
-          <button class="btn-p" style="height:36px;padding:0 16px;font-size:12px">
-            <img class="btn-sw" src="" alt="" data-sw>
-            <span class="btn-c">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-14"/></svg>
-              Import CSV / XLSX
-            </span>
-          </button>
-        </div>
+        <div><div class="pg-title">Packaging components</div><div class="pg-sub">Every packaging component with its material, recycled content and compliance status</div></div>
+        <button class="btn-p" style="height:36px;padding:0 16px;font-size:12px">
+          <img class="btn-sw" src="" alt="" data-sw>
+          <span class="btn-c">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-14"/></svg>
+            Import CSV / XLSX
+          </span>
+        </button>
       </div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:12px">
         <div class="stat"><div class="stat-lbl">Total packaging types</div><div class="stat-val">380</div></div>
@@ -69,246 +57,76 @@
         <div class="stat"><div class="stat-lbl">Awaiting data</div><div class="stat-val" style="color:#f5a623">47</div></div>
       </div>
 
-      <!-- Filter bar -->
-      <div class="filter-toolbar" style="grid-template-columns:1.4fr 1fr 1fr 1fr;margin-bottom:12px">
-        <div class="search-wrap"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-17"/></svg><input class="fi fi-search" placeholder="Search SKU, description or type..."></div>
-        <select class="fi fi-select"><option>All statuses</option><option>Approved</option><option>Incomplete</option><option>Not started</option><option>Overdue</option></select>
-        <select class="fi fi-select"><option>All categories</option><option>Tops</option><option>Bottoms</option><option>Dresses</option><option>Outerwear</option></select>
-        <select class="fi fi-select"><option>All suppliers</option><option>Indotex</option><option>Luntai</option><option>EcoPack</option></select>
+      <!-- Filter bar — matches the GreenStreets admin packagings filters -->
+      <div class="filter-toolbar" style="grid-template-columns:1.6fr 1.2fr 1fr 1fr 1fr;margin-bottom:12px">
+        <div class="search-wrap"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-17"/></svg><input class="fi fi-search" placeholder="Search packaging…" oninput="ptSearch('rapkg', this.value)"></div>
+        <select class="fi fi-select" id="rapkg-sku-filter" onchange="ptFilter('rapkg','sku', this.value)">
+          <option value="all">All products (SKU)</option>
+          <option value="PRK-001-BLK">PRK-001-BLK · Black Crew Sweatshirt</option>
+          <option value="PRK-002-BLU">PRK-002-BLU · Blue Slim Jeans</option>
+          <option value="PRK-003-RED">PRK-003-RED · Red Midi Dress</option>
+          <option value="PRK-004-KHK">PRK-004-KHK · Khaki Utility Jacket</option>
+          <option value="PRK-005-WHT">PRK-005-WHT · White T-Shirt</option>
+          <option value="PRK-006-GRY">PRK-006-GRY · Grey Zip Hoodie</option>
+          <option value="PRK-007-NVY">PRK-007-NVY · Navy Chino Trousers</option>
+          <option value="PRK-008-OLV">PRK-008-OLV · Olive Puffer Coat</option>
+          <option value="PRK-009-BEI">PRK-009-BEI · Beige Knit Jumper</option>
+          <option value="PRK-010-PNK">PRK-010-PNK · Pink Pleated Skirt</option>
+        </select>
+        <select class="fi fi-select" onchange="ptFilter('rapkg','supplier', this.value)">
+          <option value="all">All suppliers</option><option>Indotex Manufacturing</option><option>Luntai Packaging Co.</option><option>EcoPack GmbH</option>
+        </select>
+        <select class="fi fi-select" onchange="ptFilter('rapkg','matGroup', this.value)">
+          <option value="all">All materials</option><option value="paper">Paper / card</option><option value="plastic">Plastic</option><option value="corrugated">Corrugated</option>
+        </select>
+        <select class="fi fi-select" onchange="ptFilter('rapkg','status', this.value)">
+          <option value="all">All statuses</option><option>Retailer Approved</option><option>Incomplete</option><option>Pending</option>
+        </select>
       </div>
 
-      <!-- LIST VIEW -->
-      <div id="pkg-list-view">
-        <div class="grp">
-          <div class="grp-hdr">Packaging catalogue — list view</div>
-          <div class="grp-body" style="padding:0">
-            <table class="tbl">
-            <colgroup><col width="4%"><col width="22%"><col width="22%"><col width="10%"><col width="13%"><col width="29%"></colgroup>
-            <thead><tr><th></th><th>Component</th><th>Description</th><th>Category</th><th>Status</th><th></th></tr></thead>
-            <tbody>
-              <tr>
-  <td style="padding:6px 8px 6px 12px;width:36px">
-    <div style="width:28px;height:28px;background:rgba(255,255,255,.05);border:1px solid var(--bw);border-radius:5px;display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(78,187,129,.5)" stroke-width="1.5"><use href="#gsi-20"/></svg></div>
-  </td>
-  <td><div class="tbl-name">Swing tag</div><div class="tbl-sub">PRK-001-SW-BLK</div></td>
-  <td class="tbl-muted">Black Crew Sweatshirt</td>
-  <td class="tbl-muted">Tops</td>
-  <td><span style="font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px;background:rgba(78,187,129,.15);color:#4ebb81;border:1px solid rgba(78,187,129,.3)">Approved</span></td>
-  <td style="display:flex;align-items:center;gap:5px;padding:6px 11px">
-    <a class="bc-link" style="font-size:11px" onclick="go('ra_product')">View →</a>
-
-  </td>
-</tr><tr>
-  <td style="padding:6px 8px 6px 12px;width:36px">
-    <div style="width:28px;height:28px;background:rgba(255,255,255,.05);border:1px solid var(--bw);border-radius:5px;display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(91,156,246,.5)" stroke-width="1.5"><use href="#gsi-21"/></svg></div>
-  </td>
-  <td><div class="tbl-name">Box / carton</div><div class="tbl-sub">PRK-001-SW-BLK</div></td>
-  <td class="tbl-muted">Black Crew Sweatshirt</td>
-  <td class="tbl-muted">Tops</td>
-  <td><span style="font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px;background:rgba(78,187,129,.15);color:#4ebb81;border:1px solid rgba(78,187,129,.3)">Approved</span></td>
-  <td style="display:flex;align-items:center;gap:5px;padding:6px 11px">
-    <a class="bc-link" style="font-size:11px" onclick="go('ra_product')">View →</a>
-    
-  </td>
-</tr><tr>
-  <td style="padding:6px 8px 6px 12px;width:36px">
-    <div style="width:28px;height:28px;background:rgba(255,255,255,.05);border:1px solid var(--bw);border-radius:5px;display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(78,187,129,.5)" stroke-width="1.5"><use href="#gsi-20"/></svg></div>
-  </td>
-  <td><div class="tbl-name">Swing tag</div><div class="tbl-sub">PRK-002-JN-BLU</div></td>
-  <td class="tbl-muted">Blue Slim Jeans</td>
-  <td class="tbl-muted">Bottoms</td>
-  <td><span style="font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px;background:rgba(245,166,35,.12);color:#f5a623;border:1px solid rgba(245,166,35,.25)">Incomplete</span></td>
-  <td style="display:flex;align-items:center;gap:5px;padding:6px 11px">
-    <a class="bc-link" style="font-size:11px" onclick="go('ra11')">View →</a>
-    <div class="reminder-btn-wrap">
-      <button class="btn-reminder" onclick="toggleDropdown(this)">Send reminder <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:3px;vertical-align:middle"><use href="#gsi-15"/></svg></button>
-      <div class="reminder-dropdown">
-        <button onclick="void(0)">Send reminder now</button>
-        <button onclick="go('ra_custom_invite')">Customize invitation</button>
-      </div>
-    </div>
-  </td>
-</tr><tr>
-  <td style="padding:6px 8px 6px 12px;width:36px">
-    <div style="width:28px;height:28px;background:rgba(255,255,255,.05);border:1px solid var(--bw);border-radius:5px;display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(245,166,35,.5)" stroke-width="1.5"><use href="#gsi-22"/></svg></div>
-  </td>
-  <td><div class="tbl-name">Poly bag</div><div class="tbl-sub">PRK-002-JN-BLU</div></td>
-  <td class="tbl-muted">Blue Slim Jeans</td>
-  <td class="tbl-muted">Bottoms</td>
-  <td><span style="font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px;background:rgba(245,166,35,.12);color:#f5a623;border:1px solid rgba(245,166,35,.25)">Incomplete</span></td>
-  <td style="display:flex;align-items:center;gap:5px;padding:6px 11px">
-    <a class="bc-link" style="font-size:11px" onclick="go('ra11')">View →</a>
-    <div class="reminder-btn-wrap">
-      <button class="btn-reminder" onclick="toggleDropdown(this)">Send reminder <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:3px;vertical-align:middle"><use href="#gsi-15"/></svg></button>
-      <div class="reminder-dropdown">
-        <button onclick="void(0)">Send reminder now</button>
-        <button onclick="go('ra_custom_invite')">Customize invitation</button>
-      </div>
-    </div>
-  </td>
-</tr><tr>
-  <td style="padding:6px 8px 6px 12px;width:36px">
-    <div style="width:28px;height:28px;background:rgba(255,255,255,.05);border:1px solid var(--bw);border-radius:5px;display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(78,187,129,.5)" stroke-width="1.5"><use href="#gsi-20"/></svg></div>
-  </td>
-  <td><div class="tbl-name">Swing tag</div><div class="tbl-sub">PRK-003-DRS-RED</div></td>
-  <td class="tbl-muted">Red Midi Dress</td>
-  <td class="tbl-muted">Dresses</td>
-  <td><span style="font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px;background:rgba(224,82,82,.12);color:#e05252;border:1px solid rgba(224,82,82,.25)">Not started</span></td>
-  <td style="display:flex;align-items:center;gap:5px;padding:6px 11px">
-    <a class="bc-link" style="font-size:11px" onclick="go('ra11')">View →</a>
-    <div class="reminder-btn-wrap">
-      <button class="btn-reminder btn-reminder-urgent" onclick="toggleDropdown(this)">Send reminder <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:3px;vertical-align:middle"><use href="#gsi-15"/></svg></button>
-      <div class="reminder-dropdown">
-        <button onclick="void(0)">Send reminder now</button>
-        <button onclick="go('ra_custom_invite')">Customize invitation</button>
-      </div>
-    </div>
-  </td>
-</tr><tr>
-  <td style="padding:6px 8px 6px 12px;width:36px">
-    <div style="width:28px;height:28px;background:rgba(255,255,255,.05);border:1px solid var(--bw);border-radius:5px;display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(91,156,246,.5)" stroke-width="1.5"><use href="#gsi-21"/></svg></div>
-  </td>
-  <td><div class="tbl-name">Box / carton</div><div class="tbl-sub">PRK-003-DRS-RED</div></td>
-  <td class="tbl-muted">Red Midi Dress</td>
-  <td class="tbl-muted">Dresses</td>
-  <td><span style="font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px;background:rgba(224,82,82,.12);color:#e05252;border:1px solid rgba(224,82,82,.25)">Not started</span></td>
-  <td style="display:flex;align-items:center;gap:5px;padding:6px 11px">
-    <a class="bc-link" style="font-size:11px" onclick="go('ra11')">View →</a>
-    <div class="reminder-btn-wrap">
-      <button class="btn-reminder btn-reminder-urgent" onclick="toggleDropdown(this)">Send reminder <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:3px;vertical-align:middle"><use href="#gsi-15"/></svg></button>
-      <div class="reminder-dropdown">
-        <button onclick="void(0)">Send reminder now</button>
-        <button onclick="go('ra_custom_invite')">Customize invitation</button>
-      </div>
-    </div>
-  </td>
-</tr><tr>
-  <td style="padding:6px 8px 6px 12px;width:36px">
-    <div style="width:28px;height:28px;background:rgba(255,255,255,.05);border:1px solid var(--bw);border-radius:5px;display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(139,92,246,.5)" stroke-width="1.5"><use href="#gsi-23"/></svg></div>
-  </td>
-  <td><div class="tbl-name">Hanger</div><div class="tbl-sub">PRK-004-JKT-KHK</div></td>
-  <td class="tbl-muted">Khaki Utility Jacket</td>
-  <td class="tbl-muted">Outerwear</td>
-  <td><span style="font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px;background:rgba(224,82,82,.12);color:#e05252;border:1px solid rgba(224,82,82,.25)">Overdue</span></td>
-  <td style="display:flex;align-items:center;gap:5px;padding:6px 11px">
-    <a class="bc-link" style="font-size:11px" onclick="go('ra11')">View →</a>
-    <div class="reminder-btn-wrap">
-      <button class="btn-reminder btn-reminder-urgent" onclick="toggleDropdown(this)">Send reminder <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:3px;vertical-align:middle"><use href="#gsi-15"/></svg></button>
-      <div class="reminder-dropdown">
-        <button onclick="void(0)">Send reminder now</button>
-        <button onclick="go('ra_custom_invite')">Customize invitation</button>
-      </div>
-    </div>
-  </td>
-</tr><tr>
-  <td style="padding:6px 8px 6px 12px;width:36px">
-    <div style="width:28px;height:28px;background:rgba(255,255,255,.05);border:1px solid var(--bw);border-radius:5px;display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(78,187,129,.4)" stroke-width="1.5"><use href="#gsi-24"/></svg></div>
-  </td>
-  <td><div class="tbl-name">Tissue paper</div><div class="tbl-sub">PRK-005-TEE-WHT</div></td>
-  <td class="tbl-muted">White T-Shirt</td>
-  <td class="tbl-muted">Tops</td>
-  <td><span style="font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px;background:rgba(78,187,129,.15);color:#4ebb81;border:1px solid rgba(78,187,129,.3)">Approved</span></td>
-  <td style="display:flex;align-items:center;gap:5px;padding:6px 11px">
-    <a class="bc-link" style="font-size:11px" onclick="go('ra11')">View →</a>
-    
-  </td>
-</tr>
-            </tbody></table>
-            <div class="tbl-footer">Showing 8 of 380 packaging types</div>
-          </div>
+      <div class="grp">
+        <div class="grp-hdr">Packaging components<button class="btn-g-sm" style="margin-left:auto"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-14"/></svg>Import</button></div>
+        <div class="grp-body" style="padding:0">
+          <table class="tbl" id="pt-table-rapkg">
+          <colgroup><col width="13%"><col width="23%"><col width="15%"><col width="13%"><col width="9%"><col width="8%"><col width="10%"><col width="12%"><col width="11%"></colgroup>
+          <thead><tr>
+            <th data-col="type" onclick="ptSort('rapkg','type')" style="cursor:pointer;user-select:none">Type <span class="sort-arrow" style="opacity:.4;font-size:9px">↕</span></th>
+            <th>Product (SKU)</th>
+            <th data-col="supplier" onclick="ptSort('rapkg','supplier')" style="cursor:pointer;user-select:none">Supplier <span class="sort-arrow" style="opacity:.4;font-size:9px">↕</span></th>
+            <th>Material</th>
+            <th data-col="weight" onclick="ptSort('rapkg','weight')" style="cursor:pointer;user-select:none">Weight (g) <span class="sort-arrow" style="opacity:.4;font-size:9px">↕</span></th>
+            <th>PCR %</th>
+            <th>Recyclability</th>
+            <th data-col="status" onclick="ptSort('rapkg','status')" style="cursor:pointer;user-select:none">Status <span class="sort-arrow" style="opacity:.4;font-size:9px">↕</span></th>
+            <th></th>
+          </tr></thead>
+          <tbody id="pt-tbody-rapkg"></tbody></table>
         </div>
-      </div>
-
-      <!-- THUMBNAIL VIEW (hidden by default) -->
-      <div id="pkg-grid-view" style="display:none">
-        <div class="grp">
-          <div class="grp-hdr">Packaging catalogue — thumbnail view</div>
-          <div class="grp-body">
-            <div class="pkg-grid">
-              <div class="pkg-card" onclick="go('ra11')">
-  <div class="pkg-thumb"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(78,187,129,.5)" stroke-width="1.5"><use href="#gsi-20"/></svg></div>
-  <div class="pkg-card-body">
-    <div class="pkg-card-sku">Swing tag</div>
-    <div class="pkg-card-name">PRK-001-SW-BLK</div>
-    <div class="pkg-card-status">
-      <span style="font-size:9px;font-weight:500;padding:2px 6px;border-radius:3px;background:rgba(78,187,129,.15);color:#4ebb81;border:1px solid rgba(78,187,129,.3)">Approved</span>
-    </div>
-  </div>
-</div><div class="pkg-card" onclick="go('ra11')">
-  <div class="pkg-thumb"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(91,156,246,.5)" stroke-width="1.5"><use href="#gsi-21"/></svg></div>
-  <div class="pkg-card-body">
-    <div class="pkg-card-sku">Box / carton</div>
-    <div class="pkg-card-name">PRK-001-SW-BLK</div>
-    <div class="pkg-card-status">
-      <span style="font-size:9px;font-weight:500;padding:2px 6px;border-radius:3px;background:rgba(78,187,129,.15);color:#4ebb81;border:1px solid rgba(78,187,129,.3)">Approved</span>
-    </div>
-  </div>
-</div><div class="pkg-card" onclick="go('ra11')">
-  <div class="pkg-thumb"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(78,187,129,.5)" stroke-width="1.5"><use href="#gsi-20"/></svg></div>
-  <div class="pkg-card-body">
-    <div class="pkg-card-sku">Swing tag</div>
-    <div class="pkg-card-name">PRK-002-JN-BLU</div>
-    <div class="pkg-card-status">
-      <span style="font-size:9px;font-weight:500;padding:2px 6px;border-radius:3px;background:rgba(245,166,35,.12);color:#f5a623;border:1px solid rgba(245,166,35,.25)">Incomplete</span>
-    </div>
-  </div>
-</div><div class="pkg-card" onclick="go('ra11')">
-  <div class="pkg-thumb"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(245,166,35,.5)" stroke-width="1.5"><use href="#gsi-22"/></svg></div>
-  <div class="pkg-card-body">
-    <div class="pkg-card-sku">Poly bag</div>
-    <div class="pkg-card-name">PRK-002-JN-BLU</div>
-    <div class="pkg-card-status">
-      <span style="font-size:9px;font-weight:500;padding:2px 6px;border-radius:3px;background:rgba(245,166,35,.12);color:#f5a623;border:1px solid rgba(245,166,35,.25)">Incomplete</span>
-    </div>
-  </div>
-</div><div class="pkg-card" onclick="go('ra11')">
-  <div class="pkg-thumb"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(78,187,129,.5)" stroke-width="1.5"><use href="#gsi-20"/></svg></div>
-  <div class="pkg-card-body">
-    <div class="pkg-card-sku">Swing tag</div>
-    <div class="pkg-card-name">PRK-003-DRS-RED</div>
-    <div class="pkg-card-status">
-      <span style="font-size:9px;font-weight:500;padding:2px 6px;border-radius:3px;background:rgba(224,82,82,.12);color:#e05252;border:1px solid rgba(224,82,82,.25)">Not started</span>
-    </div>
-  </div>
-</div><div class="pkg-card" onclick="go('ra11')">
-  <div class="pkg-thumb"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(91,156,246,.5)" stroke-width="1.5"><use href="#gsi-21"/></svg></div>
-  <div class="pkg-card-body">
-    <div class="pkg-card-sku">Box / carton</div>
-    <div class="pkg-card-name">PRK-003-DRS-RED</div>
-    <div class="pkg-card-status">
-      <span style="font-size:9px;font-weight:500;padding:2px 6px;border-radius:3px;background:rgba(224,82,82,.12);color:#e05252;border:1px solid rgba(224,82,82,.25)">Not started</span>
-    </div>
-  </div>
-</div><div class="pkg-card" onclick="go('ra11')">
-  <div class="pkg-thumb"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(139,92,246,.5)" stroke-width="1.5"><use href="#gsi-23"/></svg></div>
-  <div class="pkg-card-body">
-    <div class="pkg-card-sku">Hanger</div>
-    <div class="pkg-card-name">PRK-004-JKT-KHK</div>
-    <div class="pkg-card-status">
-      <span style="font-size:9px;font-weight:500;padding:2px 6px;border-radius:3px;background:rgba(224,82,82,.12);color:#e05252;border:1px solid rgba(224,82,82,.25)">Overdue</span>
-    </div>
-  </div>
-</div><div class="pkg-card" onclick="go('ra11')">
-  <div class="pkg-thumb"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(78,187,129,.4)" stroke-width="1.5"><use href="#gsi-24"/></svg></div>
-  <div class="pkg-card-body">
-    <div class="pkg-card-sku">Tissue paper</div>
-    <div class="pkg-card-name">PRK-005-TEE-WHT</div>
-    <div class="pkg-card-status">
-      <span style="font-size:9px;font-weight:500;padding:2px 6px;border-radius:3px;background:rgba(78,187,129,.15);color:#4ebb81;border:1px solid rgba(78,187,129,.3)">Approved</span>
-    </div>
-  </div>
-</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:10px 14px;border-top:1px solid var(--bw)">
+          <div id="pt-count-rapkg" class="tbl-muted" style="font-size:11px"></div>
+          <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="font-size:11px;color:var(--tw3)">Rows per page</span>
+              <select class="fi fi-select" style="height:28px;font-size:11px;padding:0 8px;width:auto" onchange="ptPageSize('rapkg', this.value)">
+                <option value="20">20</option><option value="50">50</option><option value="100">100</option>
+              </select>
             </div>
-            <div class="tbl-footer" style="margin-top:10px">Showing 8 of 380 packaging types</div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="font-size:11px;color:var(--tw3)">Go to</span>
+              <select class="fi fi-select" id="pt-jump-rapkg" title="Jump to page" style="height:30px;font-size:11px;padding:0 8px;width:auto" onchange="ptJump('rapkg',this.value)"></select>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <button class="btn-g-sm" id="pt-prev-rapkg" onclick="ptGoPage('rapkg',-1)">‹ Prev</button>
+              <span id="pt-pageinfo-rapkg" style="font-size:11px;color:var(--tw2);white-space:nowrap"></span>
+              <button class="btn-g-sm" id="pt-next-rapkg" onclick="ptGoPage('rapkg',1)">Next ›</button>
+            </div>
           </div>
         </div>
       </div>
-
     </div>
   </div>
-
 </div>
-<script src="js/retailer-admin.js?v=3"></script>
+<script src="js/retailer-admin.js?v=4"></script>
 <script src="js/greenstreets-theme.js?v=22"></script>
 <script src="js/gs-appearance.js?v=2"></script>
 </body>

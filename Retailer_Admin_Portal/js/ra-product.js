@@ -54,6 +54,7 @@
 
   var PROD = findProduct();
   var COMPS = buildComponents(PROD);
+  var INITIAL_COUNT = COMPS.length; /* # of components present when the page loaded */
   var APPROVED = PROD.status === 'Complete';
   var openIdx = -1; /* which component card is expanded */
 
@@ -116,11 +117,11 @@
       '.rap-pick-name{font-size:12.5px;font-weight:600;color:var(--tw)}' +
       '.rap-pick-meta{font-size:10.5px;color:var(--tw3);margin-top:2px}' +
       '.rap-modal-foot{padding:12px 16px;border-top:1px solid var(--bw,rgba(255,255,255,.09));display:flex;align-items:center}' +
-      '.rap-exp{position:relative;display:inline-flex;align-items:center}' +
-      '.rap-exp-in{width:64px;padding:6px 24px 6px 10px !important;-moz-appearance:textfield;appearance:textfield;text-align:left}' +
-      '.rap-exp-in::-webkit-outer-spin-button,.rap-exp-in::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}' +
-      '.rap-exp-steps{position:absolute;right:4px;top:3px;bottom:3px;display:flex;flex-direction:column;justify-content:center;gap:2px}' +
-      '.rap-exp-steps button{width:17px;height:12px;padding:0;border:none;background:rgba(255,255,255,.09);color:var(--tw2,rgba(255,255,255,.74));cursor:pointer;border-radius:3px;display:flex;align-items:center;justify-content:center}' +
+      '.rap-exp{position:relative;display:inline-flex;align-items:center;gap:5px}' +
+      '.rap-exp .cs-wrap,.rap-exp .rap-exp-sel{width:72px}' +
+      '.rap-exp .cs-trigger,.rap-exp .rap-exp-sel{padding:6px 10px;font-size:12.5px}' +
+      '.rap-exp-steps{display:flex;flex-direction:column;gap:2px;flex-shrink:0}' +
+      '.rap-exp-steps button{width:20px;height:14px;padding:0;border:none;background:rgba(255,255,255,.09);color:var(--tw2,rgba(255,255,255,.74));cursor:pointer;border-radius:3px;display:flex;align-items:center;justify-content:center}' +
       '.rap-exp-steps button:hover{background:var(--gs);color:#04130c}';
     document.head.appendChild(st);
   }
@@ -179,7 +180,8 @@
     var crumb = document.getElementById('ra-prod-crumb'); if (crumb) crumb.textContent = PROD.sku;
     var awaiting = awaitingCount();
     var canApprove = !APPROVED && COMPS.length > 0 && awaiting === 0;
-    var expOpts = ''; for (var eo = 1; eo <= 12; eo++) expOpts += '<option value="' + eo + '">';
+    var expMax = Math.max(12, COMPS.length);
+    var expOpts = ''; for (var eo = 1; eo <= expMax; eo++) expOpts += '<option value="' + eo + '"' + (eo === COMPS.length ? ' selected' : '') + '>' + eo + '</option>';
 
     var header =
       '<div class="pg-hdr-bar"><div>' +
@@ -212,21 +214,24 @@
       '<div class="grp" style="margin-bottom:12px"><div class="grp-hdr">Expected packaging components' +
         '<span style="margin-left:8px;font-size:10px;font-weight:600;color:var(--tw3)">' + COMPS.length + ' total · ' + awaiting + ' awaiting supplier</span>' +
         '<div style="margin-left:auto;display:flex;align-items:center;gap:12px">' +
-          '<label style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--tw2);white-space:nowrap"># expected' +
+          '<span style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--tw2);white-space:nowrap"># expected' +
             '<span class="rap-exp">' +
-              '<input type="text" inputmode="numeric" list="rap-exp-list" value="' + COMPS.length + '" class="fi rap-exp-in" onchange="rapSetExpected(this.value)" title="Number of packaging components you expect for this product — pick from the list or type a value">' +
-              '<datalist id="rap-exp-list">' + expOpts + '</datalist>' +
+              '<select id="rap-exp-sel" class="fi rap-exp-sel" onchange="rapSetExpected(this.value)" title="Number of packaging components you expect for this product — pick from the list or step up/down">' + expOpts + '</select>' +
               '<span class="rap-exp-steps">' +
                 '<button type="button" tabindex="-1" aria-label="Increase" onclick="rapExpStep(1)"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 15 12 9 18 15"/></svg></button>' +
                 '<button type="button" tabindex="-1" aria-label="Decrease" onclick="rapExpStep(-1)"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg></button>' +
               '</span>' +
             '</span>' +
-          '</label>' +
+          '</span>' +
           '<button class="btn-g-sm" onclick="rapAdd()"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>Add packaging component</button>' +
         '</div>' +
       '</div><div class="grp-body">' + compCards + '</div></div>';
 
     root.innerHTML = header + banner + info + comps;
+
+    /* theme the "# expected" dropdown so it shows a clean 1–12 list like the rest of the app */
+    var expSel = document.getElementById('rap-exp-sel');
+    if (expSel && window.GSEnhanceSelects) window.GSEnhanceSelects(expSel.parentNode);
   }
 
   /* ---- actions ---- */
@@ -254,15 +259,57 @@
     if (last && last.scrollIntoView) last.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
-  /* set the number of expected components (retailer declares a count) */
-  window.rapSetExpected = function (n) {
-    n = Math.max(0, Math.min(20, parseInt(n, 10) || 0));
+  /* apply a new expected count (add blanks / trim from the end) */
+  function applyExpected(n) {
     if (n > COMPS.length) { while (COMPS.length < n) COMPS.push(blankComp()); }
     else if (n < COMPS.length) { COMPS.length = n; if (openIdx >= n) openIdx = -1; }
     render();
     toast(n + ' expected component' + (n === 1 ? '' : 's'));
+  }
+
+  /* set the number of expected components (retailer declares a count).
+     Dropping below the count the page loaded with removes components (and any
+     supplier detail they hold), so confirm first. */
+  window.rapSetExpected = function (n) {
+    n = Math.max(0, Math.min(20, parseInt(n, 10) || 0));
+    if (n === COMPS.length) { render(); return; }        /* no-op — just re-sync the control */
+    if (n < INITIAL_COUNT && n < COMPS.length) {
+      render();                                           /* snap the control back while we ask */
+      confirmReduce(n);
+      return;
+    }
+    applyExpected(n);
   };
   window.rapExpStep = function (d) { window.rapSetExpected(COMPS.length + d); };
+
+  /* confirmation dialog shown when reducing below the loaded count */
+  function confirmReduce(n) {
+    var removed = COMPS.length - n;
+    var ov = document.getElementById('rap-confirm'); if (ov) ov.remove();
+    ov = document.createElement('div'); ov.id = 'rap-confirm'; ov.className = 'rap-modal-ov';
+    ov._n = n;
+    ov.onclick = function (e) { if (e.target === ov) window.rapConfirmCancel(); };
+    ov.innerHTML =
+      '<div class="rap-modal" style="max-width:410px">' +
+        '<div class="rap-modal-hdr"><span>Reduce expected components?</span>' +
+          '<button class="rap-modal-x" onclick="rapConfirmCancel()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>' +
+        '<div class="rap-modal-body" style="font-size:12.5px;color:var(--tw2);line-height:1.65">' +
+          'Setting this to <strong style="color:var(--tw)">' + n + '</strong> removes the last <strong style="color:var(--tw)">' + removed + '</strong> packaging component' + (removed === 1 ? '' : 's') + ' from this product' +
+          ', including any detail the supplier has already provided. This can’t be undone.' +
+        '</div>' +
+        '<div class="rap-modal-foot" style="justify-content:flex-end;gap:8px">' +
+          '<button class="btn-g-sm" onclick="rapConfirmCancel()">Cancel</button>' +
+          '<button class="btn-p" onclick="rapConfirmReduce()"><span class="btn-c">Remove ' + removed + ' component' + (removed === 1 ? '' : 's') + '</span></button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(ov);
+  }
+  window.rapConfirmCancel = function () { var ov = document.getElementById('rap-confirm'); if (ov) ov.remove(); };
+  window.rapConfirmReduce = function () {
+    var ov = document.getElementById('rap-confirm'); var n = ov ? ov._n : null;
+    if (ov) ov.remove();
+    if (n != null) applyExpected(n);
+  };
 
   /* Add packaging component -> picker (pick from library or create new),
      mirroring the supplier portal's add-component flow. */

@@ -121,7 +121,7 @@ body{
 /* ── SCREENS ── */
 /* fixed height (not min-height) so .app-body/.main below can own their own scroll —
    otherwise the whole screen (sidebar included) grows with long table content and the sidebar scrolls away with it */
-.screen{display:none;flex-direction:column;height:calc(100vh - 44px)}
+.screen{display:none;flex-direction:column;height:100vh}
 .screen.on{display:flex}
 /* cascading entrance — each top-level content block eases in from the top-left; nth-child staggers them top→bottom.
    Containers: .main (admin shell), .login-wrap (login), .pbody>div (supplier portal wraps its content in one div). */

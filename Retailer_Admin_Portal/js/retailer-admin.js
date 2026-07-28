@@ -21,6 +21,7 @@ var GS_PAGES = {
   'ra6':             '02-Greenstreets_retailer_admin_Products.html',
   'ra5':             '02-Greenstreets_retailer_admin_Packagings.html',
   'ra_product':      '02-Greenstreets_retailer_admin_Product-Detail.html',
+  'ra_packaging':    '02-Greenstreets_retailer_admin_Packaging-Detail.html',
   'ra7':             '02-Greenstreets_retailer_admin_Users.html',
   'ra8':             '02-Greenstreets_retailer_admin_Send-Invites.html',
   'ra9':             '02-Greenstreets_retailer_admin_Tracker.html',
@@ -38,6 +39,9 @@ function go(id){ var u = GS_PAGES[id]; if(u) window.location.href = u; }
 
 /* Open the product detail page for a given SKU (round-trips via sessionStorage). */
 function openProductRA(sku){ try{ sessionStorage.setItem('ra_pi', sku); }catch(e){} go('ra_product'); }
+
+/* Open the packaging detail page for a given packaging id (round-trips via sessionStorage). */
+function openPackagingRA(id){ try{ sessionStorage.setItem('ra_pkg', id); }catch(e){} go('ra_packaging'); }
 
 /* ===== supplier contact rows (Add-Supplier) ===== */
 (function(){
@@ -280,6 +284,97 @@ ptInit('ra', PRODUCTS_RA, {
     return '<tr style="cursor:pointer" onclick="openProductRA(\''+r.sku+'\')"><td><div class="tbl-name">'+r.sku+'</div></td><td class="tbl-muted">'+r.desc+'</td><td class="tbl-muted">'+r.cat+'</td><td class="tbl-muted">'+r.supplier+'</td><td class="tbl-muted">'+r.pkg+'</td><td><span class="pill '+r.pill+'">'+r.status+'</span></td><td style="padding:6px 11px"><a class="bc-link" style="font-size:11px" onclick="event.stopPropagation();openProductRA(\''+r.sku+'\')">View →</a></td></tr>';
   }
 });
+
+/* ── Packaging catalogue dataset (Packagings screen) ──
+   One row per packaging component, linked to a product SKU + supplier. Mirrors
+   the GreenStreets (super) admin Packagings table so the retailer sees the same
+   columns/filters. Drives the pt-table on the Packagings page (scope 'rapkg')
+   and the editable Packaging detail page (ra-packaging.js reads it by id). */
+var PACKAGINGS_RA = (function(){
+  var products = [
+    {sku:'PRK-001-BLK', desc:'Black Crew Sweatshirt', supplier:'Indotex Manufacturing'},
+    {sku:'PRK-002-BLU', desc:'Blue Slim Jeans',        supplier:'Luntai Packaging Co.'},
+    {sku:'PRK-003-RED', desc:'Red Midi Dress',         supplier:'Indotex Manufacturing'},
+    {sku:'PRK-004-KHK', desc:'Khaki Utility Jacket',   supplier:'EcoPack GmbH'},
+    {sku:'PRK-005-WHT', desc:'White T-Shirt',          supplier:'Indotex Manufacturing'},
+    {sku:'PRK-006-GRY', desc:'Grey Zip Hoodie',        supplier:'Luntai Packaging Co.'},
+    {sku:'PRK-007-NVY', desc:'Navy Chino Trousers',    supplier:'EcoPack GmbH'},
+    {sku:'PRK-008-OLV', desc:'Olive Puffer Coat',      supplier:'Luntai Packaging Co.'},
+    {sku:'PRK-009-BEI', desc:'Beige Knit Jumper',      supplier:'Indotex Manufacturing'},
+    {sku:'PRK-010-PNK', desc:'Pink Pleated Skirt',     supplier:'EcoPack GmbH'}
+  ];
+  var comps = [
+    {type:'Swing tag',       level:'Primary',   matGroup:'paper',      material:'Paper / card'},
+    {type:'Box / carton',    level:'Secondary', matGroup:'corrugated', material:'Corrugated card'},
+    {type:'Poly bag',        level:'Primary',   matGroup:'plastic',    material:'LDPE plastic'},
+    {type:'Hanger',          level:'Primary',   matGroup:'plastic',    material:'Recycled plastic'},
+    {type:'Tissue paper',    level:'Primary',   matGroup:'paper',      material:'FSC paper'},
+    {type:'Shipping carton', level:'Tertiary',  matGroup:'corrugated', material:'Corrugated card'}
+  ];
+  var statuses = ['Retailer Approved','Incomplete','Pending'];
+  var pillMap  = {'Retailer Approved':'pill-green','Incomplete':'pill-amber','Pending':'pill-grey'};
+  var recGrades = ['A','B','A','C'];
+  var list = [], id = 1;
+  for (var p=0; p<products.length; p++){
+    var n = 2 + (p % 3);                 /* 2–4 components per product */
+    for (var c=0; c<n; c++){
+      var comp = comps[(p+c) % comps.length];
+      var status = statuses[(p+c) % statuses.length];
+      var provided = status === 'Retailer Approved';
+      var shownMat = (status === 'Pending') ? '' : comp.material;
+      list.push({
+        id:       'pk-' + String(id).padStart(3,'0'),
+        type:     comp.type,
+        level:    comp.level,
+        matGroup: comp.matGroup,
+        sku:      products[p].sku,
+        desc:     products[p].desc,
+        supplier: products[p].supplier,
+        material: shownMat,
+        weight:   provided ? (1.5 + c*4).toFixed(1) : '',
+        pcr:      provided ? String(40 + (c*15)%60) : '',
+        recycle:  provided ? recGrades[(p+c)%recGrades.length] : '',
+        status:   status,
+        pill:     pillMap[status]
+      });
+      id++;
+    }
+  }
+  return list;
+})();
+
+if (typeof ptInit === 'function') ptInit('rapkg', PACKAGINGS_RA, {
+  cols: 9,
+  pageSize: 20,
+  noun: 'packaging components',
+  searchFields: ['type','sku','desc','supplier','material'],
+  rowHtml: function(r){
+    var mat = r.material || '—';
+    var wt  = r.weight   || '—';
+    var pcr = r.pcr ? (r.pcr + '%') : '—';
+    var rec = r.recycle ? '<span class="pill pill-green">'+r.recycle+'</span>' : '<span class="tbl-muted">—</span>';
+    return '<tr style="cursor:pointer" onclick="openPackagingRA(\''+r.id+'\')">'+
+      '<td><div class="tbl-name">'+r.type+'</div></td>'+
+      '<td class="tbl-muted">'+r.sku+' · '+r.desc+'</td>'+
+      '<td class="tbl-muted">'+r.supplier+'</td>'+
+      '<td class="tbl-muted">'+mat+'</td>'+
+      '<td'+(r.weight?'':' class="tbl-muted"')+'>'+wt+'</td>'+
+      '<td'+(r.pcr?'':' class="tbl-muted"')+'>'+pcr+'</td>'+
+      '<td>'+rec+'</td>'+
+      '<td><span class="pill '+r.pill+'">'+r.status+'</span></td>'+
+      '<td class="act-cell" onclick="event.stopPropagation()" style="padding:6px 11px;white-space:nowrap">'+
+        '<a class="bc-link" style="font-size:11px" onclick="openPackagingRA(\''+r.id+'\')">Edit →</a>'+
+        '&nbsp;&nbsp;<a class="bc-link" style="font-size:11px;color:var(--tw3)" onclick="raRemovePackaging(\''+r.id+'\')">Remove</a>'+
+      '</td>'+
+    '</tr>';
+  }
+});
+
+/* Remove a packaging row from the catalogue and re-render the table. */
+function raRemovePackaging(id){
+  for (var i=0;i<PACKAGINGS_RA.length;i++){ if(PACKAGINGS_RA[i].id===id){ PACKAGINGS_RA.splice(i,1); break; } }
+  if (typeof ptRender === 'function') ptRender('rapkg');
+}
 
 /* ── Packaging library (Add packaging picker) ── */
 var PKG_LIBRARY = [
