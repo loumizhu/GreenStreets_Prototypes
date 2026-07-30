@@ -11,6 +11,7 @@
    as real page navigation. */
 var GS_PAGES = {
   'ra_login':        '02-Greenstreets_retailer_admin_Login.html',
+  'ra_welcome':      '02-Greenstreets_retailer_admin_Welcome.html',
   'ra_onboard1':     '02-Greenstreets_retailer_admin_Setup-1.html',
   'ra_onboard2':     '02-Greenstreets_retailer_admin_Setup-2.html',
   'ra_onboard3':     '02-Greenstreets_retailer_admin_Setup-3.html',
@@ -19,6 +20,9 @@ var GS_PAGES = {
   'ra_addsup':       '02-Greenstreets_retailer_admin_Add-Supplier.html',
   'ra4_validate':    '02-Greenstreets_retailer_admin_Validate-Import.html',
   'ra6':             '02-Greenstreets_retailer_admin_Products.html',
+  'ra_addproduct':   '02-Greenstreets_retailer_admin_Add-Product.html',
+  'ra_importproducts':  '02-Greenstreets_retailer_admin_Import-Products.html',
+  'ra_importsuppliers': '02-Greenstreets_retailer_admin_Import-Suppliers.html',
   'ra5':             '02-Greenstreets_retailer_admin_Packagings.html',
   'ra_product':      '02-Greenstreets_retailer_admin_Product-Detail.html',
   'ra_packaging':    '02-Greenstreets_retailer_admin_Packaging-Detail.html',
@@ -209,6 +213,7 @@ function ptRender(scope){
   var pageRows = rows.slice(start, start+st.pageSize);
   var tbody = document.getElementById('pt-tbody-'+scope);
   if (tbody) tbody.innerHTML = pageRows.length ? pageRows.map(st.opts.rowHtml).join('') : '<tr><td colspan="'+st.opts.cols+'" style="padding:22px;text-align:center;color:var(--tw3);font-size:12px">No matches — try clearing filters.</td></tr>';
+  if (tbody && typeof gsEnhanceIds==='function') gsEnhanceIds(tbody, '.gs-id-cell');
   var countEl = document.getElementById('pt-count-'+scope);
   if (countEl){
     var from = total===0?0:start+1, to = Math.min(total, start+st.pageSize);
@@ -281,7 +286,7 @@ ptInit('ra', PRODUCTS_RA, {
   noun: 'products',
   searchFields: ['sku','desc'],
   rowHtml: function(r){
-    return '<tr style="cursor:pointer" onclick="openProductRA(\''+r.sku+'\')"><td><div class="tbl-name">'+r.sku+'</div></td><td class="tbl-muted">'+r.desc+'</td><td class="tbl-muted">'+r.cat+'</td><td class="tbl-muted">'+r.supplier+'</td><td class="tbl-muted">'+r.pkg+'</td><td><span class="pill '+r.pill+'">'+r.status+'</span></td><td style="padding:6px 11px"><a class="bc-link" style="font-size:11px" onclick="event.stopPropagation();openProductRA(\''+r.sku+'\')">View →</a></td></tr>';
+    return '<tr style="cursor:pointer" onclick="openProductRA(\''+r.sku+'\')"><td><div class="tbl-name gs-id-cell">'+r.sku+'</div></td><td class="tbl-muted">'+r.desc+'</td><td class="tbl-muted">'+r.cat+'</td><td class="tbl-muted">'+r.supplier+'</td><td class="tbl-muted">'+r.pkg+'</td><td><span class="pill '+r.pill+'">'+r.status+'</span></td><td style="padding:6px 11px"><a class="bc-link" style="font-size:11px" onclick="event.stopPropagation();openProductRA(\''+r.sku+'\')">View →</a></td></tr>';
   }
 });
 
@@ -472,3 +477,105 @@ function filterCountriesList(val) {
     item.style.display = (!q || (name && name.textContent.toLowerCase().indexOf(q) > -1)) ? '' : 'none';
   });
 }
+
+/* ── Collapsible sidebar ──────────────────────────────────────────────────────
+   Turns the sidebar into a collapsible icon-only rail. Injects a toggle button
+   under the logo and a clickable right-edge hotspot (col-resize cursor hints at
+   it); collapsed state is remembered in localStorage. Idempotent + guarded so it
+   no-ops on pages without a sidebar (e.g. login). */
+function enhanceSidebarCollapse(){
+  document.querySelectorAll('.sidebar').forEach(function(sb){
+    var zone=sb.querySelector('.sb-logo-zone');
+    if(!zone || sb.querySelector('.sb-collapse-btn')) return;   // need a logo zone; skip if already enhanced
+    try{ if(localStorage.getItem('gsSbCollapsed')==='1') sb.classList.add('sb-collapsed'); }catch(e){}
+    function syncTitles(){
+      var c=sb.classList.contains('sb-collapsed');
+      sb.querySelectorAll('.nav-item').forEach(function(n){ n.title=c?(n.textContent||'').trim():''; });
+    }
+    function toggle(){
+      sb.classList.toggle('sb-collapsed');
+      try{ localStorage.setItem('gsSbCollapsed', sb.classList.contains('sb-collapsed')?'1':'0'); }catch(e){}
+      syncTitles();
+    }
+    var btn=document.createElement('button');
+    btn.type='button'; btn.className='sb-collapse-btn';
+    btn.title='Collapse / expand sidebar'; btn.setAttribute('aria-label','Collapse or expand sidebar');
+    btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 17l-5-5 5-5"/><path d="M18 17l-5-5 5-5"/></svg>';
+    btn.addEventListener('click',function(e){ e.stopPropagation(); toggle(); });
+    zone.appendChild(btn);
+    var edge=document.createElement('div');
+    edge.className='sb-edge'; edge.title='Collapse / expand sidebar';
+    edge.addEventListener('click',toggle);
+    sb.appendChild(edge);
+    syncTitles();
+  });
+}
+enhanceSidebarCollapse();
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ID display enhancement — monospace + identicon + "changed part" highlight.
+   Any list cell tagged `.gs-id-cell` (holding a raw ID string) is upgraded to:
+     [identicon]  <dim shared-prefix><bold+coloured distinguishing suffix>
+   The shared prefix is the longest common prefix across the sibling IDs in the
+   same list, trimmed back to a token boundary (- _ . / space). GitHub-style
+   identicon is a deterministic 5×5 mirror grid hashed from the full ID.
+   Call gsEnhanceIds(rootEl, selector) after rendering a list. Idempotent.
+   ═══════════════════════════════════════════════════════════════════════════ */
+function gsHashStr(s){ var h=5381; for(var i=0;i<s.length;i++){ h=((h*33) ^ s.charCodeAt(i)) >>> 0; } return h>>>0; }
+
+function gsIdenticon(id, size){
+  size = size||16;
+  var h = gsHashStr(id);
+  var hue = h % 360;
+  var color = 'hsl('+hue+',55%,55%)';
+  var n=5, cell=size/n, v=h||1, rects='';
+  for(var x=0;x<3;x++){
+    for(var y=0;y<n;y++){
+      v = (v*1103515245 + 12345) & 0x7fffffff;      /* LCG → next pseudo-bit */
+      if((v>>8) & 1){
+        rects += '<rect x="'+(x*cell)+'" y="'+(y*cell)+'" width="'+cell+'" height="'+cell+'"/>';
+        if(x<2) rects += '<rect x="'+((4-x)*cell)+'" y="'+(y*cell)+'" width="'+cell+'" height="'+cell+'"/>';
+      }
+    }
+  }
+  return '<svg class="gs-identicon" width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'" aria-hidden="true" style="fill:'+color+'">'+rects+'</svg>';
+}
+
+function gsIdLCP(arr){
+  if(!arr.length) return '';
+  var p=arr[0];
+  for(var i=1;i<arr.length;i++){
+    while(arr[i].lastIndexOf(p,0)!==0){ p=p.slice(0,-1); if(!p) return ''; }
+  }
+  return p;
+}
+
+function gsEnhanceIds(root, selector){
+  root = root || document;
+  var els = [].slice.call(root.querySelectorAll(selector || '.gs-id-cell'));
+  if(!els.length) return;
+  var esc = function(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+  /* raw ID persists in data-gsid so repeated passes stay stable */
+  var ids = els.map(function(el){
+    var raw = el.getAttribute('data-gsid');
+    if(raw==null){ raw=(el.textContent||'').trim(); el.setAttribute('data-gsid', raw); }
+    return raw;
+  });
+  var cp = gsIdLCP(ids);
+  var m = cp.match(/^.*[-_.\/\s]/);       /* trim prefix back to a token boundary */
+  cp = m ? m[0] : '';
+  els.forEach(function(el, i){
+    var id = ids[i];
+    if(!id) return;
+    var dim = id.slice(0, cp.length), key = id.slice(cp.length);
+    if(!key){ key = id; dim = ''; }        /* never dim the whole thing */
+    el.classList.add('gs-id');
+    el.innerHTML =
+      '<span class="gs-id-ic">'+gsIdenticon(id,16)+'</span>' +
+      '<span class="gs-id-text">' +
+        (dim ? '<span class="gs-id-dim">'+esc(dim)+'</span>' : '') +
+        '<span class="gs-id-key">'+esc(key)+'</span>' +
+      '</span>';
+  });
+}
+try{ window.gsIdenticon=gsIdenticon; window.gsEnhanceIds=gsEnhanceIds; }catch(_){ }

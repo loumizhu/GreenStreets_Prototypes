@@ -250,3 +250,37 @@ window.gsNotifFilter = window.gsNotifFilter || function(btn, type){
     item.classList.toggle('notif-hidden', type !== 'all' && item.dataset.type !== type);
   });
 };
+
+/* ── Collapsible sidebar ──────────────────────────────────────────────────────
+   Turns the sidebar into a collapsible icon-only rail. Injects a toggle button
+   under the logo and a clickable right-edge hotspot (col-resize cursor hints at
+   it); collapsed state is remembered in localStorage. Idempotent + guarded so it
+   no-ops on pages without a sidebar (e.g. login). */
+function enhanceSidebarCollapse(){
+  document.querySelectorAll('.sidebar').forEach(function(sb){
+    var zone=sb.querySelector('.sb-logo-zone');
+    if(!zone || sb.querySelector('.sb-collapse-btn')) return;   // need a logo zone; skip if already enhanced
+    try{ if(localStorage.getItem('gsSbCollapsed')==='1') sb.classList.add('sb-collapsed'); }catch(e){}
+    function syncTitles(){
+      var c=sb.classList.contains('sb-collapsed');
+      sb.querySelectorAll('.nav-item').forEach(function(n){ n.title=c?(n.textContent||'').trim():''; });
+    }
+    function toggle(){
+      sb.classList.toggle('sb-collapsed');
+      try{ localStorage.setItem('gsSbCollapsed', sb.classList.contains('sb-collapsed')?'1':'0'); }catch(e){}
+      syncTitles();
+    }
+    var btn=document.createElement('button');
+    btn.type='button'; btn.className='sb-collapse-btn';
+    btn.title='Collapse / expand sidebar'; btn.setAttribute('aria-label','Collapse or expand sidebar');
+    btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 17l-5-5 5-5"/><path d="M18 17l-5-5 5-5"/></svg>';
+    btn.addEventListener('click',function(e){ e.stopPropagation(); toggle(); });
+    zone.appendChild(btn);
+    var edge=document.createElement('div');
+    edge.className='sb-edge'; edge.title='Collapse / expand sidebar';
+    edge.addEventListener('click',toggle);
+    sb.appendChild(edge);
+    syncTitles();
+  });
+}
+enhanceSidebarCollapse();
