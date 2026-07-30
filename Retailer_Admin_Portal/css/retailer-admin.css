@@ -442,3 +442,16 @@ html,body{height:100%;font-family:'Inter',sans-serif;color:var(--tw);background:
 .gs-id-text{font-size:11.5px;letter-spacing:.02em;white-space:nowrap;line-height:1}
 .gs-id-dim{color:var(--tw3);font-weight:400}
 .gs-id-key{color:var(--gs-l);font-weight:700}
+
+/* Dashboard header notification bell + floating menu */
+.ra-notif-menu{position:absolute;top:calc(100% + 8px);right:0;width:308px;background:linear-gradient(150deg,#0f2340 0%,#112850 100%);border:1px solid var(--line-2);border-radius:12px;box-shadow:0 24px 60px -18px rgba(0,0,0,.7);z-index:300;overflow:hidden;display:none}
+.ra-notif-menu.open{display:block;animation:raNotifIn .16s ease}
+@keyframes raNotifIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.ra-notif-hd{padding:11px 14px;border-bottom:1px solid var(--line);font-size:12px;font-weight:700;color:var(--tw);display:flex;align-items:center;justify-content:space-between}
+.ra-notif-item{display:flex;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.05);cursor:pointer;transition:background .12s;text-align:left}
+.ra-notif-item:hover{background:rgba(255,255,255,.05)}
+.ra-notif-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.ra-notif-txt{font-size:11.5px;color:var(--tw2);line-height:1.5}
+.ra-notif-txt b{color:var(--tw);font-weight:600}
+.ra-notif-time{font-size:10px;color:var(--tw3);margin-top:2px}
+.ra-notif-foot{padding:10px 14px;text-align:center}

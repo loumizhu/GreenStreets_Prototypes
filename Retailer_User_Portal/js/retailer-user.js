@@ -18,9 +18,25 @@ var GS_PAGES = {
   'ru6_detail':    '03-greenstreets_retailer_user_Product-Detail.html',
   'ru7':           '03-greenstreets_retailer_user_Documents.html',
   'ru8':           '03-greenstreets_retailer_user_Notifications.html',
-  'ru9':           '03-greenstreets_retailer_user_Settings.html'
+  'ru9':           '03-greenstreets_retailer_user_Settings.html',
+  'ru10':          '03-greenstreets_retailer_user_Packagings.html',
+  'ru11':          '03-greenstreets_retailer_user_Audit-Log.html'
 };
 function go(id){ var u = GS_PAGES[id]; if(u) window.location.href = u; }
+
+/* ── Send-reminder action (Retailer User may chase suppliers — US-3.9) ── */
+function ruToast(msg){
+  var t = document.createElement('div');
+  t.className = 'ru-toast';
+  t.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg><span>'+msg+'</span>';
+  document.body.appendChild(t);
+  requestAnimationFrame(function(){ t.classList.add('in'); });
+  setTimeout(function(){ t.classList.remove('in'); setTimeout(function(){ try{ t.remove(); }catch(_){ } }, 300); }, 2600);
+}
+function ruSendReminder(ev, sku){
+  if(ev){ ev.stopPropagation(); if(ev.preventDefault) ev.preventDefault(); }
+  ruToast('Reminder sent to the supplier for ' + sku);
+}
 
 /* ===== packaging modal + paginated table engine + data ===== */
 /* ── Add-packaging modal ── */
@@ -122,6 +138,7 @@ function ptRender(scope){
   var pageRows = rows.slice(start, start+st.pageSize);
   var tbody = document.getElementById('pt-tbody-'+scope);
   if (tbody) tbody.innerHTML = pageRows.length ? pageRows.map(st.opts.rowHtml).join('') : '<tr><td colspan="'+st.opts.cols+'" style="padding:22px;text-align:center;color:var(--tw3);font-size:12px">No matches — try clearing filters.</td></tr>';
+  if (tbody && typeof gsEnhanceIds==='function') gsEnhanceIds(tbody, '.gs-id-cell');
   var countEl = document.getElementById('pt-count-'+scope);
   if (countEl){
     var from = total===0?0:start+1, to = Math.min(total, start+st.pageSize);
@@ -198,8 +215,15 @@ ptInit('ru', PRODUCTS_RU, {
   noun: 'products',
   searchFields: ['sku','desc'],
   rowHtml: function(r){
-    var missingCell = r.status==='Complete' ? '<td class="tbl-muted">—</td>' : '<td style="font-size:11px;color:'+r.missingColor+';font-weight:500">'+r.missing+'</td>';
-    return '<tr onclick="go(\'ru6_detail\')" style="cursor:pointer"><td><div class="tbl-name">'+r.sku+'</div></td><td>'+r.desc+'</td><td class="tbl-muted">'+r.cat+'</td><td>'+r.comps+'</td><td><span class="pill '+r.pill+'">'+r.status+'</span></td>'+missingCell+'<td class="chev">›</td></tr>';
+    var missingCell = r.status==='Complete'
+      ? '<td class="tbl-muted">—</td>'
+      : '<td style="font-size:11px;color:'+r.missingColor+';font-weight:500">'+r.missing+'</td>';
+    // products missing supplier input get a "Send reminder" action in its own column (US-3.9 — Retailer Users can remind)
+    var actionCell = r.status==='Complete'
+      ? '<td></td>'
+      : '<td style="text-align:right"><button class="ru-remind-btn" title="Remind the supplier to submit this product\'s data" onclick="ruSendReminder(event,\''+r.sku+'\')">'+
+        '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Send reminder</button></td>';
+    return '<tr onclick="go(\'ru6_detail\')" style="cursor:pointer"><td><span class="gs-id-cell">'+r.sku+'</span></td><td>'+r.desc+'</td><td class="tbl-muted">'+r.cat+'</td><td>'+r.comps+'</td><td><span class="pill '+r.pill+'">'+r.status+'</span></td>'+missingCell+actionCell+'</tr>';
   }
 });
 
@@ -284,3 +308,74 @@ function enhanceSidebarCollapse(){
   });
 }
 enhanceSidebarCollapse();
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ID display enhancement — monospace + identicon + shared-prefix dimming.
+   Ported from retailer-admin.js. Any cell tagged `.gs-id-cell` (holding a raw
+   ID string) becomes: [identicon] <dim shared-prefix><bold distinguishing key>.
+   Call gsEnhanceIds(root, selector) after rendering a list. Idempotent.
+   ═══════════════════════════════════════════════════════════════════════════ */
+function gsHashStr(s){ var h=5381; for(var i=0;i<s.length;i++){ h=((h*33) ^ s.charCodeAt(i)) >>> 0; } return h>>>0; }
+function gsIdenticon(id, size){
+  size = size||16;
+  var h = gsHashStr(id);
+  var hue = h % 360;
+  var color = 'hsl('+hue+',55%,55%)';
+  var n=5, cell=size/n, v=h||1, rects='';
+  for(var x=0;x<3;x++){
+    for(var y=0;y<n;y++){
+      v = (v*1103515245 + 12345) & 0x7fffffff;
+      if((v>>8) & 1){
+        rects += '<rect x="'+(x*cell)+'" y="'+(y*cell)+'" width="'+cell+'" height="'+cell+'"/>';
+        if(x<2) rects += '<rect x="'+((4-x)*cell)+'" y="'+(y*cell)+'" width="'+cell+'" height="'+cell+'"/>';
+      }
+    }
+  }
+  return '<svg class="gs-identicon" width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'" aria-hidden="true" style="fill:'+color+'">'+rects+'</svg>';
+}
+function gsIdLCP(arr){
+  if(!arr.length) return '';
+  var p=arr[0];
+  for(var i=1;i<arr.length;i++){ while(arr[i].lastIndexOf(p,0)!==0){ p=p.slice(0,-1); if(!p) return ''; } }
+  return p;
+}
+function gsEnhanceIds(root, selector){
+  root = root || document;
+  var els = [].slice.call(root.querySelectorAll(selector || '.gs-id-cell'));
+  if(!els.length) return;
+  var esc = function(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+  var ids = els.map(function(el){
+    var raw = el.getAttribute('data-gsid');
+    if(raw==null){ raw=(el.textContent||'').trim(); el.setAttribute('data-gsid', raw); }
+    return raw;
+  });
+  var cp = gsIdLCP(ids);
+  var m = cp.match(/^.*[-_.\/\s]/);
+  cp = m ? m[0] : '';
+  els.forEach(function(el, i){
+    var id = ids[i];
+    if(!id) return;
+    var dim = id.slice(0, cp.length), key = id.slice(cp.length);
+    if(!key){ key = id; dim = ''; }
+    el.classList.add('gs-id');
+    el.innerHTML =
+      '<span class="gs-id-ic">'+gsIdenticon(id,16)+'</span>' +
+      '<span class="gs-id-text">' +
+        (dim ? '<span class="gs-id-dim">'+esc(dim)+'</span>' : '') +
+        '<span class="gs-id-key">'+esc(key)+'</span>' +
+      '</span>';
+  });
+}
+try{ window.gsIdenticon=gsIdenticon; window.gsEnhanceIds=gsEnhanceIds; }catch(_){ }
+(function(){
+  function run(){ try{ if(typeof gsEnhanceIds==='function') gsEnhanceIds(document, '.gs-id-cell'); }catch(_){ } }
+  if(document.readyState!=='loading') run();
+  else document.addEventListener('DOMContentLoaded', run);
+})();
+
+/* ── Dashboard header notification menu (mirrors the RA header bell) ── */
+function ruToggleNotif(e){ if(e){ e.stopPropagation(); } var m=document.getElementById('ru-notif-menu'); if(m) m.classList.toggle('open'); }
+document.addEventListener('click', function(e){
+  var m=document.getElementById('ru-notif-menu');
+  if(m && m.classList.contains('open') && !e.target.closest('#ru-notif-menu') && !e.target.closest('[onclick*="ruToggleNotif"]')) m.classList.remove('open');
+});

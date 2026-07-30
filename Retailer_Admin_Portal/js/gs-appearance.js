@@ -67,6 +67,11 @@
       var imgs = document.querySelectorAll('.gs-logo-img,.sb-logo,.login-logo,img[alt="Greenstreets"]');
       for (var i = 0; i < imgs.length; i++) imgs[i].src = s.logo;
     }
+    /* Logo size — sets the sidebar logo height (px); login logo scales with it. */
+    if (s.logoSize) {
+      root.setProperty('--sb-logo-size', s.logoSize + 'px');
+      root.setProperty('--login-logo-size', Math.round(s.logoSize / 85 * 180) + 'px');
+    }
     /* Text / UI size — a zoom on the page content so text AND layout scale. */
     var scale = s.textScale || 1;
     var containers = document.querySelectorAll('.main,.login-wrap');
@@ -207,6 +212,35 @@
     btns.appendChild(file); btns.appendChild(upBtn); btns.appendChild(rmBtn);
     logoRow.appendChild(prev); logoRow.appendChild(btns);
     logoSec.appendChild(logoRow);
+
+    /* Logo size — slider + exact px input (drives the sidebar logo height). */
+    var sizeSec = document.createElement('div'); sizeSec.className = 'gsa-sec';
+    sizeSec.innerHTML = '<div class="gsa-lbl">Logo size</div><div class="gsa-hint">Adjust how large the logo appears in the sidebar (the login logo scales to match).</div>';
+    var sizeRow = document.createElement('div');
+    sizeRow.style.cssText = 'display:flex;align-items:center;gap:14px;flex-wrap:wrap';
+    var curSize = s.logoSize || 85;
+    var range = document.createElement('input');
+    range.type = 'range'; range.min = '40'; range.max = '140'; range.step = '1'; range.value = curSize;
+    range.style.cssText = 'flex:1;min-width:180px;accent-color:var(--gs)';
+    var numWrap = document.createElement('div');
+    numWrap.style.cssText = 'display:inline-flex;align-items:center;gap:6px';
+    var num = document.createElement('input');
+    num.type = 'number'; num.min = '40'; num.max = '140'; num.value = curSize;
+    num.className = 'fi'; num.style.cssText = 'width:74px;padding:7px 9px;font-size:12.5px;text-align:right';
+    var unit = document.createElement('span'); unit.textContent = 'px'; unit.style.cssText = 'font-size:11px;color:var(--tw3)';
+    numWrap.appendChild(num); numWrap.appendChild(unit);
+    function setSize(v, from){
+      v = Math.max(40, Math.min(140, parseInt(v, 10) || 85));
+      if (from !== 'range') range.value = v;
+      if (from !== 'num') num.value = v;
+      var st = load(); st.logoSize = v; save(st); apply(st); markSaved();
+    }
+    range.oninput = function(){ setSize(range.value, 'range'); };
+    num.oninput = function(){ setSize(num.value, 'num'); };
+    sizeRow.appendChild(range); sizeRow.appendChild(numWrap);
+    sizeSec.appendChild(sizeRow);
+    logoSec.appendChild(sizeSec);
+
     wrap.appendChild(logoSec);
 
     /* Display: text size + density + motion (segmented choice groups) */

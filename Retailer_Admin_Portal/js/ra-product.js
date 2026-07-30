@@ -183,9 +183,13 @@
     var expMax = Math.max(12, COMPS.length);
     var expOpts = ''; for (var eo = 1; eo <= expMax; eo++) expOpts += '<option value="' + eo + '"' + (eo === COMPS.length ? ' selected' : '') + '>' + eo + '</option>';
 
+    var idIcon = (typeof window.gsIdenticon === 'function')
+      ? '<span class="gs-id-ic" style="width:24px;height:24px;border-radius:6px">' + window.gsIdenticon(PROD.sku, 24) + '</span>'
+      : '';
     var header =
       '<div class="pg-hdr-bar"><div>' +
-        '<div class="pg-title">' + esc(PROD.sku) + '</div>' +
+        '<div class="pg-title" style="display:inline-flex;align-items:center;gap:10px">' + idIcon +
+          '<span style="font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.02em">' + esc(PROD.sku) + '</span></div>' +
         '<div class="pg-sub">' + esc(PROD.desc) + ' · ' + esc(PROD.cat) + ' · Supplier: ' + esc(PROD.supplier) + '</div>' +
       '</div><div class="pg-actions rap-hdr-actions">' +
         statusPill() +

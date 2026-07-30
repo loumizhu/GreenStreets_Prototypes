@@ -67,7 +67,9 @@
       var imgs = document.querySelectorAll('.gs-logo-img,.sb-logo,.login-logo,img[alt="Greenstreets"]');
       for (var i = 0; i < imgs.length; i++) imgs[i].src = s.logo;
     }
+    if (s.logoSize) root.setProperty('--sb-logo-size', s.logoSize + 'px');
   }
+  var LOGO_MIN = 40, LOGO_MAX = 140, LOGO_DEFAULT = 85;
 
   /* run as early as possible so pages paint themed */
   apply();
@@ -98,6 +100,9 @@
       '.gsa-logo-prev{width:150px;height:64px;border:1px dashed var(--line-2);border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.04);overflow:hidden}' +
       '.gsa-logo-prev img{max-width:88%;max-height:80%;object-fit:contain}' +
       '.gsa-logo-btns{display:flex;flex-direction:column;gap:8px}' +
+      '.gsa-range-row{display:flex;align-items:center;gap:12px}' +
+      '.gsa-range{width:50%;accent-color:var(--gs);cursor:pointer;height:4px}' +
+      '.gsa-range-val{font-size:12px;font-weight:600;color:var(--tw2);min-width:44px;font-variant-numeric:tabular-nums}' +
       '.gsa-btn{font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;border-radius:8px;padding:7px 13px;border:1px solid var(--line-2);background:rgba(255,255,255,.05);color:var(--tw);display:inline-flex;align-items:center;gap:7px}' +
       '.gsa-btn:hover{border-color:var(--gs)}' +
       '.gsa-btn.pri{background:var(--gs);border-color:var(--gs);color:#04130c}' +
@@ -193,6 +198,25 @@
     logoRow.appendChild(prev); logoRow.appendChild(btns);
     logoSec.appendChild(logoRow);
     wrap.appendChild(logoSec);
+
+    /* Logo size */
+    var sizeSec = document.createElement('div');
+    sizeSec.className = 'gsa-sec';
+    sizeSec.innerHTML = '<div class="gsa-lbl">Logo size</div><div class="gsa-hint">Scales the logo in the sidebar.</div>';
+    var sizeRow = document.createElement('div'); sizeRow.className = 'gsa-range-row';
+    var range = document.createElement('input');
+    range.type = 'range'; range.className = 'gsa-range';
+    range.min = LOGO_MIN; range.max = LOGO_MAX; range.step = 1;
+    var curSize = s.logoSize || LOGO_DEFAULT;
+    range.value = curSize;
+    var val = document.createElement('span'); val.className = 'gsa-range-val'; val.textContent = curSize + ' px';
+    range.oninput = function () {
+      s = load(); s.logoSize = parseInt(range.value, 10); save(s); apply(s);
+      val.textContent = range.value + ' px'; markSaved();
+    };
+    sizeRow.appendChild(range); sizeRow.appendChild(val);
+    sizeSec.appendChild(sizeRow);
+    wrap.appendChild(sizeSec);
 
     /* Footer: reset + saved indicator */
     var foot = document.createElement('div'); foot.className = 'gsa-foot';

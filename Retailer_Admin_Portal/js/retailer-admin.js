@@ -360,7 +360,7 @@ if (typeof ptInit === 'function') ptInit('rapkg', PACKAGINGS_RA, {
     var rec = r.recycle ? '<span class="pill pill-green">'+r.recycle+'</span>' : '<span class="tbl-muted">—</span>';
     return '<tr style="cursor:pointer" onclick="openPackagingRA(\''+r.id+'\')">'+
       '<td><div class="tbl-name">'+r.type+'</div></td>'+
-      '<td class="tbl-muted">'+r.sku+' · '+r.desc+'</td>'+
+      '<td class="tbl-muted"><span class="gs-id-cell">'+r.sku+'</span> · '+r.desc+'</td>'+
       '<td class="tbl-muted">'+r.supplier+'</td>'+
       '<td class="tbl-muted">'+mat+'</td>'+
       '<td'+(r.weight?'':' class="tbl-muted"')+'>'+wt+'</td>'+
@@ -579,3 +579,37 @@ function gsEnhanceIds(root, selector){
   });
 }
 try{ window.gsIdenticon=gsIdenticon; window.gsEnhanceIds=gsEnhanceIds; }catch(_){ }
+
+/* ── Roll out the ID chip (identicon + monospace + changed-part) to any static
+   listing that tags its ID cells `.gs-id-cell`; pt-tables self-enhance on
+   render. Runs once on load. ─────────────────────────────────────────────── */
+(function(){
+  function run(){ try{ if(typeof gsEnhanceIds==='function') gsEnhanceIds(document, '.gs-id-cell'); }catch(_){ } }
+  if(document.readyState!=='loading') run();
+  else document.addEventListener('DOMContentLoaded', run);
+})();
+
+/* ── Supplier row actions → open Products / Packagings pre-filtered by that
+   supplier. The button stashes the supplier name; the target page applies it
+   to its data-grid filter on load. ──────────────────────────────────────── */
+function raSupplierProducts(name){ try{ sessionStorage.setItem('ra_supfilter', name); }catch(e){} go('ra6'); }
+function raSupplierPackaging(name){ try{ sessionStorage.setItem('ra_supfilter', name); }catch(e){} go('ra5'); }
+(function(){
+  function apply(){
+    var name; try{ name = sessionStorage.getItem('ra_supfilter'); }catch(e){}
+    if(!name) return;
+    try{ sessionStorage.removeItem('ra_supfilter'); }catch(e){}
+    var scope = (typeof __pt!=='undefined' && __pt['ra']) ? 'ra' : ((typeof __pt!=='undefined' && __pt['rapkg']) ? 'rapkg' : null);
+    if(!scope) return;
+    __pt[scope].filters.supplier = name; __pt[scope].page = 0;
+    if(typeof ptRender==='function') ptRender(scope);
+    /* sync the supplier <select> + its themed label so the UI reflects it */
+    var sel = document.querySelector('select[onchange*="\'supplier\'"]');
+    if(sel){
+      var has=false; for(var i=0;i<sel.options.length;i++){ if(sel.options[i].value===name || sel.options[i].text===name){ sel.selectedIndex=i; has=true; break; } }
+      if(has){ var wrap=sel.closest('.cs-wrap'); if(wrap){ var cv=wrap.querySelector('.cs-val'); if(cv) cv.textContent=sel.options[sel.selectedIndex].text; } }
+    }
+  }
+  if(document.readyState!=='loading') setTimeout(apply,0);
+  else document.addEventListener('DOMContentLoaded', apply);
+})();
