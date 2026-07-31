@@ -72,7 +72,8 @@ Gui, Add, Text, x10 y45 w60, Dest:
 Gui, Add, Edit, x70 y40 w690 ReadOnly vDestEdit, %DestDir%
 
 Gui, Font, s9, Consolas
-Gui, Add, Edit, x10 y80 w750 h380 ReadOnly vLogEdit, %LogText%
+Gui, Add, Edit, x10 y80 w750 h380 +Multi +VScroll ReadOnly vLogEdit
+GuiControl,, LogEdit, %LogText%
 Gui, Font, s10, Segoe UI
 Gui, Add, Button, w150 vBtnOpenTarget gOpenTarget, Open Target Folder
 Gui, Add, Button, w100 vBtnClose gGuiClose Default, Close

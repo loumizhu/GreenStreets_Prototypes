@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>GreenStreets Super Admin · Products (Light)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/greenstreets-theme.css?v=25">
+<!-- ═══ LIGHT-MODE PASTEL OVERRIDE ═══
+     A soft, easy-on-the-eye light variant of the Products listing. Loaded AFTER the shared
+     glass theme so these rules win by source order. Everything the customizer widget tunes is a
+     CSS variable (--lt-*) so it can be reshaped live. This file is a *variation* — the dark
+     Products page is untouched. -->
+<style id="light-theme">
+:root{
+  /* pastel palette — harmonious, low-saturation. tuned live by the customizer widget */
+  --lt-page-1:#f6f8fb; --lt-page-2:#eef2f8; --lt-page-3:#f3f0fa;
+  --lt-surface:#ffffff; --lt-surface-2:#fbfcfe;
+  --lt-ink:#33415c; --lt-ink-2:#5a6b86; --lt-ink-3:#8a99b3;
+  --lt-line:#e6ebf3; --lt-line-2:#dbe2ee;
+  --lt-accent:#6ea8fe;           /* soft cornflower */
+  --lt-accent-ink:#3f74c7;
+  --lt-radius:14px;
+  /* gradients — all tunable from the widget */
+  --lt-sb-1:#eaf1fe; --lt-sb-2:#e7f5ee;      /* sidebar (left pane) start → end */
+  --lt-sb-angle:200deg;                       /* left-pane gradient direction */
+  --lt-sb-stroke:#cdd8ea; --lt-sb-stroke-w:1px; /* left-pane border/stroke colour + width */
+  --lt-logo-bg:#e4ebf6;                        /* the area behind the logo (top of sidebar) */
+  --lt-title-1:#3f74c7; --lt-title-2:#4bbd8c; /* card-title text gradient start → end */
+  --lt-hdr-1:#e6efff; --lt-hdr-2:#e7f5ee;     /* card-title header BAR background start → end */
+  /* element sizing — all tunable from the widget */
+  --lt-pgtitle-size:24px;   /* page title */
+  --lt-title-size:13px;     /* card (part) title */
+  --lt-th-size:10px;        /* column headers */
+  --lt-td-size:12.5px;      /* table body text */
+  --lt-nav-size:12.5px;     /* sidebar nav text */
+  --lt-sb-width:222px;      /* left-pane width */
+  --lt-col-alpha:1;              /* master intensity multiplier for column tints (0 = white, 1 = full pastel) */
+  --lt-stripe:1;                 /* 1 = zebra rows on, 0 = off */
+  /* per-column pastel tints (8 columns) — quiet, differentiated hues */
+  --lt-c1:#eaf1ff;  /* SKU        — blue    */
+  --lt-c2:#fbfcfe;  /* Description— near-white */
+  --lt-c3:#f2edfd;  /* Category   — lavender */
+  --lt-c4:#e8f6f4;  /* Supplier   — teal    */
+  --lt-c5:#eaf7ee;  /* Packaging  — green   */
+  --lt-c6:#fdf3e6;  /* Status     — peach   */
+  --lt-c7:#fbecf1;  /* Activity   — rose    */
+  --lt-c8:#f5f7fa;  /* chevron    — neutral */
+}
+
+/* ── page canvas ── */
+body.lt{
+  color:var(--lt-ink);
+  background-color:var(--lt-page-1);
+  background-image:
+    radial-gradient(900px 620px at 8% -8%,rgba(110,168,254,.10),transparent 60%),
+    radial-gradient(760px 720px at 108% 6%,rgba(150,196,255,.09),transparent 58%),
+    radial-gradient(900px 700px at 46% 118%,rgba(180,160,235,.10),transparent 60%),
+    linear-gradient(165deg,var(--lt-page-1) 0%,var(--lt-page-2) 55%,var(--lt-page-3) 100%);
+}
+
+/* re-map the shared design tokens to light values so shared components (breadcrumb, headers,
+   pills, buttons, focus ring) follow along without per-selector overrides */
+body.lt{
+  --tw:var(--lt-ink); --tw2:var(--lt-ink-2); --tw3:var(--lt-ink-3); --tw4:#aab6cc;
+  --line:var(--lt-line); --line-2:var(--lt-line-2);
+  --bl-l:var(--lt-accent-ink); --gs-l:#3fae74;
+  --field-stroke-color:var(--lt-accent);
+  --ripple-color-hex:#6ea8fe; --ripple-rgb:110,168,254; --ripple-opacity:.30;
+  --particle-color-hex:#8fd0b6; --particle-rgb:143,208,182; --particle-opacity:.7;
+  --sh-1:0 8px 26px -14px rgba(60,90,140,.28);
+  --sh-2:0 16px 40px -18px rgba(60,90,140,.32);
+}
+
+/* ── sidebar → soft white glass ── */
+body.lt .sidebar{
+  /* soft pastel wash — stops, direction, stroke, width all tunable from the widget */
+  background:linear-gradient(var(--lt-sb-angle,200deg),var(--lt-sb-1) 0%,var(--lt-sb-2) 100%);
+  border:var(--lt-sb-stroke-w,1px) solid var(--lt-sb-stroke,var(--lt-line)); box-shadow:var(--sh-1);
+  width:var(--lt-sb-width,222px);
+  backdrop-filter:none;-webkit-backdrop-filter:none;
+}
+/* the area behind the logo (top of the sidebar) — a touch darker so the logo sits on a panel */
+body.lt .sb-logo-zone{background:var(--lt-logo-bg);border-bottom:1px solid var(--lt-sb-stroke)}
+body.lt .nav-item{font-size:var(--lt-nav-size)}
+/* element sizing */
+body.lt .pg-title{font-size:var(--lt-pgtitle-size)}
+body.lt .lt-cardtitle{font-size:var(--lt-title-size)}
+body.lt .tbl th{font-size:var(--lt-th-size)}
+body.lt .tbl td{font-size:var(--lt-td-size)}
+body.lt .sb-logo{filter:none}
+body.lt .nav-item{color:var(--lt-ink-2)}
+body.lt .nav-item:hover{background:rgba(110,168,254,.10);color:var(--lt-ink)}
+body.lt .nav-item.active{
+  background:linear-gradient(90deg,transparent,rgba(110,168,254,.10) 45%,rgba(110,168,254,.22));
+  color:var(--lt-accent-ink);box-shadow:inset 0 0 0 1px rgba(110,168,254,.30);
+}
+body.lt .nav-item.active::before{background:var(--lt-accent);box-shadow:0 0 8px rgba(110,168,254,.55)}
+body.lt .sb-bell-btn,body.lt .sb-notif-row:hover,body.lt .sb-collapse-btn{background:rgba(110,168,254,.08)}
+body.lt .sb-user-name{color:var(--lt-ink)}
+
+/* ── cards ── */
+body.lt .grp{
+  background:var(--lt-surface);border:1px solid var(--lt-line);border-radius:var(--lt-radius);
+  box-shadow:var(--sh-1);backdrop-filter:none;-webkit-backdrop-filter:none;
+}
+body.lt .grp-hdr{
+  background:linear-gradient(90deg,var(--lt-hdr-1),var(--lt-hdr-2));
+  color:var(--lt-ink);border-bottom:1px solid var(--lt-line);
+  -webkit-text-fill-color:initial;
+}
+/* card title → accent gradient text (follows the customizer accent) */
+body.lt .lt-cardtitle{
+  font-weight:700;letter-spacing:-.01em;
+  background:linear-gradient(90deg,var(--lt-title-1),var(--lt-title-2));
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:transparent;
+}
+body.lt .btn-g-sm{background:#fff;color:var(--lt-ink-2);border:1px solid var(--lt-line-2)}
+body.lt .btn-g-sm:hover{background:rgba(110,168,254,.10);color:var(--lt-accent-ink)}
+body.lt .fi{background:#fff;border:1px solid var(--lt-line-2);color:var(--lt-ink)}
+body.lt .fi:focus{background:#fff;box-shadow:0 0 0 3px rgba(110,168,254,.18)}
+body.lt select.fi{color-scheme:light}
+
+/* ── stat chips ── */
+body.lt .stat-mini{background:var(--lt-surface-2);border:1px solid var(--lt-line);box-shadow:none}
+body.lt .stat-val{color:var(--lt-ink)}
+body.lt .stat-icon.i-tl{background:#e8f6f4;color:#3aa39c;box-shadow:inset 0 0 0 1px rgba(67,179,173,.25)}
+body.lt .stat-icon.i-gs{background:#eaf7ee;color:#3fae74;box-shadow:inset 0 0 0 1px rgba(78,187,129,.25)}
+body.lt .stat-icon.i-am{background:#fdf3e6;color:#d9932b;box-shadow:inset 0 0 0 1px rgba(245,166,35,.3)}
+
+/* ── TABLE — the pastel harmonious columns ── */
+body.lt .tbl-wrap{border:1px solid var(--lt-line);border-radius:12px;overflow:hidden;background:#fff}
+body.lt .tbl th{
+  background:var(--lt-surface-2);color:var(--lt-ink-2);
+  border-bottom:1px solid var(--lt-line-2);font-weight:600;
+}
+body.lt .tbl td{color:var(--lt-ink-2);border-bottom:1px solid var(--lt-line)}
+body.lt .tbl-name{color:var(--lt-ink)}
+body.lt .tbl-val{color:var(--lt-ink)}
+
+/* base per-column pastel wash — the tint lives on background-COLOR (color-mix folds the master
+   intensity --lt-col-alpha against white so one slider dials them all), while a subtle left→right
+   sheen lives on background-IMAGE so the two layers coexist and every row reads as a gentle gradient. */
+body.lt .tbl th,body.lt .tbl td{
+  background-image:linear-gradient(90deg,rgba(255,255,255,.55),rgba(255,255,255,0) 55%);
+}
+body.lt .tbl th:nth-child(1),body.lt .tbl td:nth-child(1){background-color:color-mix(in srgb,var(--lt-c1) calc(var(--lt-col-alpha)*100%),#fff)}
+body.lt .tbl th:nth-child(2),body.lt .tbl td:nth-child(2){background-color:color-mix(in srgb,var(--lt-c2) calc(var(--lt-col-alpha)*100%),#fff)}
+body.lt .tbl th:nth-child(3),body.lt .tbl td:nth-child(3){background-color:color-mix(in srgb,var(--lt-c3) calc(var(--lt-col-alpha)*100%),#fff)}
+body.lt .tbl th:nth-child(4),body.lt .tbl td:nth-child(4){background-color:color-mix(in srgb,var(--lt-c4) calc(var(--lt-col-alpha)*100%),#fff)}
+body.lt .tbl th:nth-child(5),body.lt .tbl td:nth-child(5){background-color:color-mix(in srgb,var(--lt-c5) calc(var(--lt-col-alpha)*100%),#fff)}
+body.lt .tbl th:nth-child(6),body.lt .tbl td:nth-child(6){background-color:color-mix(in srgb,var(--lt-c6) calc(var(--lt-col-alpha)*100%),#fff)}
+body.lt .tbl th:nth-child(7),body.lt .tbl td:nth-child(7){background-color:color-mix(in srgb,var(--lt-c7) calc(var(--lt-col-alpha)*100%),#fff)}
+body.lt .tbl th:nth-child(8),body.lt .tbl td:nth-child(8){background-color:color-mix(in srgb,var(--lt-c8) calc(var(--lt-col-alpha)*100%),#fff)}
+
+/* zebra: layer a faint darkening + the same sheen on even rows (background-color keeps the column tint).
+   Toggled to nothing when --lt-stripe is 0. */
+body.lt .tbl tbody tr:nth-child(even) td{
+  background-image:
+    linear-gradient(rgba(90,120,170,calc(.05*var(--lt-stripe))),rgba(90,120,170,calc(.05*var(--lt-stripe)))),
+    linear-gradient(90deg,rgba(255,255,255,.5),rgba(255,255,255,0) 55%);
+}
+
+/* hover — a gentle unified accent wash over the whole row (keeps the column tint underneath) */
+body.lt .tbl tbody tr:hover td{
+  background-image:linear-gradient(90deg,rgba(110,168,254,.20),rgba(110,168,254,.10) 60%,rgba(143,208,182,.12)) !important;
+}
+
+/* pills → soft solid pastels with readable ink */
+body.lt .pill-grey{background:#eef1f6;color:#5a6b86;border:1px solid #e0e6ef}
+body.lt .pill-gs,body.lt .pill-green{background:#e6f6ec;color:#2f9c62;border:1px solid #cbead6}
+body.lt .pill-blue{background:#e9f1ff;color:#3f74c7;border:1px solid #d3e2fb}
+body.lt .pill-amber{background:#fdf2e2;color:#c9852a;border:1px solid #f4e0c0}
+body.lt .pill-red{background:#fdeceb;color:#cf5751;border:1px solid #f6d5d3}
+
+body.lt .chev-btn{background:#fff;border:1px solid var(--lt-line-2);color:var(--lt-ink-2)}
+body.lt .tbl tbody tr:hover .chev-btn{background:var(--lt-accent);color:#fff;border-color:transparent;box-shadow:0 6px 16px -6px rgba(110,168,254,.5)}
+body.lt .breadcrumb .bc-cur{color:var(--lt-ink)}
+
+/* ── a slim "you are viewing" banner + link back to the dark page ── */
+.lt-modebar{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  margin-bottom:var(--sp-4);padding:8px 12px;border-radius:12px;
+  background:linear-gradient(90deg,rgba(110,168,254,.12),rgba(143,208,182,.10));
+  border:1px solid var(--lt-line-2);font-size:12px;color:var(--lt-ink-2);
+}
+.lt-modebar b{color:var(--lt-ink)}
+.lt-modebar a{color:var(--lt-accent-ink);font-weight:600;text-decoration:none;margin-left:auto}
+.lt-modebar a:hover{text-decoration:underline}
+
+/* ── FLOATING CUSTOMIZER WIDGET ── */
+.lt-fab{
+  position:fixed;right:22px;bottom:22px;z-index:900;width:50px;height:50px;border-radius:50%;
+  background:linear-gradient(135deg,var(--lt-accent),#8fd0b6);color:#fff;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;box-shadow:0 12px 28px -8px rgba(90,120,180,.55);
+  transition:transform .15s;
+}
+.lt-fab:hover{transform:scale(1.06)}
+.lt-fab:active{transform:scale(.94)}
+.lt-panel{
+  position:fixed;right:22px;bottom:84px;z-index:901;width:280px;max-height:calc(100vh - 120px);overflow-y:auto;
+  background:#fff;border:1px solid var(--lt-line-2);border-radius:16px;box-shadow:0 24px 60px -16px rgba(60,90,140,.4);
+  opacity:0;visibility:hidden;transform:translateY(8px);transition:all .18s;
+}
+.lt-panel.open{opacity:1;visibility:visible;transform:none}
+.lt-panel-hdr{display:flex;align-items:center;justify-content:space-between;padding:13px 15px;border-bottom:1px solid var(--lt-line);font-size:13px;font-weight:700;color:var(--lt-ink)}
+.lt-panel-close{width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;color:var(--lt-ink-3);cursor:pointer;font-size:15px}
+.lt-panel-close:hover{background:#f0f3f8;color:var(--lt-ink)}
+.lt-panel-body{padding:14px 15px}
+.lt-sec{font-size:9.5px;font-weight:700;color:var(--lt-ink-3);letter-spacing:.1em;text-transform:uppercase;margin:14px 0 8px}
+.lt-sec:first-child{margin-top:0}
+.lt-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:5px 0}
+.lt-row-lbl{font-size:12px;color:var(--lt-ink-2)}
+.lt-swatches{display:flex;gap:6px}
+.lt-sw{width:24px;height:24px;border-radius:7px;border:1px solid var(--lt-line-2);cursor:pointer;padding:0}
+.lt-color{width:26px;height:26px;border-radius:7px;border:1px solid var(--lt-line-2);background:none;cursor:pointer;padding:0}
+.lt-range{-webkit-appearance:none;appearance:none;width:120px;height:4px;border-radius:3px;background:#e2e8f2;outline:none;cursor:pointer}
+.lt-range::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--lt-accent);cursor:pointer;box-shadow:0 0 0 2px #fff,0 0 0 3px var(--lt-line-2)}
+.lt-presets{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.lt-preset{display:flex;flex-direction:column;align-items:center;gap:5px;padding:8px 4px;border-radius:9px;cursor:pointer;border:1px solid var(--lt-line);background:#fbfcfe}
+.lt-preset:hover{border-color:var(--lt-accent)}
+.lt-preset.active{border-color:var(--lt-accent);box-shadow:0 0 0 1px var(--lt-accent)}
+.lt-preset-sw{display:flex;gap:2px}
+.lt-preset-sw span{width:9px;height:9px;border-radius:50%}
+.lt-preset-nm{font-size:9.5px;color:var(--lt-ink-3);font-weight:600}
+.lt-sel{font-family:'Inter',sans-serif;font-size:11.5px;color:var(--lt-ink-2);background:#fff;border:1px solid var(--lt-line-2);border-radius:8px;padding:5px 8px;cursor:pointer;outline:none}
+.lt-io{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+.lt-io-btn{padding:9px;font-size:12px;font-weight:600;color:var(--lt-accent-ink);background:#fff;border:1px solid var(--lt-line-2);border-radius:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
+.lt-io-btn:hover{background:rgba(110,168,254,.10)}
+.lt-reset{width:100%;margin-top:12px;padding:9px;font-size:12px;font-weight:600;color:var(--lt-ink-2);background:#f5f7fb;border:1px solid var(--lt-line-2);border-radius:9px;cursor:pointer}
+.lt-reset:hover{background:#f0f3f8;color:var(--lt-ink)}
+.lt-toggle{position:relative;width:36px;height:20px;display:inline-block}
+.lt-toggle input{opacity:0;width:100%;height:100%;margin:0;cursor:pointer;position:absolute;inset:0;z-index:1}
+.lt-toggle-tk{position:absolute;inset:0;background:#dfe5ef;border-radius:20px;transition:background .2s}
+.lt-toggle-th{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.lt-toggle input:checked~.lt-toggle-tk{background:var(--lt-accent)}
+.lt-toggle input:checked~.lt-toggle-th{transform:translateX(16px)}
+</style>
+</head>
+<body class="lt">
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true"><defs><symbol id="gsi-0" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol><symbol id="gsi-1" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/></symbol><symbol id="gsi-2" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></symbol><symbol id="gsi-3" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol><symbol id="gsi-4" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol><symbol id="gsi-5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></symbol><symbol id="gsi-6" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></symbol><symbol id="gsi-7" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol><symbol id="gsi-8" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol><symbol id="gsi-9" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></symbol><symbol id="gsi-10" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></symbol><symbol id="gsi-11" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></symbol><symbol id="gsi-12" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></symbol><symbol id="gsi-13" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></symbol><symbol id="gsi-14" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></symbol><symbol id="gsi-15" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol><symbol id="gsi-16" viewBox="0 0 24 24"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/></symbol><symbol id="gsi-17" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol><symbol id="gsi-18" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></symbol><symbol id="gsi-19" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></symbol></defs></svg>
+
+
+<!-- ═══ PRODUCTS (LIGHT) ═══ -->
+<div class="screen on" id="s11">
+  <div class="app-body">
+    <div class="sidebar" data-active="s11"></div>
+    <div class="main">
+      <div class="breadcrumb"><a class="bc-link" onclick="go('s2')">Retailers</a><span class="bc-sep">›</span><a class="bc-link" onclick="go('s4')">Primark Stores Ltd</a><span class="bc-sep">›</span><span class="bc-cur">Products</span></div>
+      <div class="lt-modebar">🎨 <b>Light theme preview</b> — pastel column variation of the Products listing. <a href="01-greenstreets_super_admin_Products.html">← Back to standard (dark) view</a></div>
+      <div class="pg-hdr-bar">
+        <div><div class="pg-title">Products — Primark Stores Ltd</div><div class="pg-sub">Product catalogue and packaging coverage at a glance</div></div>
+        <div class="pg-actions hdr-stat-row">
+          <div class="stat-mini"><div class="stat-icon i-tl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#gsi-16"/></svg></div><div><div class="stat-lbl">Total products</div><div class="stat-val">64</div></div></div>
+          <div class="stat-mini"><div class="stat-icon i-gs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#gsi-1"/></svg></div><div><div class="stat-lbl">Packaging complete</div><div class="stat-val" style="color:var(--gs-l)">16</div></div></div>
+          <div class="stat-mini"><div class="stat-icon i-am"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#gsi-3"/></svg></div><div><div class="stat-lbl">Awaiting packaging data</div><div class="stat-val" style="color:var(--amber)">48</div></div></div>
+        </div>
+      </div>
+      <div class="grp">
+        <div class="grp-hdr"><span class="lt-cardtitle">Product catalogue</span>
+          <button class="btn-g-sm"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-5"/></svg>Import</button>
+        </div>
+        <div class="grp-body">
+          <div class="filter-toolbar">
+            <div class="search-wrap"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-6"/></svg><input class="fi fi-search" placeholder="Search SKU or description..." oninput="ptSearch('s11', this.value)"></div>
+            <select class="fi fi-select" onchange="ptFilter('s11','cat', this.value)">
+              <option value="all">All categories</option><option>Tops</option><option>Bottoms</option><option>Dresses</option><option>Outerwear</option><option>Footwear</option><option>Accessories</option>
+            </select>
+            <select class="fi fi-select" onchange="ptFilter('s11','supplier', this.value)">
+              <option value="all">All suppliers</option><option>Indotex Manufacturing</option><option>Luntai Packaging Co.</option><option>EcoPack GmbH</option>
+            </select>
+            <select class="fi fi-select" onchange="ptFilter('s11','status', this.value)">
+              <option value="all">All statuses</option><option>Complete</option><option>Incomplete</option><option>Pending</option>
+            </select>
+          </div>
+          <div class="tbl-wrap"><table class="tbl" id="pt-table-s11">
+            <colgroup><col width="15%"><col width="23%"><col width="10%"><col width="16%"><col width="16%"><col width="10%"><col width="6%"><col width="4%"></colgroup>
+            <thead><tr>
+              <th data-col="sku" onclick="ptSort('s11','sku')" style="cursor:pointer;user-select:none">SKU <span class="sort-arrow" style="opacity:.4;font-size:9px">↕</span></th>
+              <th>Description</th>
+              <th data-col="cat" onclick="ptSort('s11','cat')" style="cursor:pointer;user-select:none">Category <span class="sort-arrow" style="opacity:.4;font-size:9px">↕</span></th>
+              <th>Supplier</th>
+              <th>Packaging</th>
+              <th data-col="status" onclick="ptSort('s11','status')" style="cursor:pointer;user-select:none">Status <span class="sort-arrow" style="opacity:.4;font-size:9px">↕</span></th>
+              <th>Activity</th>
+              <th></th>
+            </tr></thead>
+            <tbody id="pt-tbody-s11"></tbody></table></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding-top:var(--sp-3)">
+            <div id="pt-count-s11" class="tbl-muted" style="font-size:11px"></div>
+            <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+              <div style="display:flex;align-items:center;gap:6px">
+                <span style="font-size:11px;color:var(--tw3)">Rows per page</span>
+                <select class="fi fi-select" style="height:30px;font-size:11px;padding:0 8px;width:auto" onchange="ptPageSize('s11', this.value)">
+                  <option value="20">20</option><option value="50">50</option><option value="100">100</option>
+                </select>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px">
+                <span style="font-size:11px;color:var(--tw3)">Go to</span>
+                <select class="fi fi-select" id="pt-jump-s11" title="Jump to page" style="height:30px;font-size:11px;padding:0 8px;width:auto" onchange="ptJump('s11',this.value)"></select>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <button class="btn-g-sm" id="pt-prev-s11" onclick="ptGoPage('s11',-1)">‹ Prev</button>
+                <span id="pt-pageinfo-s11" style="font-size:11px;color:var(--tw2);white-space:nowrap"></span>
+                <button class="btn-g-sm" id="pt-next-s11" onclick="ptGoPage('s11',1)">Next ›</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CUSTOMIZER WIDGET ═══ -->
+<button class="lt-fab" id="ltFab" title="Customize this page" aria-label="Customize page appearance">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+</button>
+<div class="lt-panel" id="ltPanel" role="dialog" aria-label="Page customizer">
+  <div class="lt-panel-hdr">Customize page <span class="lt-panel-close" id="ltClose">✕</span></div>
+  <div class="lt-panel-body">
+
+    <div class="lt-sec">Palette presets</div>
+    <div class="lt-presets" id="ltPresets"></div>
+
+    <div class="lt-sec">Column tint intensity</div>
+    <div class="lt-row">
+      <span class="lt-row-lbl">Faint ↔ Full</span>
+      <input type="range" class="lt-range" id="ltAlpha" min="0" max="1" step="0.05" value="1">
+    </div>
+
+    <div class="lt-sec">Accent colour</div>
+    <div class="lt-row">
+      <span class="lt-row-lbl">Brand accent</span>
+      <input type="color" class="lt-color" id="ltAccent" value="#6ea8fe">
+    </div>
+
+    <div class="lt-sec">Left pane (sidebar)</div>
+    <div class="lt-row">
+      <span class="lt-row-lbl">Gradient stops</span>
+      <span class="lt-swatches"><input type="color" class="lt-color" id="ltSb1" value="#eaf1fe"><input type="color" class="lt-color" id="ltSb2" value="#e7f5ee"></span>
+    </div>
+    <div class="lt-row">
+      <span class="lt-row-lbl">Direction</span>
+      <select class="lt-sel" id="ltSbDir">
+        <option value="180deg">Vertical ↓</option>
+        <option value="90deg">Horizontal →</option>
+        <option value="200deg" selected>Diagonal ↘</option>
+      </select>
+    </div>
+    <div class="lt-row">
+      <span class="lt-row-lbl">Stroke / border</span>
+      <input type="color" class="lt-color" id="ltSbStroke" value="#cdd8ea">
+    </div>
+    <div class="lt-row">
+      <span class="lt-row-lbl">Stroke width</span>
+      <input type="range" class="lt-range" id="ltSbStrokeW" min="0" max="5" step="1" value="1">
+    </div>
+    <div class="lt-row">
+      <span class="lt-row-lbl">Behind-logo panel</span>
+      <input type="color" class="lt-color" id="ltLogoBg" value="#e4ebf6">
+    </div>
+    <div class="lt-row">
+      <span class="lt-row-lbl">Pane width</span>
+      <input type="range" class="lt-range" id="ltSbWidth" min="180" max="300" step="2" value="222">
+    </div>
+
+    <div class="lt-sec">Card title</div>
+    <div class="lt-row">
+      <span class="lt-row-lbl">Title text gradient</span>
+      <span class="lt-swatches"><input type="color" class="lt-color" id="ltT1" value="#3f74c7"><input type="color" class="lt-color" id="ltT2" value="#4bbd8c"></span>
+    </div>
+    <div class="lt-row">
+      <span class="lt-row-lbl">Header background</span>
+      <span class="lt-swatches"><input type="color" class="lt-color" id="ltHdr1" value="#e6efff"><input type="color" class="lt-color" id="ltHdr2" value="#e7f5ee"></span>
+    </div>
+    <div class="lt-row">
+      <span class="lt-row-lbl">Flat header colour</span>
+      <label class="lt-toggle"><input type="checkbox" id="ltHdrFlat"><span class="lt-toggle-tk"></span><span class="lt-toggle-th"></span></label>
+    </div>
+
+    <div class="lt-sec">Rows</div>
+    <div class="lt-row">
+      <span class="lt-row-lbl">Zebra striping</span>
+      <label class="lt-toggle"><input type="checkbox" id="ltStripe" checked><span class="lt-toggle-tk"></span><span class="lt-toggle-th"></span></label>
+    </div>
+
+    <div class="lt-sec">Corner radius</div>
+    <div class="lt-row">
+      <span class="lt-row-lbl">Sharp ↔ Round</span>
+      <input type="range" class="lt-range" id="ltRadius" min="4" max="22" step="1" value="14">
+    </div>
+
+    <div class="lt-sec">Per-column colours</div>
+    <div id="ltCols"></div>
+
+    <div class="lt-sec">Element sizes</div>
+    <div class="lt-row"><span class="lt-row-lbl">Page title</span><input type="range" class="lt-range" id="ltSzPg" min="16" max="36" step="1" value="24"></div>
+    <div class="lt-row"><span class="lt-row-lbl">Card title</span><input type="range" class="lt-range" id="ltSzTitle" min="11" max="22" step="1" value="13"></div>
+    <div class="lt-row"><span class="lt-row-lbl">Column headers</span><input type="range" class="lt-range" id="ltSzTh" min="8" max="16" step="1" value="10"></div>
+    <div class="lt-row"><span class="lt-row-lbl">Table text</span><input type="range" class="lt-range" id="ltSzTd" min="10" max="18" step="1" value="12.5"></div>
+    <div class="lt-row"><span class="lt-row-lbl">Sidebar nav text</span><input type="range" class="lt-range" id="ltSzNav" min="10" max="18" step="1" value="12.5"></div>
+
+    <div class="lt-sec">Save &amp; load</div>
+    <div class="lt-io">
+      <button class="lt-io-btn" id="ltExport" type="button">⭳ Export JSON</button>
+      <button class="lt-io-btn" id="ltImport" type="button">⭱ Import JSON</button>
+    </div>
+    <input type="file" id="ltFile" accept="application/json,.json" style="display:none">
+
+    <button class="lt-reset" id="ltReset">Reset to defaults</button>
+  </div>
+</div>
+
+<script src="js/super-admin.js?v=4"></script>
+<script src="js/greenstreets-theme.js?v=26"></script>
+<script>
+/* ── Light-page customizer widget ── self-contained; edits the --lt-* CSS variables on :root.
+   Persists to localStorage so a designer's tweaks survive a reload. */
+/* ── This page uses its own light-theme logo (only here) ── */
+(function(){
+  var LOGO='../img/GreenStreet-Light-Theme.png';
+  function swap(){ document.querySelectorAll('.sb-logo,img[alt="Greenstreets"]').forEach(function(im){ im.src=LOGO; }); }
+  swap();
+  window.addEventListener('load',swap);
+  // the sidebar is injected by mountSidebars(); catch late mounts
+  new MutationObserver(function(_,obs){ if(document.querySelector('.sb-logo')){ swap(); } }).observe(document.body,{childList:true,subtree:true});
+})();
+
+(function(){
+  var root=document.documentElement, LS='gs-light-products';
+  var DEFAULTS={
+    accent:'#6ea8fe', alpha:'1', stripe:true, radius:'14',
+    cols:['#eaf1ff','#fbfcfe','#f2edfd','#e8f6f4','#eaf7ee','#fdf3e6','#fbecf1','#f5f7fa'],
+    sb:['#eaf1fe','#e7f5ee'], sbDir:'200deg', sbStroke:'#cdd8ea', sbStrokeW:'1', logoBg:'#e4ebf6', sbWidth:'222',
+    title:['#3f74c7','#4bbd8c'], hdr:['#e6efff','#e7f5ee'], hdrFlat:false,
+    pg:['#f6f8fb','#eef2f8','#f3f0fa'],
+    size:{pg:'24', title:'13', th:'10', td:'12.5', nav:'12.5'}
+  };
+  var COLNAMES=['SKU','Description','Category','Supplier','Packaging','Status','Activity','Chevron'];
+  /* each preset restyles the WHOLE page — accent, the 8 column tints, both gradients, the header bar,
+     the stroke and the page tone — so switching presets is unmistakable, not a subtle pastel nudge */
+  var PRESETS={
+    'Meadow'  :{accent:'#6ea8fe',sb:['#eaf1fe','#e7f5ee'],sbStroke:'#e6ebf3',title:['#3f74c7','#4bbd8c'],hdr:['#e6efff','#e7f5ee'],pg:['#f6f8fb','#eef2f8','#f3f0fa'],cols:['#eaf1ff','#fbfcfe','#f2edfd','#e8f6f4','#eaf7ee','#fdf3e6','#fbecf1','#f5f7fa']},
+    'Sorbet'  :{accent:'#f19bb0',sb:['#fdecf1','#fdf0e6'],sbStroke:'#f3dde3',title:['#d9607f','#e8894f'],hdr:['#fde9ef','#fdefe6'],pg:['#fdf7f8','#fbf1ee','#f9f0f6'],cols:['#fdeef2','#fffafc','#fdf0e8','#fef7e6','#eef8ee','#e9f4fb','#f3edfb','#f7f5f8']},
+    'Mist'    :{accent:'#7fb0c9',sb:['#eef4f7','#eef5f2'],sbStroke:'#dde7ea',title:['#4f7f96','#5aa0a0'],hdr:['#e9f1f4','#e9f4f0'],pg:['#f5f8fa','#eef3f6','#f0f4f5'],cols:['#eef4f7','#fbfdfe','#eaf3f4','#eef5f2','#f0f4f8','#f2f0f6','#f6f0f3','#f4f6f8']},
+    'Lavender':{accent:'#a78bfa',sb:['#f0ecfe','#f5ecfb'],sbStroke:'#e6ddf5',title:['#7c5cd6','#b06fc9'],hdr:['#efe9fe','#f3e9fb'],pg:['#f8f6fd','#f2eefb','#f6eefb'],cols:['#f1ecfe','#fcfbff','#efe9fd','#eef0fc','#f1ecfa','#f7eefb','#fbecf6','#f5f4fb']},
+    'Citrus'  :{accent:'#9cc861',sb:['#f2f7e2','#eef7ea'],sbStroke:'#e0ecca',title:['#5f9a2f','#4bbd8c'],hdr:['#eef6df','#eaf6e6'],pg:['#f8faf2','#f3f7ea','#f1f7ee'],cols:['#f2f7e2','#fcfdf6','#eef7e6','#eef7ee','#f4f7e4','#fbf6e2','#f6f4e2','#f5f7ee']},
+    'Ocean'   :{accent:'#4fb0c9',sb:['#e6f3f6','#e4f2f0'],sbStroke:'#d3e7ea',title:['#2f8ba0','#3fae74'],hdr:['#e2f1f4','#e0f1ee'],pg:['#f2f9fa','#e9f4f6','#eef6f4'],cols:['#e6f3f6','#f8fdfe','#e6f1f4','#e6f4f1','#eaf5f4','#eef4f7','#f0f2f6','#f2f6f7']}
+  };
+  /* deep clone so state never shares array references with DEFAULTS (editing a colour must not mutate the defaults) */
+  function freshDefaults(){ return JSON.parse(JSON.stringify(DEFAULTS)); }
+  var state=load();
+
+  function load(){ try{var s=JSON.parse(localStorage.getItem(LS)); return normalise(Object.assign(freshDefaults(),s||{}));}catch(e){return normalise(freshDefaults());} }
+  /* guard against older saved / imported states that predate some fields */
+  function normalise(s){
+    if(!s.sb) s.sb=DEFAULTS.sb.slice(); if(!s.title) s.title=DEFAULTS.title.slice();
+    if(!s.pg) s.pg=DEFAULTS.pg.slice(); if(!s.cols) s.cols=DEFAULTS.cols.slice();
+    if(!s.hdr) s.hdr=DEFAULTS.hdr.slice(); if(!s.sbDir) s.sbDir=DEFAULTS.sbDir;
+    if(!s.sbStroke) s.sbStroke=DEFAULTS.sbStroke; if(typeof s.hdrFlat!=='boolean') s.hdrFlat=DEFAULTS.hdrFlat;
+    if(!s.sbStrokeW) s.sbStrokeW=DEFAULTS.sbStrokeW; if(!s.logoBg) s.logoBg=DEFAULTS.logoBg; if(!s.sbWidth) s.sbWidth=DEFAULTS.sbWidth;
+    s.size=Object.assign({},DEFAULTS.size,s.size||{});
+    return s;
+  }
+  function save(){ try{localStorage.setItem(LS,JSON.stringify(state));}catch(e){} }
+
+  function apply(){
+    root.style.setProperty('--lt-accent',state.accent);
+    root.style.setProperty('--lt-accent-ink',shade(state.accent,-0.28));
+    root.style.setProperty('--lt-col-alpha',state.alpha);
+    root.style.setProperty('--lt-stripe',state.stripe?'1':'0');
+    root.style.setProperty('--lt-radius',state.radius+'px');
+    for(var i=0;i<8;i++) root.style.setProperty('--lt-c'+(i+1),state.cols[i]);
+    root.style.setProperty('--lt-sb-1',state.sb[0]); root.style.setProperty('--lt-sb-2',state.sb[1]);
+    root.style.setProperty('--lt-sb-angle',state.sbDir);
+    root.style.setProperty('--lt-sb-stroke',state.sbStroke);
+    root.style.setProperty('--lt-sb-stroke-w',state.sbStrokeW+'px');
+    root.style.setProperty('--lt-logo-bg',state.logoBg);
+    root.style.setProperty('--lt-sb-width',state.sbWidth+'px');
+    root.style.setProperty('--lt-pgtitle-size',state.size.pg+'px');
+    root.style.setProperty('--lt-title-size',state.size.title+'px');
+    root.style.setProperty('--lt-th-size',state.size.th+'px');
+    root.style.setProperty('--lt-td-size',state.size.td+'px');
+    root.style.setProperty('--lt-nav-size',state.size.nav+'px');
+    root.style.setProperty('--lt-title-1',state.title[0]); root.style.setProperty('--lt-title-2',state.title[1]);
+    root.style.setProperty('--lt-hdr-1',state.hdr[0]);
+    root.style.setProperty('--lt-hdr-2',state.hdrFlat?state.hdr[0]:state.hdr[1]); /* flat = single colour */
+    root.style.setProperty('--lt-page-1',state.pg[0]); root.style.setProperty('--lt-page-2',state.pg[1]); root.style.setProperty('--lt-page-3',state.pg[2]);
+  }
+  /* darken/lighten a hex by pct (-1..1) for the accent-ink */
+  function shade(hex,pct){
+    var n=parseInt(hex.slice(1),16),r=n>>16,g=(n>>8)&255,b=n&255,t=pct<0?0:255,p=Math.abs(pct);
+    r=Math.round((t-r)*p)+r;g=Math.round((t-g)*p)+g;b=Math.round((t-b)*p)+b;
+    return '#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);
+  }
+
+  /* build per-column colour pickers */
+  var colsWrap=document.getElementById('ltCols');
+  state.cols.forEach(function(c,i){
+    var row=document.createElement('div'); row.className='lt-row';
+    row.innerHTML='<span class="lt-row-lbl">'+COLNAMES[i]+'</span>';
+    var inp=document.createElement('input'); inp.type='color'; inp.className='lt-color'; inp.value=c;
+    inp.addEventListener('input',function(){ state.cols[i]=inp.value; apply(); save(); });
+    row.appendChild(inp); colsWrap.appendChild(row);
+  });
+  var colInputs=colsWrap.querySelectorAll('input');
+
+  /* build presets */
+  var pw=document.getElementById('ltPresets');
+  Object.keys(PRESETS).forEach(function(name){
+    var p=PRESETS[name], btn=document.createElement('button'); btn.className='lt-preset'; btn.type='button';
+    var sw='<span class="lt-preset-sw">'+p.cols.slice(0,4).map(function(c){return '<span style="background:'+c+'"></span>';}).join('')+'</span>';
+    btn.innerHTML=sw+'<span class="lt-preset-nm">'+name+'</span>';
+    btn.addEventListener('click',function(){
+      state.accent=p.accent; state.cols=p.cols.slice();
+      state.sb=p.sb.slice(); state.sbStroke=p.sbStroke; state.title=p.title.slice();
+      state.hdr=p.hdr.slice(); state.pg=p.pg.slice();
+      syncInputs(); apply(); save();
+      pw.querySelectorAll('.lt-preset').forEach(function(b){b.classList.remove('active');});
+      btn.classList.add('active');
+    });
+    pw.appendChild(btn);
+  });
+
+  var accIn=document.getElementById('ltAccent'), alphaIn=document.getElementById('ltAlpha'),
+      stripeIn=document.getElementById('ltStripe'), radiusIn=document.getElementById('ltRadius'),
+      sb1In=document.getElementById('ltSb1'), sb2In=document.getElementById('ltSb2'),
+      sbDirIn=document.getElementById('ltSbDir'), sbStrokeIn=document.getElementById('ltSbStroke'),
+      sbStrokeWIn=document.getElementById('ltSbStrokeW'), logoBgIn=document.getElementById('ltLogoBg'), sbWidthIn=document.getElementById('ltSbWidth'),
+      t1In=document.getElementById('ltT1'), t2In=document.getElementById('ltT2'),
+      hdr1In=document.getElementById('ltHdr1'), hdr2In=document.getElementById('ltHdr2'), hdrFlatIn=document.getElementById('ltHdrFlat'),
+      szPgIn=document.getElementById('ltSzPg'), szTitleIn=document.getElementById('ltSzTitle'), szThIn=document.getElementById('ltSzTh'),
+      szTdIn=document.getElementById('ltSzTd'), szNavIn=document.getElementById('ltSzNav');
+
+  function syncInputs(){
+    accIn.value=state.accent; alphaIn.value=state.alpha; stripeIn.checked=!!state.stripe; radiusIn.value=state.radius;
+    sb1In.value=state.sb[0]; sb2In.value=state.sb[1]; sbDirIn.value=state.sbDir; sbStrokeIn.value=state.sbStroke;
+    sbStrokeWIn.value=state.sbStrokeW; logoBgIn.value=state.logoBg; sbWidthIn.value=state.sbWidth;
+    t1In.value=state.title[0]; t2In.value=state.title[1];
+    hdr1In.value=state.hdr[0]; hdr2In.value=state.hdr[1]; hdrFlatIn.checked=!!state.hdrFlat;
+    szPgIn.value=state.size.pg; szTitleIn.value=state.size.title; szThIn.value=state.size.th; szTdIn.value=state.size.td; szNavIn.value=state.size.nav;
+    colInputs.forEach(function(inp,i){ inp.value=state.cols[i]; });
+  }
+
+  accIn.addEventListener('input',function(){ state.accent=accIn.value; apply(); save(); });
+  alphaIn.addEventListener('input',function(){ state.alpha=alphaIn.value; apply(); save(); });
+  stripeIn.addEventListener('change',function(){ state.stripe=stripeIn.checked; apply(); save(); });
+  radiusIn.addEventListener('input',function(){ state.radius=radiusIn.value; apply(); save(); });
+  sb1In.addEventListener('input',function(){ state.sb[0]=sb1In.value; apply(); save(); });
+  sb2In.addEventListener('input',function(){ state.sb[1]=sb2In.value; apply(); save(); });
+  sbDirIn.addEventListener('change',function(){ state.sbDir=sbDirIn.value; apply(); save(); });
+  sbStrokeIn.addEventListener('input',function(){ state.sbStroke=sbStrokeIn.value; apply(); save(); });
+  sbStrokeWIn.addEventListener('input',function(){ state.sbStrokeW=sbStrokeWIn.value; apply(); save(); });
+  logoBgIn.addEventListener('input',function(){ state.logoBg=logoBgIn.value; apply(); save(); });
+  sbWidthIn.addEventListener('input',function(){ state.sbWidth=sbWidthIn.value; apply(); save(); });
+  szPgIn.addEventListener('input',function(){ state.size.pg=szPgIn.value; apply(); save(); });
+  szTitleIn.addEventListener('input',function(){ state.size.title=szTitleIn.value; apply(); save(); });
+  szThIn.addEventListener('input',function(){ state.size.th=szThIn.value; apply(); save(); });
+  szTdIn.addEventListener('input',function(){ state.size.td=szTdIn.value; apply(); save(); });
+  szNavIn.addEventListener('input',function(){ state.size.nav=szNavIn.value; apply(); save(); });
+  t1In.addEventListener('input',function(){ state.title[0]=t1In.value; apply(); save(); });
+  t2In.addEventListener('input',function(){ state.title[1]=t2In.value; apply(); save(); });
+  hdr1In.addEventListener('input',function(){ state.hdr[0]=hdr1In.value; apply(); save(); });
+  hdr2In.addEventListener('input',function(){ state.hdr[1]=hdr2In.value; apply(); save(); });
+  hdrFlatIn.addEventListener('change',function(){ state.hdrFlat=hdrFlatIn.checked; apply(); save(); });
+
+  /* ── Export / Import settings as a JSON file ── */
+  document.getElementById('ltExport').addEventListener('click',function(){
+    var blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+    var url=URL.createObjectURL(blob), a=document.createElement('a');
+    a.href=url; a.download='greenstreets-light-theme.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(url); },1000);
+  });
+  var fileIn=document.getElementById('ltFile');
+  document.getElementById('ltImport').addEventListener('click',function(){ fileIn.click(); });
+  fileIn.addEventListener('change',function(){
+    var f=fileIn.files&&fileIn.files[0]; if(!f) return;
+    var rd=new FileReader();
+    rd.onload=function(){
+      try{
+        var s=JSON.parse(rd.result);
+        state=normalise(Object.assign(freshDefaults(),s));
+        syncInputs(); apply(); save();
+        pw.querySelectorAll('.lt-preset').forEach(function(b){b.classList.remove('active');});
+      }catch(e){ alert('Could not read that settings file — expected a JSON export from this customizer.'); }
+      fileIn.value='';
+    };
+    rd.readAsText(f);
+  });
+
+  document.getElementById('ltReset').addEventListener('click',function(){
+    state=normalise(freshDefaults());
+    syncInputs(); apply(); save();
+    pw.querySelectorAll('.lt-preset').forEach(function(b){b.classList.remove('active');});
+  });
+
+  /* open/close */
+  var panel=document.getElementById('ltPanel');
+  document.getElementById('ltFab').addEventListener('click',function(){ panel.classList.toggle('open'); });
+  document.getElementById('ltClose').addEventListener('click',function(){ panel.classList.remove('open'); });
+
+  syncInputs(); apply();
+})();
+</script>
+</body>
+</html>
