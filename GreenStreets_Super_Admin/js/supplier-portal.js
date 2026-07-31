@@ -598,7 +598,7 @@ function renderProductDetail(pi){
   var head = ''
     + '<div class="pd-back-row"><button class="pd-back" onclick="go(\'sp2\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M19 12H5m0 0 6 6m-6-6 6-6"/></svg>Back to products</button></div>'
     + '<div class="pd-phead">'
-    +   '<div class="pd-phead-top"><div><div class="pd-eyebrow">Product</div><div class="pd-code">'+pdEsc(p.code)+'</div><div class="pd-name">'+pdEsc(p.name)+' · '+pdEsc(p.category)+'</div></div>'
+    +   '<div class="pd-phead-top"><div><div class="pd-eyebrow">Product</div><div class="pd-code"><span class="gs-id-cell">'+pdEsc(p.code)+'</span></div><div class="pd-name">'+pdEsc(p.name)+' · '+pdEsc(p.category)+'</div></div>'
     +     '<div class="pd-status-actions">'
     +       '<span class="pkg-status-pill '+m.cls.replace('prod-status-','')+' pd-prod-status" id="pd-status-'+pi+'">'+m.lbl+'</span>'
     +       '<button class="pd-mark-complete" id="pd-markcomplete-'+pi+'" onclick="pdMarkComplete('+pi+')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><polyline points="20 6 9 17 4 12"/></svg>Mark as Complete</button>'

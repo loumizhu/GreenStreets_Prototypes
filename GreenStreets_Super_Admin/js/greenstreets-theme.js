@@ -728,3 +728,37 @@
     fireBurst(btn,null,null);
   });
 })();
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ID display enhancement (universal copy) — monospace + identicon + prefix dim.
+   Lives here too (not just super-admin.js) so the Supplier-Portal engine pages
+   (Product/Packaging detail) that don't load super-admin.js still get it.
+   Cells tagged `.gs-id-cell` → [identicon] <dim shared-prefix><bold key>.
+   ═══════════════════════════════════════════════════════════════════════════ */
+if(typeof window.gsEnhanceIds!=='function'){
+  (function(){
+    function hash(s){ var h=5381; for(var i=0;i<s.length;i++){ h=((h*33)^s.charCodeAt(i))>>>0; } return h>>>0; }
+    function identicon(id,size){
+      size=size||16; var h=hash(id),color='hsl('+(h%360)+',55%,55%)',n=5,cell=size/n,v=h||1,rects='';
+      for(var x=0;x<3;x++){ for(var y=0;y<n;y++){ v=(v*1103515245+12345)&0x7fffffff;
+        if((v>>8)&1){ rects+='<rect x="'+(x*cell)+'" y="'+(y*cell)+'" width="'+cell+'" height="'+cell+'"/>';
+          if(x<2) rects+='<rect x="'+((4-x)*cell)+'" y="'+(y*cell)+'" width="'+cell+'" height="'+cell+'"/>'; } } }
+      return '<svg class="gs-identicon" width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'" aria-hidden="true" style="fill:'+color+'">'+rects+'</svg>';
+    }
+    function lcp(a){ if(!a.length)return''; var p=a[0]; for(var i=1;i<a.length;i++){ while(a[i].lastIndexOf(p,0)!==0){ p=p.slice(0,-1); if(!p)return''; } } return p; }
+    function enhance(root,selector){
+      root=root||document; var els=[].slice.call(root.querySelectorAll(selector||'.gs-id-cell')); if(!els.length)return;
+      var esc=function(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+      var ids=els.map(function(el){ var raw=el.getAttribute('data-gsid'); if(raw==null){ raw=(el.textContent||'').trim(); el.setAttribute('data-gsid',raw); } return raw; });
+      var cp=lcp(ids),m=cp.match(/^.*[-_.\/\s]/); cp=m?m[0]:'';
+      els.forEach(function(el,i){ var id=ids[i]; if(!id)return; var dim=id.slice(0,cp.length),key=id.slice(cp.length);
+        if(!key){ key=id; dim=''; } el.classList.add('gs-id');
+        el.innerHTML='<span class="gs-id-ic">'+identicon(id,16)+'</span><span class="gs-id-text">'+(dim?'<span class="gs-id-dim">'+esc(dim)+'</span>':'')+'<span class="gs-id-key">'+esc(key)+'</span></span>'; });
+    }
+    window.gsIdenticon=identicon; window.gsEnhanceIds=enhance;
+    function run(){ try{ enhance(document,'.gs-id-cell'); }catch(_){ } }
+    if(document.readyState!=='loading') setTimeout(run,0); else document.addEventListener('DOMContentLoaded',run);
+    /* re-pass for engine pages that render their body asynchronously (#pd-body) */
+    window.addEventListener('load',function(){ setTimeout(run,120); setTimeout(run,450); });
+  })();
+}

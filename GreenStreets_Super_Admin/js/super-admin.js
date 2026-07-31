@@ -132,6 +132,7 @@ function ptRender(scope){
   var pageRows=rows.slice(start,start+st.pageSize);
   var tbody=document.getElementById('pt-tbody-'+scope);
   if(tbody)tbody.innerHTML=pageRows.length?pageRows.map(st.opts.rowHtml).join(''):'<tr><td colspan="'+st.opts.cols+'" style="padding:26px;text-align:center;color:var(--tw3);font-size:12px">No matches — try clearing filters.</td></tr>';
+  if(tbody && typeof gsEnhanceIds==='function') gsEnhanceIds(tbody,'.gs-id-cell');
   var countEl=document.getElementById('pt-count-'+scope);
   if(countEl){
     var from=total===0?0:start+1,to=Math.min(total,start+st.pageSize);
@@ -176,19 +177,33 @@ function gsSAFlipCapture(tbody){
   });
   return m;
 }
+/* FLIP with a leading-edge STAGGER: every moved row is displaced to its old
+   position, then released to its new one — but not all at once. The row that
+   lands highest starts first; each row below it follows a few ms later, so the
+   reorder ripples top→bottom. The whole cascade stays under 500ms. */
 function gsSAFlipPlay(tbody,first){
   if(!tbody||!first||gsSAReduceMotion())return;
-  var els=[];
+  var moving=[];
   Array.prototype.forEach.call(tbody.querySelectorAll('tr[data-flip-key]'),function(el){
     if(el.offsetParent===null)return; var k=el.getAttribute('data-flip-key'); if(!(k in first))return;
-    var dy=first[k]-el.getBoundingClientRect().top;
-    if(Math.abs(dy)>0.5){ el.style.transition='none'; el.style.transform='translateY('+dy+'px)'; els.push(el); }
+    var newTop=el.getBoundingClientRect().top;
+    var dy=first[k]-newTop;
+    if(Math.abs(dy)>0.5){ el.style.transition='none'; el.style.transform='translateY('+dy+'px)'; moving.push({el:el,top:newTop}); }
   });
-  if(!els.length)return;
+  if(!moving.length)return;
+  /* order by final (post-sort) position so the top row leads the cascade */
+  moving.sort(function(a,b){return a.top-b.top;});
+  var n=moving.length, DUR=300;
+  /* per-row delay, capped so (last delay + duration) < 500ms even for a full page */
+  var step=Math.max(8, Math.min(26, Math.floor(170/Math.max(1,n-1))));
   void tbody.offsetHeight;
   requestAnimationFrame(function(){ requestAnimationFrame(function(){
-    els.forEach(function(el){ el.style.transition='transform .42s cubic-bezier(.2,0,.2,1)'; el.style.transform=''; });
-    setTimeout(function(){ els.forEach(function(el){ el.style.transition=''; }); },480);
+    moving.forEach(function(m,i){
+      m.el.style.transition='transform '+DUR+'ms cubic-bezier(.42,0,.58,1) '+(i*step)+'ms';
+      m.el.style.transform='';
+    });
+    var total=DUR+(n-1)*step+40;
+    setTimeout(function(){ moving.forEach(function(m){ m.el.style.transition=''; }); },total);
   }); });
 }
 function ptSearch(scope,val){__pt[scope].search=(val||'').toLowerCase();__pt[scope].page=0;ptRender(scope);}
@@ -240,7 +255,7 @@ var PRODUCTS_S11=(function(){
 ptInit('s11',PRODUCTS_S11,{
   cols:8,pageSize:20,noun:'products',searchFields:['sku','desc'],
   rowHtml:function(r){
-    return '<tr data-flip-key="'+r.sku+'" onclick="go(\'s12\')"><td class="tbl-name">'+r.sku+'</td><td>'+r.desc+'</td><td class="tbl-muted">'+r.cat+'</td><td class="tbl-muted">'+r.supplier+'</td><td class="tbl-muted">'+r.pkg+'</td><td><span class="pill '+r.pill+'">'+r.status+'</span></td><td class="tbl-muted">'+r.activity+'</td><td class="chev-cell"><div class="chev-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></div></td></tr>';
+    return '<tr data-flip-key="'+r.sku+'" onclick="go(\'s12\')"><td class="tbl-name"><span class="gs-id-cell">'+r.sku+'</span></td><td>'+r.desc+'</td><td class="tbl-muted">'+r.cat+'</td><td class="tbl-muted">'+r.supplier+'</td><td class="tbl-muted">'+r.pkg+'</td><td><span class="pill '+r.pill+'">'+r.status+'</span></td><td class="tbl-muted">'+r.activity+'</td><td class="chev-cell"><div class="chev-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></div></td></tr>';
   }
 });
 
@@ -1371,3 +1386,46 @@ function gsInitAutocomplete(){
     try{ gsAcAttach(inp); }catch(e){}
   });
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ID display enhancement — monospace + identicon + shared-prefix dimming.
+   Ported from retailer-admin.js. Cells tagged `.gs-id-cell` become:
+     [identicon] <dim shared-prefix><bold distinguishing key>
+   pt-tables self-enhance in ptRender; static tables enhance on load. Idempotent.
+   ═══════════════════════════════════════════════════════════════════════════ */
+function gsHashStr(s){ var h=5381; for(var i=0;i<s.length;i++){ h=((h*33) ^ s.charCodeAt(i)) >>> 0; } return h>>>0; }
+function gsIdenticon(id, size){
+  size = size||16;
+  var h = gsHashStr(id), hue = h % 360, color = 'hsl('+hue+',55%,55%)';
+  var n=5, cell=size/n, v=h||1, rects='';
+  for(var x=0;x<3;x++){ for(var y=0;y<n;y++){
+    v = (v*1103515245 + 12345) & 0x7fffffff;
+    if((v>>8) & 1){
+      rects += '<rect x="'+(x*cell)+'" y="'+(y*cell)+'" width="'+cell+'" height="'+cell+'"/>';
+      if(x<2) rects += '<rect x="'+((4-x)*cell)+'" y="'+(y*cell)+'" width="'+cell+'" height="'+cell+'"/>';
+    }
+  } }
+  return '<svg class="gs-identicon" width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'" aria-hidden="true" style="fill:'+color+'">'+rects+'</svg>';
+}
+function gsIdLCP(arr){ if(!arr.length) return ''; var p=arr[0]; for(var i=1;i<arr.length;i++){ while(arr[i].lastIndexOf(p,0)!==0){ p=p.slice(0,-1); if(!p) return ''; } } return p; }
+function gsEnhanceIds(root, selector){
+  root = root || document;
+  var els = [].slice.call(root.querySelectorAll(selector || '.gs-id-cell'));
+  if(!els.length) return;
+  var esc = function(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+  var ids = els.map(function(el){ var raw=el.getAttribute('data-gsid'); if(raw==null){ raw=(el.textContent||'').trim(); el.setAttribute('data-gsid', raw); } return raw; });
+  var cp = gsIdLCP(ids), m = cp.match(/^.*[-_.\/\s]/); cp = m ? m[0] : '';
+  els.forEach(function(el, i){
+    var id = ids[i]; if(!id) return;
+    var dim = id.slice(0, cp.length), key = id.slice(cp.length);
+    if(!key){ key = id; dim = ''; }
+    el.classList.add('gs-id');
+    el.innerHTML = '<span class="gs-id-ic">'+gsIdenticon(id,16)+'</span><span class="gs-id-text">'+(dim?'<span class="gs-id-dim">'+esc(dim)+'</span>':'')+'<span class="gs-id-key">'+esc(key)+'</span></span>';
+  });
+}
+try{ window.gsIdenticon=gsIdenticon; window.gsEnhanceIds=gsEnhanceIds; }catch(_){ }
+(function(){
+  function run(){ try{ if(typeof gsEnhanceIds==='function') gsEnhanceIds(document, '.gs-id-cell'); }catch(_){ } }
+  if(document.readyState!=='loading') setTimeout(run,0);
+  else document.addEventListener('DOMContentLoaded', run);
+})();

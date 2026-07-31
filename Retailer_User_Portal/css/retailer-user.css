@@ -84,7 +84,7 @@ html,body{height:100%;font-family:'Inter',sans-serif;color:var(--tw);background:
 
 /* ── MAIN ── */
 .main{flex:1;padding:16px 20px;overflow-y:auto;background:linear-gradient(175deg,#1c3356 0%,#192d4e 50%,#162847 100%);border:1px solid var(--stroke);border-radius:var(--rl)}
-.pg-hdr-bar{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;gap:12px}
+.pg-hdr-bar{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;gap:12px;position:relative;z-index:60}   /* stacking context so the header's notification dropdown paints above the content below */
 .pg-title{font-size:17px;font-weight:600;color:var(--tw)}
 .pg-sub{font-size:11px;color:var(--tw3);margin-top:3px}
 .pg-tags{display:flex;align-items:center;gap:6px;margin-top:5px;flex-wrap:wrap}

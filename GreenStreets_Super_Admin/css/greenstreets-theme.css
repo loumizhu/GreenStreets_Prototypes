@@ -899,3 +899,16 @@ mark.gs-hl{background:rgba(245,205,90,.32);color:inherit;border-radius:3px;paddi
 .gs-ac-opt:hover,.gs-ac-opt.active{background:rgba(78,187,129,.14);color:var(--tw)}
 .gs-ac-opt b{color:var(--gs-l);font-weight:700}
 .gs-ac-ico{opacity:.45;flex-shrink:0}
+
+/* ── ID display chip (identicon + monospace + shared-prefix dim) — gsEnhanceIds ── */
+.gs-id{display:inline-flex;align-items:center;gap:8px;font-family:"SFMono-Regular",ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace}
+.gs-id-ic{flex-shrink:0;display:inline-flex;width:16px;height:16px;border-radius:4px;overflow:hidden;background:rgba(255,255,255,.10);box-shadow:0 0 0 1px var(--line-2)}
+.gs-identicon{display:block}
+.gs-id-text{font-size:11.5px;letter-spacing:.02em;white-space:nowrap;line-height:1}
+.gs-id-dim{color:var(--tw3);font-weight:400}
+.gs-id-key{color:var(--gs-l);font-weight:700}
+
+/* Product-detail header code: keep the identicon chip but at the title's own size */
+.pd-code .gs-id{gap:10px}
+.pd-code .gs-id-ic{width:22px;height:22px;border-radius:6px}
+.pd-code .gs-id-text{font-size:inherit;letter-spacing:inherit}
