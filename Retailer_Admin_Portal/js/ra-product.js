@@ -57,6 +57,23 @@
   var INITIAL_COUNT = COMPS.length; /* # of components present when the page loaded */
   var APPROVED = PROD.status === 'Complete';
   var openIdx = -1; /* which component card is expanded */
+  var pendingHl = null; /* indices of just-added cards to pop-highlight after the next render */
+
+  /* pop + orange-stroke highlight for freshly-added component cards, cascading
+     one after the other when several are added at once (e.g. raising # expected) */
+  function flushHighlight() {
+    if (!pendingHl || !pendingHl.length) { pendingHl = null; return; }
+    var ix = pendingHl; pendingHl = null;
+    ix.forEach(function (i, k) {
+      setTimeout(function () {
+        var card = document.querySelector('.rap-comp[data-i="' + i + '"]');
+        if (!card) return;
+        card.classList.remove('rap-comp-new'); void card.offsetWidth; /* restart the animation */
+        card.classList.add('rap-comp-new');
+        setTimeout(function () { card.classList.remove('rap-comp-new'); }, 1900);
+      }, k * 130);
+    });
+  }
 
   /* ---- toast ---- */
   function toast(msg) {
@@ -88,10 +105,18 @@
       '#ra-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}' +
       '.rap-banner{display:flex;gap:11px;align-items:flex-start;background:rgba(91,156,246,.08);border:1px solid rgba(91,156,246,.22);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--tw2);line-height:1.6}' +
       '.rap-banner svg{color:#5b9cf6;flex-shrink:0;margin-top:1px}' +
-      '.rap-comp{border:1px solid var(--bw,rgba(255,255,255,.09));border-radius:11px;margin-bottom:10px;overflow:hidden;background:rgba(255,255,255,.02)}' +
+      '.rap-comp{border:1px solid var(--bw,rgba(255,255,255,.09));border-radius:11px;margin-bottom:10px;overflow:hidden;background:rgba(255,255,255,.02);transition:border-color .5s ease,box-shadow .5s ease}' +
       '.rap-comp-hdr{display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer;transition:background .14s}' +
       '.rap-comp-hdr:hover{background:rgba(255,255,255,.03)}' +
       '.rap-comp-name{font-size:13px;font-weight:600;color:var(--tw);flex-shrink:0}' +
+      /* inline-editable component title — click to rename without expanding the card */
+      '.rap-comp-name-edit{outline:none;border:1px solid transparent;border-radius:5px;padding:2px 6px;margin:-2px -4px;cursor:text;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:background .14s,border-color .14s}' +
+      '.rap-comp-name-edit:hover{background:rgba(255,255,255,.05);border-color:var(--bw,rgba(255,255,255,.14))}' +
+      '.rap-comp-name-edit:focus{background:rgba(255,255,255,.08);border-color:var(--gs);overflow:visible;text-overflow:clip;max-width:none}' +
+      '.rap-comp-name-edit:empty:before{content:"Component name";color:var(--tw3)}' +
+      /* newly-added component: orange stroke contour + one-shot scale pop */
+      '.rap-comp-new{border-color:#f5a623!important;box-shadow:0 0 0 1px #f5a623,0 0 20px rgba(245,166,35,.38);animation:rapPop .5s cubic-bezier(.34,1.56,.64,1) both}' +
+      '@keyframes rapPop{0%{transform:scale(.965)}45%{transform:scale(1.035)}100%{transform:scale(1)}}' +
       '.rap-comp-sum{font-size:11px;color:var(--tw3);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}' +
       '.rap-chev{transition:transform .2s;color:var(--tw3);flex-shrink:0}' +
       '.rap-comp.open .rap-chev{transform:rotate(180deg)}' +
@@ -149,7 +174,8 @@
       : 'Awaiting supplier — details not yet provided';
     return '<div class="rap-comp' + (open ? ' open' : '') + '" data-i="' + i + '">' +
       '<div class="rap-comp-hdr" onclick="rapToggle(' + i + ')">' +
-        '<span class="rap-comp-name">' + esc(c.name) + '</span>' +
+        '<span class="rap-comp-name rap-comp-name-edit" contenteditable="true" spellcheck="false" title="Click to rename this component" ' +
+          'onclick="event.stopPropagation()" onmousedown="event.stopPropagation()" onkeydown="rapTitleKey(event)" oninput="rapEditName(' + i + ',this.textContent)">' + esc(c.name) + '</span>' +
         '<span class="pill ' + (c.level === 'Primary' ? 'pill-blue' : 'pill-grey') + '" style="font-size:9px">' + esc(c.level) + '</span>' +
         compStatusPill(c) +
         '<span class="rap-comp-sum">' + sum + '</span>' +
@@ -236,6 +262,8 @@
     /* theme the "# expected" dropdown so it shows a clean 1–12 list like the rest of the app */
     var expSel = document.getElementById('rap-exp-sel');
     if (expSel && window.GSEnhanceSelects) window.GSEnhanceSelects(expSel.parentNode);
+
+    flushHighlight();
   }
 
   /* ---- actions ---- */
@@ -246,6 +274,9 @@
     if (key === 'status') { render(); return; }
     /* keep the card open while typing — only refresh the header pills lightly */
   };
+  /* inline title edit — no re-render (keeps the contenteditable focus/caret) */
+  window.rapEditName = function (i, val) { if (COMPS[i]) COMPS[i].name = (val || '').replace(/\n/g, ' '); };
+  window.rapTitleKey = function (e) { if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); } };
   window.rapRemove = function (i) {
     var name = COMPS[i] ? COMPS[i].name : '';
     COMPS.splice(i, 1);
@@ -258,6 +289,7 @@
   function addComp(c) {
     COMPS.push(c);
     openIdx = COMPS.length - 1;
+    pendingHl = [COMPS.length - 1];
     render();
     var last = document.querySelector('.rap-comp[data-i="' + (COMPS.length - 1) + '"]');
     if (last && last.scrollIntoView) last.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -265,7 +297,7 @@
 
   /* apply a new expected count (add blanks / trim from the end) */
   function applyExpected(n) {
-    if (n > COMPS.length) { while (COMPS.length < n) COMPS.push(blankComp()); }
+    if (n > COMPS.length) { pendingHl = []; while (COMPS.length < n) { pendingHl.push(COMPS.length); COMPS.push(blankComp()); } }
     else if (n < COMPS.length) { COMPS.length = n; if (openIdx >= n) openIdx = -1; }
     render();
     toast(n + ' expected component' + (n === 1 ? '' : 's'));

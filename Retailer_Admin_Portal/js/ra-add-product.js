@@ -26,6 +26,23 @@
   var PROD = { name: '', sku: '', desc: '', cat: '', supplier: '' };
   var COMPS = [];
   var openIdx = -1;
+  var pendingHl = null; /* indices of just-added cards to pop-highlight after the next render */
+
+  /* pop + orange-stroke highlight for freshly-added component cards, cascading
+     one after the other when several are added at once (e.g. raising # expected) */
+  function flushHighlight() {
+    if (!pendingHl || !pendingHl.length) { pendingHl = null; return; }
+    var ix = pendingHl; pendingHl = null;
+    ix.forEach(function (i, k) {
+      setTimeout(function () {
+        var card = document.querySelector('.rap-comp[data-i="' + i + '"]');
+        if (!card) return;
+        card.classList.remove('rap-comp-new'); void card.offsetWidth;
+        card.classList.add('rap-comp-new');
+        setTimeout(function () { card.classList.remove('rap-comp-new'); }, 1900);
+      }, k * 130);
+    });
+  }
 
   /* next sequence number for the SKU (continues after the demo catalogue) */
   function nextSeq() {
@@ -65,10 +82,22 @@
       '.rap-f .fi{padding:7px 10px;font-size:12.5px}' +
       '.nap-sku{font-family:"SFMono-Regular",ui-monospace,Menlo,Consolas,monospace;letter-spacing:.02em;color:var(--gs-l);font-weight:700;background:rgba(78,187,129,.06)}' +
       '.nap-sku-hint{font-size:10px;color:var(--tw3);font-weight:400;text-transform:none;letter-spacing:0}' +
-      '.rap-comp{border:1px solid var(--bw,rgba(255,255,255,.09));border-radius:11px;margin-bottom:10px;overflow:hidden;background:rgba(255,255,255,.02)}' +
+      '.rap-comp{border:1px solid var(--bw,rgba(255,255,255,.09));border-radius:11px;margin-bottom:10px;overflow:hidden;background:rgba(255,255,255,.02);transition:border-color .5s ease,box-shadow .5s ease}' +
       '.rap-comp-hdr{display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer;transition:background .14s}' +
       '.rap-comp-hdr:hover{background:rgba(255,255,255,.03)}' +
       '.rap-comp-name{font-size:13px;font-weight:600;color:var(--tw);flex-shrink:0}' +
+      '.rap-comp-name-edit{outline:none;border:1px solid transparent;border-radius:5px;padding:2px 6px;margin:-2px -4px;cursor:text;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:background .14s,border-color .14s}' +
+      '.rap-comp-name-edit:hover{background:rgba(255,255,255,.05);border-color:var(--bw,rgba(255,255,255,.14))}' +
+      '.rap-comp-name-edit:focus{background:rgba(255,255,255,.08);border-color:var(--gs);overflow:visible;text-overflow:clip;max-width:none}' +
+      '.rap-comp-name-edit:empty:before{content:"Component name";color:var(--tw3)}' +
+      '.rap-comp-new{border-color:#f5a623!important;box-shadow:0 0 0 1px #f5a623,0 0 20px rgba(245,166,35,.38);animation:rapPop .5s cubic-bezier(.34,1.56,.64,1) both}' +
+      '@keyframes rapPop{0%{transform:scale(.965)}45%{transform:scale(1.035)}100%{transform:scale(1)}}' +
+      '.rap-exp{position:relative;display:inline-flex;align-items:center;gap:5px}' +
+      '.rap-exp .cs-wrap,.rap-exp .rap-exp-sel{width:72px}' +
+      '.rap-exp .cs-trigger,.rap-exp .rap-exp-sel{padding:6px 10px;font-size:12.5px}' +
+      '.rap-exp-steps{display:flex;flex-direction:column;gap:2px;flex-shrink:0}' +
+      '.rap-exp-steps button{width:20px;height:14px;padding:0;border:none;background:rgba(255,255,255,.09);color:var(--tw2,rgba(255,255,255,.74));cursor:pointer;border-radius:3px;display:flex;align-items:center;justify-content:center}' +
+      '.rap-exp-steps button:hover{background:var(--gs);color:#04130c}' +
       '.rap-comp-sum{font-size:11px;color:var(--tw3);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}' +
       '.rap-chev{transition:transform .2s;color:var(--tw3);flex-shrink:0}' +
       '.rap-comp.open .rap-chev{transform:rotate(180deg)}' +
@@ -115,7 +144,8 @@
     var sum = filled ? esc((c.material || '—') + ' · ' + (c.weight || '—') + ' g · ' + (c.pcr || '0') + '% PCR') : 'No details yet — you can fill these or leave them for the supplier';
     return '<div class="rap-comp' + (open ? ' open' : '') + '" data-i="' + i + '">' +
       '<div class="rap-comp-hdr" onclick="napToggle(' + i + ')">' +
-        '<span class="rap-comp-name">' + esc(c.name) + '</span>' +
+        '<span class="rap-comp-name rap-comp-name-edit" contenteditable="true" spellcheck="false" title="Click to rename this component" ' +
+          'onclick="event.stopPropagation()" onmousedown="event.stopPropagation()" onkeydown="napTitleKey(event)" oninput="napEditName(' + i + ',this.textContent)">' + esc(c.name) + '</span>' +
         '<span class="pill ' + (c.level === 'Primary' ? 'pill-blue' : 'pill-grey') + '" style="font-size:9px">' + esc(c.level) + '</span>' +
         '<span class="rap-comp-sum">' + sum + '</span>' +
         '<svg class="rap-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>' +
@@ -166,11 +196,24 @@
         '</div>' +
       '</div></div>';
 
-    var compCards = COMPS.map(compCard).join('') || '<div style="padding:16px;text-align:center;color:var(--tw3);font-size:12px">No packaging components yet — add the ones this product ships in.</div>';
+    var expMax = Math.max(12, COMPS.length);
+    var expOpts = ''; for (var eo = 1; eo <= expMax; eo++) expOpts += '<option value="' + eo + '"' + (eo === COMPS.length ? ' selected' : '') + '>' + eo + '</option>';
+    var compCards = COMPS.map(compCard).join('') || '<div style="padding:16px;text-align:center;color:var(--tw3);font-size:12px">No packaging components yet — add the ones you expect this product to ship in.</div>';
     var comps =
-      '<div class="grp" style="margin-bottom:12px"><div class="grp-hdr">Packaging components' +
+      '<div class="grp" style="margin-bottom:12px"><div class="grp-hdr">Expected packaging components' +
         '<span style="margin-left:8px;font-size:10px;font-weight:600;color:var(--tw3)">' + COMPS.length + ' added</span>' +
-        '<button class="btn-g-sm" style="margin-left:auto" onclick="napAdd()"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>Add packaging component</button>' +
+        '<div style="margin-left:auto;display:flex;align-items:center;gap:12px">' +
+          '<span style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--tw2);white-space:nowrap"># expected' +
+            '<span class="rap-exp">' +
+              '<select id="nap-exp-sel" class="fi rap-exp-sel" onchange="napSetExpected(this.value)" title="Number of packaging components you expect for this product — pick from the list or step up/down">' + expOpts + '</select>' +
+              '<span class="rap-exp-steps">' +
+                '<button type="button" tabindex="-1" aria-label="Increase" onclick="napExpStep(1)"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 15 12 9 18 15"/></svg></button>' +
+                '<button type="button" tabindex="-1" aria-label="Decrease" onclick="napExpStep(-1)"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg></button>' +
+              '</span>' +
+            '</span>' +
+          '</span>' +
+          '<button class="btn-g-sm" onclick="napAdd()"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>Add packaging component</button>' +
+        '</div>' +
       '</div><div class="grp-body">' + compCards + '</div></div>';
 
     var finish =
@@ -190,6 +233,11 @@
       '</div></div>';
 
     root.innerHTML = header + banner + info + comps + finish;
+
+    var expSel = document.getElementById('nap-exp-sel');
+    if (expSel && window.GSEnhanceSelects) window.GSEnhanceSelects(expSel.parentNode);
+
+    flushHighlight();
   }
 
   /* ---- product field edits ---- */
@@ -203,6 +251,22 @@
   /* ---- components ---- */
   window.napToggle = function (i) { openIdx = (openIdx === i ? -1 : i); render(); };
   window.napEdit = function (i, key, val) { if (COMPS[i]) COMPS[i][key] = val; };
+  /* inline title edit — no re-render (keeps the contenteditable focus/caret) */
+  window.napEditName = function (i, val) { if (COMPS[i]) COMPS[i].name = (val || '').replace(/\n/g, ' '); };
+  window.napTitleKey = function (e) { if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); } };
+  /* # expected count — add blanks / trim from the end (nothing is supplier-provided yet) */
+  function applyExpected(n) {
+    if (n > COMPS.length) { pendingHl = []; while (COMPS.length < n) { pendingHl.push(COMPS.length); COMPS.push(blankComp()); } }
+    else if (n < COMPS.length) { COMPS.length = n; if (openIdx >= n) openIdx = -1; }
+    render();
+    toast(n + ' expected component' + (n === 1 ? '' : 's'));
+  }
+  window.napSetExpected = function (n) {
+    n = Math.max(0, Math.min(20, parseInt(n, 10) || 0));
+    if (n === COMPS.length) { render(); return; }
+    applyExpected(n);
+  };
+  window.napExpStep = function (d) { window.napSetExpected(COMPS.length + d); };
   window.napRemove = function (i) {
     var name = COMPS[i] ? COMPS[i].name : '';
     COMPS.splice(i, 1);
@@ -213,7 +277,7 @@
     return { name: name || ('Component ' + (COMPS.length + 1)), level: level || 'Primary', material: material || '', weight: '', pcr: '', recycle: '', notes: '' };
   }
   function addComp(c) {
-    COMPS.push(c); openIdx = COMPS.length - 1; render();
+    COMPS.push(c); openIdx = COMPS.length - 1; pendingHl = [COMPS.length - 1]; render();
     var last = document.querySelector('.rap-comp[data-i="' + (COMPS.length - 1) + '"]');
     if (last && last.scrollIntoView) last.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
