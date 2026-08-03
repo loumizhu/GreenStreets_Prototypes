@@ -738,3 +738,96 @@
     fireBurst(btn,null,null);
   });
 })();
+
+/* ── Universal keyboard operability ───────────────────────────────────────────────────────────────
+   Many controls in these prototypes are non-native clickable elements (`<div onclick>`, `<span onclick>`,
+   header/tab pills, cards, `<td>` action cells) built with plain `onclick`. Mouse users can click them,
+   but they were not in the Tab order and did not respond to Enter/Space, so they were unreachable by
+   keyboard. This layer makes every such element focusable (`tabindex=0` + `role="button"`) and lets
+   Enter/Space activate it — WITHOUT touching native controls (a/button/input/select/textarea), table
+   rows (the data-grid owns roving arrow-key focus over those), or elements that already declare their
+   own tabindex/role/keyboard handling (custom-select trigger & options, sortable headers, steppers).
+   It runs on load and via a MutationObserver so runtime-rendered markup (breadcrumb nav, table rows,
+   dropdown menus) is covered too. Focus visibility comes from the `[data-gs-kbd]:focus-visible` rule in
+   greenstreets-theme.css. */
+(function(){
+  var NATIVE={A:1,BUTTON:1,INPUT:1,SELECT:1,TEXTAREA:1};
+  /* onclick handlers that ONLY stop event propagation are plumbing, not real actions — don't make them tab stops */
+  function isNoop(h){ return /^\s*event\.stopPropagation\(\)\s*;?\s*$/.test(h||''); }
+  function shouldEnhance(el){
+    /* native focusables, and table structure owned by the grid/sort layers (rows rove, headers sort) */
+    if(NATIVE[el.tagName] || el.tagName==='TR' || el.tagName==='TH' || el.tagName==='THEAD') return false;
+    if(el.hasAttribute('tabindex') || el.getAttribute('role')==='button') return false; // already handled
+    if(el.isContentEditable) return false;
+    /* menus own their own keys; data grids run their own spreadsheet-style keyboard model */
+    if(el.closest('.cs-menu,.cs-trigger,.comp-lib-menu,.gs-colmenu,[data-gs-grid]')) return false;
+    if(!el.hasAttribute('onclick') || isNoop(el.getAttribute('onclick'))) return false;
+    return true;
+  }
+  function enable(root){
+    var scope=root&&root.querySelectorAll?root:document;
+    var list=scope.querySelectorAll?scope.querySelectorAll('[onclick]'):[];
+    Array.prototype.forEach.call(list,function(el){
+      if(!shouldEnhance(el)) return;
+      el.setAttribute('tabindex','0');
+      if(!el.getAttribute('role')) el.setAttribute('role','button');
+      el.setAttribute('data-gs-kbd','1');
+    });
+    /* the root node itself may be an added [onclick] element */
+    if(root&&root.nodeType===1&&root.hasAttribute&&root.hasAttribute('onclick')&&shouldEnhance(root)){
+      root.setAttribute('tabindex','0');
+      if(!root.getAttribute('role')) root.setAttribute('role','button');
+      root.setAttribute('data-gs-kbd','1');
+    }
+  }
+  window.GSKeyboardEnable=enable;
+  /* Enter / Space activates a keyboard-enabled clickable (mirrors native button semantics) */
+  document.addEventListener('keydown',function(e){
+    if(e.key!=='Enter' && e.key!==' ') return;
+    var el=e.target;
+    if(!el||!el.getAttribute||el.getAttribute('data-gs-kbd')!=='1') return;
+    if(NATIVE[el.tagName]||el.isContentEditable) return;
+    e.preventDefault();          // stop Space from scrolling the page
+    el.click();
+  });
+  /* Ensure the page has exactly ONE main landmark (axe/WCAG "landmark-one-main"). If the page already
+     declares a <main> or [role="main"], use it; otherwise promote the page's main content container to
+     role="main". Content containers are preferred over the outer shell (.pshell/.pbody) so the site
+     header (.ph) stays OUTSIDE the main landmark. Returns the main element (or null). */
+  function ensureMain(){
+    var main = document.querySelector('main, [role="main"]');
+    if(!main){
+      /* explicit priority order (NOT a comma list — querySelector's comma list resolves by document
+         order, which would pick the outer .pshell wrapper over the inner .pbody content and pull the
+         site header into the landmark). Prefer the content region so the header stays outside main. */
+      var sels=['.pbody','.onb-body','.login-wrap','.main','.pshell'];
+      for(var i=0;i<sels.length && !main;i++) main=document.querySelector(sels[i]);
+      if(main && main.tagName!=='MAIN') main.setAttribute('role','main');
+    }
+    return main;
+  }
+  /* Skip-to-content link: the first Tab stop, so keyboard users can jump past the header/nav
+     straight to the page's main region instead of tabbing through every header control first. */
+  function addSkipLink(){
+    if(document.querySelector('.gs-skip-link')) return;
+    var main=ensureMain();
+    if(!main) return;
+    if(!main.id) main.id='gs-main';
+    main.setAttribute('tabindex','-1');   // focusable as a target, not in the Tab order
+    var a=document.createElement('a');
+    a.className='gs-skip-link'; a.href='#'+main.id; a.textContent='Skip to main content';
+    a.addEventListener('click',function(e){ e.preventDefault(); main.focus(); main.scrollIntoView(); });
+    document.body.insertBefore(a,document.body.firstChild);
+  }
+  function run(){ enable(document); addSkipLink(); }
+  if(document.readyState!=='loading') run(); else document.addEventListener('DOMContentLoaded',run);
+  /* runtime-rendered clickables (breadcrumb nav, listing rows, dropdowns) */
+  try{
+    new MutationObserver(function(muts){
+      for(var i=0;i<muts.length;i++){
+        var ns=muts[i].addedNodes;
+        for(var j=0;j<ns.length;j++){ if(ns[j].nodeType===1) enable(ns[j]); }
+      }
+    }).observe(document.documentElement,{childList:true,subtree:true});
+  }catch(_){}
+})();

@@ -749,3 +749,45 @@ mark.gs-hl{background:rgba(245,205,90,.32);color:inherit;border-radius:3px;paddi
   .grids,.fg2,.tier-grid,.recap-grid{grid-template-columns:1fr}
   .fg3,.fg4{grid-template-columns:1fr}
 }
+
+/* ── Universal keyboard focus indicator ───────────────────────────────────────────────────────────
+   greenstreets-theme.js promotes non-native clickable elements (`<div onclick>` pills, cards, action
+   cells, etc.) to keyboard operability by tagging them [data-gs-kbd]. The animated .fs-ring only wraps
+   fields/selects/buttons, so give every other keyboard-focusable element a clear, theme-consistent
+   focus ring. :focus-visible keeps it keyboard-only (no ring on mouse click). */
+[data-gs-kbd]:focus-visible{
+  outline:2px solid var(--field-stroke-color,#5b9cf6);
+  outline-offset:2px;
+  border-radius:6px;
+}
+/* CRITICAL: the global `button{outline:none}` above (needed to kill the ugly default ring on mouse
+   click) ALSO hid the KEYBOARD focus ring on every native button — the header nav pills, the
+   All/Incomplete/… filter chips, Getting started / Settings, the pager — so tabbing through the top
+   bar looked like it "did nothing". Restore a clear, theme-consistent ring for keyboard users on
+   everything focusable. `:focus-visible` = keyboard only (never on mouse click). The `.fs-ring`
+   overlay already draws on `.fi`/`.btn-p`/`.btn-g`/`.btn-g-sm`, so those are excluded to avoid a
+   double ring; table rows carry their own `.gs-kbd-row` highlight and are excluded too. */
+button:not(.btn-p):not(.btn-g):not(.btn-g-sm):focus-visible,
+a[href]:focus-visible,
+select:focus-visible,
+summary:focus-visible,
+[role="button"]:not(.btn-p):not(.btn-g):not(.btn-g-sm):focus-visible,
+[tabindex]:not(.fi):not(.btn-p):not(.btn-g):not(.btn-g-sm):not(tr):focus-visible{
+  outline:2px solid var(--field-stroke-color,#5b9cf6);
+  outline-offset:2px;
+  border-radius:6px;
+}
+/* Focused data-grid row: a strong, unmistakable ring so you can see exactly where you are as you
+   arrow through the listing (and when Tab first enters it). */
+tr[data-gs-grid] , table[data-gs-grid] tbody tr:focus-visible{ outline:none; }
+table[data-gs-grid] tbody tr.gs-kbd-row{ outline:2px solid var(--field-stroke-color,#5b9cf6); outline-offset:-2px; }
+/* Skip link — first Tab stop on every page; jumps past the header to the main content region. */
+.gs-skip-link{
+  position:fixed;top:8px;left:8px;z-index:10000;
+  transform:translateY(-160%);
+  padding:10px 16px;border-radius:8px;
+  background:var(--field-stroke-color,#5b9cf6);color:#04122b;font-weight:600;
+  text-decoration:none;box-shadow:0 6px 20px rgba(0,0,0,.35);
+  transition:transform .15s ease;
+}
+.gs-skip-link:focus{transform:translateY(0)}

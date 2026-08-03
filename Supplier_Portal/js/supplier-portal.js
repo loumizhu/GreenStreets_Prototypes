@@ -189,6 +189,15 @@ var PRODUCTS = [
  {id:13,code:"PRK-014-FW-BRN",  name:"Brown Chelsea Boots",       category:"Footwear",    status:"complete",   type:"submitted",  packing:"Boxed",uc:12,  cp:60,   comps:["Display Box","Tissue Paper","Shipping Carton"],      expected:["Display Box","Tissue Paper","Shipping Carton","Pallet"]},
  {id:14,code:"PRK-015-SCF-RED", name:"Red Wool Scarf",            category:"Scarves",     status:"delisted",   type:"delisted",   packing:"Flat", uc:100, cp:20,   comps:["Swing Tag","Poly Bag"],                              expected:["Swing Tag","Poly Bag","Shipping Carton"]}
 ];
+/* Seed a few example multi-quantity components so the × badge + steppers show
+   off out of the box (Hanger ×2, etc.). compQty is a parallel array to comps. */
+(function seedCompQty(){
+  var seeds = { 8:{"Hanger":2}, 10:{"Wrap Band":2}, 11:{"Header Card":3}, 13:{"Tissue Paper":6} };
+  PRODUCTS.forEach(function(p){
+    var s = seeds[p.id]; if(!s) return;
+    p.compQty = p.comps.map(function(name){ return s[name] || 1; });
+  });
+})();
 
 var prodState = {filter:"all", cat:"all", q:"", sortKey:"status", sortDir:1, page:0, size:10};
 
@@ -355,8 +364,15 @@ function prodRowHtml(p){
 function prodCompCell(p){
   var X = '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
   var n = p.comps.length;
+  prodEnsureQty(p);
   var pills = p.comps.map(function(name, idx){
-    return '<span class="pcmp-pill"><span class="pcmp-num">'+(idx+1)+'</span><span class="pcmp-txt" title="'+name+'">'+name+'</span>'
+    var q = p.compQty[idx]||1;
+    var qBadge = q>1 ? '<span class="pcmp-qty" title="'+q+' of this component">× '+q+'</span>' : '';
+    return '<span class="pcmp-pill"><span class="pcmp-num">'+(idx+1)+'</span><span class="pcmp-txt" title="'+name+(q>1?' × '+q:'')+'">'+name+'</span>'+qBadge
+      + '<span class="pcmp-steppers">'
+      +   '<button class="pcmp-step pcmp-step-minus" title="Fewer of this component"'+(q<=1?' disabled':'')+' onclick="event.stopPropagation();prodDecComp('+p.id+','+idx+')"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>'
+      +   '<button class="pcmp-step pcmp-step-plus" title="More of this component" onclick="event.stopPropagation();prodIncComp('+p.id+','+idx+')"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>'
+      + '</span>'
       + '<span class="pcmp-x" title="Remove component" onclick="event.stopPropagation();prodRemoveComp('+p.id+','+idx+')">'+X+'</span></span>';
   }).join('');
   var req = prodReq(p);
@@ -370,6 +386,7 @@ function prodCompCell(p){
     return '<span class="pcmp-pill pcmp-pill-sugg" title="Suggested by retailer — click to choose a component or create one" data-pi="'+p.id+'" data-si="'+si+'" onclick="event.stopPropagation();suggListClick(this,'+p.id+','+si+')">'
       + '<svg class="pcmp-sugg-ic" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 9v4m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>'
       + '<span class="pcmp-txt">'+name+'</span>'
+      + '<span class="pcmp-accept" title="Accept this component" onclick="event.stopPropagation();pdAcceptSugg('+p.id+','+si+')"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>'
       + '<span class="pcmp-x pcmp-x-sugg" title="Remove this suggestion" onclick="event.stopPropagation();pdDismissSugg('+p.id+','+si+')">'+X+'</span></span>';
   }).join('') : '';
   var list = (n||suggPills) ? '<div class="pcmp-list">'+pills+suggPills+'</div>' : '';
@@ -453,15 +470,34 @@ function wireCompMenuKeys(menu){
   var s=menu.querySelector('.comp-menu-search');
   if(s) s.addEventListener('input', function(){ menu.querySelectorAll('.comp-lib-hl').forEach(function(x){ x.classList.remove('comp-lib-hl'); }); });
 }
+/* Per-component quantity: a parallel array to p.comps, defaulting each to 1.
+   Kept length-synced with comps so a mismatched/absent array self-heals. */
+function prodEnsureQty(p){
+  if(!p.compQty || p.compQty.length!==p.comps.length){
+    var old = p.compQty || [];
+    p.compQty = p.comps.map(function(_, i){ return old[i] || 1; });
+  }
+  return p.compQty;
+}
+function prodIncComp(pi, idx){
+  var p = PRODUCTS.filter(function(x){return x.id===pi;})[0];
+  if(!p) return; prodEnsureQty(p);
+  if(idx>=0 && idx<p.comps.length){ p.compQty[idx] = Math.min(99, (p.compQty[idx]||1)+1); prodRender(); if(_pdOpen===pi) renderProductDetail(pi); }
+}
+function prodDecComp(pi, idx){
+  var p = PRODUCTS.filter(function(x){return x.id===pi;})[0];
+  if(!p) return; prodEnsureQty(p);
+  if(idx>=0 && idx<p.comps.length){ p.compQty[idx] = Math.max(1, (p.compQty[idx]||1)-1); prodRender(); if(_pdOpen===pi) renderProductDetail(pi); }
+}
 function prodAddComp(pi, key){
   closeAllCompMenus();
   var p = PRODUCTS.filter(function(x){return x.id===pi;})[0];
   var comp = COMPONENT_LIBRARY_JS.find(function(c){return c.key===key;});
-  if(p && comp){ p.comps.push(comp.name); if(p._pkgs) p._pkgs.push(buildPkgData(comp.name)); prodRender(); if(_pdOpen===pi) renderProductDetail(pi); }
+  if(p && comp){ prodEnsureQty(p); p.comps.push(comp.name); p.compQty.push(1); if(p._pkgs) p._pkgs.push(buildPkgData(comp.name)); prodRender(); if(_pdOpen===pi) renderProductDetail(pi); }
 }
 function prodRemoveComp(pi, idx){
   var p = PRODUCTS.filter(function(x){return x.id===pi;})[0];
-  if(p && idx>=0 && idx<p.comps.length){ p.comps.splice(idx,1); if(p._pkgs) p._pkgs.splice(idx,1); prodRender(); if(_pdOpen===pi) renderProductDetail(pi); }
+  if(p && idx>=0 && idx<p.comps.length){ prodEnsureQty(p); p.comps.splice(idx,1); p.compQty.splice(idx,1); if(p._pkgs) p._pkgs.splice(idx,1); prodRender(); if(_pdOpen===pi) renderProductDetail(pi); }
 }
 function closeAllCompMenus(){
   document.querySelectorAll('.pcmp-menu').forEach(function(m){ m.remove(); });
@@ -870,6 +906,21 @@ function pdDismissSugg(pi, si){
   p.sugg.splice(si,1);
   prodRender(); _pdReRender(pi);
   if(typeof gsToast==='function') gsToast('Suggestion “'+name+'” removed');
+}
+/* Supplier accepts a retailer suggestion as-is (the ✓ on the orange pill): the
+   suggestion becomes a real green component with that name and is dropped from
+   the suggestions list. */
+function pdAcceptSugg(pi, si){
+  closeAllCompMenus();
+  var p = PRODUCTS.filter(function(x){return x.id===pi;})[0];
+  if(!p || !p.sugg || si<0 || si>=p.sugg.length) return;
+  var name = p.sugg[si];
+  p.sugg.splice(si,1);
+  prodEnsureQty(p);
+  if(!p._pkgs) p._pkgs=[];
+  p.comps.push(name); p.compQty.push(1); p._pkgs.push(buildPkgData(name));
+  prodRender(); _pdReRender(pi);
+  if(typeof gsToast==='function') gsToast('“'+name+'” accepted');
 }
 function pdFillSuggestPick(pi, key){
   closeAllCompMenus();
@@ -1518,53 +1569,264 @@ function pkgInitRowIds(){
   });
 }
 
-/* ── Generic keyboard navigation for data listings ──────────────────────────
-   Makes a table body arrow-navigable: the table is one Tab stop, ↑/↓ move a
-   highlight across the currently-visible rows, Home/End jump to ends, and Enter
-   activates the row (its onclick, or — for the docs table — toggles its checkbox).
-   Re-render-safe: state lives on a class, handlers are delegated to the table. */
-function gsListKeyNav(tableId, tbodyId){
+/* ── Spreadsheet-style keyboard navigation for data listings ─────────────────
+   Best-practice data-grid keyboard model (ARIA grid + spreadsheet feel):
+     • Sortable column headers are individual, ordered Tab stops (role=columnheader
+       + aria-sort). Enter/Space (or click) sorts. Tab flows left→right across them,
+       so keyboard users reach the header row before the body.
+     • The row area is a SINGLE Tab stop (roving tabindex): Tab from the last header
+       lands on the active (or first) row; Tab again LEAVES the grid to the pager —
+       the body is not N separate tab stops.
+     • ↑ / ↓ move between rows;  Ctrl/⌘ + ↑/↓ jump to the first / last row
+       (spreadsheet edge-jump); Home / End also jump to the ends.
+     • ← / → move focus across the controls INSIDE the current row (select checkbox,
+       component pills, action buttons). Those controls are tabindex=-1, so they are
+       reachable by arrows without cluttering the Tab order.
+     • Space toggles the row's select checkbox;  Enter opens the row.
+   Re-render-safe: a MutationObserver re-applies the roving tabindex + control
+   neutralisation after each prodRender/renderPkgTable. Marks the table
+   [data-gs-grid] so the generic keyboard layer (greenstreets-theme.js) leaves it
+   alone and this controller fully owns its keys. */
+/* One-time keyboard-navigation coach hint: the first time a grid row receives focus, a
+   small tooltip pops up above it telling the user the arrow keys drive the grid. Shows
+   once per page load, auto-dismisses, and closes on Esc / scroll / click. */
+var _gsHintShown = false, _gsHintT = null;
+function gsGridHint(tr){
+  if(_gsHintShown || !tr) return;
+  _gsHintShown = true;
+  var h = document.createElement('div');
+  h.className = 'gs-grid-hint';
+  h.setAttribute('role','status');
+  h.innerHTML = '<span class="gs-grid-hint-keys">↑ ↓</span> move rows'
+    + ' &nbsp;·&nbsp; <span class="gs-grid-hint-keys">← →</span> move across a row'
+    + ' &nbsp;·&nbsp; <span class="gs-grid-hint-keys">Enter</span> open'
+    + ' &nbsp;·&nbsp; <span class="gs-grid-hint-keys">Space</span> select'
+    + '<button class="gs-grid-hint-x" aria-label="Dismiss">&times;</button>';
+  document.body.appendChild(h);
+  function place(){
+    var r = tr.getBoundingClientRect();
+    h.style.left = Math.max(12, Math.round(r.left)) + 'px';
+    var top = r.top - h.offsetHeight - 10;
+    h.classList.toggle('gs-grid-hint-below', top < 8);
+    h.style.top = (top < 8 ? (r.bottom + 10) : top) + 'px';
+  }
+  place();
+  requestAnimationFrame(function(){ place(); h.classList.add('gs-grid-hint-in'); });
+  function close(){
+    if(!h.parentNode) return;
+    clearTimeout(_gsHintT);
+    h.classList.remove('gs-grid-hint-in');
+    window.removeEventListener('scroll', close, true);
+    document.removeEventListener('keydown', onEsc, true);
+    setTimeout(function(){ if(h.parentNode) h.remove(); }, 220);
+  }
+  function onEsc(e){ if(e.key==='Escape') close(); }
+  h.querySelector('.gs-grid-hint-x').addEventListener('click', close);
+  document.addEventListener('keydown', onEsc, true);
+  /* Attach the scroll-to-dismiss listener only after the initial reveal — focusing the
+     row can itself scroll it into view, which would otherwise close the hint instantly. */
+  setTimeout(function(){ window.addEventListener('scroll', close, true); }, 500);
+  _gsHintT = setTimeout(close, 7000);
+}
+
+function gsGridNav(tableId, tbodyId){
   var table = document.getElementById(tableId);
   var tbody = document.getElementById(tbodyId);
-  if(!table || !tbody || table._gsKbd) return;
-  table._gsKbd = true;
-  if(!table.hasAttribute('tabindex')) table.tabIndex = 0;
-  function visRows(){
+  if(!table || !tbody || table._gsGrid) return;
+  table._gsGrid = true;
+  table.setAttribute('data-gs-grid','1');
+  table.setAttribute('role','grid');
+  table.removeAttribute('tabindex');            // rows are the tab stops, not the whole table
+
+  /* Column headers → ordered Tab stops that sort on Enter/Space */
+  Array.prototype.forEach.call(table.querySelectorAll('thead th'), function(th){
+    th.setAttribute('role','columnheader');
+    var sortable = th.hasAttribute('onclick') || th.classList.contains('prod-sortable') || th.hasAttribute('data-sort');
+    if(!sortable) return;
+    th.tabIndex = 0;
+    if(!th.getAttribute('aria-sort')) th.setAttribute('aria-sort','none');
+    if(!th._gsK){ th._gsK = true;
+      th.addEventListener('keydown', function(e){
+        if(e.key==='Enter' || e.key===' '){ e.preventDefault(); th.click(); }
+      });
+    }
+  });
+
+  function rows(){
     return Array.prototype.filter.call(tbody.querySelectorAll('tr'), function(r){
       return r.offsetParent !== null && (r.hasAttribute('onclick') || r.getAttribute('data-doc-id') || r.getAttribute('data-pi'));
     });
   }
-  function move(rows, i){
-    rows.forEach(function(r){ r.classList.remove('gs-kbd-row'); });
-    i = Math.max(0, Math.min(rows.length-1, i));
-    if(rows[i]){ rows[i].classList.add('gs-kbd-row'); rows[i].scrollIntoView({block:'nearest'}); }
+  /* A stable identity for a row so focus can be re-homed onto "the same" row after an
+     in-grid re-render (prodRender/renderPkgTable rebuild the <tr>s). */
+  function rowKey(tr){ return tr.getAttribute('data-pi') || tr.getAttribute('data-doc-id') || String(rows().indexOf(tr)); }
+  /* The ordered, in-row "stops" reachable with ← / → : select checkbox → the packaging-components
+     cell (expected-count input, then each component's − / + / ✕ and the Add button) → the action
+     buttons. DOM order already lays these out left→right, so we just collect the real controls
+     (skipping the stopPropagation-only wrapper divs). */
+  function rowControls(tr){
+    return Array.prototype.filter.call(
+      tr.querySelectorAll('input:not([type=hidden]),button,a[href],select,textarea,.pcmp-x,.pcmp-accept'),
+      function(c){ return c.offsetParent !== null && !c.disabled; });
   }
-  table.addEventListener('keydown', function(e){
-    if(['ArrowDown','ArrowUp','Home','End','Enter'].indexOf(e.key) < 0) return;
-    var rows = visRows(); if(!rows.length) return;
-    var cur = rows.findIndex(function(r){ return r.classList.contains('gs-kbd-row'); });
-    if(e.key==='Enter'){
+  /* keep inner controls OUT of the Tab order — they're reached with ← / → instead. The ✕ spans are
+     not natively focusable, so give them tabindex=-1 too (focusable by script, not by Tab). */
+  function neutralize(tr){
+    Array.prototype.forEach.call(tr.querySelectorAll('a,button,input,select,textarea,[data-gs-kbd],.pcmp-x,.pcmp-accept'),
+      function(c){ c.tabIndex = -1; c.removeAttribute('data-gs-kbd'); });
+  }
+  function apply(){
+    var rs = rows(); if(!rs.length) return;
+    var keep = rs.filter(function(r){ return r.getAttribute('tabindex') === '0'; })[0];
+    rs.forEach(function(r){ r.setAttribute('role','row'); r.tabIndex = -1; neutralize(r); });
+    (keep || rs[0]).tabIndex = 0;                 // exactly one row holds the grid's tab stop
+    /* An in-grid action (add/remove a component, ± a count) re-renders the tbody, which
+       detaches the focused control and drops focus to <body>. If the user had been working
+       inside this grid, re-home focus onto the SAME POSITION — not just the row. We remember
+       both the row and the index of the focused control within the row's ←/→ chain
+       ([row] + rowControls), and restore focus to the control now at that index (clamped),
+       so removing a component with ✕ lands on the neighbouring component / Add button rather
+       than snapping all the way back to the row's first cell (the select checkbox). */
+    if(table._gsLastKey != null && (document.activeElement === document.body || !document.activeElement)){
+      var want = rs.filter(function(r){ return rowKey(r) === table._gsLastKey; })[0];
+      if(want){
+        rs.forEach(function(r){ r.tabIndex = (r===want)?0:-1; });
+        var idx = table._gsLastCtrlIdx;
+        if(idx > 0){                               // was on a control inside the row
+          var chain = [want].concat(rowControls(want));
+          (chain[Math.min(idx, chain.length-1)] || want).focus();
+        } else {
+          want.focus();                            // was on the row itself
+        }
+      }
+    }
+  }
+  function markRow(tr){ rows().forEach(function(x){ x.classList.toggle('gs-kbd-row', x===tr); x.tabIndex = (x===tr)?0:-1; }); }
+  function focusRow(r){ if(!r) return; r.focus(); r.scrollIntoView({block:'nearest'}); }   // focusin does the highlight
+  table._gsApply = apply;                       // re-run when the grid is revealed (see gsGridRefresh)
+  apply();
+  new MutationObserver(apply).observe(tbody, {childList:true});
+
+  /* clicking / tabbing / arrowing onto a row or a control inside it highlights that row and keeps the
+     grid's single tab stop on it (so Tab from any inner control leaves the grid to the pager). */
+  tbody.addEventListener('focusin', function(e){
+    var tr = e.target.closest && e.target.closest('tr');
+    if(!tr || tr.parentNode !== tbody) return;
+    markRow(tr);
+    table._gsLastKey = rowKey(tr);                // remember row for post-re-render focus restore
+    var chain = [tr].concat(rowControls(tr));     // 0 = the row itself, ≥1 = a control (←/→ order)
+    table._gsLastCtrlIdx = Math.max(0, chain.indexOf(e.target));
+    gsGridHint(tr);                               // first time a row is focused, show the arrow-key hint
+  });
+
+  tbody.addEventListener('keydown', function(e){
+    var rs = rows(); if(!rs.length) return;
+    var tr = e.target.closest && e.target.closest('tr');
+    if(!tr) return;
+    var ri = rs.indexOf(tr), onRow = (e.target === tr);
+    var pill = e.target.closest && e.target.closest('.pcmp-pill');
+    var k = e.key;
+
+    /* ── Row movement: ↑/↓ (Alt+↑/↓ and Ctrl+↑/↓ do the same — offered because a plain ↑/↓ can be
+       swallowed by a focused number field, and the user asked for the modified variants) ── */
+    if(k==='ArrowDown' || k==='ArrowUp'){
       e.preventDefault();
-      var row = rows[cur<0?0:cur]; if(!row) return;
-      var cb = row.querySelector('input[type=checkbox]');
-      if(row.hasAttribute('onclick')) row.click();
-      else if(cb){ cb.checked = !cb.checked; cb.dispatchEvent(new Event('change',{bubbles:true})); }
+      var ni = Math.max(0, Math.min(rs.length-1, (ri<0?0:ri) + (k==='ArrowDown'?1:-1)));
+      focusRow(rs[ni]);
       return;
     }
-    e.preventDefault();
-    if(e.key==='Home') move(rows, 0);
-    else if(e.key==='End') move(rows, rows.length-1);
-    else move(rows, (cur<0 ? (e.key==='ArrowDown'?0:rows.length-1) : cur + (e.key==='ArrowDown'?1:-1)));
+    if(k==='Home' || k==='End'){
+      e.preventDefault(); focusRow(k==='Home' ? rs[0] : rs[rs.length-1]); return;
+    }
+
+    /* ── Element-to-element within the row: ←/→ (true spreadsheet cell-move — never steals the caret;
+       to change the small expected-count field just type digits while it's focused) ── */
+    if(k==='ArrowRight' || k==='ArrowLeft'){
+      var chain = [tr].concat(rowControls(tr));
+      var ci = chain.indexOf(e.target); if(ci < 0) ci = 0;
+      var tgt = chain[Math.max(0, Math.min(chain.length-1, ci + (k==='ArrowRight'?1:-1)))];
+      if(tgt){ e.preventDefault(); tgt.focus(); }
+      return;
+    }
+
+    /* Enter and Space are interchangeable as "activate" everywhere below (matches how a
+       native button treats both keys) — the only place they diverge is on the row itself,
+       where Space = select and Enter = open. */
+    var activate = (k==='Enter' || k===' ');
+
+    /* ── Packaging-component cell shortcuts (when focus is on/inside a component pill) ── */
+    if(pill && !pill.classList.contains('pcmp-pill-sugg')){
+      if(k==='Delete' || k==='Backspace'){                       // remove this component
+        var x = pill.querySelector('.pcmp-x'); if(x){ e.preventDefault(); x.click(); } return;
+      }
+      if(k==='+' || k==='=' ){                                   // more of this component
+        var pl = pill.querySelector('.pcmp-step-plus'); if(pl && !pl.disabled){ e.preventDefault(); pl.click(); } return;
+      }
+      if(k==='-' || k==='_'){                                    // fewer of this component
+        var mi = pill.querySelector('.pcmp-step-minus'); if(mi && !mi.disabled){ e.preventDefault(); mi.click(); } return;
+      }
+      /* Enter *or* Space on the pill body (not on one of its own controls) opens the
+         component list to add / replace — the two keys are interchangeable. */
+      if(activate && !/^(BUTTON|A|INPUT)$/.test(e.target.tagName) && !(e.target.classList && e.target.classList.contains('pcmp-x'))){
+        var add = tr.querySelector('.pcmp-add-btn');
+        if(add){ e.preventDefault(); add.click(); } return;
+      }
+    }
+
+    /* ── Enter / Space on the row itself: Space selects, Enter opens ── */
+    if(activate && onRow){
+      e.preventDefault();
+      if(k===' '){
+        var cb = tr.querySelector('input[type=checkbox]');
+        if(cb){ cb.checked = !cb.checked; cb.dispatchEvent(new Event('change',{bubbles:true})); }
+      } else if(tr.hasAttribute('onclick')){
+        tr.click();
+      }
+      return;
+    }
+
+    /* ── Enter / Space on an inner control: activate it (keys interchangeable). Native
+       buttons/links/inputs already handle both keys themselves, so we only step in for
+       non-native clickables (e.g. the ✕ / ✓ spans, a role=button pill). ── */
+    if(activate && !onRow){
+      var t = e.target;
+      if(!/^(BUTTON|A|INPUT|SELECT|TEXTAREA)$/.test(t.tagName) && t.hasAttribute && t.hasAttribute('onclick')){
+        e.preventDefault(); t.click();           // focus is re-homed to the same position by apply() after re-render
+      }
+      return;
+    }
   });
 }
+
+/* Spreadsheet-style shortcut: Ctrl/Alt + 1..9 sorts the Nth column of the visible listing.
+   Bound on e.code (Digit1…Digit9) so it is keyboard-layout independent — on an AZERTY board the
+   unshifted number keys ('&','é','"',…) still report Digit1, Digit2, Digit3… (so "Ctrl + &" sorts
+   column 1, "Ctrl + é" sorts column 2, and so on, exactly as requested). Alt is accepted alongside
+   Ctrl because some browsers reserve Ctrl+number for switching tabs. */
+document.addEventListener('keydown', function(e){
+  if(e.shiftKey || !(e.ctrlKey || e.altKey)) return;
+  var m = /^Digit([1-9])$/.exec(e.code || ''); if(!m) return;
+  var grid = Array.prototype.filter.call(document.querySelectorAll('table[data-gs-grid]'), function(t){ return t.offsetParent !== null; })[0];
+  if(!grid) return;
+  var heads = grid.querySelectorAll('thead th[role="columnheader"][tabindex]');
+  var th = heads[parseInt(m[1],10) - 1];
+  if(th){ e.preventDefault(); th.click(); th.focus(); }
+});
+
+/* Re-apply each grid's roving tabindex — a grid rendered while hidden (packaging / docs tab)
+   set no tab stop, and switchLandingTab reveals it by display toggle (no re-render). Call this
+   whenever a listing becomes visible so Tab can enter it. */
+window.gsGridRefresh = function(){
+  document.querySelectorAll('table[data-gs-grid]').forEach(function(t){ if(t._gsApply) t._gsApply(); });
+};
 
 /* Run on load */
 document.addEventListener('DOMContentLoaded', function(){
   pkgInitMaterialFilter(); pkgInitCellFilters(); pkgInitRowIds(); renderPkgTable();
   gsFadeInRows(document.getElementById('pkg-lib-tbody'), 'tr');
-  gsListKeyNav('prod-tbl-el','prod-tbody');
-  gsListKeyNav('pkg-lib-table','pkg-lib-tbody');
-  gsListKeyNav('docs-tbl','docs-tbody-new');
+  gsGridNav('prod-tbl-el','prod-tbody');
+  gsGridNav('pkg-lib-table','pkg-lib-tbody');
+  gsGridNav('docs-tbl','docs-tbody-new');
 });
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -2460,6 +2722,7 @@ function switchLandingTab(tab) {
     });
   }
   if(typeof gsBuildBreadcrumb==='function') gsBuildBreadcrumb();
+  if(typeof window.gsGridRefresh==='function') window.gsGridRefresh();   // give the revealed grid its tab stop
 }
 
 var pkgActiveLevel = 'all';
@@ -3294,6 +3557,13 @@ function gsOnbRenderWelcome(){
     title.setAttribute('data-home','1');
     title.style.cursor = 'pointer';
     title.title = 'Back to portal';
+    /* keyboard-operable: it's the first top-bar element, so it must be the first real Tab stop.
+       The click is bound via addEventListener (no onclick attribute), so tag it for the shared
+       keyboard layer, which activates data-gs-kbd elements on Enter/Space. */
+    title.setAttribute('tabindex','0');
+    title.setAttribute('role','button');
+    title.setAttribute('aria-label','Back to portal home');
+    title.setAttribute('data-gs-kbd','1');
     title.addEventListener('click', function(){ if(typeof go==='function') go('sp2'); });
   }
   if(document.readyState !== 'loading') wireHomeTitle();

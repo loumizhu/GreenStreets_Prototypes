@@ -353,11 +353,14 @@ select.fi option{background-color:#0f2038;color:var(--tw)}
    Toggled by the button under the logo (.sb-collapse-btn) or by clicking the
    sidebar's right edge (.sb-edge, which shows a resize cursor as a hint).
    Both are injected by enhanceSidebarCollapse() in super-admin.js. */
-.sidebar{position:relative;transition:width .2s ease}
+/* Overshoot easing: the width eases in, slightly overshoots its target, then settles (ease-in/out
+   with a bit of "back"). cubic-bezier(.34,1.45,.64,1) = a gentle easeOutBack. */
+.sidebar{position:relative;transition:width .3s cubic-bezier(.34,1.45,.64,1)}
 .sb-logo-zone{position:relative}
-.sb-collapse-btn{position:absolute;right:8px;bottom:6px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;padding:0;border:none;border-radius:6px;background:rgba(255,255,255,.06);color:var(--tw3);cursor:pointer;transition:background .15s,color .15s;z-index:2}
-.sb-collapse-btn:hover{background:rgba(255,255,255,.12);color:var(--tw)}
-.sb-collapse-btn svg{transition:transform .2s ease}
+.sb-collapse-btn{position:absolute;right:8px;bottom:6px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;padding:0;border:none;border-radius:6px;background:#eaf7ee;color:var(--gs-d);cursor:pointer;transition:background .15s,color .15s;z-index:2}
+.sb-collapse-btn:hover{background:#d7efdd;color:var(--gs-d)}
+/* same overshoot easing on the chevron flip so the whole collapse motion feels consistent */
+.sb-collapse-btn svg{transition:transform .3s cubic-bezier(.34,1.45,.64,1)}
 .sb-edge{position:absolute;top:0;right:0;width:7px;height:100%;cursor:col-resize;z-index:6;user-select:none}
 .sb-edge:hover{background:linear-gradient(90deg,transparent,rgba(143,227,182,.30))}
 .sidebar.sb-collapsed{width:64px}

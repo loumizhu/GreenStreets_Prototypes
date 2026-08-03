@@ -1,0 +1,205 @@
+Accessibility
+
+1. **Automated scanning (fast, catches ~30% of issues)**
+
+Run one of these on every page:
+
+axe DevTools (browser extension) or WAVE (wave.webaim.org) — free, catches missing alt text, contrast failures, missing labels, ARIA misuse
+Lighthouse (built into Chrome DevTools → Accessibility tab)
+Pa11y or axe-core if you want it in a CI pipeline
+
+These won't catch everything — they can't judge whether alt text is meaningful, or whether tab order makes sense. That needs manual testing.
+
+✅ Most of the page 95% have labels/text 
+❌ Some of the checkbox, small button (witout text) Should have labels
+
+2. **Keyboard-only navigation**
+
+Unplug the mouse. Tab through the entire page:
+
+Can you reach every interactive element (links, buttons, form fields, custom widgets)?
+Is the focus order logical (matches visual/reading order)?
+Is there always a visible focus indicator?
+Can you operate everything with Enter/Space/Arrow keys — no mouse-only traps?
+In modals/dropdowns: does focus move in, get trapped inside while open, and return to the trigger on close?
+
+3. **Screen reader testing**
+
+Use a real screen reader, not just automated tools:
+
+VoiceOver (Mac/iOS, built-in, Cmd+F5)
+NVDA (Windows, free)
+TalkBack (Android)
+
+Navigate by headings, landmarks, and form fields. Check that everything is announced with a sensible name, role, and state (e.g. "Submit, button" not just "button").
+
+4. **Color contrast**
+	Body text: 4.5:1 minimum against background
+	Large text (18px+ bold or 24px+): 3:1
+	UI components/icons/borders: 3:1
+	Tools: WebAIM Contrast Checker, or the contrast checker built into Chrome DevTools/Figma plugins
+
+Supplier Portal Dark Theme
+"Component Button": 7.56:1
+"Primark Stores Ltd" (bold title, white on dark teal) — contrast ~14:1 ✅
+"Products" nav pill (active, bright green text on dark teal pill) — contrast ~7.8:1 ✅
+"Packaging Components" / "Supporting Documents" (inactive nav text, light gray on dark teal) — contrast ~8.9:1 ✅
+"Due:" label (muted gray-blue on dark teal) — contrast ~2.1:1 ❌ (fails AA)
+"Packaging compliance portal" (subtitle, muted gray-teal on dark teal) — contrast ~2.2:1 ❌ (fails AA, needs 4.5:1)
+"26 Jul 2026" (orange date value on dark teal) — contrast ~7.1:1 ✅
+	
+01-greenstreets_super_admin_Products-Light.html
+
+Sidebar (light theme)
+
+Accessibility
+
+1. **Automated scanning (fast, catches ~30% of issues)**
+
+Run one of these on every page:
+
+axe DevTools (browser extension) or WAVE (wave.webaim.org) — free, catches missing alt text, contrast failures, missing labels, ARIA misuse
+Lighthouse (built into Chrome DevTools → Accessibility tab)
+Pa11y or axe-core if you want it in a CI pipeline
+
+These won't catch everything — they can't judge whether alt text is meaningful, or whether tab order makes sense. That needs manual testing.
+
+✅ Most of the page 95% have labels/text 
+❌ Some of the checkbox, small button (witout text) Should have labels
+
+2. **Keyboard-only navigation**
+
+Unplug the mouse. Tab through the entire page:
+
+Can you reach every interactive element (links, buttons, form fields, custom widgets)?
+Is the focus order logical (matches visual/reading order)?
+Is there always a visible focus indicator?
+Can you operate everything with Enter/Space/Arrow keys — no mouse-only traps?
+In modals/dropdowns: does focus move in, get trapped inside while open, and return to the trigger on close?
+
+3. **Screen reader testing**
+
+Use a real screen reader, not just automated tools:
+
+VoiceOver (Mac/iOS, built-in, Cmd+F5)
+NVDA (Windows, free)
+TalkBack (Android)
+
+Navigate by headings, landmarks, and form fields. Check that everything is announced with a sensible name, role, and state (e.g. "Submit, button" not just "button").
+
+4. **Color contrast**
+ Body text: 4.5:1 minimum against background
+ Large text (18px+ bold or 24px+): 3:1
+ UI components/icons/borders: 3:1
+ Tools: WebAIM Contrast Checker, or the contrast checker built into Chrome DevTools/Figma plugins
+
+Supplier Portal Dark Theme
+"Component Button": 7.56:1
+"Primark Stores Ltd" (bold title, white on dark teal) — contrast ~14:1 ✅
+"Products" nav pill (active, bright green text on dark teal pill) — contrast ~7.8:1 ✅
+"Packaging Components" / "Supporting Documents" (inactive nav text, light gray on dark teal) — contrast ~8.9:1 ✅
+"Due:" label (muted gray-blue on dark teal) — contrast ~2.1:1 ❌ (fails AA)
+"Packaging compliance portal" (subtitle, muted gray-teal on dark teal) — contrast ~2.2:1 ❌ (fails AA, needs 4.5:1)
+"26 Jul 2026" (orange date value on dark teal) — contrast ~7.1:1 ✅
+ 
+01-greenstreets_super_admin_Products-Light.html
+
+Sidebar (light theme)
+
+Accessibility
+
+1. **Automated scanning (fast, catches ~30% of issues)**
+
+Run one of these on every page:
+
+axe DevTools (browser extension) or WAVE (wave.webaim.org) — free, catches missing alt text, contrast failures, missing labels, ARIA misuse
+Lighthouse (built into Chrome DevTools → Accessibility tab)
+Pa11y or axe-core if you want it in a CI pipeline
+
+These won't catch everything — they can't judge whether alt text is meaningful, or whether tab order makes sense. That needs manual testing.
+
+✅ Most of the page 95% have labels/text 
+❌ Some of the checkbox, small button (witout text) Should have labels
+
+2. **Keyboard-only navigation**
+
+Unplug the mouse. Tab through the entire page:
+
+Can you reach every interactive element (links, buttons, form fields, custom widgets)?
+Is the focus order logical (matches visual/reading order)?
+Is there always a visible focus indicator?
+Can you operate everything with Enter/Space/Arrow keys — no mouse-only traps?
+In modals/dropdowns: does focus move in, get trapped inside while open, and return to the trigger on close?
+
+3. **Screen reader testing**
+
+Use a real screen reader, not just automated tools:
+
+VoiceOver (Mac/iOS, built-in, Cmd+F5)
+NVDA (Windows, free)
+TalkBack (Android)
+
+Navigate by headings, landmarks, and form fields. Check that everything is announced with a sensible name, role, and state (e.g. "Submit, button" not just "button").
+
+4. **Color contrast**
+ Body text: 4.5:1 minimum against background
+ Large text (18px+ bold or 24px+): 3:1
+ UI components/icons/borders: 3:1
+ Tools: WebAIM Contrast Checker, or the contrast checker built into Chrome DevTools/Figma plugins
+
+Supplier Portal Dark Theme
+"Component Button": 7.56:1
+"Primark Stores Ltd" (bold title, white on dark teal) — contrast ~14:1 ✅
+"Products" nav pill (active, bright green text on dark teal pill) — contrast ~7.8:1 ✅
+"Packaging Components" / "Supporting Documents" (inactive nav text, light gray on dark teal) — contrast ~8.9:1 ✅
+"Due:" label (muted gray-blue on dark teal) — contrast ~2.1:1 ❌ (fails AA)
+"Packaging compliance portal" (subtitle, muted gray-teal on dark teal) — contrast ~2.2:1 ❌ (fails AA, needs 4.5:1)
+"26 Jul 2026" (orange date value on dark teal) — contrast ~7.1:1 ✅
+ 
+01-greenstreets_super_admin_Products-Light.html
+
+Sidebar (light theme)
+
+
+5. **Zoom and reflow**
+ Zoom browser to 200% — does content reflow without horizontal scrolling or clipping?
+ Test at 400% zoom for WCAG 2.1 AA's "reflow" criterion if targeting that level.
+6. **Forms and error handling**
+ Every input has a visible, programmatically-linked label
+ Errors are described in text (not just color), announced to screen readers, and tied to the specific field
+7. **Touch targets (mobile)**
+Interactive elements at least 44×44 CSS pixels, with enough spacing to avoid mis-taps
+Suggested order of operations
+
+Automated scan → keyboard pass → contrast check → screen reader spot-check → zoom/reflow test → fix critical/blocking issues first, then major, then polish.
+
+If you want, I can run a structured audit against a specific page or Figma file — I have an accessibility-review workflow that outputs a prioritized findings table (issue, WCAG criterion, severity, fix). Just share a URL, screenshot, or describe the screen. 
+
+
+5. **Zoom and reflow**
+ Zoom browser to 200% — does content reflow without horizontal scrolling or clipping?
+ Test at 400% zoom for WCAG 2.1 AA's "reflow" criterion if targeting that level.
+6. **Forms and error handling**
+ Every input has a visible, programmatically-linked label
+ Errors are described in text (not just color), announced to screen readers, and tied to the specific field
+7. **Touch targets (mobile)**
+Interactive elements at least 44×44 CSS pixels, with enough spacing to avoid mis-taps
+Suggested order of operations
+
+Automated scan → keyboard pass → contrast check → screen reader spot-check → zoom/reflow test → fix critical/blocking issues first, then major, then polish.
+
+If you want, I can run a structured audit against a specific page or Figma file — I have an accessibility-review workflow that outputs a prioritized findings table (issue, WCAG criterion, severity, fix). Just share a URL, screenshot, or describe the screen. 
+
+5. **Zoom and reflow**
+	Zoom browser to 200% — does content reflow without horizontal scrolling or clipping?
+	Test at 400% zoom for WCAG 2.1 AA's "reflow" criterion if targeting that level.
+6. **Forms and error handling**
+	Every input has a visible, programmatically-linked label
+	Errors are described in text (not just color), announced to screen readers, and tied to the specific field
+7. **Touch targets (mobile)**
+Interactive elements at least 44×44 CSS pixels, with enough spacing to avoid mis-taps
+Suggested order of operations
+
+Automated scan → keyboard pass → contrast check → screen reader spot-check → zoom/reflow test → fix critical/blocking issues first, then major, then polish.
+
+If you want, I can run a structured audit against a specific page or Figma file — I have an accessibility-review workflow that outputs a prioritized findings table (issue, WCAG criterion, severity, fix). Just share a URL, screenshot, or describe the screen.
