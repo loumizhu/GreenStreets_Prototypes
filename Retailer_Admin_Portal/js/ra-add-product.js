@@ -28,8 +28,30 @@
   var openIdx = -1;
   var pendingHl = null; /* indices of just-added cards to pop-highlight after the next render */
 
-  /* pop + orange-stroke highlight for freshly-added component cards, cascading
-     one after the other when several are added at once (e.g. raising # expected) */
+  /* A component "needs a name" when it's a blank placeholder the retailer still
+     has to fill in — truly empty, or the auto "Component N" filler added when the
+     # expected count is raised. Library / create-new components arrive named
+     (named:true), so they never count as needing a name. */
+  function needsName(c) {
+    if (!c) return false;
+    if (c.named) return !(c.name || '').trim();
+    var n = (c.name || '').trim();
+    return !n || /^Component\s+\d+$/i.test(n);
+  }
+
+  /* keep the name field's persistent orange "needs a name" styling in sync with
+     the component's current state (called live as the retailer types a name, so
+     no re-render is needed and the caret stays put) */
+  function syncNameAttn(i) {
+    var card = document.querySelector('.rap-comp[data-i="' + i + '"]');
+    if (!card) return;
+    var el = card.querySelector('.rap-comp-name-edit');
+    if (el) el.classList.toggle('rap-name-need', needsName(COMPS[i]));
+  }
+
+  /* flash the *component name field* twice on freshly-added blank components,
+     cascading one after the other when several are added at once (e.g. raising
+     # expected). Components added already-named (from the library) don't flash. */
   function flushHighlight() {
     if (!pendingHl || !pendingHl.length) { pendingHl = null; return; }
     var ix = pendingHl; pendingHl = null;
@@ -37,10 +59,12 @@
       setTimeout(function () {
         var card = document.querySelector('.rap-comp[data-i="' + i + '"]');
         if (!card) return;
-        card.classList.remove('rap-comp-new'); void card.offsetWidth;
-        card.classList.add('rap-comp-new');
-        setTimeout(function () { card.classList.remove('rap-comp-new'); }, 1900);
-      }, k * 130);
+        var nameEl = card.querySelector('.rap-comp-name-edit');
+        if (!nameEl) return;
+        nameEl.classList.remove('rap-name-flash'); void nameEl.offsetWidth;
+        nameEl.classList.add('rap-name-flash');
+        setTimeout(function () { nameEl.classList.remove('rap-name-flash'); }, 1400);
+      }, k * 150);
     });
   }
 
@@ -90,8 +114,13 @@
       '.rap-comp-name-edit:hover{background:rgba(255,255,255,.05);border-color:var(--bw,rgba(255,255,255,.14))}' +
       '.rap-comp-name-edit:focus{background:rgba(255,255,255,.08);border-color:var(--gs);overflow:visible;text-overflow:clip;max-width:none}' +
       '.rap-comp-name-edit:empty:before{content:"Component name";color:var(--tw3)}' +
-      '.rap-comp-new{border-color:#f5a623!important;box-shadow:0 0 0 1px #f5a623,0 0 20px rgba(245,166,35,.38);animation:rapPop .5s cubic-bezier(.34,1.56,.64,1) both}' +
-      '@keyframes rapPop{0%{transform:scale(.965)}45%{transform:scale(1.035)}100%{transform:scale(1)}}' +
+      /* persistent orange on components that still need a real name */
+      '.rap-comp-name-edit.rap-name-need{color:#f5a623;border-color:rgba(245,166,35,.5);background:rgba(245,166,35,.08)}' +
+      '.rap-comp-name-edit.rap-name-need:hover{border-color:rgba(245,166,35,.7);background:rgba(245,166,35,.13)}' +
+      '.rap-comp-name-edit.rap-name-need:empty:before{color:#f5a623}' +
+      /* two-pulse attention flash on the name field of a freshly-added blank component */
+      '.rap-name-flash{animation:rapNameFlash .6s ease 2}' +
+      '@keyframes rapNameFlash{0%,100%{box-shadow:0 0 0 0 rgba(245,166,35,0)}40%{box-shadow:0 0 0 3px rgba(245,166,35,.55),0 0 16px rgba(245,166,35,.5);background:rgba(245,166,35,.2)}}' +
       '.rap-exp{position:relative;display:inline-flex;align-items:center;gap:5px}' +
       '.rap-exp .cs-wrap,.rap-exp .rap-exp-sel{width:72px}' +
       '.rap-exp .cs-trigger,.rap-exp .rap-exp-sel{padding:6px 10px;font-size:12.5px}' +
@@ -144,7 +173,7 @@
     var sum = filled ? esc((c.material || '—') + ' · ' + (c.weight || '—') + ' g · ' + (c.pcr || '0') + '% PCR') : 'No details yet — you can fill these or leave them for the supplier';
     return '<div class="rap-comp' + (open ? ' open' : '') + '" data-i="' + i + '">' +
       '<div class="rap-comp-hdr" onclick="napToggle(' + i + ')">' +
-        '<span class="rap-comp-name rap-comp-name-edit" contenteditable="true" spellcheck="false" title="Click to rename this component" ' +
+        '<span class="rap-comp-name rap-comp-name-edit' + (needsName(c) ? ' rap-name-need' : '') + '" contenteditable="true" spellcheck="false" title="Click to rename this component" ' +
           'onclick="event.stopPropagation()" onmousedown="event.stopPropagation()" onkeydown="napTitleKey(event)" oninput="napEditName(' + i + ',this.textContent)">' + esc(c.name) + '</span>' +
         '<span class="pill ' + (c.level === 'Primary' ? 'pill-blue' : 'pill-grey') + '" style="font-size:9px">' + esc(c.level) + '</span>' +
         '<span class="rap-comp-sum">' + sum + '</span>' +
@@ -250,9 +279,18 @@
 
   /* ---- components ---- */
   window.napToggle = function (i) { openIdx = (openIdx === i ? -1 : i); render(); };
-  window.napEdit = function (i, key, val) { if (COMPS[i]) COMPS[i][key] = val; };
+  window.napEdit = function (i, key, val) {
+    if (!COMPS[i]) return;
+    COMPS[i][key] = val;
+    if (key === 'name') { COMPS[i].named = true; syncNameAttn(i); }
+  };
   /* inline title edit — no re-render (keeps the contenteditable focus/caret) */
-  window.napEditName = function (i, val) { if (COMPS[i]) COMPS[i].name = (val || '').replace(/\n/g, ' '); };
+  window.napEditName = function (i, val) {
+    if (!COMPS[i]) return;
+    COMPS[i].name = (val || '').replace(/\n/g, ' ');
+    COMPS[i].named = true;
+    syncNameAttn(i);
+  };
   window.napTitleKey = function (e) { if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); } };
   /* # expected count — add blanks / trim from the end (nothing is supplier-provided yet) */
   function applyExpected(n) {
@@ -274,10 +312,13 @@
     render(); toast('“' + name + '” removed');
   };
   function blankComp(name, level, material) {
-    return { name: name || ('Component ' + (COMPS.length + 1)), level: level || 'Primary', material: material || '', weight: '', pcr: '', recycle: '', notes: '' };
+    return { name: name || ('Component ' + (COMPS.length + 1)), level: level || 'Primary', material: material || '', weight: '', pcr: '', recycle: '', notes: '', named: !!name };
   }
   function addComp(c) {
-    COMPS.push(c); openIdx = COMPS.length - 1; pendingHl = [COMPS.length - 1]; render();
+    COMPS.push(c); openIdx = COMPS.length - 1;
+    /* only blank (still-unnamed) components flash — library adds arrive named */
+    pendingHl = needsName(c) ? [COMPS.length - 1] : null;
+    render();
     var last = document.querySelector('.rap-comp[data-i="' + (COMPS.length - 1) + '"]');
     if (last && last.scrollIntoView) last.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
