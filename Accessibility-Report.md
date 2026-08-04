@@ -57,6 +57,7 @@ Supplier Portal Dark Theme
 ---------------------------------------
 
 **Header**
+
 - **"Primark Stores Ltd"** (bold title, white on dark teal) — contrast ~14:1 ✅
 - **"Packaging compliance portal"** (subtitle, muted gray-teal on dark teal) — contrast ~2.2:1 ❌ (fails AA, needs 4.5:1)
 - **"Products" nav pill** (active, bright green text on dark teal pill) — contrast ~7.8:1 ✅
@@ -67,7 +68,10 @@ Supplier Portal Dark Theme
 
 ---------------------------------------
 
-**Sidebar (light theme)**
+Retailer Light Theme
+---------------------------------------
+
+**Header**
 - **"Greenstreets" logo text** (dark navy on off-white) — contrast ~11:1 ✅
 - **Tagline** ("Global EPR Compliance Specialists," gray on off-white) — contrast ~5.5:1 ✅
 - **"OPERATOR" label** (light gray uppercase) — contrast ~2.1:1 ❌

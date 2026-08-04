@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>GreenStreets Super Admin · Products (Light)</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/greenstreets-theme.css?v=28">
+<link rel="stylesheet" href="css/greenstreets-theme.css?v=31">
 <!-- ═══ LIGHT-MODE PASTEL OVERRIDE ═══
      A soft, easy-on-the-eye light variant of the Products listing. Loaded AFTER the shared
      glass theme so these rules win by source order. Everything the customizer widget tunes is a
@@ -16,7 +16,7 @@
   /* pastel palette — harmonious, low-saturation. tuned live by the customizer widget */
   --lt-page-1:#f6f8fb; --lt-page-2:#eef2f8; --lt-page-3:#f3f0fa;
   --lt-surface:#ffffff; --lt-surface-2:#fbfcfe;
-  --lt-ink:#33415c; --lt-ink-2:#5a6b86; --lt-ink-3:#8a99b3;
+  --lt-ink:#33415c; --lt-ink-2:#5a6b86; --lt-ink-3:#5e6b85;
   --lt-line:#e6ebf3; --lt-line-2:#dbe2ee;
   --lt-accent:#6ea8fe;           /* soft cornflower */
   --lt-accent-ink:#3f74c7;
@@ -62,9 +62,9 @@ body.lt{
 /* re-map the shared design tokens to light values so shared components (breadcrumb, headers,
    pills, buttons, focus ring) follow along without per-selector overrides */
 body.lt{
-  --tw:var(--lt-ink); --tw2:var(--lt-ink-2); --tw3:var(--lt-ink-3); --tw4:#aab6cc;
+  --tw:var(--lt-ink); --tw2:var(--lt-ink-2); --tw3:var(--lt-ink-3); --tw4:#66728d;
   --line:var(--lt-line); --line-2:var(--lt-line-2);
-  --bl-l:var(--lt-accent-ink); --gs-l:#3fae74;
+  --bl-l:var(--lt-accent-ink); --gs-l:#157043; --amber:#a86300;
   --field-stroke-color:var(--lt-accent);
   --ripple-color-hex:#6ea8fe; --ripple-rgb:110,168,254; --ripple-opacity:.30;
   --particle-color-hex:#8fd0b6; --particle-rgb:143,208,182; --particle-opacity:.7;
@@ -418,8 +418,8 @@ body.lt .breadcrumb .bc-cur{color:var(--lt-ink)}
   </div>
 </div>
 
-<script src="js/super-admin.js?v=4"></script>
-<script src="js/greenstreets-theme.js?v=28"></script>
+<script src="js/super-admin.js?v=3"></script>
+<script src="js/greenstreets-theme.js?v=29"></script>
 <script>
 /* ── Light-page customizer widget ── self-contained; edits the --lt-* CSS variables on :root.
    Persists to localStorage so a designer's tweaks survive a reload. */

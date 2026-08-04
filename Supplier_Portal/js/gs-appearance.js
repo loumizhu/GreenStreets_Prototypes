@@ -15,7 +15,7 @@
     emerald: { name: 'Emerald', accent: '#4ebb81', bg0: '#070f1c', bg1: '#0b1830' },
     ocean:   { name: 'Ocean',   accent: '#5b9cf6', bg0: '#081426', bg1: '#0d2036' },
     teal:    { name: 'Teal',    accent: '#2fb6ad', bg0: '#04140f', bg1: '#082019' },
-    violet:  { name: 'Violet',  accent: '#8b5cf6', bg0: '#100a1f', bg1: '#1b1236' },
+    violet:  { name: 'Violet',  accent: '#a07af6', bg0: '#100a1f', bg1: '#1b1236' },
     sunset:  { name: 'Sunset',  accent: '#f5943b', bg0: '#1a0f0a', bg1: '#2a160d' },
     rose:    { name: 'Rose',    accent: '#e0607f', bg0: '#180a10', bg1: '#2a121c' }
   };
@@ -158,7 +158,7 @@
     accSec.className = 'gsa-sec';
     accSec.innerHTML = '<div class="gsa-lbl">Accent colour</div><div class="gsa-hint">Overrides the theme accent. Buttons, highlights and effects use it.</div>';
     var accRow = document.createElement('div'); accRow.className = 'gsa-accents';
-    var swatches = ['#4ebb81', '#2fb6ad', '#5b9cf6', '#8b5cf6', '#f5943b', '#e0607f', '#e0c05a'];
+    var swatches = ['#4ebb81', '#2fb6ad', '#5b9cf6', '#a07af6', '#f5943b', '#e0607f', '#e0c05a'];
     var curAccent = s.accent || (PRESETS[s.theme] || PRESETS[DEFAULT_THEME]).accent;
     swatches.forEach(function (hex) {
       var chip = document.createElement('span');

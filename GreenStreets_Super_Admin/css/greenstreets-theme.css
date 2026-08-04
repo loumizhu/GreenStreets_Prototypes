@@ -10,7 +10,7 @@ button{font-family:inherit;border:none;background:none;appearance:none;-webkit-a
   --amber:#f5a623;--red:#e0605a;
   /* surface */
   --bg-0:#070f1c;--bg-1:#0b1830;--bg-2:#37e1ae;
-  --tw:#fff;--tw2:rgba(255,255,255,.74);--tw3:rgba(255,255,255,.44);--tw4:rgba(255,255,255,.26);
+  --tw:#fff;--tw2:rgba(255,255,255,.74);--tw3:rgba(255,255,255,.62);--tw4:rgba(255,255,255,.58);
   --line:rgba(148,180,230,.16);--line-2:rgba(148,180,230,.26);
   --rs:10px;--rm:13px;--rl:18px;
   --sh-1:0 10px 30px -12px rgba(2,6,14,.55);
@@ -338,7 +338,7 @@ select.fi option{background-color:#0f2038;color:var(--tw)}
 .sb-notif-row{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-3) var(--sp-4);border-top:1px solid var(--line);flex-shrink:0;cursor:pointer;transition:background .15s;margin-top:auto}
 .sb-notif-row:hover{background:rgba(255,255,255,.04)}
 .sb-bell-btn{position:relative;width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;color:var(--tw3);background:rgba(255,255,255,.05);flex-shrink:0}
-.bell-badge{position:absolute;top:-3px;right:-3px;width:15px;height:15px;border-radius:50%;background:var(--red);font-size:9px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px rgba(11,24,48,.9)}
+.bell-badge{position:absolute;top:-3px;right:-3px;width:15px;height:15px;border-radius:50%;background:#c0362f;font-size:9px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px rgba(11,24,48,.9)}
 .sb-notif-label{font-size:12px;color:var(--tw3)}
 
 .sb-user{padding:var(--sp-3) var(--sp-4);border-top:1px solid var(--line);display:flex;align-items:center;gap:var(--sp-3);flex-shrink:0}

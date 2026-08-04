@@ -41,10 +41,17 @@
        threw the outline far to the left for buttons in table cells. */
     var cb=ring.offsetParent||document.documentElement;
     var cbr=cb.getBoundingClientRect(), r=curEl.getBoundingClientRect();
-    ring.style.left=(r.left-cbr.left-(cb.clientLeft||0)+(cb.scrollLeft||0))+'px';
-    ring.style.top=(r.top-cbr.top-(cb.clientTop||0)+(cb.scrollTop||0))+'px';
-    ring.style.width=r.width+'px';
-    ring.style.height=r.height+'px';
+    /* The "Text & UI size" appearance setting applies CSS `zoom` to an ancestor (.app-body/.pshell/.pbody).
+       getBoundingClientRect() returns ZOOMED (visual) coordinates, but the ring's left/top/width — set in the
+       ring's own local px inside that same zoomed container — get scaled by `zoom` again when rendered. So the
+       raw rect deltas overshoot by the zoom factor and the ring drifts (worse the further from its offsetParent
+       origin). Recover the factor as rect.width / offsetWidth (offsetWidth is the unzoomed layout width) and
+       divide the zoomed measurements back down; clientLeft/scrollLeft are already local, so they're not scaled. */
+    var z=curEl.offsetWidth?(r.width/curEl.offsetWidth):1; if(!(z>0))z=1;
+    ring.style.left=((r.left-cbr.left)/z-(cb.clientLeft||0)+(cb.scrollLeft||0))+'px';
+    ring.style.top=((r.top-cbr.top)/z-(cb.clientTop||0)+(cb.scrollTop||0))+'px';
+    ring.style.width=(r.width/z)+'px';
+    ring.style.height=(r.height/z)+'px';
     ring.style.setProperty('--fs-radius',getComputedStyle(curEl).borderRadius);
   }
   function remove(){ if(rafId){cancelAnimationFrame(rafId);rafId=0;} if(ring){ring.remove(); ring=null; curEl=null;} }
