@@ -114,6 +114,7 @@
         var sb=document.createElement('div'); sb.className='cs-search';
         var si=document.createElement('input'); si.className='cs-search-input'; si.type='text'; si.placeholder='Search…';
         sb.appendChild(si); menu.appendChild(sb);
+        si.addEventListener('keydown',navKey);          // ↑/↓/Enter/Esc drive the option list while typing
         ['mousedown','click','keydown'].forEach(function(ev){ si.addEventListener(ev,function(e){ e.stopPropagation(); }); });
         si.addEventListener('input',function(){
           var q=this.value.toLowerCase(); var any=false;
@@ -124,7 +125,10 @@
       Array.prototype.forEach.call(sel.options,function(o,i){
         var d=document.createElement('div');
         d.className='cs-opt'+(i===sel.selectedIndex?' sel':'');
+        d.dataset.idx=i;                                // map option div → real <select> index (for keyboard select)
+        d.setAttribute('role','option');
         d.textContent=o.text;
+        d.addEventListener('mouseenter',function(){ setActive(Array.prototype.indexOf.call(visibleOpts(),d)); });
         d.addEventListener('mousedown',function(e){
           e.preventDefault();                         // keep focus on the trigger
           sel.selectedIndex=i; sync(); close();
@@ -162,11 +166,51 @@
     window.addEventListener('resize',function(){ if(menu.classList.contains('open')) positionMenu(); });
     function toggle(){ wrap.classList.contains('open')?close():open(); }
 
+    /* ── Keyboard operability for the themed dropdown ──────────────────────────────────────────────
+       Native <select> is fully keyboard-driven; this themed replacement must match. The trigger opens
+       on Enter/Space/↑/↓; once open, ↑/↓/Home/End move a highlight (`.cs-active`), Enter/Space picks the
+       highlighted option, Esc closes and returns focus to the trigger. For searchable menus the same
+       keys are handled on the search input (typing still filters). */
+    function visibleOpts(){ return Array.prototype.filter.call(menu.querySelectorAll('.cs-opt'),function(o){ return o.style.display!=='none'; }); }
+    function setActive(i){
+      var os=visibleOpts(); if(!os.length) return;
+      i=Math.max(0,Math.min(os.length-1,i));
+      os.forEach(function(o,idx){ o.classList.toggle('cs-active',idx===i); });
+      os[i].scrollIntoView({block:'nearest'});
+    }
+    function activeIdx(){ var os=visibleOpts(); for(var i=0;i<os.length;i++){ if(os[i].classList.contains('cs-active')) return i; } return -1; }
+    function initActive(){
+      var os=visibleOpts(); var start=0;
+      for(var i=0;i<os.length;i++){ if(parseInt(os[i].dataset.idx,10)===sel.selectedIndex){ start=i; break; } }
+      setActive(start);
+    }
+    function chooseActive(){
+      var os=visibleOpts(); if(!os.length){ close(); return; }
+      var ai=activeIdx(); if(ai<0) ai=0;
+      var i=parseInt(os[ai].dataset.idx,10);
+      sel.selectedIndex=i; sync(); close(); trigger.focus();
+      sel.dispatchEvent(new Event('change',{bubbles:true}));
+    }
+    function navKey(e){
+      var isOpen=wrap.classList.contains('open');
+      switch(e.key){
+        case 'Enter': case ' ':
+          /* Space types a space into a search box — don't hijack it there while typing */
+          if(e.key===' ' && e.target.classList && e.target.classList.contains('cs-search-input')) return;
+          e.preventDefault(); if(!isOpen){ open(); setTimeout(initActive,0); } else chooseActive(); break;
+        case 'ArrowDown': e.preventDefault(); if(!isOpen){ open(); setTimeout(initActive,0); } else setActive(activeIdx()+1); break;
+        case 'ArrowUp':   e.preventDefault(); if(!isOpen){ open(); setTimeout(initActive,0); } else setActive(activeIdx()-1); break;
+        case 'Home':      if(isOpen){ e.preventDefault(); setActive(0); } break;
+        case 'End':       if(isOpen){ e.preventDefault(); setActive(visibleOpts().length-1); } break;
+        case 'Escape': case 'Esc': if(isOpen){ e.preventDefault(); close(); trigger.focus(); } break;
+      }
+    }
     trigger.addEventListener('click',toggle);
-    trigger.addEventListener('keydown',function(e){
-      if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggle(); }
-      else if(e.key==='Escape'){ close(); }
-    });
+    trigger.addEventListener('keydown',navKey);
+    /* searchable menus focus the search input on open — run the same nav keys there (input filtering still
+       fires on `input`; a live `input` event re-highlights the first match). */
+    menu.addEventListener('keydown',function(e){ if(e.target.classList && e.target.classList.contains('cs-search-input')) navKey(e); });
+    menu.addEventListener('input',function(e){ if(e.target.classList && e.target.classList.contains('cs-search-input')) setTimeout(function(){ setActive(0); },0); });
     document.addEventListener('click',function(e){ if(!wrap.contains(e.target) && !menu.contains(e.target)) close(); });
     sel.addEventListener('change',sync);   // keep the themed label in sync when value is set programmatically
 
@@ -200,7 +244,11 @@
     });
   }
   window.GSRotatePlaceholders=initRotatePlaceholders;
-  function init(){ enhanceSelects(); enhanceNumbers(); wireSortableTables(); initListings(); initRotatePlaceholders(); }
+  /* pt-table product grids own their own pagination/sort engine (skipped by enhanceListing), but still
+     need the spreadsheet row keyboard nav — wire gsGridNav on them directly. */
+  function initGrids(root){ (root||document).querySelectorAll('table.tbl').forEach(function(t){ if((t.id||'').indexOf('pt-table')===0){ try{ gsGridNav(t); }catch(_){ } } }); }
+  window.GSInitGrids=initGrids;
+  function init(){ enhanceSelects(); enhanceNumbers(); wireSortableTables(); initListings(); initGrids(); initRotatePlaceholders(); }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init);
   else init();
   window.GSEnhanceSelects=enhanceSelects; // allow re-scan after dynamic content is injected
@@ -591,6 +639,129 @@
     };
     if(window.GSEnhanceSelects) GSEnhanceSelects(ctrls);   // theme the two selects (init already ran)
   }
+  /* ── Spreadsheet-style data-grid keyboard model (gsGridNav) ────────────────────────────────────────
+     Ported/generalised from the Supplier-Portal landing grid so every Super-Admin listing behaves the
+     same: the whole table is NOT N tab stops — the ROWS are a single roving Tab stop, and once focus is
+     on a row you move around like a spreadsheet:
+       • ↑ / ↓ (also Home/End)  move between rows;
+       • ← / →                  step element-to-element across the controls INSIDE the current row
+                                (checkbox → links → action buttons), which are tabindex=-1 so they never
+                                clutter the Tab order but are fully reachable by arrows;
+       • Space                  toggles the row's select checkbox;  Enter  opens the row (its onclick).
+     Marks the table [data-gs-grid] so the universal keyboard layer (below) leaves its internals alone.
+     Re-render-safe: a debounced MutationObserver re-applies the roving tabindex after ptRender rebuilds
+     rows or pagination toggles row visibility, re-homing focus to the same row/control position. */
+  var _gsHintShown=false,_gsHintT=null;
+  function gsGridHint(tr){
+    if(_gsHintShown||!tr) return; _gsHintShown=true;
+    var h=document.createElement('div'); h.className='gs-grid-hint'; h.setAttribute('role','status');
+    h.innerHTML='<span class="gs-grid-hint-keys">↑ ↓</span> move rows'
+      +' &nbsp;·&nbsp; <span class="gs-grid-hint-keys">← →</span> move across a row'
+      +' &nbsp;·&nbsp; <span class="gs-grid-hint-keys">Enter</span> open'
+      +' &nbsp;·&nbsp; <span class="gs-grid-hint-keys">Space</span> select'
+      +'<button class="gs-grid-hint-x" aria-label="Dismiss">&times;</button>';
+    document.body.appendChild(h);
+    function place(){ var r=tr.getBoundingClientRect(); h.style.left=Math.max(12,Math.round(r.left))+'px';
+      var top=r.top-h.offsetHeight-10; h.classList.toggle('gs-grid-hint-below',top<8);
+      h.style.top=(top<8?(r.bottom+10):top)+'px'; }
+    place(); requestAnimationFrame(function(){ place(); h.classList.add('gs-grid-hint-in'); });
+    function close(){ if(!h.parentNode) return; clearTimeout(_gsHintT); h.classList.remove('gs-grid-hint-in');
+      window.removeEventListener('scroll',close,true); document.removeEventListener('keydown',onEsc,true);
+      setTimeout(function(){ if(h.parentNode) h.remove(); },220); }
+    function onEsc(e){ if(e.key==='Escape') close(); }
+    h.querySelector('.gs-grid-hint-x').addEventListener('click',close);
+    document.addEventListener('keydown',onEsc,true);
+    setTimeout(function(){ window.addEventListener('scroll',close,true); },500);
+    _gsHintT=setTimeout(close,7000);
+  }
+  function gsGridNav(table){
+    if(!table||table._gsGrid) return;
+    var tbody=table.tBodies[0]; if(!tbody) return;
+    table._gsGrid=true;
+    table.setAttribute('data-gs-grid','1');
+    table.setAttribute('role','grid');
+    table.removeAttribute('tabindex');           // rows are the tab stops, not the whole table
+    /* column headers → ordered Tab stops that sort on Enter/Space. wireSortableTables already wires the
+       generic `.gs-sortable` headers; only pt-table / plain-onclick headers need wiring here. */
+    if(table.tHead) Array.prototype.forEach.call(table.tHead.querySelectorAll('th'),function(th){
+      th.setAttribute('role','columnheader');
+      var sortable=th.tabIndex===0||th.classList.contains('gs-sortable')||th.hasAttribute('onclick');
+      if(!sortable) return;
+      if(!th.getAttribute('aria-sort')) th.setAttribute('aria-sort','none');
+      if(!th.classList.contains('gs-sortable')){       // not already handled by wireSortableTables
+        if(th.tabIndex!==0) th.tabIndex=0;
+        if(!th._gsHK){ th._gsHK=true; th.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); th.click(); } }); }
+      }
+    });
+    function rows(){ return Array.prototype.filter.call(tbody.rows,function(r){ return r.offsetParent!==null && !r.classList.contains('gs-empty-row'); }); }
+    function rowKey(tr){ return tr.getAttribute('data-flip-key')||tr.getAttribute('data-id')||String(Array.prototype.indexOf.call(tbody.rows,tr)); }
+    function rowControls(tr){
+      return Array.prototype.filter.call(
+        tr.querySelectorAll('input:not([type=hidden]),button,a[href],select,textarea,[data-gs-kbd],[onclick]'),
+        function(c){ return c!==tr && c.offsetParent!==null && !c.disabled; });
+    }
+    function neutralize(tr){
+      Array.prototype.forEach.call(tr.querySelectorAll('a[href],button,input,select,textarea,[data-gs-kbd],[tabindex]'),
+        function(c){ if(c!==tr){ c.tabIndex=-1; c.removeAttribute('data-gs-kbd'); } });
+    }
+    function apply(){
+      var rs=rows(); if(!rs.length) return;
+      var keep=rs.filter(function(r){ return r.getAttribute('tabindex')==='0'; })[0];
+      rs.forEach(function(r){ r.setAttribute('role','row'); r.tabIndex=-1; neutralize(r); });
+      (keep||rs[0]).tabIndex=0;                   // exactly one row holds the grid's tab stop
+      /* an in-grid re-render (ptRender / pagination) drops focus to <body>; re-home it to the SAME
+         row + control position the user was on, not back to the top. */
+      if(table._gsLastKey!=null && (document.activeElement===document.body||!document.activeElement)){
+        var want=rs.filter(function(r){ return rowKey(r)===table._gsLastKey; })[0];
+        if(want){
+          rs.forEach(function(r){ r.tabIndex=(r===want)?0:-1; });
+          var idx=table._gsLastCtrlIdx;
+          if(idx>0){ var chain=[want].concat(rowControls(want)); (chain[Math.min(idx,chain.length-1)]||want).focus(); }
+          else want.focus();
+        }
+      }
+    }
+    function markRow(tr){ rows().forEach(function(x){ x.classList.toggle('gs-kbd-row',x===tr); x.tabIndex=(x===tr)?0:-1; }); }
+    function focusRow(r){ if(!r) return; r.focus(); r.scrollIntoView({block:'nearest'}); }
+    table._gsApply=apply;
+    apply();
+    var raf=0; function schedule(){ if(raf) return; raf=requestAnimationFrame(function(){ raf=0; apply(); }); }
+    try{ new MutationObserver(schedule).observe(tbody,{childList:true,subtree:true,attributes:true,attributeFilter:['class','style']}); }catch(_){}
+    tbody.addEventListener('focusin',function(e){
+      var tr=e.target.closest&&e.target.closest('tr'); if(!tr||tr.parentNode!==tbody) return;
+      markRow(tr);
+      table._gsLastKey=rowKey(tr);
+      var chain=[tr].concat(rowControls(tr));
+      table._gsLastCtrlIdx=Math.max(0,chain.indexOf(e.target));
+      gsGridHint(tr);
+    });
+    tbody.addEventListener('keydown',function(e){
+      var rs=rows(); if(!rs.length) return;
+      var tr=e.target.closest&&e.target.closest('tr'); if(!tr) return;
+      var ri=rs.indexOf(tr), onRow=(e.target===tr), k=e.key;
+      if(k==='ArrowDown'||k==='ArrowUp'){ e.preventDefault(); var ni=Math.max(0,Math.min(rs.length-1,(ri<0?0:ri)+(k==='ArrowDown'?1:-1))); focusRow(rs[ni]); return; }
+      if(k==='Home'||k==='End'){ e.preventDefault(); focusRow(k==='Home'?rs[0]:rs[rs.length-1]); return; }
+      if(k==='ArrowRight'||k==='ArrowLeft'){
+        var chain=[tr].concat(rowControls(tr)); var ci=chain.indexOf(e.target); if(ci<0) ci=0;
+        var tgt=chain[Math.max(0,Math.min(chain.length-1,ci+(k==='ArrowRight'?1:-1)))];
+        if(tgt){ e.preventDefault(); tgt.focus(); } return;
+      }
+      var activate=(k==='Enter'||k===' ');
+      if(activate&&onRow){
+        e.preventDefault();
+        if(k===' '){ var cb=tr.querySelector('input[type=checkbox]'); if(cb){ cb.checked=!cb.checked; cb.dispatchEvent(new Event('change',{bubbles:true})); } }
+        else if(tr.hasAttribute('onclick')) tr.click();
+        return;
+      }
+      if(activate&&!onRow){
+        var t=e.target;
+        if(!/^(BUTTON|A|INPUT|SELECT|TEXTAREA)$/.test(t.tagName)&&t.hasAttribute&&t.hasAttribute('onclick')){ e.preventDefault(); t.click(); }
+        return;
+      }
+    });
+  }
+  window.GSGridNav=gsGridNav;
+
   function gsAddKeyboard(table){
     table.tabIndex=0;   // one Tab stop for the whole grid; arrows rove inside it
     function rows(){ return Array.prototype.filter.call(table.tBodies[0].rows,function(r){return r.style.display!=='none'&&!r.classList.contains('gs-empty-row');}); }
@@ -627,7 +798,7 @@
     gsAddTools(tb, table);
     gsAddBulk(table);
     gsAddPager(table);
-    gsAddKeyboard(table);
+    gsGridNav(table);   // spreadsheet-style row/element keyboard nav (replaces the old roving-row gsAddKeyboard)
     var wrap=table.closest('.tbl-wrap');
     if(wrap){ wrap.style.maxHeight='60vh'; wrap.style.overflow='auto'; }   // scroll body under the sticky header on long pages
     gsAfterFilter(table,'');
@@ -761,4 +932,91 @@ if(typeof window.gsEnhanceIds!=='function'){
     /* re-pass for engine pages that render their body asynchronously (#pd-body) */
     window.addEventListener('load',function(){ setTimeout(run,120); setTimeout(run,450); });
   })();
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Universal keyboard-operability layer (ported from the Supplier-Portal build).
+   The prototypes are full of non-native clickables (`<div onclick>` pills, cards,
+   action cells) that mouse users could click but that were NOT in the Tab order
+   and ignored Enter/Space. This promotes every such element to tabindex=0 +
+   role="button" (tagged [data-gs-kbd]) with Enter/Space activation — WITHOUT
+   touching native controls, table rows/headers (the data grid owns those), or
+   anything already declaring its own tabindex/role/keyboard handling. It also
+   guarantees exactly ONE <main> landmark and injects a skip-to-content link as
+   the first Tab stop, so keyboard users start top-left (sidebar / skip link) and
+   Tab moves left→right, top→bottom into the listing.
+   Focus visibility comes from [data-gs-kbd]:focus-visible in greenstreets-theme.css.
+   ═══════════════════════════════════════════════════════════════════════════ */
+if(typeof window.GSKeyboardEnable!=='function'){
+(function(){
+  var NATIVE={A:1,BUTTON:1,INPUT:1,SELECT:1,TEXTAREA:1};
+  /* A native focusable is already in the Tab order — EXCEPT an <a> with no href, which is NOT tabbable.
+     The sidebar nav items are `<a class="nav-item" onclick="go(...)">` with no href, so they must be
+     promoted like any other clickable (otherwise Tab skips Retailers/Suppliers/Users/Products and lands
+     on the first real focusable — the Notifications <div onclick>). */
+  function nativeFocusable(el){ return el.tagName==='A' ? el.hasAttribute('href') : (NATIVE[el.tagName]===1); }
+  function isNoop(h){ return /^\s*event\.stopPropagation\(\)\s*;?\s*$/.test(h||''); }
+  function shouldEnhance(el){
+    if(nativeFocusable(el)||el.tagName==='TR'||el.tagName==='TH'||el.tagName==='THEAD') return false;
+    if(el.hasAttribute('tabindex')||el.getAttribute('role')==='button') return false;
+    if(el.isContentEditable) return false;
+    if(el.closest('.cs-menu,.cs-trigger,.comp-lib-menu,.gs-colmenu,[data-gs-grid]')) return false;
+    if(!el.hasAttribute('onclick')||isNoop(el.getAttribute('onclick'))) return false;
+    return true;
+  }
+  function enable(root){
+    var scope=root&&root.querySelectorAll?root:document;
+    var list=scope.querySelectorAll?scope.querySelectorAll('[onclick]'):[];
+    Array.prototype.forEach.call(list,function(el){
+      if(!shouldEnhance(el)) return;
+      el.setAttribute('tabindex','0');
+      if(!el.getAttribute('role')) el.setAttribute('role','button');
+      el.setAttribute('data-gs-kbd','1');
+    });
+    if(root&&root.nodeType===1&&root.hasAttribute&&root.hasAttribute('onclick')&&shouldEnhance(root)){
+      root.setAttribute('tabindex','0');
+      if(!root.getAttribute('role')) root.setAttribute('role','button');
+      root.setAttribute('data-gs-kbd','1');
+    }
+  }
+  window.GSKeyboardEnable=enable;
+  document.addEventListener('keydown',function(e){
+    if(e.key!=='Enter'&&e.key!==' ') return;
+    var el=e.target;
+    if(!el||!el.getAttribute||el.getAttribute('data-gs-kbd')!=='1') return;
+    if(nativeFocusable(el)||el.isContentEditable) return;
+    e.preventDefault();
+    el.click();
+  });
+  function ensureMain(){
+    var main=document.querySelector('main, [role="main"]');
+    if(!main){
+      var sels=['.pbody','.onb-body','.login-wrap','.main','.pshell'];
+      for(var i=0;i<sels.length&&!main;i++) main=document.querySelector(sels[i]);
+      if(main&&main.tagName!=='MAIN') main.setAttribute('role','main');
+    }
+    return main;
+  }
+  window.GSEnsureMain=ensureMain;
+  function addSkipLink(){
+    if(document.querySelector('.gs-skip-link')) return;
+    var main=ensureMain(); if(!main) return;
+    if(!main.id) main.id='gs-main';
+    main.setAttribute('tabindex','-1');
+    var a=document.createElement('a');
+    a.className='gs-skip-link'; a.href='#'+main.id; a.textContent='Skip to main content';
+    a.addEventListener('click',function(e){ e.preventDefault(); main.focus(); main.scrollIntoView(); });
+    document.body.insertBefore(a,document.body.firstChild);
+  }
+  function run(){ enable(document); addSkipLink(); }
+  if(document.readyState!=='loading') run(); else document.addEventListener('DOMContentLoaded',run);
+  try{
+    new MutationObserver(function(muts){
+      for(var i=0;i<muts.length;i++){
+        var ns=muts[i].addedNodes;
+        for(var j=0;j<ns.length;j++){ if(ns[j].nodeType===1) enable(ns[j]); }
+      }
+    }).observe(document.documentElement,{childList:true,subtree:true});
+  }catch(_){}
+})();
 }

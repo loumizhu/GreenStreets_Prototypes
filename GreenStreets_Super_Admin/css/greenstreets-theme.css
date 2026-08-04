@@ -752,6 +752,81 @@ mark.gs-hl{background:rgba(245,205,90,.32);color:inherit;border-radius:3px;paddi
 /* keyboard-focused row */
 .tbl tbody tr.gs-kbd td{box-shadow:inset 0 0 0 9999px rgba(143,227,182,.08)}
 .tbl tbody tr.gs-kbd td:first-child{box-shadow:inset 3px 0 0 var(--gs-l),inset 0 0 0 9999px rgba(143,227,182,.08)}
+
+/* ── Universal keyboard operability (see the "universal keyboard layer" + gsGridNav in greenstreets-theme.js) ──
+   greenstreets-theme.js promotes non-native clickables (`<div onclick>` pills, cards, action cells) to
+   keyboard operability by tagging them [data-gs-kbd]; the animated .fs-ring only wraps fields/selects/buttons,
+   so give every other keyboard-focusable element a clear, theme-consistent focus ring. :focus-visible keeps it
+   keyboard-only (no ring on mouse click). */
+[data-gs-kbd]:focus-visible{
+  outline:2px solid var(--field-stroke-color,#5b9cf6);
+  outline-offset:2px;
+  border-radius:6px;
+}
+/* CRITICAL: the global `button{outline:none}` (needed to kill the ugly default ring on mouse click) ALSO hid the
+   KEYBOARD focus ring on every native button — the sidebar nav, filter chips, the pager — so tabbing through the
+   page looked like it "did nothing". Restore a clear, theme-consistent ring for keyboard users on everything
+   focusable. The .fs-ring overlay already draws on .fi/.btn-p/.btn-g/.btn-g-sm, so those are excluded to avoid a
+   double ring; grid rows carry their own .gs-kbd-row highlight and are excluded too.
+   NEVER add outline:none to a focusable element without a matching :focus-visible rule. */
+button:not(.btn-p):not(.btn-g):not(.btn-g-sm):focus-visible,
+a[href]:focus-visible,
+select:focus-visible,
+summary:focus-visible,
+[role="button"]:not(.btn-p):not(.btn-g):not(.btn-g-sm):focus-visible,
+[tabindex]:not(.fi):not(.btn-p):not(.btn-g):not(.btn-g-sm):not(tr):focus-visible{
+  outline:2px solid var(--field-stroke-color,#5b9cf6);
+  outline-offset:2px;
+  border-radius:6px;
+}
+/* Focused data-grid row: a strong, unmistakable ring so you can see exactly where you are as you arrow through
+   the listing (and when Tab first enters it). Rows are the single Tab stop; ←/→ move across their controls. */
+table[data-gs-grid] tbody tr:focus,
+table[data-gs-grid] tbody tr:focus-visible{ outline:none; }
+table[data-gs-grid] tbody tr.gs-kbd-row{ outline:2px solid var(--field-stroke-color,#5b9cf6); outline-offset:-2px; box-shadow:inset 3px 0 0 var(--gs-l),inset 0 0 0 9999px rgba(143,227,182,.09); }
+/* Skip link — first Tab stop on every page; jumps past the sidebar to the main content region. */
+.gs-skip-link{
+  position:fixed;top:8px;left:8px;z-index:10000;
+  transform:translateY(-160%);
+  padding:10px 16px;border-radius:8px;
+  background:var(--field-stroke-color,#5b9cf6);color:#04122b;font-weight:600;
+  text-decoration:none;box-shadow:0 6px 20px rgba(0,0,0,.35);
+  transition:transform .15s ease;
+}
+.gs-skip-link:focus{transform:translateY(0)}
+
+/* One-time arrow-key coach hint shown above the first focused grid row (gsGridHint) */
+.gs-grid-hint{
+  position:fixed; z-index:9998; max-width:min(92vw,560px);
+  display:flex; align-items:center; gap:2px; flex-wrap:wrap;
+  padding:8px 34px 8px 12px;
+  font-size:12px; line-height:1.5; color:#eef7f1; white-space:nowrap;
+  background:rgba(20,34,28,.96); border:1px solid rgba(78,187,129,.5);
+  border-radius:9px; box-shadow:0 10px 30px rgba(0,0,0,.35);
+  transform-origin:22px bottom;
+  opacity:0; transform:scale(.7) translateY(8px);
+  transition:opacity .22s ease, transform .32s cubic-bezier(.34,1.56,.64,1);
+  pointer-events:auto;
+}
+.gs-grid-hint.gs-grid-hint-below{transform-origin:22px top; transform:scale(.7) translateY(-8px)}
+.gs-grid-hint.gs-grid-hint-in{opacity:1; transform:scale(1) translateY(0)}
+.gs-grid-hint::after{
+  content:""; position:absolute; bottom:-6px; left:22px; width:11px; height:11px;
+  background:rgba(20,34,28,.96); border-right:1px solid rgba(78,187,129,.5);
+  border-bottom:1px solid rgba(78,187,129,.5); transform:rotate(45deg);
+}
+.gs-grid-hint.gs-grid-hint-below::after{bottom:auto; top:-6px; transform:rotate(-135deg)}
+.gs-grid-hint-keys{
+  display:inline-block; padding:1px 6px; margin:0 1px;
+  font-weight:700; color:#bff0d6;
+  background:rgba(78,187,129,.16); border:1px solid rgba(78,187,129,.4); border-radius:5px;
+}
+.gs-grid-hint-x{
+  position:absolute; top:4px; right:6px; width:20px; height:20px; padding:0;
+  font-size:15px; line-height:1; color:#9fc7b2; cursor:pointer;
+  background:none; border:none;
+}
+.gs-grid-hint-x:hover{color:#eef7f1}
 /* bulk-select column + floating action bar */
 .tbl th.gs-check-col,.tbl td.gs-check-col{width:40px;text-align:center;cursor:default}
 .tbl td.gs-check-col input,.tbl th.gs-check-col input{width:15px;height:15px;accent-color:var(--gs);cursor:pointer;vertical-align:middle}
