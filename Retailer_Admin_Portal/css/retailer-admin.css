@@ -456,3 +456,23 @@ html,body{height:100%;font-family:'Inter',sans-serif;color:var(--tw);background:
 .ra-notif-txt b{color:var(--tw);font-weight:600}
 .ra-notif-time{font-size:10px;color:var(--tw3);margin-top:2px}
 .ra-notif-foot{padding:10px 14px;text-align:center}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Supplier row action buttons — mirrors the Super Admin Suppliers listing:
+   text-labelled "chip" buttons (Users / Products / Packaging) + a gradient
+   arrow button that opens the supplier detail.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.act-cell{text-align:right}
+.act-group{display:flex;flex-wrap:wrap;gap:5px;align-items:center;justify-content:flex-end}
+.act-mini{font-size:10px;font-weight:600;line-height:1;padding:4px 8px;border-radius:7px;cursor:pointer;
+  color:var(--tw2);background:rgba(255,255,255,.05);border:1px solid var(--line-2);
+  transition:background .14s,border-color .14s,color .14s;white-space:nowrap}
+.act-mini:hover{background:rgba(143,227,182,.14);border-color:rgba(143,227,182,.4);color:var(--gs-l)}
+.act-arrow{flex-shrink:0;width:30px;height:30px;border-radius:9px;display:inline-flex;align-items:center;justify-content:center;
+  cursor:pointer;color:#04160e;background:linear-gradient(135deg,var(--gs),var(--teal));border:none;
+  box-shadow:0 2px 8px rgba(78,187,129,.35);transition:transform .14s,box-shadow .14s;margin-left:2px}
+.act-arrow:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(78,187,129,.5)}
+.act-arrow svg{width:16px;height:16px}
+/* "View" chip = primary action: tinted green so it stands out from the drill-in chips */
+.act-mini.act-view{color:var(--gs-l);background:rgba(143,227,182,.12);border-color:rgba(143,227,182,.38)}
+.act-mini.act-view:hover{background:rgba(143,227,182,.22);border-color:rgba(143,227,182,.6);color:#eafff4}

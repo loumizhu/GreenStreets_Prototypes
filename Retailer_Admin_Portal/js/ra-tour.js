@@ -55,7 +55,7 @@
 
     { key: 'nav', screen: 'ra1', icon: '🧭', title: 'Find your way around', stepNo: 4,
       body: 'This is the <strong>left menu</strong> — use it any time to reach your Dashboard, Users, Suppliers, ' +
-            'Products, Packagings, Documents and EPR &amp; Reports. Click <strong>your name at the bottom-left</strong> ' +
+            'Products, Packagings and Documents. Click <strong>your name at the bottom-left</strong> ' +
             'for Settings. That\'s the tour!',
       sel: '.sidebar', position: 'right' }
   ];

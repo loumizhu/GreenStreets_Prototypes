@@ -38,7 +38,7 @@ GreenStreets_Super_Admin/
 | `…_Products.html` | `s11` | Products |
 | `…_Product-Detail.html` | `s12` | Product detail |
 | `…_Packagings.html` | `s8` | Packagings |
-| `…_Reports.html` | `s9` | Reports |
+| `…_Documents.html` | `s9` | Documents |
 | `…_Supplier-Detail.html` | `s10` | Supplier detail |
 | `…_Audit-Log.html` | `s15` | Audit log |
 | `…_Notifications.html` | `s16` | Notifications |

@@ -20,9 +20,30 @@ var GS_PAGES = {
   'ru8':           '03-greenstreets_retailer_user_Notifications.html',
   'ru9':           '03-greenstreets_retailer_user_Settings.html',
   'ru10':          '03-greenstreets_retailer_user_Packagings.html',
+  'ru10_detail':   '03-greenstreets_retailer_user_Packaging-Detail.html',
   'ru11':          '03-greenstreets_retailer_user_Audit-Log.html'
 };
 function go(id){ var u = GS_PAGES[id]; if(u) window.location.href = u; }
+
+/* Open the read-only packaging detail for a clicked portfolio row. Reads the
+   row's cells so the detail reflects the chosen component, then round-trips
+   through sessionStorage (ru-packaging.js renders it). */
+function ruPkgOpen(tr){
+  try{
+    var td = tr.querySelectorAll('td');
+    var data = {
+      sku:      (td[0].querySelector('.gs-id-cell')||{}).textContent || '',
+      product:  (td[0].querySelector('.tbl-sub')||{}).textContent || '',
+      type:     (td[1].textContent||'').trim(),
+      material: (td[2].textContent||'').trim(),
+      level:    (td[3].textContent||'').trim(),
+      weight:   (td[4].textContent||'').trim(),
+      status:   (td[5].textContent||'').trim()
+    };
+    sessionStorage.setItem('ru_pkg', JSON.stringify(data));
+  }catch(e){}
+  go('ru10_detail');
+}
 
 /* ── Send-reminder action (Retailer User may chase suppliers — US-3.9) ── */
 function ruToast(msg){

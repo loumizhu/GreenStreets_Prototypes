@@ -26,6 +26,7 @@ var GS_PAGES = {
   'ra5':             '02-Greenstreets_retailer_admin_Packagings.html',
   'ra_product':      '02-Greenstreets_retailer_admin_Product-Detail.html',
   'ra_packaging':    '02-Greenstreets_retailer_admin_Packaging-Detail.html',
+  'ra_supdetail':    '02-Greenstreets_retailer_admin_Supplier-Detail.html',
   'ra7':             '02-Greenstreets_retailer_admin_Users.html',
   'ra8':             '02-Greenstreets_retailer_admin_Send-Invites.html',
   'ra9':             '02-Greenstreets_retailer_admin_Tracker.html',
@@ -33,7 +34,6 @@ var GS_PAGES = {
   'ra11':            '02-Greenstreets_retailer_admin_Compliance.html',
   'ra12':            '02-Greenstreets_retailer_admin_Generate-DoC.html',
   'ra13':            '02-Greenstreets_retailer_admin_Documents.html',
-  'ra14':            '02-Greenstreets_retailer_admin_EPR-Reports.html',
   'ra15':            '02-Greenstreets_retailer_admin_Audit-Log.html',
   'ra16':            '02-Greenstreets_retailer_admin_Notifications.html',
   'ra_config':       '02-Greenstreets_retailer_admin_Settings.html',
@@ -594,6 +594,8 @@ try{ window.gsIdenticon=gsIdenticon; window.gsEnhanceIds=gsEnhanceIds; }catch(_)
    to its data-grid filter on load. ──────────────────────────────────────── */
 function raSupplierProducts(name){ try{ sessionStorage.setItem('ra_supfilter', name); }catch(e){} go('ra6'); }
 function raSupplierPackaging(name){ try{ sessionStorage.setItem('ra_supfilter', name); }catch(e){} go('ra5'); }
+function raSupplierUsers(name){ try{ sessionStorage.setItem('ra_supfilter', name); }catch(e){} go('ra7'); }
+function raOpenSupplier(name){ try{ sessionStorage.setItem('ra_supdetail', name); }catch(e){} go('ra_supdetail'); }
 (function(){
   function apply(){
     var name; try{ name = sessionStorage.getItem('ra_supfilter'); }catch(e){}

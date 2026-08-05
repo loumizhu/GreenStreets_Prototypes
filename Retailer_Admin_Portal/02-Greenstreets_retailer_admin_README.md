@@ -53,6 +53,7 @@ file (browsers cache them aggressively).
 | `Suppliers` | `ra4` | Suppliers list |
 | `Add-Supplier` | `ra_addsup` | Add supplier |
 | `Validate-Import` | `ra4_validate` | CSV import preview |
+| `Supplier-Detail` | `ra_supdetail` | Supplier detail (packaging components, timeline, proof docs) |
 | `Products` | `ra6` | Products list (paginated table) |
 | `Packagings` | `ra5` | Packagings (list/grid) |
 | `Product-Detail` | `ra_product` | Product detail + add-packaging modal |
@@ -63,7 +64,6 @@ file (browsers cache them aggressively).
 | `Compliance` | `ra11` | Compliance |
 | `Generate-DoC` | `ra12` | Generate DoC |
 | `Documents` | `ra13` | Documents |
-| `EPR-Reports` | `ra14` | EPR & Reports |
 | `Audit-Log` | `ra15` | Audit log |
 | `Notifications` | `ra16` | Notifications |
 | `Settings` | `ra_config` | Settings / config |

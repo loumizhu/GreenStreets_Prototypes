@@ -143,7 +143,7 @@ duplicates — collapse them to one name):
 | `gsi-2` | `products` (bag) | Sidebar: Products |
 | `gsi-3` | `packagings` (box) | Sidebar: Packagings |
 | `gsi-4` | `documents` (folder) | Sidebar: Documents |
-| `gsi-5` | `report` (file-text) | Sidebar: EPR & Reports |
+| `gsi-5` | `report` (file-text) | (unused since EPR & Reports removed) |
 | `gsi-6` | `users` | Sidebar: Users; team |
 | `gsi-7` | `settings` (gear) | Sidebar: Config; onboarding |
 | `gsi-8` | `audit` (file-check) | Sidebar: Audit log |
@@ -190,11 +190,11 @@ route table. Sidebar order first, then flow/sub-screens.
 | `ra7` | `Users` | Users | roles |
 | `ra8` | `Send-Invites` | Send invites | |
 | `ra9` | `Tracker` | DoC tracker | |
+| `ra_supdetail` | `Supplier-Detail` | Supplier detail | packaging components, timeline, proof docs |
 | `ra10` | `DoC-Request` | Request a DoC | |
 | `ra11` | `Compliance` | Compliance | |
 | `ra12` | `Generate-DoC` | Generate DoC | |
 | `ra13` | `Documents` | Documents | |
-| `ra14` | `EPR-Reports` | EPR & Reports | |
 | `ra15` | `Audit-Log` | Audit log | filterable feed |
 | `ra16` | `Notifications` | Notifications | typed feed + filters |
 | `ra_config` | `Settings` | Settings / config | profile, compliance, security, danger zone |
@@ -214,7 +214,7 @@ There is **no backend**. All content is static HTML or small in-file JS arrays:
 - Forms don't persist. Toggles flip a CSS class only.
 
 Suggested first models to type: `Supplier`, `Product`, `PackagingComponent`, `Document`,
-`DoC` (Declaration of Conformity), `User`, `AuditEvent`, `Notification`, `EprReport`.
+`DoC` (Declaration of Conformity), `User`, `AuditEvent`, `Notification`.
 
 ---
 
