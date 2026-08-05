@@ -24,7 +24,15 @@
     try { sku = sessionStorage.getItem('ra_pi'); } catch (e) {}
     var p = null;
     if (sku) p = list.filter(function (x) { return x.sku === sku; })[0];
-    return p || list[0] || { sku: 'PRK-000', desc: 'Product', cat: '—', supplier: '—', pkg: 'Not started', status: 'Pending' };
+    p = p || list[0] || { sku: 'PRK-000', desc: 'Product', cat: '—', supplier: '—', pkg: 'Not started', status: 'Pending' };
+
+    /* Seed missing palletization and mock tags */
+    p.unitsPerCase = p.unitsPerCase || 24;
+    p.casesPerPallet = p.casesPerPallet || 40;
+    p.totalWeight = p.totalWeight || 350;
+    p.deadline = p.deadline || 'Due in 14 days';
+
+    return p;
   }
 
   /* synthesise the component list from the product's coverage text */
@@ -268,36 +276,60 @@
     var canApprove = !APPROVED && COMPS.length > 0 && awaiting === 0;
 
     var idIcon = (typeof window.gsIdenticon === 'function')
-      ? '<span class="gs-id-ic" style="width:24px;height:24px;border-radius:6px">' + window.gsIdenticon(PROD.sku, 24) + '</span>'
+      ? '<span class="gs-id-ic" style="width:32px;height:32px;border-radius:8px">' + window.gsIdenticon(PROD.sku, 32) + '</span>'
       : '';
 
-    var header =
-      '<div class="pg-hdr-bar"><div>' +
-        '<div class="pg-title" style="display:inline-flex;align-items:center;gap:10px">' + idIcon +
-          '<span style="font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.02em">' + esc(PROD.sku) + '</span></div>' +
-        '<div class="pg-sub">' + esc(PROD.desc) + ' · ' + esc(PROD.cat) + ' · Supplier: ' + esc(PROD.supplier) + '</div>' +
-      '</div><div class="pg-actions rap-hdr-actions">' +
-        statusPill() +
+    var actions =
         '<button class="btn-g" onclick="rapSendToSupplier()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>Send to supplier</button>' +
         (APPROVED
           ? '<button class="rap-doc-btn" onclick="rapDownloadDoC()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download DoC</button>' +
             '<button class="btn-g" onclick="rapReopen()">Re-open</button>'
-          : '<button class="btn-p" ' + (canApprove ? '' : 'disabled style="opacity:.45;cursor:not-allowed"') + ' onclick="rapApprove()"><span class="btn-c"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" style="vertical-align:-2px;margin-right:5px"><polyline points="20 6 9 17 4 12"/></svg>Approve product</span></button>') +
-      '</div></div>';
+          : '<button class="btn-p" ' + (canApprove ? '' : 'disabled style="opacity:.45;cursor:not-allowed"') + ' onclick="rapApprove()"><span class="btn-c"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" style="vertical-align:-2px;margin-right:5px"><polyline points="20 6 9 17 4 12"/></svg>Approve product</span></button>');
 
-    var banner =
-      '<div class="rap-banner"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>' +
-      '<div>Define the packaging components you expect for this product. Once every component has been provided by the supplier, you can approve the product. Use <b>Send reminder</b> to nudge the supplier on any component still outstanding.</div></div>';
+    var providedCount = COMPS.filter(function(c){return c.status === 'Provided';}).length;
+    var progHtml = '<div style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--tw2)"><div style="width:80px;height:6px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden"><div style="height:100%;background:var(--gs);width:' + (COMPS.length ? (providedCount/COMPS.length)*100 : 0) + '%"></div></div>' + providedCount + ' / ' + COMPS.length + '</div>';
 
-    var info =
-      '<div class="grp" style="margin-bottom:12px"><div class="grp-hdr">Product details</div><div class="grp-body">' +
-        '<div class="rap-grid" style="margin:0">' +
-          '<div class="rap-f"><label>SKU</label><input class="fi" value="' + esc(PROD.sku) + '"></div>' +
-          '<div class="rap-f"><label>Description</label><input class="fi" value="' + esc(PROD.desc) + '"></div>' +
-          '<div class="rap-f"><label>Category</label><input class="fi" value="' + esc(PROD.cat) + '"></div>' +
-          '<div class="rap-f"><label>Assigned supplier</label><input class="fi" value="' + esc(PROD.supplier) + '"></div>' +
+    var deadlineTag = '<span class="pill pill-grey" style="font-size:11px;color:var(--tw2)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;vertical-align:-2px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' + PROD.deadline + '</span>';
+
+    var cats = ['Apparel', 'Footwear', 'Accessories', 'Homeware', 'Beauty', 'Electronics'];
+    var catOpts = cats.map(function(c){ return '<option' + (c===PROD.cat?' selected':'') + '>' + c + '</option>'; }).join('');
+    if (cats.indexOf(PROD.cat) === -1) catOpts += '<option selected>' + esc(PROD.cat) + '</option>';
+
+    var sups = ['Supplier Ltd (HK)', 'GreenStreets', 'Primark', 'Next', 'Zara'];
+    var supOpts = sups.map(function(s){ return '<option' + (s===PROD.supplier?' selected':'') + '>' + s + '</option>'; }).join('');
+    if (sups.indexOf(PROD.supplier) === -1) supOpts += '<option selected>' + esc(PROD.supplier) + '</option>';
+
+    var topCard =
+      '<div class="grp" style="margin-bottom:12px">' +
+        '<div class="grp-hdr" style="padding:14px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.05)">' +
+          '<div style="display:flex;align-items:center;gap:14px">' +
+            idIcon +
+            '<div style="display:flex;flex-direction:column;gap:2px">' +
+              '<span style="font-size:15px;font-weight:600;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.02em;color:#fff">' + esc(PROD.sku) + '</span>' +
+              '<span style="font-size:12px;color:var(--tw2)">' + esc(PROD.desc) + '</span>' +
+            '</div>' +
+          '</div>' +
+          '<div style="display:flex;align-items:center;gap:14px">' +
+            progHtml +
+            deadlineTag +
+            statusPill() +
+            '<div style="width:1px;height:24px;background:rgba(255,255,255,.1);margin:0 4px"></div>' +
+            actions +
+          '</div>' +
         '</div>' +
-      '</div></div>';
+        '<div class="grp-body" style="padding:20px 18px">' +
+          '<div class="rap-banner" style="margin-bottom:20px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>' +
+          '<div>Define the packaging components you expect for this product. Once every component has been provided by the supplier, you can approve the product. Use <b>Send reminder</b> to nudge the supplier on any component still outstanding.</div></div>' +
+          '<div class="rap-grid" style="margin:0;grid-template-columns:1fr 1fr 1fr;gap:20px">' +
+            '<div class="rap-f"><label>SKU</label><input class="fi" value="' + esc(PROD.sku) + '"></div>' +
+            '<div class="rap-f"><label>Category</label><select class="fi" onchange="window.rapUpdateProd(\'cat\',this.value)">' + catOpts + '</select></div>' +
+            '<div class="rap-f"><label>Assigned supplier</label><select class="fi" onchange="window.rapUpdateProd(\'supplier\',this.value)">' + supOpts + '</select></div>' +
+            '<div class="rap-f"><label>Units per Case</label><div><input class="fi" type="number" value="' + PROD.unitsPerCase + '" onchange="window.rapUpdateProd(\'unitsPerCase\',this.value)"></div></div>' +
+            '<div class="rap-f"><label>Cases per Pallet</label><div><input class="fi" type="number" value="' + PROD.casesPerPallet + '" onchange="window.rapUpdateProd(\'casesPerPallet\',this.value)"></div></div>' +
+            '<div class="rap-f"><label>Total Product Weight (g)</label><div><input class="fi" type="number" value="' + PROD.totalWeight + '" onchange="window.rapUpdateProd(\'totalWeight\',this.value)"></div></div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
 
     var compCards = COMPS.map(compCard).join('') || '<div style="padding:16px;text-align:center;color:var(--tw3);font-size:12px">No packaging components yet — use the button below to add the ones you expect.</div>';
 
@@ -327,12 +359,13 @@
         '</div>' +
       '</div>';
 
-    root.innerHTML = header + banner + info + comps;
+    root.innerHTML = topCard + comps;
 
     flushHighlight();
   }
 
   /* ---- actions ---- */
+  window.rapUpdateProd = function (key, val) { PROD[key] = val; };
   window.rapToggle = function (i) { openIdx = (openIdx === i ? -1 : i); render(); };
   window.rapEdit = function (i, key, val) {
     if (!COMPS[i]) return;
