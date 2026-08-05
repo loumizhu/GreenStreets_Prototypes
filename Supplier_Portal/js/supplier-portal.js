@@ -618,9 +618,20 @@ function pdCardHeadInner(pi,pk){
     + chip('Dimensions', dims||'—')
     + chip('Recycled', rec)
     + chip('Colour', fval(pkg,'Material Colour'));
+  var p = PRODUCTS.filter(function(x){return x.id===pi;})[0];
+  prodEnsureQty(p);
+  var q = p.compQty[pk]||1;
+  var qBadge = q>1 ? '<span class="pd-qty-badge" title="'+q+' of this component">× '+q+'</span>' : '';
+  /* − / + steppers to make this packaging component double, triple, … (× N badge) */
+  var qCtrl = '<span class="pd-qty" title="How many of this component this product uses" onclick="event.stopPropagation()">'
+    + '<button class="pd-qty-step" title="Fewer of this component"'+(q<=1?' disabled':'')+' onclick="event.stopPropagation();prodDecComp('+pi+','+pk+')"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>'
+    + qBadge
+    + '<button class="pd-qty-step" title="More of this component" onclick="event.stopPropagation();prodIncComp('+pi+','+pk+')"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>'
+    + '</span>';
   return '<span class="pkg-level-pill-sm" style="background:'+col+'22;color:'+col+';border:1px solid '+col+'55">'+pdEsc(lvl)+'</span>'
     + '<div class="pd-card-name">'+pdEsc(pkg.name)+'</div>'
     + '<div class="pd-sum">'+sum+'</div>'
+    + qCtrl
     + (pkg._saved
         ? '<span class="pkg-status-pill compliant">Saved ✓</span>'
         : '<span class="pkg-status-pill '+scls+'">'+st+'</span>')
@@ -825,6 +836,12 @@ function pdEditProduct(pi,field,val){
   prodRender();
 }
 function pdToggleCard(pi,pk){
+  /* Ignore clicks that came from the quantity stepper (− / + / badge) inside the
+     header — those must not expand/collapse the card. Guarding here (rather than
+     relying on stopPropagation from the button) is propagation-order-proof: the
+     ripple/pointer layers can fire first, but the toggle still checks the target. */
+  var ev = (typeof window!=='undefined') ? (window.event) : null;
+  if(ev && ev.target && ev.target.closest && ev.target.closest('.pd-qty')) return;
   var card = document.getElementById('pd-card-'+pi+'-'+pk);
   if(card) card.classList.toggle('open');
 }
@@ -861,11 +878,11 @@ function pdAddComp(pi,key){
   closeAllCompMenus();
   var p = PRODUCTS.filter(function(x){return x.id===pi;})[0];
   var comp = COMPONENT_LIBRARY_JS.find(function(c){return c.key===key;});
-  if(p && comp){ p.comps.push(comp.name); if(!p._pkgs)p._pkgs=[]; p._pkgs.push(buildPkgData(comp.name)); prodRender(); renderProductDetail(pi); }
+  if(p && comp){ prodEnsureQty(p); p.comps.push(comp.name); p.compQty.push(1); if(!p._pkgs)p._pkgs=[]; p._pkgs.push(buildPkgData(comp.name)); prodRender(); renderProductDetail(pi); }
 }
 function pdRemoveComp(pi,pk){
   var p = PRODUCTS.filter(function(x){return x.id===pi;})[0];
-  if(p && p._pkgs && pk>=0 && pk<p._pkgs.length){ p._pkgs.splice(pk,1); p.comps.splice(pk,1); prodRender(); renderProductDetail(pi); }
+  if(p && p._pkgs && pk>=0 && pk<p._pkgs.length){ prodEnsureQty(p); p._pkgs.splice(pk,1); p.comps.splice(pk,1); p.compQty.splice(pk,1); prodRender(); renderProductDetail(pi); }
 }
 /* ── Retailer-suggested components ────────────────────────────────────────
    A suggestion (free-typed name from the retailer) shows as an orange card.
@@ -929,7 +946,7 @@ function pdFillSuggestPick(pi, key){
   if(!p||!comp) return;
   _suggRemove(p);
   if(!p._pkgs) p._pkgs=[];
-  p.comps.push(comp.name); p._pkgs.push(buildPkgData(comp.name));
+  prodEnsureQty(p); p.comps.push(comp.name); p.compQty.push(1); p._pkgs.push(buildPkgData(comp.name));
   prodRender(); _pdReRender(pi);
   if(typeof gsToast==='function') gsToast('Suggestion replaced with “'+comp.name+'”');
 }
@@ -940,7 +957,7 @@ function pdFillSuggestNew(pi){
   var suggName = (p.sugg && _suggFill.idx!=null) ? p.sugg[_suggFill.idx] : 'New component';
   _suggRemove(p);
   if(!p._pkgs) p._pkgs=[];
-  p.comps.push(suggName); p._pkgs.push(buildPkgData(suggName));
+  prodEnsureQty(p); p.comps.push(suggName); p.compQty.push(1); p._pkgs.push(buildPkgData(suggName));
   prodRender(); _pdReRender(pi);
   if(typeof gsToast==='function') gsToast('New component “'+suggName+'” created — fill in its details below');
 }

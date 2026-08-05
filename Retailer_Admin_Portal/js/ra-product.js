@@ -293,14 +293,32 @@
     render();
     var last = document.querySelector('.rap-comp[data-i="' + (COMPS.length - 1) + '"]');
     if (last && last.scrollIntoView) last.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    focusCompName(COMPS.length - 1);
+  }
+
+  /* focus a component's inline name field and select its text, so the user can
+     immediately type over the default name after adding the component */
+  function focusCompName(i) {
+    setTimeout(function () {
+      var card = document.querySelector('.rap-comp[data-i="' + i + '"]');
+      var name = card && card.querySelector('.rap-comp-name-edit');
+      if (!name) return;
+      name.focus();
+      try {
+        var r = document.createRange(); r.selectNodeContents(name);
+        var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+      } catch (e) {}
+    }, 60);
   }
 
   /* apply a new expected count (add blanks / trim from the end) */
   function applyExpected(n) {
-    if (n > COMPS.length) { pendingHl = []; while (COMPS.length < n) { pendingHl.push(COMPS.length); COMPS.push(blankComp()); } }
+    var firstAdded = -1;
+    if (n > COMPS.length) { pendingHl = []; firstAdded = COMPS.length; while (COMPS.length < n) { pendingHl.push(COMPS.length); COMPS.push(blankComp()); } }
     else if (n < COMPS.length) { COMPS.length = n; if (openIdx >= n) openIdx = -1; }
     render();
     toast(n + ' expected component' + (n === 1 ? '' : 's'));
+    if (firstAdded >= 0) focusCompName(firstAdded);
   }
 
   /* set the number of expected components (retailer declares a count).

@@ -204,7 +204,7 @@ var PRODUCTS_RU = (function(){
       status: status,
       pill: pill,
       missing: missing,
-      missingColor: severe ? '#e05252' : '#f5a623'
+      missingColor: severe ? '#ff9c96' : '#ffcd7a'
     });
   }
   return list;
