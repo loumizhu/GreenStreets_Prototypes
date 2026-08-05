@@ -35,6 +35,9 @@
         <div class="grp-body">
           <div class="filter-toolbar">
             <div class="search-wrap"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-6"/></svg><input class="fi fi-search" placeholder="Search SKU or description..." oninput="ptSearch('s11', this.value)"></div>
+            <select class="fi fi-select" onchange="ptFilter('s11','retailer', this.value)">
+              <option value="all">All retailers</option><option>Primark Stores Ltd</option><option>H&amp;M Group</option><option>Next plc</option><option>Zara / Inditex</option><option>M&amp;S Group</option><option>Dunnes Stores</option><option>New Look</option>
+            </select>
             <select class="fi fi-select" onchange="ptFilter('s11','cat', this.value)">
               <option value="all">All categories</option><option>Tops</option><option>Bottoms</option><option>Dresses</option><option>Outerwear</option><option>Footwear</option><option>Accessories</option>
             </select>
@@ -46,11 +49,12 @@
             </select>
           </div>
           <div class="tbl-wrap"><table class="tbl" id="pt-table-s11">
-            <colgroup><col width="15%"><col width="23%"><col width="10%"><col width="16%"><col width="16%"><col width="10%"><col width="6%"><col width="4%"></colgroup>
+            <colgroup><col width="13%"><col width="20%"><col width="9%"><col width="15%"><col width="13%"><col width="12%"><col width="9%"><col width="5%"><col width="4%"></colgroup>
             <thead><tr>
               <th data-col="sku" onclick="ptSort('s11','sku')" style="cursor:pointer;user-select:none">SKU <span class="sort-arrow" style="opacity:.4;font-size:9px">↕</span></th>
               <th>Description</th>
               <th data-col="cat" onclick="ptSort('s11','cat')" style="cursor:pointer;user-select:none">Category <span class="sort-arrow" style="opacity:.4;font-size:9px">↕</span></th>
+              <th data-col="retailer" onclick="ptSort('s11','retailer')" style="cursor:pointer;user-select:none">Retailer <span class="sort-arrow" style="opacity:.4;font-size:9px">↕</span></th>
               <th>Supplier</th>
               <th>Packaging</th>
               <th data-col="status" onclick="ptSort('s11','status')" style="cursor:pointer;user-select:none">Status <span class="sort-arrow" style="opacity:.4;font-size:9px">↕</span></th>
@@ -84,7 +88,7 @@
   </div>
 </div>
 
-<script src="js/super-admin.js?v=6"></script>
+<script src="js/super-admin.js?v=7"></script>
 <script src="js/greenstreets-theme.js?v=29"></script>
 </body>
 </html>

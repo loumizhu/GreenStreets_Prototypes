@@ -84,11 +84,38 @@
       </div>
 
       <div class="grp">
-        <div class="grp-hdr">Packaging components<button class="btn-g-sm" style="margin-left:auto"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-14"/></svg>Import</button></div>
+        <div class="grp-hdr">Packaging components
+          <span style="margin-left:auto;display:inline-flex;gap:6px;align-items:center">
+            <button class="btn-g-sm" id="rapkg-compact-btn" onclick="rapkgToggleCompact()" title="Toggle compact row density">Compact</button>
+            <div style="position:relative;display:inline-block">
+              <button class="btn-g-sm" onclick="document.getElementById('rapkg-colmenu').classList.toggle('open')" title="Show/hide columns">Columns ▾</button>
+              <div id="rapkg-colmenu" style="display:none;position:absolute;right:0;top:calc(100% + 4px);background:#0e2036;border:1px solid rgba(148,180,230,.26);border-radius:10px;padding:8px 12px;z-index:500;min-width:160px;box-shadow:0 12px 30px rgba(0,0,0,.4);font-size:12px;white-space:nowrap">
+                <label style="display:flex;gap:8px;align-items:center;padding:4px 0;cursor:pointer;color:rgba(255,255,255,.75)"><input type="checkbox" checked onchange="rapkgToggleCol(2,this.checked)"> Product (SKU)</label>
+                <label style="display:flex;gap:8px;align-items:center;padding:4px 0;cursor:pointer;color:rgba(255,255,255,.75)"><input type="checkbox" checked onchange="rapkgToggleCol(3,this.checked)"> Supplier</label>
+                <label style="display:flex;gap:8px;align-items:center;padding:4px 0;cursor:pointer;color:rgba(255,255,255,.75)"><input type="checkbox" checked onchange="rapkgToggleCol(4,this.checked)"> Material</label>
+                <label style="display:flex;gap:8px;align-items:center;padding:4px 0;cursor:pointer;color:rgba(255,255,255,.75)"><input type="checkbox" checked onchange="rapkgToggleCol(5,this.checked)"> Weight (g)</label>
+                <label style="display:flex;gap:8px;align-items:center;padding:4px 0;cursor:pointer;color:rgba(255,255,255,.75)"><input type="checkbox" checked onchange="rapkgToggleCol(6,this.checked)"> PCR %</label>
+                <label style="display:flex;gap:8px;align-items:center;padding:4px 0;cursor:pointer;color:rgba(255,255,255,.75)"><input type="checkbox" checked onchange="rapkgToggleCol(7,this.checked)"> Recyclability</label>
+              </div>
+            </div>
+            <button class="btn-g-sm" onclick="rapkgExport()" title="Export visible rows as CSV">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-25"/></svg>Export
+            </button>
+            <button class="btn-g-sm" style="margin-left:4px">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-14"/></svg>Import
+            </button>
+          </span>
+        </div>
         <div class="grp-body" style="padding:0">
+          <div id="rapkg-bulkbar" style="display:none;align-items:center;gap:12px;padding:8px 14px;background:rgba(78,187,129,.08);border-bottom:1px solid rgba(78,187,129,.22);font-size:12px;font-weight:600;color:#4ebb81">
+            <span id="rapkg-bulkcount"></span>
+            <button class="act-mini act-view" onclick="rapkgExportSelected()">Export selected</button>
+            <button class="act-mini" onclick="rapkgClearAll()">Clear selection</button>
+          </div>
           <table class="tbl" id="pt-table-rapkg">
-          <colgroup><col width="13%"><col width="23%"><col width="15%"><col width="13%"><col width="9%"><col width="8%"><col width="10%"><col width="12%"><col width="11%"></colgroup>
+          <colgroup><col width="3%"><col width="12%"><col width="20%"><col width="13%"><col width="12%"><col width="6%"><col width="6%"><col width="6%"><col width="11%"><col width="11%"></colgroup>
           <thead><tr>
+            <th style="padding:8px 10px"><input type="checkbox" id="rapkg-all-cb" title="Select all" onchange="rapkgSelectAll(this.checked)"></th>
             <th data-col="type" onclick="ptSort('rapkg','type')" style="cursor:pointer;user-select:none">Type <span class="sort-arrow" style="opacity:.4;font-size:9px">↕</span></th>
             <th>Product (SKU)</th>
             <th data-col="supplier" onclick="ptSort('rapkg','supplier')" style="cursor:pointer;user-select:none">Supplier <span class="sort-arrow" style="opacity:.4;font-size:9px">↕</span></th>
@@ -96,8 +123,8 @@
             <th data-col="weight" onclick="ptSort('rapkg','weight')" style="cursor:pointer;user-select:none">Weight (g) <span class="sort-arrow" style="opacity:.4;font-size:9px">↕</span></th>
             <th>PCR %</th>
             <th>Recyclability</th>
-            <th data-col="status" onclick="ptSort('rapkg','status')" style="cursor:pointer;user-select:none">Status <span class="sort-arrow" style="opacity:.4;font-size:9px">↕</span></th>
-            <th></th>
+            <th data-col="status" onclick="ptSort('rapkg','status')" style="cursor:pointer;user-select:none">Status <span class="sort-arrow" style="opacity:.4;font-size:9px">↑</span></th>
+            <th>Actions</th>
           </tr></thead>
           <tbody id="pt-tbody-rapkg"></tbody></table>
         </div>
@@ -125,8 +152,83 @@
     </div>
   </div>
 </div>
-<script src="js/retailer-admin.js?v=12"></script>
-<script src="js/greenstreets-theme.js?v=22"></script>
+<script src="js/retailer-admin.js?v=14"></script>
+<script>
+/* ── Packagings page: checkbox, compact, columns, export ── */
+function rapkgSelectAll(checked){
+  document.querySelectorAll('.rapkg-cb').forEach(function(cb){ cb.checked=checked; });
+  rapkgCheckChange();
+}
+function rapkgCheckChange(){
+  var cbs = Array.prototype.slice.call(document.querySelectorAll('.rapkg-cb'));
+  var checked = cbs.filter(function(c){ return c.checked; });
+  var allCb = document.getElementById('rapkg-all-cb');
+  if(allCb){ allCb.checked = checked.length === cbs.length && cbs.length > 0; allCb.indeterminate = checked.length > 0 && checked.length < cbs.length; }
+  var bar = document.getElementById('rapkg-bulkbar');
+  var cnt = document.getElementById('rapkg-bulkcount');
+  if(bar){ bar.style.display = checked.length > 0 ? 'flex' : 'none'; }
+  if(cnt) cnt.textContent = checked.length + ' selected';
+}
+function rapkgClearAll(){
+  document.querySelectorAll('.rapkg-cb').forEach(function(cb){ cb.checked=false; });
+  var allCb = document.getElementById('rapkg-all-cb'); if(allCb){ allCb.checked=false; allCb.indeterminate=false; }
+  rapkgCheckChange();
+}
+function rapkgToggleCompact(){
+  var tbl = document.getElementById('pt-table-rapkg');
+  var btn = document.getElementById('rapkg-compact-btn');
+  if(!tbl) return;
+  tbl.classList.toggle('tbl-compact');
+  if(btn) btn.style.background = tbl.classList.contains('tbl-compact') ? 'rgba(78,187,129,.18)' : '';
+}
+function rapkgToggleCol(colIdx, show){
+  var tbl = document.getElementById('pt-table-rapkg');
+  if(!tbl) return;
+  tbl.querySelectorAll('tr').forEach(function(row){
+    var cell = row.cells[colIdx];
+    if(cell) cell.style.display = show ? '' : 'none';
+  });
+  var cols = tbl.querySelectorAll('colgroup col');
+  if(cols[colIdx]) cols[colIdx].style.display = show ? '' : 'none';
+  /* close menu */
+  document.getElementById('rapkg-colmenu').style.display='none';
+}
+function rapkgRowsToCSV(rows){
+  var headers = ['Type','Product SKU','Product Desc','Supplier','Material','Weight(g)','PCR%','Recyclability','Status'];
+  var lines = [headers.join(',')];
+  if(window.PACKAGINGS_RA){
+    rows.forEach(function(r){
+      lines.push([r.type,r.sku,r.desc,r.supplier,r.material||'',r.weight||'',r.pcr?r.pcr+'%':'',r.recycle||'',r.status].map(function(v){ return '"'+(v||'').replace(/"/g,'""')+'"'; }).join(','));
+    });
+  }
+  return lines.join('\n');
+}
+function rapkgExport(){
+  if(!window.PACKAGINGS_RA) return;
+  var csv = rapkgRowsToCSV(window.PACKAGINGS_RA);
+  var a = document.createElement('a'); a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='packagings.csv'; a.click();
+}
+function rapkgExportSelected(){
+  var ids = Array.prototype.slice.call(document.querySelectorAll('.rapkg-cb:checked')).map(function(cb){ return cb.getAttribute('data-id'); });
+  var rows = (window.PACKAGINGS_RA||[]).filter(function(r){ return ids.indexOf(r.id)>=0; });
+  if(!rows.length){ return; }
+  var csv = rapkgRowsToCSV(rows);
+  var a = document.createElement('a'); a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='packagings-selected.csv'; a.click();
+}
+/* Close columns menu on outside click */
+document.addEventListener('click', function(e){
+  var menu = document.getElementById('rapkg-colmenu');
+  if(menu && !menu.contains(e.target) && !e.target.closest('[onclick*="rapkg-colmenu"]')) menu.style.display='none';
+});
+/* Toggle columns menu visibility properly */
+(function(){
+  var btn = document.querySelector('[onclick*="rapkg-colmenu"]');
+  if(btn) btn.onclick = function(e){ e.stopPropagation(); var m=document.getElementById('rapkg-colmenu'); m.style.display = m.style.display==='none'?'block':'none'; };
+})();
+</script>
+<script src="js/greenstreets-theme.js?v=23"></script>
 <script src="js/ra-tour.js?v=10"></script>
 <script src="js/gs-appearance.js?v=5"></script>
 </body>

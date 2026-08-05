@@ -650,6 +650,10 @@
         var dx=Math.max(x-rect.left,rect.right-x), dy=Math.max(y-rect.top,rect.bottom-y);
         d=Math.sqrt(dx*dx+dy*dy)*2*scale;
         if(!(d>0)) d=Math.max(rect.width,rect.height)*scale;
+        // cap the ripple for very wide buttons (e.g. full-width "Add component"/submit buttons)
+        // so they get a compact cursor-centred burst instead of a page-spanning sweep
+        var cap=Math.max(rect.height,44)*3.4*scale;
+        if(d>cap) d=cap;
       }
       var r=document.createElement('div');
       r.className='gs-ripple';

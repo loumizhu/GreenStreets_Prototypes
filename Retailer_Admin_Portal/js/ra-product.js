@@ -1,9 +1,9 @@
 /* ==========================================================================
    ra-product.js — Retailer Admin product detail (data-driven).
-   Renders into #ra-prod-root. Shows the selected product, its expected
-   packaging components (editable inline, like the supplier portal), lets the
-   retailer add components the supplier must fill, and drives the review
-   workflow: approve the product or send it back to the supplier as incomplete.
+   Renders into #ra-prod-root. Shows the selected product, its packaging
+   components (editable inline), lets the retailer add components from the
+   library, and drives the review workflow: approve the product or send it
+   back to the supplier as incomplete.
    Depends on window.PRODUCTS_RA + go() from retailer-admin.js.
    ========================================================================== */
 (function () {
@@ -38,6 +38,11 @@
     var comps = [];
     for (var i = 0; i < total; i++) {
       var provided = i < done;
+      var rems = [];
+      if (!provided) {
+        rems.push({ type: 'Automated', date: 'Oct 1, 10:00 AM' });
+        if (i % 2 === 0) rems.push({ type: 'Manual', date: 'Oct 5, 14:30 PM' });
+      }
       comps.push({
         name: COMP_POOL[i % COMP_POOL.length],
         level: LEVELS[i % 3],
@@ -46,7 +51,10 @@
         pcr: provided ? String(50 + (i * 7) % 45) : '',
         recycle: provided ? RECYCLE[i % RECYCLE.length] : '',
         notes: '',
-        status: provided ? 'Provided' : 'Awaiting'
+        status: provided ? 'Provided' : 'Awaiting',
+        qty: 1,
+        approved: p.status === 'Complete' && provided, /* seed approved for already-complete products */
+        reminders: rems
       });
     }
     return comps;
@@ -54,13 +62,11 @@
 
   var PROD = findProduct();
   var COMPS = buildComponents(PROD);
-  var INITIAL_COUNT = COMPS.length; /* # of components present when the page loaded */
   var APPROVED = PROD.status === 'Complete';
   var openIdx = -1; /* which component card is expanded */
   var pendingHl = null; /* indices of just-added cards to pop-highlight after the next render */
 
-  /* pop + orange-stroke highlight for freshly-added component cards, cascading
-     one after the other when several are added at once (e.g. raising # expected) */
+  /* pop + orange-stroke highlight for freshly-added component cards */
   function flushHighlight() {
     if (!pendingHl || !pendingHl.length) { pendingHl = null; return; }
     var ix = pendingHl; pendingHl = null;
@@ -68,7 +74,7 @@
       setTimeout(function () {
         var card = document.querySelector('.rap-comp[data-i="' + i + '"]');
         if (!card) return;
-        card.classList.remove('rap-comp-new'); void card.offsetWidth; /* restart the animation */
+        card.classList.remove('rap-comp-new'); void card.offsetWidth;
         card.classList.add('rap-comp-new');
         setTimeout(function () { card.classList.remove('rap-comp-new'); }, 1900);
       }, k * 130);
@@ -85,6 +91,8 @@
 
   /* ---- derived product state ---- */
   function awaitingCount() { return COMPS.filter(function (c) { return c.status !== 'Provided'; }).length; }
+  function approvedCount() { return COMPS.filter(function (c) { return c.approved; }).length; }
+  function allApproved() { return COMPS.length > 0 && approvedCount() === COMPS.length; }
   function statusPill() {
     if (APPROVED) return '<span class="pill pill-green">Retailer approved</span>';
     if (COMPS.length === 0) return '<span class="pill pill-grey">No components</span>';
@@ -92,7 +100,8 @@
     return '<span class="pill" style="background:rgba(245,166,35,.14);color:#f5a623;border:1px solid rgba(245,166,35,.32)">Awaiting supplier</span>';
   }
   function compStatusPill(c) {
-    if (c.status === 'Provided') return '<span class="pill pill-green" style="font-size:9px">Provided</span>';
+    if (c.approved) return '<span class="pill pill-green" style="font-size:9px">✅ Approved</span>';
+    if (c.status === 'Provided') return '<span class="pill" style="font-size:9px;background:rgba(91,156,246,.14);color:#5b9cf6;border:1px solid rgba(91,156,246,.32)">Provided</span>';
     return '<span class="pill" style="font-size:9px;background:rgba(245,166,35,.14);color:#f5a623;border:1px solid rgba(245,166,35,.32)">Awaiting supplier</span>';
   }
 
@@ -105,19 +114,42 @@
       '#ra-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}' +
       '.rap-banner{display:flex;gap:11px;align-items:flex-start;background:rgba(91,156,246,.08);border:1px solid rgba(91,156,246,.22);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--tw2);line-height:1.6}' +
       '.rap-banner svg{color:#5b9cf6;flex-shrink:0;margin-top:1px}' +
-      '.rap-comp{border:1px solid var(--bw,rgba(255,255,255,.09));border-radius:11px;margin-bottom:10px;overflow:hidden;background:rgba(255,255,255,.02);transition:border-color .5s ease,box-shadow .5s ease}' +
-      '.rap-comp-hdr{display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer;transition:background .14s}' +
+      '.rap-comp{border:1px solid var(--bw,rgba(255,255,255,.09));border-radius:11px;margin-bottom:10px;overflow:visible;background:rgba(255,255,255,.02);transition:border-color .5s ease,box-shadow .5s ease;position:relative}' +
+      '.rap-comp:hover{z-index:10}' +
+      '.rap-comp.rap-comp-approved{border-color:rgba(78,187,129,.4);background:rgba(78,187,129,.04)}' +
+      '.rap-comp-hdr{display:grid;grid-template-columns:minmax(120px, 1.5fr) minmax(120px, 1.5fr) minmax(140px, 2.5fr) minmax(280px, 3.5fr);gap:10px;align-items:center;padding:10px 14px;transition:background .14s;border-radius:10px}' +
       '.rap-comp-hdr:hover{background:rgba(255,255,255,.03)}' +
+      '.rap-tt-wrap{position:relative;display:inline-flex}' +
+      '.rap-tt{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);margin-bottom:8px;background:#0e2036;border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px;width:280px;box-shadow:0 12px 30px rgba(0,0,0,.5);opacity:0;visibility:hidden;transition:opacity .15s, transform .15s;z-index:100;font-size:11px;color:var(--tw2);cursor:default;white-space:normal;text-align:left}' +
+      '.rap-tt-wrap:hover .rap-tt{opacity:1;visibility:visible;transform:translateX(-50%) translateY(3px)}' +
+      '.rap-tt-hdr{font-weight:700;color:#fff;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,.08);font-size:12px}' +
+      '.rap-tt-row{display:flex;justify-content:space-between;margin-bottom:6px}' +
+      '.rap-tt-auto{color:var(--tw3)}' +
+      '.rap-tt-manual{color:#f5a623}' +
+      '.rap-btn-remind{background:rgba(245,166,35,.12)!important;border-color:rgba(245,166,35,.35)!important;color:#f5a623!important}' +
+      '.rap-btn-remind:hover{background:rgba(245,166,35,.24)!important;border-color:#f5a623!important;color:#fff!important}' +
       '.rap-comp-name{font-size:13px;font-weight:600;color:var(--tw);flex-shrink:0}' +
-      /* inline-editable component title — click to rename without expanding the card */
-      '.rap-comp-name-edit{outline:none;border:1px solid transparent;border-radius:5px;padding:2px 6px;margin:-2px -4px;cursor:text;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:background .14s,border-color .14s}' +
+      '.rap-comp-name-edit{outline:none;border:1px solid transparent;border-radius:5px;padding:2px 6px;margin:-2px -4px;cursor:text;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:background .14s,border-color .14s}' +
       '.rap-comp-name-edit:hover{background:rgba(255,255,255,.05);border-color:var(--bw,rgba(255,255,255,.14))}' +
       '.rap-comp-name-edit:focus{background:rgba(255,255,255,.08);border-color:var(--gs);overflow:visible;text-overflow:clip;max-width:none}' +
       '.rap-comp-name-edit:empty:before{content:"Component name";color:var(--tw3)}' +
-      /* newly-added component: orange stroke contour + one-shot scale pop */
       '.rap-comp-new{border-color:#f5a623!important;box-shadow:0 0 0 1px #f5a623,0 0 20px rgba(245,166,35,.38);animation:rapPop .5s cubic-bezier(.34,1.56,.64,1) both}' +
       '@keyframes rapPop{0%{transform:scale(.965)}45%{transform:scale(1.035)}100%{transform:scale(1)}}' +
-      '.rap-comp-sum{font-size:11px;color:var(--tw3);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}' +
+      '.rap-comp-sum{font-size:11px;color:var(--tw3);flex:1;min-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}' +
+      '.rap-col{display:flex;align-items:center;gap:8px}' +
+      '.rap-col-vert{display:flex;flex-direction:column;gap:3px}' +
+      '.rap-hdr-btns{display:flex;align-items:center;gap:5px;flex-shrink:0;justify-content:flex-end;width:100%}' +
+      '.rap-hdr-btns button{font-family:inherit;font-size:11px;font-weight:600;padding:4px 8px;border-radius:7px;cursor:pointer;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:var(--tw2);transition:background .12s,border-color .12s,color .12s;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}' +
+      '.rap-hdr-btns button:hover{background:rgba(255,255,255,.12);color:#fff}' +
+      '.rap-qty-btn{padding:3px 7px!important;font-size:13px!important;min-width:26px;justify-content:center}' +
+      '.rap-qty-val{font-size:12px;font-weight:700;color:var(--tw);min-width:18px;text-align:center}' +
+      '.rap-btn-approve{background:rgba(78,187,129,.12)!important;border-color:rgba(78,187,129,.35)!important;color:#4ebb81!important}' +
+      '.rap-btn-approve:hover{background:rgba(78,187,129,.25)!important;border-color:var(--gs)!important;color:#fff!important}' +
+      '.rap-btn-approved{background:rgba(78,187,129,.18)!important;border-color:rgba(78,187,129,.5)!important;color:#4ebb81!important;cursor:default!important}' +
+      '.rap-btn-view{background:rgba(91,156,246,.1)!important;border-color:rgba(91,156,246,.3)!important;color:#5b9cf6!important}' +
+      '.rap-btn-view:hover{background:rgba(91,156,246,.22)!important;color:#fff!important}' +
+      '.rap-btn-remove{background:rgba(224,96,90,.08)!important;border-color:rgba(224,96,90,.25)!important;color:#e0605a!important}' +
+      '.rap-btn-remove:hover{background:rgba(224,96,90,.2)!important;border-color:#e0605a!important;color:#fff!important}' +
       '.rap-chev{transition:transform .2s;color:var(--tw3);flex-shrink:0}' +
       '.rap-comp.open .rap-chev{transform:rotate(180deg)}' +
       '.rap-comp-body{display:none;padding:4px 14px 16px;border-top:1px solid var(--bw,rgba(255,255,255,.08))}' +
@@ -128,8 +160,15 @@
       '.rap-f label{font-size:10px;text-transform:uppercase;letter-spacing:.05em;font-weight:600;color:var(--tw3);display:flex;align-items:center;gap:6px}' +
       '.rap-f .await-tag{font-size:8.5px;color:#f5a623;background:rgba(245,166,35,.12);border:1px solid rgba(245,166,35,.3);padding:1px 5px;border-radius:4px;letter-spacing:0}' +
       '.rap-f .fi{padding:7px 10px;font-size:12.5px}' +
-      '.rap-comp-actions{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding-top:6px;border-top:1px dashed var(--bw,rgba(255,255,255,.08))}' +
+      '.rap-comp-actions{display:flex;justify-content:flex-end;align-items:center;gap:8px;flex-wrap:wrap;padding-top:6px;border-top:1px dashed var(--bw,rgba(255,255,255,.08))}' +
       '.rap-hdr-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}' +
+      /* add-component buttons below list (split: direct + from-list) */
+      '.rap-add-row{display:flex;gap:8px;margin-top:4px}' +
+      '.rap-add-direct{flex:1 1 auto;display:flex;align-items:center;justify-content:center;gap:7px;padding:11px 14px;background:var(--gs);border:1px solid var(--gs);color:#fff;border-radius:10px;font-family:inherit;font-size:12.5px;font-weight:650;cursor:pointer;transition:filter .14s;box-sizing:border-box}' +
+      '.rap-add-direct:hover{filter:brightness(1.08)}' +
+      '.rap-add-from-list{flex:0 0 20%;display:flex;align-items:center;justify-content:center;gap:7px;padding:11px 12px;background:rgba(78,187,129,.1);border:1px dashed rgba(78,187,129,.45);color:#fff;border-radius:10px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:background .14s;box-sizing:border-box;text-align:center;white-space:nowrap}' +
+      '.rap-add-from-list:hover{background:rgba(78,187,129,.2)}' +
+      /* picker modal */
       '.rap-modal-ov{position:fixed;inset:0;background:rgba(4,10,20,.62);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:9998;padding:20px}' +
       '.rap-modal{width:100%;max-width:480px;max-height:80vh;display:flex;flex-direction:column;background:#0e2036;border:1px solid var(--line-2,rgba(148,180,230,.26));border-radius:14px;overflow:hidden;box-shadow:0 30px 70px -20px rgba(0,0,0,.7)}' +
       '.rap-modal-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--bw,rgba(255,255,255,.09));font-size:13px;font-weight:650;color:#fff}' +
@@ -142,58 +181,79 @@
       '.rap-pick-name{font-size:12.5px;font-weight:600;color:var(--tw)}' +
       '.rap-pick-meta{font-size:10.5px;color:var(--tw3);margin-top:2px}' +
       '.rap-modal-foot{padding:12px 16px;border-top:1px solid var(--bw,rgba(255,255,255,.09));display:flex;align-items:center}' +
-      '.rap-exp{position:relative;display:inline-flex;align-items:center;gap:5px}' +
-      '.rap-exp .cs-wrap,.rap-exp .rap-exp-sel{width:72px}' +
-      '.rap-exp .cs-trigger,.rap-exp .rap-exp-sel{padding:6px 10px;font-size:12.5px}' +
-      '.rap-exp-steps{display:flex;flex-direction:column;gap:2px;flex-shrink:0}' +
-      '.rap-exp-steps button{width:20px;height:14px;padding:0;border:none;background:rgba(255,255,255,.09);color:var(--tw2,rgba(255,255,255,.74));cursor:pointer;border-radius:3px;display:flex;align-items:center;justify-content:center}' +
-      '.rap-exp-steps button:hover{background:var(--gs);color:#04130c}';
+      '.rap-doc-btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;background:rgba(78,187,129,.15);border:1px solid rgba(78,187,129,.45);color:#4ebb81;border-radius:9px;font-family:inherit;font-size:12.5px;font-weight:600;cursor:pointer;transition:background .14s}' +
+      '.rap-doc-btn:hover{background:rgba(78,187,129,.28);color:#fff}';
     document.head.appendChild(st);
   }
 
-  /* ---- component card ---- */
+  /* ---- component card (single line: details summary + row actions) ---- */
   function compCard(c, i) {
-    var open = i === openIdx;
     var missingHint = c.status !== 'Provided';
-    function f(label, key, kind, opts) {
-      var v = c[key] || '';
-      var awaitTag = (missingHint && v === '') ? '<span class="await-tag">supplier to fill</span>' : '';
-      var ctrl;
-      if (kind === 'select') {
-        var o = '<option value="">—</option>' + opts.map(function (x) { return '<option' + (x === v ? ' selected' : '') + '>' + esc(x) + '</option>'; }).join('');
-        ctrl = '<select class="fi" onchange="rapEdit(' + i + ',\'' + key + '\',this.value)">' + o + '</select>';
-      } else if (kind === 'num') {
-        ctrl = '<input class="fi" type="number" value="' + esc(v) + '" placeholder="—" oninput="rapEdit(' + i + ',\'' + key + '\',this.value)">';
-      } else {
-        ctrl = '<input class="fi" type="text" value="' + esc(v) + '" placeholder="Enter value" oninput="rapEdit(' + i + ',\'' + key + '\',this.value)">';
-      }
-      return '<div class="rap-f"><label>' + esc(label) + awaitTag + '</label>' + ctrl + '</div>';
-    }
     var sum = c.status === 'Provided'
       ? esc((c.material || '—') + ' · ' + (c.weight || '—') + ' g · ' + (c.pcr || '0') + '% PCR')
       : 'Awaiting supplier — details not yet provided';
-    return '<div class="rap-comp' + (open ? ' open' : '') + '" data-i="' + i + '">' +
-      '<div class="rap-comp-hdr" onclick="rapToggle(' + i + ')">' +
-        '<span class="rap-comp-name rap-comp-name-edit" contenteditable="true" spellcheck="false" title="Click to rename this component" ' +
-          'onclick="event.stopPropagation()" onmousedown="event.stopPropagation()" onkeydown="rapTitleKey(event)" oninput="rapEditName(' + i + ',this.textContent)">' + esc(c.name) + '</span>' +
-        '<span class="pill ' + (c.level === 'Primary' ? 'pill-blue' : 'pill-grey') + '" style="font-size:9px">' + esc(c.level) + '</span>' +
-        compStatusPill(c) +
-        '<span class="rap-comp-sum">' + sum + '</span>' +
-        '<svg class="rap-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>' +
-      '</div>' +
-      '<div class="rap-comp-body">' +
-        '<div class="rap-grid">' +
-          f('Component name', 'name', 'text') +
-          f('Level', 'level', 'select', LEVELS) +
-          f('Material', 'material', 'select', MATERIALS) +
-          f('Weight (g)', 'weight', 'num') +
-          f('PCR %', 'pcr', 'num') +
-          f('Recyclability', 'recycle', 'select', RECYCLE) +
+
+    /* qty stepper */
+    var qty = c.qty || 1;
+    var qtyHtml = '<div style="display:flex;align-items:center;background:rgba(255,255,255,.04);border-radius:6px;margin-right:6px"><button type="button" class="rap-qty-btn" title="Decrease quantity" onclick="rapQtyStep(' + i + ',-1)" style="border:none;background:transparent">−</button>' +
+      '<span class="rap-qty-val">' + qty + '</span>' +
+      '<button type="button" class="rap-qty-btn" title="Increase quantity" onclick="rapQtyStep(' + i + ',1)" style="border:none;background:transparent">+</button></div>';
+
+    /* view detail button */
+    var viewBtn = '<button type="button" class="rap-btn-view" title="View packaging detail" onclick="rapViewPkg(\'' + esc(c.name) + '\')">→ Detail</button>';
+
+    /* approve button for completed ones that are not yet approved, or cancel if approved */
+    var appBtn = '';
+    if (c.status === 'Provided' && !APPROVED) {
+      if (c.approved) {
+        appBtn = '<button type="button" class="rap-btn-remove" style="color:var(--tw2)!important;background:rgba(255,255,255,.08)!important;border-color:rgba(255,255,255,.15)!important" onclick="rapCancelApproveComp(' + i + ')">Cancel Approval</button>';
+      } else {
+        appBtn = '<button type="button" class="rap-btn-approve" onclick="rapApproveComp(' + i + ')">Approve</button>';
+      }
+    } else if (c.status === 'Provided' && APPROVED) {
+      appBtn = '<button type="button" class="rap-btn-approved" disabled>Approved</button>';
+    }
+
+    /* tooltip content for reminders */
+    var ttHtml = '';
+    if (missingHint && c.reminders && c.reminders.length > 0) {
+      var lastRem = c.reminders[c.reminders.length - 1];
+      ttHtml = '<div class="rap-tt"><div class="rap-tt-hdr">' + c.reminders.length + ' reminder' + (c.reminders.length>1?'s':'') + ' sent (Last: ' + lastRem.date + ')</div>';
+      c.reminders.forEach(function(r) {
+        var cl = r.type === 'Automated' ? 'rap-tt-auto' : 'rap-tt-manual';
+        ttHtml += '<div class="rap-tt-row"><span class="'+cl+'">' + r.type + '</span><span style="color:#fff">' + r.date + '</span></div>';
+      });
+      ttHtml += '</div>';
+    }
+
+    /* send-reminder button — only for incomplete (awaiting) components */
+    var reminderBtn = missingHint
+      ? '<div class="rap-tt-wrap"><button type="button" class="rap-btn-remind" title="Remind the supplier to complete this component" onclick="rapRemind(' + i + ')">' +
+          '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Send reminder</button>' + ttHtml + '</div>'
+      : '';
+
+    /* remove button */
+    var removeBtn = '<button type="button" class="rap-btn-remove" title="Remove this component" onclick="rapRemove(' + i + ')">🗑</button>';
+
+    return '<div class="rap-comp' + (c.approved ? ' rap-comp-approved' : '') + '" data-i="' + i + '">' +
+      '<div class="rap-comp-hdr">' +
+        '<div class="rap-col">' +
+          '<span class="rap-comp-name rap-comp-name-edit" contenteditable="true" spellcheck="false" title="Click to rename" ' +
+            'onkeydown="rapTitleKey(event)" oninput="rapEditName(' + i + ',this.textContent)">' + esc(c.name) + '</span>' +
         '</div>' +
-        '<div class="rap-f" style="margin-bottom:12px">' + '<label>Notes for supplier</label><input class="fi" type="text" value="' + esc(c.notes) + '" placeholder="e.g. confirm coating and ink type" oninput="rapEdit(' + i + ',\'notes\',this.value)"></div>' +
-        '<div class="rap-comp-actions">' +
-          '<label style="display:flex;align-items:center;gap:7px;font-size:11px;color:var(--tw2)">Status <select class="fi" style="width:auto;padding:5px 8px;font-size:11px" onchange="rapEdit(' + i + ',\'status\',this.value)"><option value="Awaiting"' + (c.status !== 'Provided' ? ' selected' : '') + '>Awaiting supplier</option><option value="Provided"' + (c.status === 'Provided' ? ' selected' : '') + '>Provided</option></select></label>' +
-          '<button class="btn-g-sm" onclick="rapRemove(' + i + ')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg> Remove</button>' +
+        '<div class="rap-col-vert" style="align-items:flex-start">' +
+          '<span class="pill ' + (c.level === 'Primary' ? 'pill-blue' : 'pill-grey') + '" style="font-size:9px">' + esc(c.level) + '</span>' +
+          compStatusPill(c) +
+        '</div>' +
+        '<div class="rap-col">' +
+          '<span class="rap-comp-sum" style="white-space:normal;line-height:1.4">' + sum + (c.status === 'Provided' ? '<br><span style="color:var(--tw2);font-weight:600">' + esc(c.recycle) + '</span>' : '') + '</span>' +
+        '</div>' +
+        '<div class="rap-hdr-btns">' +
+          qtyHtml +
+          viewBtn +
+          appBtn +
+          reminderBtn +
+          removeBtn +
         '</div>' +
       '</div>' +
     '</div>';
@@ -206,12 +266,11 @@
     var crumb = document.getElementById('ra-prod-crumb'); if (crumb) crumb.textContent = PROD.sku;
     var awaiting = awaitingCount();
     var canApprove = !APPROVED && COMPS.length > 0 && awaiting === 0;
-    var expMax = Math.max(12, COMPS.length);
-    var expOpts = ''; for (var eo = 1; eo <= expMax; eo++) expOpts += '<option value="' + eo + '"' + (eo === COMPS.length ? ' selected' : '') + '>' + eo + '</option>';
 
     var idIcon = (typeof window.gsIdenticon === 'function')
       ? '<span class="gs-id-ic" style="width:24px;height:24px;border-radius:6px">' + window.gsIdenticon(PROD.sku, 24) + '</span>'
       : '';
+
     var header =
       '<div class="pg-hdr-bar"><div>' +
         '<div class="pg-title" style="display:inline-flex;align-items:center;gap:10px">' + idIcon +
@@ -221,13 +280,14 @@
         statusPill() +
         '<button class="btn-g" onclick="rapSendToSupplier()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>Send to supplier</button>' +
         (APPROVED
-          ? '<button class="btn-g" onclick="rapReopen()">Re-open</button>'
+          ? '<button class="rap-doc-btn" onclick="rapDownloadDoC()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download DoC</button>' +
+            '<button class="btn-g" onclick="rapReopen()">Re-open</button>'
           : '<button class="btn-p" ' + (canApprove ? '' : 'disabled style="opacity:.45;cursor:not-allowed"') + ' onclick="rapApprove()"><span class="btn-c"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" style="vertical-align:-2px;margin-right:5px"><polyline points="20 6 9 17 4 12"/></svg>Approve product</span></button>') +
       '</div></div>';
 
     var banner =
       '<div class="rap-banner"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>' +
-      '<div>Define the packaging components you expect for this product below. Fields left blank are flagged for <strong style="color:var(--tw)">' + esc(PROD.supplier) + '</strong> to complete. When every component is provided you can approve the product; otherwise send it back to the supplier as incomplete.</div></div>';
+      '<div>Define the packaging components you expect for this product. Once every component has been provided by the supplier, you can approve the product. Use <b>Send reminder</b> to nudge the supplier on any component still outstanding.</div></div>';
 
     var info =
       '<div class="grp" style="margin-bottom:12px"><div class="grp-hdr">Product details</div><div class="grp-body">' +
@@ -239,29 +299,35 @@
         '</div>' +
       '</div></div>';
 
-    var compCards = COMPS.map(compCard).join('') || '<div style="padding:16px;text-align:center;color:var(--tw3);font-size:12px">No packaging components yet — add the ones you expect for this product.</div>';
+    var compCards = COMPS.map(compCard).join('') || '<div style="padding:16px;text-align:center;color:var(--tw3);font-size:12px">No packaging components yet — use the button below to add the ones you expect.</div>';
+
+    var totalQty = 0;
+    COMPS.forEach(function(c) { totalQty += (c.qty || 1); });
+
     var comps =
-      '<div class="grp" style="margin-bottom:12px"><div class="grp-hdr">Expected packaging components' +
-        '<span style="margin-left:8px;font-size:10px;font-weight:600;color:var(--tw3)">' + COMPS.length + ' total · ' + awaiting + ' awaiting supplier</span>' +
-        '<div style="margin-left:auto;display:flex;align-items:center;gap:12px">' +
-          '<span style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--tw2);white-space:nowrap"># expected' +
-            '<span class="rap-exp">' +
-              '<select id="rap-exp-sel" class="fi rap-exp-sel" onchange="rapSetExpected(this.value)" title="Number of packaging components you expect for this product — pick from the list or step up/down">' + expOpts + '</select>' +
-              '<span class="rap-exp-steps">' +
-                '<button type="button" tabindex="-1" aria-label="Increase" onclick="rapExpStep(1)"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 15 12 9 18 15"/></svg></button>' +
-                '<button type="button" tabindex="-1" aria-label="Decrease" onclick="rapExpStep(-1)"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg></button>' +
-              '</span>' +
-            '</span>' +
+      '<div class="grp" style="margin-bottom:12px">' +
+        '<div class="grp-hdr">Packaging components' +
+          '<span style="margin-left:8px;font-size:10px;font-weight:600;color:var(--tw3)">' + COMPS.length + ' component type' + (COMPS.length===1?'':'s') + ' (' + totalQty + ' item' + (totalQty===1?'':'s') + ' total)</span>' +
+          '<span style="margin-left:auto;font-size:10px;color:var(--tw3)">' +
+            (awaiting > 0 ? '<span style="color:#f5a623">' + awaiting + ' awaiting supplier</span>' : '') +
           '</span>' +
-          '<button class="btn-g-sm" onclick="rapAdd()"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>Add packaging component</button>' +
         '</div>' +
-      '</div><div class="grp-body">' + compCards + '</div></div>';
+        '<div class="grp-body">' +
+          compCards +
+          /* Add-component buttons: big direct-add (left) + smaller from-list (right) */
+          '<div class="rap-add-row">' +
+            '<button type="button" class="rap-add-direct" onclick="rapAddDirect()">' +
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>' +
+              'Add component' +
+            '</button>' +
+            '<button type="button" class="rap-add-from-list" onclick="rapAdd()">' +
+              'Add component from list' +
+            '</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
 
     root.innerHTML = header + banner + info + comps;
-
-    /* theme the "# expected" dropdown so it shows a clean 1–12 list like the rest of the app */
-    var expSel = document.getElementById('rap-exp-sel');
-    if (expSel && window.GSEnhanceSelects) window.GSEnhanceSelects(expSel.parentNode);
 
     flushHighlight();
   }
@@ -271,20 +337,58 @@
   window.rapEdit = function (i, key, val) {
     if (!COMPS[i]) return;
     COMPS[i][key] = val;
-    if (key === 'status') { render(); return; }
-    /* keep the card open while typing — only refresh the header pills lightly */
+    if (key === 'status') {
+      /* un-approve if status changes back to awaiting */
+      if (val !== 'Provided') COMPS[i].approved = false;
+      render(); return;
+    }
   };
-  /* inline title edit — no re-render (keeps the contenteditable focus/caret) */
   window.rapEditName = function (i, val) { if (COMPS[i]) COMPS[i].name = (val || '').replace(/\n/g, ' '); };
   window.rapTitleKey = function (e) { if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); } };
   window.rapRemove = function (i) {
     var name = COMPS[i] ? COMPS[i].name : '';
     COMPS.splice(i, 1);
     if (openIdx === i) openIdx = -1; else if (i < openIdx) openIdx--;
-    render(); toast('“' + name + '” removed');
+    render(); toast('"' + name + '" removed');
+  };
+  /* qty stepper (+ / -) */
+  window.rapQtyStep = function (i, d) {
+    if (!COMPS[i]) return;
+    COMPS[i].qty = Math.max(1, (COMPS[i].qty || 1) + d);
+    render();
+  };
+  /* approve individual component */
+  window.rapApproveComp = function (i) {
+    var c = COMPS[i]; if (!c) return;
+    if (c.status !== 'Provided') { toast('Component must be "Provided" before it can be approved'); return; }
+    c.approved = true;
+    render();
+    if (allApproved()) toast('All components approved — you can now approve the product ✅');
+    else toast('"' + c.name + '" approved');
+  };
+  /* cancel approve individual component */
+  window.rapCancelApproveComp = function (i) {
+    var c = COMPS[i]; if (!c) return;
+    c.approved = false;
+    render();
+    toast('Approval cancelled for "' + c.name + '"');
+  };
+  /* view packaging detail */
+  window.rapViewPkg = function (name) {
+    /* find the matching packaging in PACKAGINGS_RA by component type name (fuzzy) */
+    var lib = window.PACKAGINGS_RA || [];
+    var nm = (name || '').toLowerCase().replace(/[^a-z]/g, '');
+    var match = lib.filter(function (p) {
+      return (p.type || '').toLowerCase().replace(/[^a-z]/g, '') === nm;
+    })[0] || lib[0];
+    if (match && typeof openPackagingRA === 'function') {
+      openPackagingRA(match.id);
+    } else {
+      toast('Opening packaging detail for "' + name + '"');
+    }
   };
   function blankComp(name, level, material) {
-    return { name: name || ('Component ' + (COMPS.length + 1)), level: level || 'Primary', material: material || '', weight: '', pcr: '', recycle: '', notes: '', status: 'Awaiting' };
+    return { name: name || ('Component ' + (COMPS.length + 1)), level: level || 'Primary', material: material || '', weight: '', pcr: '', recycle: '', notes: '', status: 'Awaiting', qty: 1, approved: false };
   }
   function addComp(c) {
     COMPS.push(c);
@@ -295,78 +399,28 @@
     if (last && last.scrollIntoView) last.scrollIntoView({ behavior: 'smooth', block: 'center' });
     focusCompName(COMPS.length - 1);
   }
-
-  /* focus a component's inline name field and select its text, so the user can
-     immediately type over the default name after adding the component */
   function focusCompName(i) {
     setTimeout(function () {
       var card = document.querySelector('.rap-comp[data-i="' + i + '"]');
       var name = card && card.querySelector('.rap-comp-name-edit');
       if (!name) return;
       name.focus();
-      try {
-        var r = document.createRange(); r.selectNodeContents(name);
-        var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
-      } catch (e) {}
+      try { var r = document.createRange(); r.selectNodeContents(name); var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r); } catch (e) {}
     }, 60);
   }
 
-  /* apply a new expected count (add blanks / trim from the end) */
-  function applyExpected(n) {
-    var firstAdded = -1;
-    if (n > COMPS.length) { pendingHl = []; firstAdded = COMPS.length; while (COMPS.length < n) { pendingHl.push(COMPS.length); COMPS.push(blankComp()); } }
-    else if (n < COMPS.length) { COMPS.length = n; if (openIdx >= n) openIdx = -1; }
-    render();
-    toast(n + ' expected component' + (n === 1 ? '' : 's'));
-    if (firstAdded >= 0) focusCompName(firstAdded);
-  }
-
-  /* set the number of expected components (retailer declares a count).
-     Dropping below the count the page loaded with removes components (and any
-     supplier detail they hold), so confirm first. */
-  window.rapSetExpected = function (n) {
-    n = Math.max(0, Math.min(20, parseInt(n, 10) || 0));
-    if (n === COMPS.length) { render(); return; }        /* no-op — just re-sync the control */
-    if (n < INITIAL_COUNT && n < COMPS.length) {
-      render();                                           /* snap the control back while we ask */
-      confirmReduce(n);
-      return;
-    }
-    applyExpected(n);
+  /* Add a component directly (blank row, not from the library) */
+  window.rapAddDirect = function () {
+    addComp(blankComp('', 'Primary', ''));
+    toast('New component added — rename it and await supplier detail');
   };
-  window.rapExpStep = function (d) { window.rapSetExpected(COMPS.length + d); };
-
-  /* confirmation dialog shown when reducing below the loaded count */
-  function confirmReduce(n) {
-    var removed = COMPS.length - n;
-    var ov = document.getElementById('rap-confirm'); if (ov) ov.remove();
-    ov = document.createElement('div'); ov.id = 'rap-confirm'; ov.className = 'rap-modal-ov';
-    ov._n = n;
-    ov.onclick = function (e) { if (e.target === ov) window.rapConfirmCancel(); };
-    ov.innerHTML =
-      '<div class="rap-modal" style="max-width:410px">' +
-        '<div class="rap-modal-hdr"><span>Reduce expected components?</span>' +
-          '<button class="rap-modal-x" onclick="rapConfirmCancel()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>' +
-        '<div class="rap-modal-body" style="font-size:12.5px;color:var(--tw2);line-height:1.65">' +
-          'Setting this to <strong style="color:var(--tw)">' + n + '</strong> removes the last <strong style="color:var(--tw)">' + removed + '</strong> packaging component' + (removed === 1 ? '' : 's') + ' from this product' +
-          ', including any detail the supplier has already provided. This can’t be undone.' +
-        '</div>' +
-        '<div class="rap-modal-foot" style="justify-content:flex-end;gap:8px">' +
-          '<button class="btn-g-sm" onclick="rapConfirmCancel()">Cancel</button>' +
-          '<button class="btn-p" onclick="rapConfirmReduce()"><span class="btn-c">Remove ' + removed + ' component' + (removed === 1 ? '' : 's') + '</span></button>' +
-        '</div>' +
-      '</div>';
-    document.body.appendChild(ov);
-  }
-  window.rapConfirmCancel = function () { var ov = document.getElementById('rap-confirm'); if (ov) ov.remove(); };
-  window.rapConfirmReduce = function () {
-    var ov = document.getElementById('rap-confirm'); var n = ov ? ov._n : null;
-    if (ov) ov.remove();
-    if (n != null) applyExpected(n);
+  /* Send the supplier a reminder for an outstanding component */
+  window.rapRemind = function (i) {
+    var c = COMPS[i]; if (!c) return;
+    toast('Reminder for "' + (c.name || 'component') + '" will be sent to ' + PROD.supplier + ' as an email.');
   };
 
-  /* Add packaging component -> picker (pick from library or create new),
-     mirroring the supplier portal's add-component flow. */
+  /* Add packaging component from list → picker (library or create new) */
   window.rapAdd = function () { openPicker(); };
 
   function openPicker() {
@@ -375,7 +429,7 @@
     ov.onclick = function (e) { if (e.target === ov) closePicker(); };
     ov.innerHTML =
       '<div class="rap-modal">' +
-        '<div class="rap-modal-hdr"><span>Add packaging component</span>' +
+        '<div class="rap-modal-hdr"><span>Add Component from list</span>' +
           '<button class="rap-modal-x" onclick="rapClosePicker()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>' +
         '<div class="rap-modal-body">' +
           '<div id="rap-pick-list-wrap">' +
@@ -417,7 +471,7 @@
     var x = (window.PKG_LIBRARY || [])[i]; if (!x) return;
     closePicker();
     addComp(blankComp(x.name, x.level, x.material));
-    toast('“' + x.name + '” added — awaiting supplier detail');
+    toast('"' + x.name + '" added — awaiting supplier detail');
   };
   window.rapPickShowCreate = function () {
     document.getElementById('rap-pick-list-wrap').style.display = 'none';
@@ -438,14 +492,17 @@
     if (!name.trim()) { toast('Enter a component name'); return; }
     closePicker();
     addComp(blankComp(name.trim(), level, ''));
-    toast('“' + name.trim() + '” created — awaiting supplier detail');
+    toast('"' + name.trim() + '" created — awaiting supplier detail');
   };
   function closePicker() { var ov = document.getElementById('rap-picker'); if (ov) ov.remove(); }
   window.rapClosePicker = closePicker;
+
   window.rapApprove = function () {
-    if (awaitingCount() > 0) { toast('Some components are still awaiting the supplier'); return; }
-    APPROVED = true; render(); toast('Product approved');
+    if (COMPS.length === 0) { toast('Add at least one component first'); return; }
+    if (awaitingCount() > 0) { toast('All components must be provided by the supplier first'); return; }
+    APPROVED = true; render(); toast('Product approved ✅');
   };
+  window.rapDownloadDoC = function () { toast('Declaration of Conformity downloaded'); };
   window.rapReopen = function () { APPROVED = false; render(); toast('Product re-opened for editing'); };
   window.rapSendToSupplier = function () {
     APPROVED = false;

@@ -177,7 +177,7 @@ function insertPkgRow(targetScope, name, level, material){
 /* ── Generic paginated/sortable/filterable table engine ── */
 var __pt = {};
 function ptInit(scope, data, opts){
-  __pt[scope] = {data:data, page:0, pageSize:(opts.pageSize||20), sortCol:null, sortDir:1, search:'', filters:{}, opts:opts};
+  __pt[scope] = {data:data, page:0, pageSize:(opts.pageSize||20), sortCol:(opts.sortCol||null), sortDir:(opts.sortDir||1), search:'', filters:{}, opts:opts};
   ptRender(scope);
 }
 function ptFiltered(scope){
@@ -214,6 +214,7 @@ function ptRender(scope){
   var tbody = document.getElementById('pt-tbody-'+scope);
   if (tbody) tbody.innerHTML = pageRows.length ? pageRows.map(st.opts.rowHtml).join('') : '<tr><td colspan="'+st.opts.cols+'" style="padding:22px;text-align:center;color:var(--tw3);font-size:12px">No matches — try clearing filters.</td></tr>';
   if (tbody && typeof gsEnhanceIds==='function') gsEnhanceIds(tbody, '.gs-id-cell');
+  if (typeof st.opts.afterRender === 'function') { try { st.opts.afterRender(scope, pageRows, rows); } catch(e){} }
   var countEl = document.getElementById('pt-count-'+scope);
   if (countEl){
     var from = total===0?0:start+1, to = Math.min(total, start+st.pageSize);
@@ -280,15 +281,223 @@ var PRODUCTS_RA = (function(){
   }
   return list;
 })();
+/* selection state — declared before ptInit so the first render's rowHtml can read it */
+var raProdSel = new Set();
+var raProdFiltered = [];   /* last filtered (all-pages) row set — used by select-all */
 ptInit('ra', PRODUCTS_RA, {
-  cols: 7,
+  cols: 9,
   pageSize: 20,
   noun: 'products',
   searchFields: ['sku','desc'],
+  afterRender: function(scope, pageRows, allRows){ raProdSyncSelection(pageRows, allRows); },
   rowHtml: function(r){
-    return '<tr style="cursor:pointer" onclick="openProductRA(\''+r.sku+'\')"><td><div class="tbl-name gs-id-cell">'+r.sku+'</div></td><td class="tbl-muted">'+r.desc+'</td><td class="tbl-muted">'+r.cat+'</td><td class="tbl-muted">'+r.supplier+'</td><td class="tbl-muted">'+r.pkg+'</td><td><span class="pill '+r.pill+'">'+r.status+'</span></td><td style="padding:6px 11px"><a class="bc-link" style="font-size:11px" onclick="event.stopPropagation();openProductRA(\''+r.sku+'\')">View →</a></td></tr>';
+    var isComplete = r.status === 'Complete';
+    var checked = raProdSel.has(r.sku) ? ' checked' : '';
+    var cbCell = '<td class="raprod-cb-cell" onclick="event.stopPropagation()" style="vertical-align:middle;text-align:center">'+
+      '<input type="checkbox" class="raprod-cb" aria-label="Select '+r.sku+'"'+checked+' onclick="event.stopPropagation();raProdToggleRow(this,\''+r.sku+'\')"></td>';
+    var docBtn = isComplete
+      ? '<button class="btn-p" title="Download Declaration of Conformity" onclick="event.stopPropagation();raDownloadDoc(\''+r.sku+'\')" style="height:24px;display:inline-flex;align-items:center;vertical-align:middle;box-sizing:border-box;font-size:11px;padding:0 10px;margin-right:6px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="margin-right:4px;position:relative;top:-1px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>DoC</button>'
+      : '';
+    var approveBtn = r.status === 'Incomplete'
+      ? '<button class="act-mini" title="Approve product" onclick="event.stopPropagation();raApproveProduct(\''+r.sku+'\',this)" tabindex="-1" data-approved="false" style="height:24px;display:inline-flex;align-items:center;vertical-align:middle;box-sizing:border-box">Approve</button>'
+      : '';
+    var reminderBtn = (r.status === 'Incomplete' || r.status === 'Pending')
+      ? '<button class="act-mini" title="Send reminder" onclick="event.stopPropagation();raSendReminder(\''+r.sku+'\')" tabindex="-1" style="height:24px;display:inline-flex;align-items:center;vertical-align:middle;box-sizing:border-box;margin-right:6px">Send reminder</button>'
+      : '';
+    return '<tr class="raprod-row'+(checked?' raprod-row-sel':'')+'" style="cursor:pointer" data-sku="'+r.sku+'" onclick="openProductRA(\''+r.sku+'\')">'+
+      cbCell +
+      '<td><div class="tbl-name gs-id-cell">'+r.sku+'</div></td>'+
+      '<td class="tbl-muted">'+r.desc+'</td>'+
+      '<td class="tbl-muted">'+r.cat+'</td>'+
+      '<td class="tbl-muted">'+r.supplier+'</td>'+
+      '<td class="tbl-muted">'+r.pkg+'</td>'+
+      '<td><span class="pill '+r.pill+'">'+r.status+'</span></td>'+
+      '<td class="act-cell" style="white-space:nowrap;vertical-align:middle" onclick="event.stopPropagation()">'+
+        docBtn + reminderBtn + approveBtn +
+      '</td>'+
+      '<td class="chev-cell" style="vertical-align:middle"><div class="chev-btn" style="height:24px;width:24px;border-radius:6px;vertical-align:middle;margin:0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"></path></svg></div></td>'+
+    '</tr>';
   }
 });
+
+/* ── Products bulk multi-select ──
+   Checkbox column + floating bulk-action bar for the Products listing (scope 'ra').
+   Selection is tracked by SKU (a Set) so it survives pagination / sort / filter
+   re-renders; raProdSyncSelection() re-applies checkbox state after every ptRender.
+   raProdSel / raProdFiltered are declared above (before ptInit). */
+function raProdMiniToast(msg) {
+  var t = document.getElementById('ra-toast');
+  if (!t) { t = document.createElement('div'); t.id = 'ra-toast'; document.body.appendChild(t); }
+  t.textContent = msg; t.className = 'show';
+  clearTimeout(raProdMiniToast._t);
+  raProdMiniToast._t = setTimeout(function(){ t.className=''; }, 2600);
+}
+
+function raProdToggleRow(cb, sku) {
+  if (cb.checked) raProdSel.add(sku); else raProdSel.delete(sku);
+  var tr = cb.closest('tr'); if (tr) tr.classList.toggle('raprod-row-sel', cb.checked);
+  raProdUpdateBar();
+  raProdSyncSelectAll();
+}
+
+function raProdToggleAll(cb) {
+  raProdFiltered.forEach(function(r){
+    if (cb.checked) raProdSel.add(r.sku); else raProdSel.delete(r.sku);
+  });
+  /* reflect on the visible page's checkboxes + rows */
+  document.querySelectorAll('#pt-tbody-ra .raprod-cb').forEach(function(x){
+    x.checked = cb.checked;
+    var tr = x.closest('tr'); if (tr) tr.classList.toggle('raprod-row-sel', cb.checked);
+  });
+  raProdUpdateBar();
+}
+
+/* keep the header select-all in sync with the current filtered set */
+function raProdSyncSelectAll() {
+  var head = document.getElementById('raprod-selectall'); if (!head) return;
+  var n = raProdFiltered.length;
+  var selN = raProdFiltered.reduce(function(a,r){ return a + (raProdSel.has(r.sku)?1:0); }, 0);
+  head.checked = n > 0 && selN === n;
+  head.indeterminate = selN > 0 && selN < n;
+}
+
+/* called from ptRender's afterRender hook on every re-render.
+   Only the Products page has #raprod-selectall — bail on other pages. */
+function raProdSyncSelection(pageRows, allRows) {
+  if (!document.getElementById('raprod-selectall')) return;
+  raProdFiltered = allRows || [];
+  raProdSyncSelectAll();
+  raProdUpdateBar();
+}
+
+function raProdClearSel() {
+  raProdSel.clear();
+  document.querySelectorAll('#pt-tbody-ra .raprod-cb').forEach(function(x){
+    x.checked = false; var tr = x.closest('tr'); if (tr) tr.classList.remove('raprod-row-sel');
+  });
+  raProdUpdateBar();
+  raProdSyncSelectAll();
+}
+
+/* one-time styles for checkbox column + floating bar */
+function raProdInjectCss() {
+  if (document.getElementById('raprod-css')) return;
+  var st = document.createElement('style'); st.id = 'raprod-css';
+  st.textContent =
+    '.raprod-cb,#raprod-selectall{width:15px;height:15px;accent-color:var(--gs);cursor:pointer;vertical-align:middle;margin:0}' +
+    '#pt-table-ra tr.raprod-row-sel td{background:rgba(78,187,129,.09)}' +
+    '#pt-table-ra tr.raprod-row-sel td:first-child{box-shadow:inset 3px 0 0 var(--gs)}' +
+    '#raprod-bulkbar{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(24px);display:flex;align-items:center;gap:10px;padding:9px 12px;background:#0f2338;border:1px solid var(--line-2,rgba(148,180,230,.28));border-radius:12px;box-shadow:0 16px 40px -10px rgba(0,0,0,.6);z-index:9997;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}' +
+    '#raprod-bulkbar.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}' +
+    '.raprod-bb-count{font-size:12.5px;color:var(--tw2);white-space:nowrap;padding:0 4px}' +
+    '.raprod-bb-count b{color:#fff;font-size:13px}' +
+    '.raprod-bb-sep{width:1px;height:20px;background:var(--bw,rgba(255,255,255,.14))}' +
+    '.raprod-bb-btn{display:inline-flex;align-items:center;gap:5px;font-family:inherit;font-size:11.5px;font-weight:600;padding:6px 11px;border-radius:8px;cursor:pointer;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:var(--tw2);transition:background .12s,border-color .12s,color .12s;white-space:nowrap}' +
+    '.raprod-bb-btn:hover{background:rgba(255,255,255,.12);color:#fff}' +
+    '.raprod-bb-approve{background:rgba(78,187,129,.14);border-color:rgba(78,187,129,.4);color:#4ebb81}' +
+    '.raprod-bb-approve:hover{background:rgba(78,187,129,.26);border-color:var(--gs);color:#fff}' +
+    '.raprod-bb-clear{background:transparent;border-color:transparent;color:var(--tw3)}' +
+    '.raprod-bb-clear:hover{background:rgba(255,255,255,.08);color:#fff}';
+  document.head.appendChild(st);
+}
+
+/* floating bulk-action bar */
+function raProdEnsureBar() {
+  raProdInjectCss();
+  var bar = document.getElementById('raprod-bulkbar');
+  if (bar) return bar;
+  bar = document.createElement('div');
+  bar.id = 'raprod-bulkbar';
+  bar.innerHTML =
+    '<span class="raprod-bb-count"><b id="raprod-bb-n">0</b> selected</span>' +
+    '<span class="raprod-bb-sep"></span>' +
+    '<button type="button" class="raprod-bb-btn raprod-bb-approve" onclick="raProdBulkApprove()">' +
+      '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Approve</button>' +
+    '<button type="button" class="raprod-bb-btn" onclick="raProdBulkRemind()">' +
+      '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Send reminder</button>' +
+    '<button type="button" class="raprod-bb-btn" onclick="raProdBulkExport()">' +
+      '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export CSV</button>' +
+    '<button type="button" class="raprod-bb-btn raprod-bb-clear" onclick="raProdClearSel()" aria-label="Clear selection">Clear</button>';
+  document.body.appendChild(bar);
+  return bar;
+}
+
+function raProdUpdateBar() {
+  var bar = raProdEnsureBar();
+  var n = raProdSel.size;
+  document.getElementById('raprod-bb-n').textContent = n;
+  bar.classList.toggle('show', n > 0);
+}
+
+function raProdSelectedRows() {
+  var bySku = {}; (window.PRODUCTS_RA || []).forEach(function(r){ bySku[r.sku] = r; });
+  var out = []; raProdSel.forEach(function(sku){ if (bySku[sku]) out.push(bySku[sku]); });
+  return out;
+}
+
+function raProdBulkApprove() {
+  var rows = raProdSelectedRows();
+  var eligible = rows.filter(function(r){ return r.status !== 'Complete'; });
+  rows.forEach(function(r){ if (r.status !== 'Complete'){ r.status = 'Complete'; r.pill = 'pill-green'; r.pkg = 'Approved'; } });
+  ptRender('ra');
+  raProdClearSel();
+  raProdMiniToast(eligible.length ? eligible.length + ' product' + (eligible.length>1?'s':'') + ' approved' : 'Selected products are already complete');
+}
+
+function raProdBulkRemind() {
+  var rows = raProdSelectedRows();
+  var n = rows.filter(function(r){ return r.status !== 'Complete'; }).length;
+  raProdMiniToast(n ? 'Reminder sent for ' + n + ' product' + (n>1?'s':'') : 'No outstanding products in selection');
+}
+
+function raProdBulkExport() {
+  var rows = raProdSelectedRows();
+  if (!rows.length) return;
+  var head = ['SKU','Description','Category','Supplier','Packaging','Status'];
+  var esc = function(v){ v = String(v==null?'':v); return /[",\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; };
+  var lines = [head.join(',')];
+  rows.forEach(function(r){ lines.push([r.sku,r.desc,r.cat,r.supplier,r.pkg,r.status].map(esc).join(',')); });
+  var blob = new Blob([lines.join('\n')], {type:'text/csv'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'products-selection.csv';
+  document.body.appendChild(a); a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 100);
+  raProdMiniToast('Exported ' + rows.length + ' product' + (rows.length>1?'s':'') + ' to CSV');
+}
+
+function raDownloadDoc(sku) {
+  var t = document.getElementById('ra-toast');
+  if (!t) { t = document.createElement('div'); t.id = 'ra-toast'; document.body.appendChild(t); }
+  t.textContent = 'Declaration of Conformity for ' + sku + ' downloaded';
+  t.className = 'show';
+  clearTimeout(raDownloadDoc._t);
+  raDownloadDoc._t = setTimeout(function(){ t.className=''; }, 2600);
+}
+function raApproveProduct(sku, btn) {
+  var t = document.getElementById('ra-toast');
+  if (!t) { t = document.createElement('div'); t.id = 'ra-toast'; document.body.appendChild(t); }
+  var already = btn && btn.getAttribute('data-approved') === 'true';
+  t.textContent = already ? 'Product '+sku+' is already approved' : 'Product ' + sku + ' approved';
+  t.className = 'show';
+  if (!already && btn) {
+    btn.setAttribute('data-approved', 'true');
+    btn.textContent = 'Approved';
+    btn.style.background = 'var(--gs)';
+    btn.style.color = '#fff';
+    btn.style.borderColor = 'transparent';
+  }
+  clearTimeout(raApproveProduct._t);
+  raApproveProduct._t = setTimeout(function(){ t.className=''; }, 2600);
+}
+function raSendReminder(sku) {
+  var t = document.getElementById('ra-toast');
+  if (!t) { t = document.createElement('div'); t.id = 'ra-toast'; document.body.appendChild(t); }
+  t.textContent = 'Reminder sent for ' + sku;
+  t.className = 'show';
+  clearTimeout(raSendReminder._t);
+  raSendReminder._t = setTimeout(function(){ t.className=''; }, 2600);
+}
 
 /* ── Packaging catalogue dataset (Packagings screen) ──
    One row per packaging component, linked to a product SKU + supplier. Mirrors
@@ -349,28 +558,31 @@ var PACKAGINGS_RA = (function(){
 })();
 
 if (typeof ptInit === 'function') ptInit('rapkg', PACKAGINGS_RA, {
-  cols: 9,
+  cols: 10,
   pageSize: 20,
   noun: 'packaging components',
   searchFields: ['type','sku','desc','supplier','material'],
+  sortCol: 'status',
+  sortDir: 1,
   rowHtml: function(r){
     var mat = r.material || '—';
     var wt  = r.weight   || '—';
     var pcr = r.pcr ? (r.pcr + '%') : '—';
     var rec = r.recycle ? '<span class="pill pill-green">'+r.recycle+'</span>' : '<span class="tbl-muted">—</span>';
-    return '<tr style="cursor:pointer" onclick="openPackagingRA(\''+r.id+'\')">'+
-      '<td><div class="tbl-name">'+r.type+'</div></td>'+
-      '<td class="tbl-muted"><span class="gs-id-cell">'+r.sku+'</span> · '+r.desc+'</td>'+
-      '<td class="tbl-muted">'+r.supplier+'</td>'+
-      '<td class="tbl-muted">'+mat+'</td>'+
-      '<td'+(r.weight?'':' class="tbl-muted"')+'>'+wt+'</td>'+
-      '<td'+(r.pcr?'':' class="tbl-muted"')+'>'+pcr+'</td>'+
-      '<td>'+rec+'</td>'+
-      '<td><span class="pill '+r.pill+'">'+r.status+'</span></td>'+
-      '<td class="act-cell" onclick="event.stopPropagation()" style="padding:6px 11px;white-space:nowrap">'+
-        '<a class="bc-link" style="font-size:11px" onclick="openPackagingRA(\''+r.id+'\')">Edit →</a>'+
-        '&nbsp;&nbsp;<a class="bc-link" style="font-size:11px;color:var(--tw3)" onclick="raRemovePackaging(\''+r.id+'\')">Remove</a>'+
-      '</td>'+
+    return '<tr class="gs-row-check-row" style="cursor:pointer" onclick="openPackagingRA(\''+r.id+'\')">' +
+      '<td class="gs-check-col" onclick="event.stopPropagation()"><input type="checkbox" class="rapkg-cb" data-id="'+r.id+'" onchange="rapkgCheckChange()"></td>' +
+      '<td><div class="tbl-name">'+r.type+'</div></td>' +
+      '<td class="tbl-muted"><span class="gs-id-cell">'+r.sku+'</span> · '+r.desc+'</td>' +
+      '<td class="tbl-muted">'+r.supplier+'</td>' +
+      '<td class="tbl-muted">'+mat+'</td>' +
+      '<td'+(r.weight?'':' class="tbl-muted"')+'>'+wt+'</td>' +
+      '<td'+(r.pcr?'':' class="tbl-muted"')+'>'+pcr+'</td>' +
+      '<td>'+rec+'</td>' +
+      '<td><span class="pill '+r.pill+'">'+r.status+'</span></td>' +
+      '<td class="act-cell" onclick="event.stopPropagation()" style="white-space:nowrap">' +
+        '<button class="act-mini act-view" onclick="openPackagingRA(\''+r.id+'\')">→ Edit</button> ' +
+        '<button class="act-mini act-remove" onclick="raRemovePackaging(\''+r.id+'\');">Remove</button>' +
+      '</td>' +
     '</tr>';
   }
 });

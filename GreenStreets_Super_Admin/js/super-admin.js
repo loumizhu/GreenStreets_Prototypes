@@ -96,7 +96,7 @@ enhanceSidebarCollapse();
 /* ── Generic paginated/sortable/filterable table engine (Products screen) ── */
 var __pt={};
 function ptInit(scope,data,opts){
-  __pt[scope]={data:data,page:0,pageSize:(opts.pageSize||20),sortCol:null,sortDir:1,search:'',filters:{},opts:opts,_animate:true};
+  __pt[scope]={data:data,page:0,pageSize:(opts.pageSize||20),sortCol:(opts.sortCol||null),sortDir:(opts.sortDir||1),search:'',filters:{},opts:opts,_animate:true};
   ptRender(scope);
 }
 function ptFiltered(scope){
@@ -227,6 +227,7 @@ function ptSort(scope,col){
 /* ── Product catalogue dataset (Products screen) ── */
 var PRODUCTS_S11=(function(){
   var cats=['Tops','Bottoms','Dresses','Outerwear','Footwear','Accessories'];
+  var retailers=['Primark Stores Ltd','H&M Group','Next plc','Zara / Inditex','M&S Group','Dunnes Stores','New Look'];
   var suppliers=['Indotex Manufacturing','Luntai Packaging Co.','EcoPack GmbH'];
   var adjs=['Black','Blue','Red','Khaki','White','Grey','Navy','Olive','Beige','Pink','Green','Cream','Charcoal','Rust','Teal'];
   var items=['Crew Neck Sweatshirt','Slim Fit Jeans','Midi Dress','Utility Jacket','Essential T-Shirt','Zip Hoodie','Chino Trousers','Puffer Coat','Knit Jumper','Cargo Shorts','Pleated Skirt','Denim Jacket','Trainers','Canvas Belt','Wool Scarf'];
@@ -246,16 +247,18 @@ var PRODUCTS_S11=(function(){
     if(status==='Incomplete'&&done===0)pill='pill-red';
     list.push({
       sku:'PRK-'+String(i+1).padStart(3,'0')+'-'+adj.slice(0,3).toUpperCase(),
-      desc:adj+' '+item,cat:cat,supplier:suppliers[i%suppliers.length],
+      desc:adj+' '+item,cat:cat,
+      retailer:retailers[i%retailers.length],
+      supplier:suppliers[i%suppliers.length],
       pkg:pkgText,status:status,pill:pill,activity:activities[i%activities.length]
     });
   }
   return list;
 })();
 ptInit('s11',PRODUCTS_S11,{
-  cols:8,pageSize:20,noun:'products',searchFields:['sku','desc'],
+  cols:9,pageSize:20,noun:'products',searchFields:['sku','desc','retailer'],
   rowHtml:function(r){
-    return '<tr data-flip-key="'+r.sku+'" onclick="go(\'s12\')"><td class="tbl-name"><span class="gs-id-cell">'+r.sku+'</span></td><td>'+r.desc+'</td><td class="tbl-muted">'+r.cat+'</td><td class="tbl-muted">'+r.supplier+'</td><td class="tbl-muted">'+r.pkg+'</td><td><span class="pill '+r.pill+'">'+r.status+'</span></td><td class="tbl-muted">'+r.activity+'</td><td class="chev-cell"><div class="chev-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></div></td></tr>';
+    return '<tr data-flip-key="'+r.sku+'" onclick="go(\'s12\')"><td class="tbl-name"><span class="gs-id-cell">'+r.sku+'</span></td><td>'+r.desc+'</td><td class="tbl-muted">'+r.cat+'</td><td class="tbl-muted">'+r.retailer+'</td><td class="tbl-muted">'+r.supplier+'</td><td class="tbl-muted">'+r.pkg+'</td><td><span class="pill '+r.pill+'">'+r.status+'</span></td><td class="tbl-muted">'+r.activity+'</td><td class="chev-cell"><div class="chev-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></div></td></tr>';
   }
 });
 
