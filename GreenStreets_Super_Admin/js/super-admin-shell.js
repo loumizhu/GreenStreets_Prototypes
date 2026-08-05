@@ -13,7 +13,7 @@ function sidebarHtml(activeId){
     return '<a class="nav-item'+(n.id===activeId?' active':'')+'" onclick="go(\''+n.id+'\')">'+n.icon+n.label+'</a>';
   }).join('');
   return '<div class="sb-logo-zone"><img class="sb-logo" src="https://greenstreets.ie/wp-content/uploads/sites/2/2026/04/Logo-WG.png" alt="Greenstreets"></div>'+
-    '<div class="sb-section">Operator</div>'+items+
+    '<div class="sb-section">Green Street Super Admin</div>'+items+
     '<div class="sb-divider"></div>'+
     '<a class="nav-item'+(activeId==='s13'?' active':'')+'" onclick="go(\'s13\')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>Settings</a>'+
     '<a class="nav-item'+(activeId==='s15'?' active':'')+'" onclick="go(\'s15\')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414A1 1 0 0 1 19 9.414V19a2 2 0 0 1-2 2z"/></svg>Audit log</a>'+
