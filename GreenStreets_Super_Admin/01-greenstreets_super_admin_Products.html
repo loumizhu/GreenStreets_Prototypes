@@ -18,7 +18,7 @@
     <div class="main">
       <div class="breadcrumb"><a class="bc-link" onclick="go('s2')">Retailers</a><span class="bc-sep">›</span><a class="bc-link" onclick="go('s4')">Primark Stores Ltd</a><span class="bc-sep">›</span><span class="bc-cur">Products</span></div>
       <div class="pg-hdr-bar">
-        <div><div class="pg-title">Products — Primark Stores Ltd</div><div class="pg-sub">Product catalogue and packaging coverage at a glance</div></div>
+        <div><div class="pg-title">Products</div><div class="pg-sub">Product catalogue and packaging coverage at a glance</div></div>
         <div class="pg-actions hdr-stat-row">
           <div class="stat-mini"><div class="stat-icon i-tl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#gsi-16"/></svg></div><div><div class="stat-lbl">Total products</div><div class="stat-val">64</div></div></div>
           <div class="stat-mini"><div class="stat-icon i-gs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#gsi-1"/></svg></div><div><div class="stat-lbl">Packaging complete</div><div class="stat-val" style="color:var(--gs-l)">16</div></div></div>
@@ -49,8 +49,9 @@
             </select>
           </div>
           <div class="tbl-wrap"><table class="tbl" id="pt-table-s11">
-            <colgroup><col width="13%"><col width="20%"><col width="9%"><col width="15%"><col width="13%"><col width="12%"><col width="9%"><col width="5%"><col width="4%"></colgroup>
+            <colgroup><col width="3%"><col width="13%"><col width="13%"><col width="8%"><col width="13%"><col width="13%"><col width="11%"><col width="9%"><col width="13%"><col width="4%"></colgroup>
             <thead><tr>
+              <th style="text-align:center;padding-left:0;padding-right:0"><input type="checkbox" id="saprod-selectall" aria-label="Select all products" title="Select all" onclick="saProdToggleAll(this)"></th>
               <th data-col="sku" onclick="ptSort('s11','sku')" style="cursor:pointer;user-select:none">SKU <span class="sort-arrow" style="opacity:.4;font-size:9px">↕</span></th>
               <th>Description</th>
               <th data-col="cat" onclick="ptSort('s11','cat')" style="cursor:pointer;user-select:none">Category <span class="sort-arrow" style="opacity:.4;font-size:9px">↕</span></th>
@@ -58,7 +59,7 @@
               <th>Supplier</th>
               <th>Packaging</th>
               <th data-col="status" onclick="ptSort('s11','status')" style="cursor:pointer;user-select:none">Status <span class="sort-arrow" style="opacity:.4;font-size:9px">↕</span></th>
-              <th>Activity</th>
+              <th>Actions</th>
               <th></th>
             </tr></thead>
             <tbody id="pt-tbody-s11"></tbody></table></div>
@@ -88,7 +89,7 @@
   </div>
 </div>
 
-<script src="js/super-admin.js?v=7"></script>
-<script src="js/greenstreets-theme.js?v=29"></script>
+<script src="js/super-admin.js?v=10"></script>
+<script src="js/greenstreets-theme.js?v=30"></script>
 </body>
 </html>

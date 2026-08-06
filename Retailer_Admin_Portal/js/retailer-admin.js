@@ -417,6 +417,8 @@ function raProdEnsureBar() {
       '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Send reminder</button>' +
     '<button type="button" class="raprod-bb-btn" onclick="raProdBulkExport()">' +
       '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export CSV</button>' +
+    '<button type="button" class="raprod-bb-btn" onclick="raProdBulkDownloadDoc()">' +
+      '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>Download DoC</button>' +
     '<button type="button" class="raprod-bb-btn raprod-bb-clear" onclick="raProdClearSel()" aria-label="Clear selection">Clear</button>';
   document.body.appendChild(bar);
   return bar;
@@ -464,6 +466,12 @@ function raProdBulkExport() {
   document.body.appendChild(a); a.click();
   setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 100);
   raProdMiniToast('Exported ' + rows.length + ' product' + (rows.length>1?'s':'') + ' to CSV');
+}
+
+function raProdBulkDownloadDoc() {
+  var rows = raProdSelectedRows();
+  if (!rows.length) return;
+  raProdMiniToast('Downloading DoC for ' + rows.length + ' product' + (rows.length>1?'s':'') + '...');
 }
 
 function raDownloadDoc(sku) {

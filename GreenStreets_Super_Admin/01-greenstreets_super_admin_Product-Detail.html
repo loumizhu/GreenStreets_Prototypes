@@ -17,7 +17,7 @@
 <script src="../Retailer_Admin_Portal/js/retailer-admin.js?v=18"></script>
 <script src="../Retailer_Admin_Portal/js/ra-product.js?v=13"></script>
 <script src="js/gs-tour.js?v=10"></script>
-<script src="js/greenstreets-theme.js?v=29"></script>
+<script src="js/greenstreets-theme.js?v=30"></script>
 <script src="js/gs-appearance.js?v=5"></script>
 <script src="js/super-admin-shell.js?v=4"></script>
 <script>
@@ -34,6 +34,20 @@
     var _orig=window.go;
     window.go=function(id){
       if(SA_MAP[id]){ window.location.href=SA_MAP[id]; return; }
+      if(id === 'ra_packaging') {
+        var pid = sessionStorage.getItem('ra_pkg');
+        var nm = '';
+        var lib = window.PACKAGINGS_RA || [];
+        var pkg = lib.filter(function(x){ return x.id === pid; })[0];
+        if(pkg) nm = pkg.type;
+        var page = '01-greenstreets_super_admin_Packaging-Swing-Tag.html';
+        if(nm.indexOf('Tissue')!==-1) page = '01-greenstreets_super_admin_Packaging-Tissue-Paper.html';
+        else if(nm.indexOf('Hanger')!==-1) page = '01-greenstreets_super_admin_Packaging-Hanger.html';
+        else if(nm.indexOf('Poly')!==-1) page = '01-greenstreets_super_admin_Packaging-Poly-Bag.html';
+        else if(nm.indexOf('Shipping')!==-1) page = '01-greenstreets_super_admin_Packaging-Shipping-Carton.html';
+        window.location.href = page;
+        return;
+      }
       if(id === 'ra6') { back(); return; }
       if(typeof id==='string' && (id.indexOf('pkgdetail-')===0 || id==='proddetail' || id==='ra_product') && _orig){ return _orig(id); }
       back();

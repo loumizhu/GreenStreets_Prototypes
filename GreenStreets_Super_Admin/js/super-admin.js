@@ -255,10 +255,171 @@ var PRODUCTS_S11=(function(){
   }
   return list;
 })();
+/* selection state — declared before ptInit so the first render's rowHtml can read it */
+var saProdSel = new Set();
+var saProdFiltered = [];
+
+function saProdMiniToast(msg) {
+  var t = document.getElementById('sa-toast');
+  if (!t) { t = document.createElement('div'); t.id = 'sa-toast'; document.body.appendChild(t); }
+  t.textContent = msg; t.className = 'show';
+  clearTimeout(saProdMiniToast._t);
+  saProdMiniToast._t = setTimeout(function(){ t.className=''; }, 2600);
+}
+
+function saProdToggleRow(cb, sku) {
+  if (cb.checked) saProdSel.add(sku); else saProdSel.delete(sku);
+  var tr = cb.closest('tr'); if (tr) tr.classList.toggle('saprod-row-sel', cb.checked);
+  saProdUpdateBar();
+  saProdSyncSelectAll();
+}
+
+function saProdToggleAll(cb) {
+  saProdFiltered.forEach(function(r){
+    if (cb.checked) saProdSel.add(r.sku); else saProdSel.delete(r.sku);
+  });
+  document.querySelectorAll('#pt-tbody-s11 .saprod-cb').forEach(function(x){
+    x.checked = cb.checked;
+    var tr = x.closest('tr'); if (tr) tr.classList.toggle('saprod-row-sel', cb.checked);
+  });
+  saProdUpdateBar();
+}
+
+function saProdSyncSelectAll() {
+  var head = document.getElementById('saprod-selectall'); if (!head) return;
+  var n = saProdFiltered.length;
+  var selN = saProdFiltered.reduce(function(a,r){ return a + (saProdSel.has(r.sku)?1:0); }, 0);
+  head.checked = n > 0 && selN === n;
+  head.indeterminate = selN > 0 && selN < n;
+}
+
+function saProdSyncSelection(pageRows, allRows) {
+  if (!document.getElementById('saprod-selectall')) return;
+  saProdFiltered = allRows || [];
+  saProdSyncSelectAll();
+  saProdUpdateBar();
+}
+
+function saProdClearSel() {
+  saProdSel.clear();
+  document.querySelectorAll('#pt-tbody-s11 .saprod-cb').forEach(function(x){
+    x.checked = false; var tr = x.closest('tr'); if (tr) tr.classList.remove('saprod-row-sel');
+  });
+  saProdUpdateBar();
+  saProdSyncSelectAll();
+}
+
+function saProdInjectCss() {
+  if (document.getElementById('saprod-css')) return;
+  var st = document.createElement('style'); st.id = 'saprod-css';
+  st.textContent =
+    '.saprod-cb,#saprod-selectall{width:15px;height:15px;accent-color:var(--gs);cursor:pointer;vertical-align:middle;margin:0}' +
+    '#pt-table-s11 tr.saprod-row-sel td{background:rgba(78,187,129,.09)}' +
+    '#pt-table-s11 tr.saprod-row-sel td:first-child{box-shadow:inset 3px 0 0 var(--gs)}' +
+    '#saprod-bulkbar{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(24px);display:flex;align-items:center;gap:10px;padding:9px 12px;background:#0f2338;border:1px solid var(--line-2,rgba(148,180,230,.28));border-radius:12px;box-shadow:0 16px 40px -10px rgba(0,0,0,.6);z-index:9997;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}' +
+    '#saprod-bulkbar.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}' +
+    '.saprod-bb-count{font-size:12.5px;color:var(--tw2);white-space:nowrap;padding:0 4px}' +
+    '.saprod-bb-count b{color:#fff;font-size:13px}' +
+    '.saprod-bb-sep{width:1px;height:20px;background:var(--bw,rgba(255,255,255,.14))}' +
+    '.saprod-bb-btn{display:inline-flex;align-items:center;gap:5px;font-family:inherit;font-size:11.5px;font-weight:600;padding:6px 11px;border-radius:8px;cursor:pointer;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:var(--tw2);transition:background .12s,border-color .12s,color .12s;white-space:nowrap}' +
+    '.saprod-bb-btn:hover{background:rgba(255,255,255,.12);color:#fff}' +
+    '.saprod-bb-approve{background:rgba(78,187,129,.14);border-color:rgba(78,187,129,.4);color:#4ebb81}' +
+    '.saprod-bb-approve:hover{background:rgba(78,187,129,.26);border-color:var(--gs);color:#fff}' +
+    '.saprod-bb-clear{background:transparent;border-color:transparent;color:var(--tw3)}' +
+    '.saprod-bb-clear:hover{background:rgba(255,255,255,.08);color:#fff}';
+  document.head.appendChild(st);
+}
+
+function saProdEnsureBar() {
+  saProdInjectCss();
+  var bar = document.getElementById('saprod-bulkbar');
+  if (bar) return bar;
+  bar = document.createElement('div');
+  bar.id = 'saprod-bulkbar';
+  bar.innerHTML =
+    '<span class="saprod-bb-count"><b id="saprod-bb-n">0</b> selected</span>' +
+    '<span class="saprod-bb-sep"></span>' +
+    '<button type="button" class="saprod-bb-btn saprod-bb-approve" onclick="saProdBulkApprove()">' +
+      '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Approve</button>' +
+    '<button type="button" class="saprod-bb-btn" onclick="saProdBulkRemind()">' +
+      '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Send reminder</button>' +
+    '<button type="button" class="saprod-bb-btn" onclick="saProdBulkExport()">' +
+      '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export CSV</button>' +
+    '<button type="button" class="saprod-bb-btn" onclick="saProdBulkDownloadDoc()">' +
+      '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>Download DoC</button>' +
+    '<button type="button" class="saprod-bb-btn saprod-bb-clear" onclick="saProdClearSel()" aria-label="Clear selection">Clear</button>';
+  document.body.appendChild(bar);
+  return bar;
+}
+
+function saProdUpdateBar() {
+  var bar = saProdEnsureBar();
+  var n = saProdSel.size;
+  document.getElementById('saprod-bb-n').textContent = n;
+  bar.classList.toggle('show', n > 0);
+}
+
+function saProdSelectedRows() {
+  var bySku = {}; (window.PRODUCTS_S11 || []).forEach(function(r){ bySku[r.sku] = r; });
+  var out = []; saProdSel.forEach(function(sku){ if (bySku[sku]) out.push(bySku[sku]); });
+  return out;
+}
+
+function saProdBulkApprove() {
+  var rows = saProdSelectedRows();
+  var eligible = rows.filter(function(r){ return r.status !== 'Complete'; });
+  rows.forEach(function(r){ if (r.status !== 'Complete'){ r.status = 'Complete'; r.pill = 'pill-green'; r.pkg = 'Approved'; } });
+  ptRender('s11');
+  saProdClearSel();
+  saProdMiniToast(eligible.length ? eligible.length + ' product' + (eligible.length>1?'s':'') + ' approved' : 'Selected products are already complete');
+}
+
+function saProdBulkRemind() {
+  var rows = saProdSelectedRows();
+  var n = rows.filter(function(r){ return r.status !== 'Complete'; }).length;
+  saProdMiniToast(n ? 'Reminder sent for ' + n + ' product' + (n>1?'s':'') : 'No outstanding products in selection');
+}
+
+function saProdBulkExport() {
+  var n = saProdSel.size;
+  saProdMiniToast('Exporting ' + n + ' product' + (n>1?'s':'') + '...');
+}
+
+function saProdBulkDownloadDoc() {
+  var n = saProdSel.size;
+  saProdMiniToast('Downloading DoC for ' + n + ' product' + (n>1?'s':'') + '...');
+}
+
+function saDownloadDoc(sku) {
+  saProdMiniToast('Downloading DoC for ' + sku + '...');
+}
+function saApproveProduct(sku, btn) {
+  if (btn) { btn.textContent = 'Approved'; btn.style.pointerEvents = 'none'; btn.style.opacity = '0.5'; }
+  saProdMiniToast('Product ' + sku + ' approved');
+}
+function saSendReminder(sku) {
+  saProdMiniToast('Reminder sent to supplier for ' + sku);
+}
+
 ptInit('s11',PRODUCTS_S11,{
-  cols:9,pageSize:20,noun:'products',searchFields:['sku','desc','retailer'],
+  cols:10,pageSize:20,noun:'products',searchFields:['sku','desc','retailer'],sortCol:'status',sortDir:1,
+  afterRender: function(scope, pageRows, allRows){ saProdSyncSelection(pageRows, allRows); },
   rowHtml:function(r){
-    return '<tr data-flip-key="'+r.sku+'" onclick="go(\'s12\')"><td class="tbl-name"><span class="gs-id-cell">'+r.sku+'</span></td><td>'+r.desc+'</td><td class="tbl-muted">'+r.cat+'</td><td class="tbl-muted">'+r.retailer+'</td><td class="tbl-muted">'+r.supplier+'</td><td class="tbl-muted">'+r.pkg+'</td><td><span class="pill '+r.pill+'">'+r.status+'</span></td><td class="tbl-muted">'+r.activity+'</td><td class="chev-cell"><div class="chev-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></div></td></tr>';
+    var checked = saProdSel.has(r.sku) ? ' checked' : '';
+    var isComplete = r.status === 'Complete';
+    var cbCell = '<td class="saprod-cb-cell" onclick="event.stopPropagation()" style="vertical-align:middle;text-align:center"><input type="checkbox" class="saprod-cb" aria-label="Select '+r.sku+'"'+checked+' onclick="event.stopPropagation();saProdToggleRow(this,\''+r.sku+'\')"></td>';
+    
+    var docBtn = isComplete
+      ? '<button class="btn-p" title="Download Declaration of Conformity" onclick="event.stopPropagation();saDownloadDoc(\''+r.sku+'\')" style="height:24px;display:inline-flex;align-items:center;vertical-align:middle;box-sizing:border-box;font-size:11px;padding:0 10px;margin-right:6px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="margin-right:4px;position:relative;top:-1px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>DoC</button>'
+      : '';
+    var approveBtn = r.status === 'Incomplete'
+      ? '<button class="act-mini" title="Approve product" onclick="event.stopPropagation();saApproveProduct(\''+r.sku+'\',this)" tabindex="-1" data-approved="false" style="height:24px;display:inline-flex;align-items:center;vertical-align:middle;box-sizing:border-box">Approve</button>'
+      : '';
+    var reminderBtn = (r.status === 'Incomplete' || r.status === 'Pending')
+      ? '<button class="act-mini" title="Send reminder" onclick="event.stopPropagation();saSendReminder(\''+r.sku+'\')" tabindex="-1" style="height:24px;display:inline-flex;align-items:center;vertical-align:middle;box-sizing:border-box;margin-right:6px">Send reminder</button>'
+      : '';
+      
+    return '<tr class="saprod-row'+(checked?' saprod-row-sel':'')+'" style="cursor:pointer" data-flip-key="'+r.sku+'" onclick="go(\'s12\')">'+cbCell+'<td class="tbl-name"><span class="gs-id-cell">'+r.sku+'</span></td><td>'+r.desc+'</td><td class="tbl-muted">'+r.cat+'</td><td class="tbl-muted">'+r.retailer+'</td><td class="tbl-muted">'+r.supplier+'</td><td class="tbl-muted">'+r.pkg+'</td><td><span class="pill '+r.pill+'">'+r.status+'</span></td><td class="act-cell" style="white-space:nowrap;vertical-align:middle" onclick="event.stopPropagation()">'+docBtn+reminderBtn+approveBtn+'</td><td class="chev-cell"><div class="chev-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></div></td></tr>';
   }
 });
 

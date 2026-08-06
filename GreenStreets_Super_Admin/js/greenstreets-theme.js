@@ -659,8 +659,16 @@
      Re-render-safe: a debounced MutationObserver re-applies the roving tabindex after ptRender rebuilds
      rows or pagination toggles row visibility, re-homing focus to the same row/control position. */
   var _gsHintShown=false,_gsHintT=null;
+  /* Track input modality so the grid coach-hint (below) only shows for keyboard users —
+     it's useless with a mouse. A pointer press before a focus means "mouse-driven focus";
+     a key press (Tab/arrows) means "keyboard-driven focus". */
+  var _gsKbdMode=false;
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Tab'||(e.key&&e.key.indexOf('Arrow')===0)||e.key==='Home'||e.key==='End') _gsKbdMode=true;
+  },true);
+  document.addEventListener('pointerdown',function(){ _gsKbdMode=false; },true);
   function gsGridHint(tr){
-    if(_gsHintShown||!tr) return; _gsHintShown=true;
+    if(_gsHintShown||!tr||!_gsKbdMode) return; _gsHintShown=true;
     var h=document.createElement('div'); h.className='gs-grid-hint'; h.setAttribute('role','status');
     h.innerHTML='<span class="gs-grid-hint-keys">↑ ↓</span> move rows'
       +' &nbsp;·&nbsp; <span class="gs-grid-hint-keys">← →</span> move across a row'
