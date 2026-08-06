@@ -113,8 +113,10 @@ function ptFiltered(scope){
     return true;
   });
   if(st.sortCol){
+    var rank=st.opts.rank&&st.opts.rank[st.sortCol];   // optional custom priority order for a column
     rows=rows.slice().sort(function(a,b){
       var av=a[st.sortCol],bv=b[st.sortCol];
+      if(rank){ return ((rank[av]==null?99:rank[av])-(rank[bv]==null?99:rank[bv]))*st.sortDir; }
       if(typeof av==='string')return av.localeCompare(bv)*st.sortDir;
       return((av||0)-(bv||0))*st.sortDir;
     });
@@ -231,8 +233,8 @@ var PRODUCTS_S11=(function(){
   var suppliers=['Indotex Manufacturing','Luntai Packaging Co.','EcoPack GmbH'];
   var adjs=['Black','Blue','Red','Khaki','White','Grey','Navy','Olive','Beige','Pink','Green','Cream','Charcoal','Rust','Teal'];
   var items=['Crew Neck Sweatshirt','Slim Fit Jeans','Midi Dress','Utility Jacket','Essential T-Shirt','Zip Hoodie','Chino Trousers','Puffer Coat','Knit Jumper','Cargo Shorts','Pleated Skirt','Denim Jacket','Trainers','Canvas Belt','Wool Scarf'];
-  var statuses=['Complete','Incomplete','Incomplete','Pending'];
-  var pills={Complete:'pill-green',Incomplete:'pill-amber',Pending:'pill-grey'};
+  var statuses=['Complete','Incomplete','Pending approval','Incomplete','Pending','Pending approval'];
+  var pills={Complete:'pill-green',Incomplete:'pill-amber',Pending:'pill-grey','Pending approval':'pill-blue'};
   var activities=['2 hrs ago','Yesterday','3 days ago','14 days ago','5 hrs ago','1 week ago'];
   var list=[];
   for(var i=0;i<64;i++){
@@ -241,8 +243,9 @@ var PRODUCTS_S11=(function(){
     var item=items[i%items.length];
     var status=statuses[i%statuses.length];
     var comps=2+(i%4);
-    var done=status==='Complete'?comps:(status==='Incomplete'?Math.max(0,comps-1-(i%comps)):0);
-    var pkgText=status==='Complete'?(comps+' components'):(status==='Pending'?'Not started':(done+' of '+comps+' done'));
+    var allDone=status==='Complete'||status==='Pending approval';
+    var done=allDone?comps:(status==='Incomplete'?Math.max(0,comps-1-(i%comps)):0);
+    var pkgText=allDone?(status==='Pending approval'?(comps+' components · ready to approve'):(comps+' components')):(status==='Pending'?'Not started':(done+' of '+comps+' done'));
     var pill=pills[status];
     if(status==='Incomplete'&&done===0)pill='pill-red';
     list.push({
@@ -405,18 +408,23 @@ function saSendReminder(sku) {
 
 ptInit('s11',PRODUCTS_S11,{
   cols:10,pageSize:20,noun:'products',searchFields:['sku','desc','retailer'],sortCol:'status',sortDir:1,
+  /* default status sort surfaces the rows needing action first (Pending approval → Incomplete → Pending → Complete) */
+  rank:{status:{'Pending approval':0,'Incomplete':1,'Pending':2,'Complete':3}},
   afterRender: function(scope, pageRows, allRows){ saProdSyncSelection(pageRows, allRows); },
   rowHtml:function(r){
     var checked = saProdSel.has(r.sku) ? ' checked' : '';
     var isComplete = r.status === 'Complete';
     var cbCell = '<td class="saprod-cb-cell" onclick="event.stopPropagation()" style="vertical-align:middle;text-align:center"><input type="checkbox" class="saprod-cb" aria-label="Select '+r.sku+'"'+checked+' onclick="event.stopPropagation();saProdToggleRow(this,\''+r.sku+'\')"></td>';
-    
+
     var docBtn = isComplete
       ? '<button class="btn-p" title="Download Declaration of Conformity" onclick="event.stopPropagation();saDownloadDoc(\''+r.sku+'\')" style="height:24px;display:inline-flex;align-items:center;vertical-align:middle;box-sizing:border-box;font-size:11px;padding:0 10px;margin-right:6px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="margin-right:4px;position:relative;top:-1px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>DoC</button>'
       : '';
-    var approveBtn = r.status === 'Incomplete'
-      ? '<button class="act-mini" title="Approve product" onclick="event.stopPropagation();saApproveProduct(\''+r.sku+'\',this)" tabindex="-1" data-approved="false" style="height:24px;display:inline-flex;align-items:center;vertical-align:middle;box-sizing:border-box">Approve</button>'
-      : '';
+    /* Pending approval → prominent primary Approve; Incomplete → plain Approve */
+    var approveBtn = r.status === 'Pending approval'
+      ? '<button class="btn-p" title="Approve product" onclick="event.stopPropagation();saApproveProduct(\''+r.sku+'\',this)" tabindex="-1" data-approved="false" style="height:24px;display:inline-flex;align-items:center;vertical-align:middle;box-sizing:border-box;font-size:11px;padding:0 10px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" style="margin-right:4px;position:relative;top:-1px"><polyline points="20 6 9 17 4 12"></polyline></svg>Approve</button>'
+      : (r.status === 'Incomplete'
+          ? '<button class="act-mini" title="Approve product" onclick="event.stopPropagation();saApproveProduct(\''+r.sku+'\',this)" tabindex="-1" data-approved="false" style="height:24px;display:inline-flex;align-items:center;vertical-align:middle;box-sizing:border-box">Approve</button>'
+          : '');
     var reminderBtn = (r.status === 'Incomplete' || r.status === 'Pending')
       ? '<button class="act-mini" title="Send reminder" onclick="event.stopPropagation();saSendReminder(\''+r.sku+'\')" tabindex="-1" style="height:24px;display:inline-flex;align-items:center;vertical-align:middle;box-sizing:border-box;margin-right:6px">Send reminder</button>'
       : '';
