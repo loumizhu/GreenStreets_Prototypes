@@ -394,8 +394,10 @@ function saDownloadDoc(sku) {
   saProdMiniToast('Downloading DoC for ' + sku + '...');
 }
 function saApproveProduct(sku, btn) {
-  if (btn) { btn.textContent = 'Approved'; btn.style.pointerEvents = 'none'; btn.style.opacity = '0.5'; }
-  saProdMiniToast('Product ' + sku + ' approved');
+  var rec = (window.PRODUCTS_S11 || []).filter(function(r){ return r.sku === sku; })[0];
+  if (rec) { rec.status = 'Complete'; rec.pill = 'pill-green'; rec.pkg = 'Approved'; ptRender('s11'); }
+  else if (btn) { btn.textContent = 'Approved'; btn.style.pointerEvents = 'none'; btn.style.opacity = '0.5'; }
+  saProdMiniToast('Product ' + sku + ' approved — DoC now available');
 }
 function saSendReminder(sku) {
   saProdMiniToast('Reminder sent to supplier for ' + sku);

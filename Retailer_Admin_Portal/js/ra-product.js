@@ -69,18 +69,39 @@
   }
 
   var PROD = findProduct();
-  var COMPS = buildComponents(PROD);
+  /* Two lists: EXPECTED (what the retailer expects — empty at first, orange) and ACTUAL (what the
+     supplier has actually provided — green, may already be approved). Product approval is driven by ACTUAL. */
+  var ACTUAL = buildComponents(PROD);
+  var EXPECTED = [];
   var APPROVED = PROD.status === 'Complete';
   var openIdx = -1; /* which component card is expanded */
-  var pendingHl = null; /* indices of just-added cards to pop-highlight after the next render */
+  var pendingHl = null; /* {key,i} of just-added cards to pop-highlight after the next render */
 
-  /* pop + orange-stroke highlight for freshly-added component cards */
+  function list(key) { return key === 'expected' ? EXPECTED : ACTUAL; }
+
+  /* inline SVG "example image" so provided components show something clickable offline */
+  var IMG_PALETTE = [['#4ebb81', '#2f7d57'], ['#5b9cf6', '#2f5fb0'], ['#f5a623', '#c47d10'], ['#b07de0', '#6f4aa0'], ['#e0605a', '#a83b36'], ['#3fc4c9', '#1f7d80']];
+  function sampleImg(label, k) {
+    var c = IMG_PALETTE[k % IMG_PALETTE.length];
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="380" height="285">' +
+      '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + c[0] + '"/><stop offset="1" stop-color="' + c[1] + '"/></linearGradient></defs>' +
+      '<rect width="380" height="285" fill="url(#g)"/>' +
+      '<rect x="115" y="72" width="150" height="115" rx="12" fill="#ffffff" fill-opacity="0.94"/>' +
+      '<rect x="115" y="72" width="150" height="30" rx="12" fill="#0b1b2e" fill-opacity="0.10"/>' +
+      '<circle cx="190" cy="133" r="21" fill="none" stroke="' + c[1] + '" stroke-width="6"/>' +
+      '<text x="190" y="243" font-family="Inter, sans-serif" font-size="20" font-weight="700" fill="#ffffff" text-anchor="middle">' + esc(label) + '</text>' +
+      '</svg>';
+    return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+  }
+  ACTUAL.forEach(function (c, i) { if (c.status === 'Provided') c.img = sampleImg(c.name, i); });
+
+  /* pop + stroke highlight for freshly-added component cards */
   function flushHighlight() {
     if (!pendingHl || !pendingHl.length) { pendingHl = null; return; }
     var ix = pendingHl; pendingHl = null;
-    ix.forEach(function (i, k) {
+    ix.forEach(function (ref, k) {
       setTimeout(function () {
-        var card = document.querySelector('.rap-comp[data-i="' + i + '"]');
+        var card = document.querySelector('.rap-comp[data-key="' + ref.key + '"][data-i="' + ref.i + '"]');
         if (!card) return;
         card.classList.remove('rap-comp-new'); void card.offsetWidth;
         card.classList.add('rap-comp-new');
@@ -98,12 +119,12 @@
   }
 
   /* ---- derived product state ---- */
-  function awaitingCount() { return COMPS.filter(function (c) { return c.status !== 'Provided'; }).length; }
-  function approvedCount() { return COMPS.filter(function (c) { return c.approved; }).length; }
-  function allApproved() { return COMPS.length > 0 && approvedCount() === COMPS.length; }
+  function awaitingCount() { return ACTUAL.filter(function (c) { return c.status !== 'Provided'; }).length; }
+  function approvedCount() { return ACTUAL.filter(function (c) { return c.approved; }).length; }
+  function allApproved() { return ACTUAL.length > 0 && approvedCount() === ACTUAL.length; }
   function statusPill() {
     if (APPROVED) return '<span class="pill pill-green">Retailer approved</span>';
-    if (COMPS.length === 0) return '<span class="pill pill-grey">No components</span>';
+    if (ACTUAL.length === 0) return '<span class="pill pill-grey">No components</span>';
     if (awaitingCount() === 0) return '<span class="pill pill-blue">Ready to approve</span>';
     return '<span class="pill" style="background:rgba(245,166,35,.14);color:#f5a623;border:1px solid rgba(245,166,35,.32)">Awaiting supplier</span>';
   }
@@ -190,78 +211,129 @@
       '.rap-pick-meta{font-size:10.5px;color:var(--tw3);margin-top:2px}' +
       '.rap-modal-foot{padding:12px 16px;border-top:1px solid var(--bw,rgba(255,255,255,.09));display:flex;align-items:center}' +
       '.rap-doc-btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;background:rgba(78,187,129,.15);border:1px solid rgba(78,187,129,.45);color:#4ebb81;border-radius:9px;font-family:inherit;font-size:12.5px;font-weight:600;cursor:pointer;transition:background .14s}' +
-      '.rap-doc-btn:hover{background:rgba(78,187,129,.28);color:#fff}';
+      '.rap-doc-btn:hover{background:rgba(78,187,129,.28);color:#fff}' +
+      /* Expected (orange) vs Actual (green-stroke) component cards */
+      '.rap-comp-expected{border-color:rgba(245,166,35,.55)!important;background:rgba(245,166,35,.045)!important}' +
+      '.rap-comp-expected:hover{border-color:rgba(245,166,35,.8)!important}' +
+      '.rap-comp-actual{border-color:rgba(78,187,129,.5)!important;background:rgba(78,187,129,.035)!important}' +
+      '.rap-comp-actual:hover{border-color:rgba(78,187,129,.8)!important}' +
+      '.rap-comp-actual.rap-comp-approved{border-color:rgba(78,187,129,.7)!important;background:rgba(78,187,129,.07)!important}' +
+      /* image slot next to the component name */
+      '.rap-img-slot{width:40px;height:40px;flex-shrink:0;border-radius:9px;padding:0;cursor:pointer;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,.04);transition:border-color .14s,transform .14s,box-shadow .14s}' +
+      '.rap-img-empty{border:1.5px dashed var(--bw,rgba(255,255,255,.22));color:var(--tw3)}' +
+      '.rap-img-empty:hover{border-color:var(--gs);color:var(--gs);background:rgba(78,187,129,.08)}' +
+      '.rap-img-has{border:1px solid rgba(255,255,255,.14)}' +
+      '.rap-img-has:hover{transform:scale(1.06);box-shadow:0 6px 18px rgba(0,0,0,.4);border-color:var(--gs)}' +
+      '.rap-img-has img{width:100%;height:100%;object-fit:cover;display:block}' +
+      /* add-row per card */
+      '.rap-add-single{width:100%;display:flex;align-items:center;justify-content:center;gap:7px;margin-top:4px;padding:11px 14px;border-radius:10px;font-family:inherit;font-size:12.5px;font-weight:650;cursor:pointer;box-sizing:border-box;transition:filter .14s,background .14s}' +
+      '.rap-add-expected{background:rgba(245,166,35,.12);border:1px dashed rgba(245,166,35,.55);color:#f5a623}' +
+      '.rap-add-expected:hover{background:rgba(245,166,35,.22);color:#fff}' +
+      '.rap-add-actual{background:rgba(78,187,129,.1);border:1px dashed rgba(78,187,129,.5);color:#4ebb81}' +
+      '.rap-add-actual:hover{background:rgba(78,187,129,.2);color:#fff}' +
+      /* note button + inline note text (expected components) */
+      '.rap-btn-note-on{background:rgba(245,166,35,.14)!important;border-color:rgba(245,166,35,.4)!important;color:#f5a623!important}' +
+      '.rap-btn-note-on:hover{background:rgba(245,166,35,.26)!important;border-color:#f5a623!important;color:#fff!important}' +
+      '.rap-note-txt{display:inline-block;margin-top:3px;color:#f5a623;font-weight:600;font-size:11px;line-height:1.45}' +
+      /* image lightbox */
+      '.rap-lb-ov{position:fixed;inset:0;background:rgba(4,10,20,.8);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:10000;padding:32px;cursor:zoom-out;animation:rapLbIn .18s ease}' +
+      '@keyframes rapLbIn{from{opacity:0}to{opacity:1}}' +
+      '.rap-lb-fig{max-width:90vw;max-height:90vh;display:flex;flex-direction:column;gap:10px;align-items:center}' +
+      '.rap-lb-fig img{max-width:90vw;max-height:80vh;border-radius:14px;box-shadow:0 30px 80px -20px rgba(0,0,0,.8);border:1px solid rgba(255,255,255,.12)}' +
+      '.rap-lb-cap{font-size:13px;font-weight:600;color:#fff;text-align:center}' +
+      '.rap-lb-x{position:fixed;top:20px;right:24px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;width:38px;height:38px;border-radius:50%;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}' +
+      '.rap-lb-x:hover{background:rgba(255,255,255,.2)}';
     document.head.appendChild(st);
   }
 
-  /* ---- component card (single line: details summary + row actions) ---- */
-  function compCard(c, i) {
+  /* ---- image slot (upload when empty, view-large when set) ---- */
+  function imgSlot(c, key, i) {
+    if (c.img) {
+      return '<button type="button" class="rap-img-slot rap-img-has" title="Click to view image" ' +
+        'onclick="event.stopPropagation();rapLightbox(\'' + key + '\',' + i + ')"><img src="' + c.img + '" alt="' + esc(c.name) + '"></button>';
+    }
+    return '<button type="button" class="rap-img-slot rap-img-empty" title="Upload an image" ' +
+      'onclick="event.stopPropagation();rapUploadImg(\'' + key + '\',' + i + ')">' +
+      '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></button>';
+  }
+
+  /* ---- component card (single line: image + details summary + row actions) ---- */
+  function compCard(c, i, key) {
+    var isExpected = key === 'expected';
     var missingHint = c.status !== 'Provided';
-    var sum = c.status === 'Provided'
-      ? esc((c.material || '—') + ' · ' + (c.weight || '—') + ' g · ' + (c.pcr || '0') + '% PCR')
-      : 'Awaiting supplier — details not yet provided';
+    var sum = isExpected
+      ? 'Expected component — awaiting actual packaging data'
+      : (c.status === 'Provided'
+          ? esc((c.material || '—') + ' · ' + (c.weight || '—') + ' g · ' + (c.pcr || '0') + '% PCR')
+          : 'Awaiting supplier — details not yet provided');
 
     /* qty stepper */
     var qty = c.qty || 1;
-    var qtyHtml = '<div style="display:flex;align-items:center;background:rgba(255,255,255,.04);border-radius:6px;margin-right:6px"><button type="button" class="rap-qty-btn" title="Decrease quantity" onclick="rapQtyStep(' + i + ',-1)" style="border:none;background:transparent">−</button>' +
+    var qtyHtml = '<div style="display:flex;align-items:center;background:rgba(255,255,255,.04);border-radius:6px;margin-right:6px"><button type="button" class="rap-qty-btn" title="Decrease quantity" onclick="rapQtyStep(\'' + key + '\',' + i + ',-1)" style="border:none;background:transparent">−</button>' +
       '<span class="rap-qty-val">' + qty + '</span>' +
-      '<button type="button" class="rap-qty-btn" title="Increase quantity" onclick="rapQtyStep(' + i + ',1)" style="border:none;background:transparent">+</button></div>';
+      '<button type="button" class="rap-qty-btn" title="Increase quantity" onclick="rapQtyStep(\'' + key + '\',' + i + ',1)" style="border:none;background:transparent">+</button></div>';
 
-    /* view detail button */
-    var viewBtn = '<button type="button" class="rap-btn-view" title="View packaging detail" onclick="rapViewPkg(\'' + esc(c.name) + '\')">→ Detail</button>';
+    /* remove button (both lists) */
+    var removeBtn = '<button type="button" class="rap-btn-remove" title="Remove this component" onclick="rapRemove(\'' + key + '\',' + i + ')">🗑</button>';
 
-    /* approve button for completed ones that are not yet approved, or cancel if approved */
-    var appBtn = '';
-    if (c.status === 'Provided' && !APPROVED) {
-      if (c.approved) {
-        appBtn = '<button type="button" class="rap-btn-remove" style="color:var(--tw2)!important;background:rgba(255,255,255,.08)!important;border-color:rgba(255,255,255,.15)!important" onclick="rapCancelApproveComp(' + i + ')">Cancel Approval</button>';
-      } else {
-        appBtn = '<button type="button" class="rap-btn-approve" onclick="rapApproveComp(' + i + ')">Approve</button>';
+    var midCol, actionBtns;
+    if (isExpected) {
+      /* Expected: orange, just what the retailer expects — no supplier/approve workflow yet. */
+      midCol = '<span class="pill ' + (c.level === 'Primary' ? 'pill-blue' : 'pill-grey') + '" style="font-size:9px">' + esc(c.level) + '</span>' +
+        '<span class="pill" style="font-size:9px;background:rgba(245,166,35,.14);color:#f5a623;border:1px solid rgba(245,166,35,.32)">Expected</span>';
+      var noteBtn = '<button type="button" class="rap-btn-note' + (c.notes ? ' rap-btn-note-on' : '') + '" title="' + (c.notes ? 'Edit note' : 'Add a note') + '" onclick="rapNote(\'' + key + '\',' + i + ')">' +
+        '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' + (c.notes ? 'Edit note' : 'Note') + '</button>';
+      actionBtns = qtyHtml + noteBtn + removeBtn;
+    } else {
+      /* Actual: green stroke, full supplier/approve workflow. */
+      midCol = '<span class="pill ' + (c.level === 'Primary' ? 'pill-blue' : 'pill-grey') + '" style="font-size:9px">' + esc(c.level) + '</span>' + compStatusPill(c);
+
+      var viewBtn = '<button type="button" class="rap-btn-view" title="View packaging detail" onclick="rapViewPkg(\'' + esc(c.name) + '\')">→ Detail</button>';
+
+      var appBtn = '';
+      if (c.status === 'Provided' && !APPROVED) {
+        appBtn = c.approved
+          ? '<button type="button" class="rap-btn-remove" style="color:var(--tw2)!important;background:rgba(255,255,255,.08)!important;border-color:rgba(255,255,255,.15)!important" onclick="rapCancelApproveComp(' + i + ')">Cancel Approval</button>'
+          : '<button type="button" class="rap-btn-approve" onclick="rapApproveComp(' + i + ')">Approve</button>';
+      } else if (c.status === 'Provided' && APPROVED) {
+        appBtn = '<button type="button" class="rap-btn-approved" disabled>Approved</button>';
       }
-    } else if (c.status === 'Provided' && APPROVED) {
-      appBtn = '<button type="button" class="rap-btn-approved" disabled>Approved</button>';
+
+      var ttHtml = '';
+      if (missingHint && c.reminders && c.reminders.length > 0) {
+        var lastRem = c.reminders[c.reminders.length - 1];
+        ttHtml = '<div class="rap-tt"><div class="rap-tt-hdr">' + c.reminders.length + ' reminder' + (c.reminders.length > 1 ? 's' : '') + ' sent (Last: ' + lastRem.date + ')</div>';
+        c.reminders.forEach(function (r) {
+          var cl = r.type === 'Automated' ? 'rap-tt-auto' : 'rap-tt-manual';
+          ttHtml += '<div class="rap-tt-row"><span class="' + cl + '">' + r.type + '</span><span style="color:#fff">' + r.date + '</span></div>';
+        });
+        ttHtml += '</div>';
+      }
+      var reminderBtn = missingHint
+        ? '<div class="rap-tt-wrap"><button type="button" class="rap-btn-remind" title="Remind the supplier to complete this component" onclick="rapRemind(' + i + ')">' +
+            '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Send reminder</button>' + ttHtml + '</div>'
+        : '';
+
+      actionBtns = qtyHtml + viewBtn + appBtn + reminderBtn + removeBtn;
     }
 
-    /* tooltip content for reminders */
-    var ttHtml = '';
-    if (missingHint && c.reminders && c.reminders.length > 0) {
-      var lastRem = c.reminders[c.reminders.length - 1];
-      ttHtml = '<div class="rap-tt"><div class="rap-tt-hdr">' + c.reminders.length + ' reminder' + (c.reminders.length>1?'s':'') + ' sent (Last: ' + lastRem.date + ')</div>';
-      c.reminders.forEach(function(r) {
-        var cl = r.type === 'Automated' ? 'rap-tt-auto' : 'rap-tt-manual';
-        ttHtml += '<div class="rap-tt-row"><span class="'+cl+'">' + r.type + '</span><span style="color:#fff">' + r.date + '</span></div>';
-      });
-      ttHtml += '</div>';
-    }
+    var cardClass = 'rap-comp ' + (isExpected ? 'rap-comp-expected' : ('rap-comp-actual' + (c.approved ? ' rap-comp-approved' : '')));
 
-    /* send-reminder button — only for incomplete (awaiting) components */
-    var reminderBtn = missingHint
-      ? '<div class="rap-tt-wrap"><button type="button" class="rap-btn-remind" title="Remind the supplier to complete this component" onclick="rapRemind(' + i + ')">' +
-          '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Send reminder</button>' + ttHtml + '</div>'
-      : '';
-
-    /* remove button */
-    var removeBtn = '<button type="button" class="rap-btn-remove" title="Remove this component" onclick="rapRemove(' + i + ')">🗑</button>';
-
-    return '<div class="rap-comp' + (c.approved ? ' rap-comp-approved' : '') + '" data-i="' + i + '">' +
+    return '<div class="' + cardClass + '" data-i="' + i + '" data-key="' + key + '">' +
       '<div class="rap-comp-hdr">' +
         '<div class="rap-col">' +
+          imgSlot(c, key, i) +
           '<span class="rap-comp-name rap-comp-name-edit" contenteditable="true" spellcheck="false" title="Click to rename" ' +
-            'onkeydown="rapTitleKey(event)" oninput="rapEditName(' + i + ',this.textContent)">' + esc(c.name) + '</span>' +
+            'onkeydown="rapTitleKey(event)" oninput="rapEditName(\'' + key + '\',' + i + ',this.textContent)">' + esc(c.name) + '</span>' +
         '</div>' +
         '<div class="rap-col-vert" style="align-items:flex-start">' +
-          '<span class="pill ' + (c.level === 'Primary' ? 'pill-blue' : 'pill-grey') + '" style="font-size:9px">' + esc(c.level) + '</span>' +
-          compStatusPill(c) +
+          midCol +
         '</div>' +
         '<div class="rap-col">' +
-          '<span class="rap-comp-sum" style="white-space:normal;line-height:1.4">' + sum + (c.status === 'Provided' ? '<br><span style="color:var(--tw2);font-weight:600">' + esc(c.recycle) + '</span>' : '') + '</span>' +
+          '<span class="rap-comp-sum" style="white-space:normal;line-height:1.4">' + sum + (!isExpected && c.status === 'Provided' ? '<br><span style="color:var(--tw2);font-weight:600">' + esc(c.recycle) + '</span>' : '') + (isExpected && c.notes ? '<br><span class="rap-note-txt"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' + esc(c.notes) + '</span>' : '') + '</span>' +
         '</div>' +
         '<div class="rap-hdr-btns">' +
-          qtyHtml +
-          viewBtn +
-          appBtn +
-          reminderBtn +
-          removeBtn +
+          actionBtns +
         '</div>' +
       '</div>' +
     '</div>';
@@ -273,7 +345,7 @@
     var root = document.getElementById('ra-prod-root');
     var crumb = document.getElementById('ra-prod-crumb'); if (crumb) crumb.textContent = PROD.sku;
     var awaiting = awaitingCount();
-    var canApprove = !APPROVED && COMPS.length > 0 && awaiting === 0;
+    var canApprove = !APPROVED && ACTUAL.length > 0 && awaiting === 0;
 
     var idIcon = (typeof window.gsIdenticon === 'function')
       ? '<span class="gs-id-ic" style="width:32px;height:32px;border-radius:8px">' + window.gsIdenticon(PROD.sku, 32) + '</span>'
@@ -286,8 +358,8 @@
             '<button class="btn-g" onclick="rapReopen()">Re-open</button>'
           : '<button class="btn-p" ' + (canApprove ? '' : 'disabled style="opacity:.45;cursor:not-allowed"') + ' onclick="rapApprove()"><span class="btn-c"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" style="vertical-align:-2px;margin-right:5px"><polyline points="20 6 9 17 4 12"/></svg>Approve product</span></button>');
 
-    var providedCount = COMPS.filter(function(c){return c.status === 'Provided';}).length;
-    var progHtml = '<div style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--tw2)"><div style="width:80px;height:6px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden"><div style="height:100%;background:var(--gs);width:' + (COMPS.length ? (providedCount/COMPS.length)*100 : 0) + '%"></div></div>' + providedCount + ' / ' + COMPS.length + '</div>';
+    var providedCount = ACTUAL.filter(function(c){return c.status === 'Provided';}).length;
+    var progHtml = '<div style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--tw2)"><div style="width:80px;height:6px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden"><div style="height:100%;background:var(--gs);width:' + (ACTUAL.length ? (providedCount/ACTUAL.length)*100 : 0) + '%"></div></div>' + providedCount + ' / ' + ACTUAL.length + '</div>';
 
     var deadlineTag = '<span class="pill pill-grey" style="font-size:11px;color:var(--tw2)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;vertical-align:-2px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' + PROD.deadline + '</span>';
 
@@ -331,35 +403,43 @@
         '</div>' +
       '</div>';
 
-    var compCards = COMPS.map(compCard).join('') || '<div style="padding:16px;text-align:center;color:var(--tw3);font-size:12px">No packaging components yet — use the button below to add the ones you expect.</div>';
+    function qtySum(arr) { var t = 0; arr.forEach(function (c) { t += (c.qty || 1); }); return t; }
 
-    var totalQty = 0;
-    COMPS.forEach(function(c) { totalQty += (c.qty || 1); });
-
-    var comps =
+    /* ── Card 1: EXPECTED packaging components (orange, empty at first) ── */
+    var expCards = EXPECTED.map(function (c, i) { return compCard(c, i, 'expected'); }).join('') ||
+      '<div style="padding:16px;text-align:center;color:var(--tw3);font-size:12px">No expected components yet — use <b style="color:#f5a623">Add component</b> below to define the packaging you expect for this product.</div>';
+    var expCard =
       '<div class="grp" style="margin-bottom:12px">' +
-        '<div class="grp-hdr">Packaging components' +
-          '<span style="margin-left:8px;font-size:10px;font-weight:600;color:var(--tw3)">' + COMPS.length + ' component type' + (COMPS.length===1?'':'s') + ' (' + totalQty + ' item' + (totalQty===1?'':'s') + ' total)</span>' +
-          '<span style="margin-left:auto;font-size:10px;color:var(--tw3)">' +
-            (awaiting > 0 ? '<span style="color:#f5a623">' + awaiting + ' awaiting supplier</span>' : '') +
-          '</span>' +
+        '<div class="grp-hdr">Expected Packaging Components' +
+          '<span style="margin-left:8px;font-size:10px;font-weight:600;color:var(--tw3)">' + EXPECTED.length + ' expected (' + qtySum(EXPECTED) + ' item' + (qtySum(EXPECTED) === 1 ? '' : 's') + ')</span>' +
+          '<span style="margin-left:auto;font-size:10px;color:#f5a623">What you expect the supplier to provide</span>' +
         '</div>' +
         '<div class="grp-body">' +
-          compCards +
-          /* Add-component buttons: big direct-add (left) + smaller from-list (right) */
-          '<div class="rap-add-row">' +
-            '<button type="button" class="rap-add-direct" onclick="rapAddDirect()">' +
-              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>' +
-              'Add component' +
-            '</button>' +
-            '<button type="button" class="rap-add-from-list" onclick="rapAdd()">' +
-              'Add component from list' +
-            '</button>' +
-          '</div>' +
+          expCards +
+          '<button type="button" class="rap-add-single rap-add-expected" onclick="rapAddExpected()">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Add component</button>' +
         '</div>' +
       '</div>';
 
-    root.innerHTML = topCard + comps;
+    /* ── Card 2: ACTUAL packaging components (green stroke, already provided/approved) ── */
+    var actCards = ACTUAL.map(function (c, i) { return compCard(c, i, 'actual'); }).join('') ||
+      '<div style="padding:16px;text-align:center;color:var(--tw3);font-size:12px">No actual components yet — use <b style="color:#4ebb81">Add Component From List</b> below.</div>';
+    var actCard =
+      '<div class="grp" style="margin-bottom:12px">' +
+        '<div class="grp-hdr">Actual Packaging Components' +
+          '<span style="margin-left:8px;font-size:10px;font-weight:600;color:var(--tw3)">' + ACTUAL.length + ' component type' + (ACTUAL.length === 1 ? '' : 's') + ' (' + qtySum(ACTUAL) + ' item' + (qtySum(ACTUAL) === 1 ? '' : 's') + ' total)</span>' +
+          '<span style="margin-left:auto;font-size:10px;color:var(--tw3)">' +
+            (awaiting > 0 ? '<span style="color:#f5a623">' + awaiting + ' awaiting supplier</span>' : '<span style="color:#4ebb81">all provided</span>') +
+          '</span>' +
+        '</div>' +
+        '<div class="grp-body">' +
+          actCards +
+          '<button type="button" class="rap-add-single rap-add-actual" onclick="rapAdd()">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2v-4M9 21H5a2 2 0 0 1-2-2v-4"/></svg>Add Component From List</button>' +
+        '</div>' +
+      '</div>';
+
+    root.innerHTML = topCard + expCard + actCard;
 
     flushHighlight();
   }
@@ -367,32 +447,22 @@
   /* ---- actions ---- */
   window.rapUpdateProd = function (key, val) { PROD[key] = val; };
   window.rapToggle = function (i) { openIdx = (openIdx === i ? -1 : i); render(); };
-  window.rapEdit = function (i, key, val) {
-    if (!COMPS[i]) return;
-    COMPS[i][key] = val;
-    if (key === 'status') {
-      /* un-approve if status changes back to awaiting */
-      if (val !== 'Provided') COMPS[i].approved = false;
-      render(); return;
-    }
-  };
-  window.rapEditName = function (i, val) { if (COMPS[i]) COMPS[i].name = (val || '').replace(/\n/g, ' '); };
+  window.rapEditName = function (key, i, val) { var L = list(key); if (L[i]) L[i].name = (val || '').replace(/\n/g, ' '); };
   window.rapTitleKey = function (e) { if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); } };
-  window.rapRemove = function (i) {
-    var name = COMPS[i] ? COMPS[i].name : '';
-    COMPS.splice(i, 1);
-    if (openIdx === i) openIdx = -1; else if (i < openIdx) openIdx--;
+  window.rapRemove = function (key, i) {
+    var L = list(key); var name = L[i] ? L[i].name : '';
+    L.splice(i, 1);
     render(); toast('"' + name + '" removed');
   };
   /* qty stepper (+ / -) */
-  window.rapQtyStep = function (i, d) {
-    if (!COMPS[i]) return;
-    COMPS[i].qty = Math.max(1, (COMPS[i].qty || 1) + d);
+  window.rapQtyStep = function (key, i, d) {
+    var L = list(key); if (!L[i]) return;
+    L[i].qty = Math.max(1, (L[i].qty || 1) + d);
     render();
   };
-  /* approve individual component */
+  /* approve individual component (ACTUAL only) */
   window.rapApproveComp = function (i) {
-    var c = COMPS[i]; if (!c) return;
+    var c = ACTUAL[i]; if (!c) return;
     if (c.status !== 'Provided') { toast('Component must be "Provided" before it can be approved'); return; }
     c.approved = true;
     render();
@@ -401,11 +471,66 @@
   };
   /* cancel approve individual component */
   window.rapCancelApproveComp = function (i) {
-    var c = COMPS[i]; if (!c) return;
+    var c = ACTUAL[i]; if (!c) return;
     c.approved = false;
     render();
     toast('Approval cancelled for "' + c.name + '"');
   };
+  /* ---- image upload + lightbox ---- */
+  window.rapUploadImg = function (key, i) {
+    var c = list(key)[i]; if (!c) return;
+    var inp = document.createElement('input');
+    inp.type = 'file'; inp.accept = 'image/*'; inp.style.display = 'none';
+    inp.onchange = function () {
+      var f = inp.files && inp.files[0]; if (!f) { inp.remove(); return; }
+      var rd = new FileReader();
+      rd.onload = function () { c.img = rd.result; render(); toast('Image added to "' + (c.name || 'component') + '"'); inp.remove(); };
+      rd.readAsDataURL(f);
+    };
+    document.body.appendChild(inp); inp.click();
+  };
+  window.rapLightbox = function (key, i) {
+    var c = list(key)[i]; if (!c || !c.img) return;
+    var ov = document.getElementById('rap-lightbox'); if (ov) ov.remove();
+    ov = document.createElement('div'); ov.id = 'rap-lightbox'; ov.className = 'rap-lb-ov';
+    ov.onclick = function () { rapCloseLightbox(); };
+    ov.innerHTML = '<button class="rap-lb-x" title="Close" onclick="rapCloseLightbox()">×</button>' +
+      '<figure class="rap-lb-fig"><img src="' + c.img + '" alt="' + esc(c.name) + '"><figcaption class="rap-lb-cap">' + esc(c.name) + '</figcaption></figure>';
+    document.body.appendChild(ov);
+  };
+  window.rapCloseLightbox = function () { var ov = document.getElementById('rap-lightbox'); if (ov) ov.remove(); };
+  /* ---- note editor (expected components) ---- */
+  window.rapNote = function (key, i) {
+    var c = list(key)[i]; if (!c) return;
+    var ov = document.getElementById('rap-note'); if (ov) ov.remove();
+    ov = document.createElement('div'); ov.id = 'rap-note'; ov.className = 'rap-modal-ov';
+    ov.onclick = function (e) { if (e.target === ov) rapCloseNote(); };
+    ov.innerHTML =
+      '<div class="rap-modal" style="max-width:440px">' +
+        '<div class="rap-modal-hdr"><span>Note · ' + esc(c.name || 'component') + '</span>' +
+          '<button class="rap-modal-x" onclick="rapCloseNote()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>' +
+        '<div class="rap-modal-body"><div class="rap-f"><label>Note for this expected component</label>' +
+          '<textarea class="fi" id="rap-note-ta" rows="4" placeholder="e.g. Must be FSC-certified card, min 30% PCR content…" style="resize:vertical;min-height:92px;line-height:1.5">' + esc(c.notes || '') + '</textarea></div></div>' +
+        '<div class="rap-modal-foot" style="justify-content:flex-end;gap:8px">' +
+          (c.notes ? '<button class="btn-g-sm" onclick="rapClearNote(\'' + key + '\',' + i + ')">Remove note</button>' : '') +
+          '<button class="btn-p" onclick="rapSaveNote(\'' + key + '\',' + i + ')"><span class="btn-c">Save note</span></button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(ov);
+    var ta = document.getElementById('rap-note-ta'); if (ta) ta.focus();
+  };
+  window.rapSaveNote = function (key, i) {
+    var c = list(key)[i]; if (!c) return;
+    var ta = document.getElementById('rap-note-ta');
+    c.notes = (ta ? ta.value : '').trim();
+    rapCloseNote(); render();
+    toast(c.notes ? 'Note saved for "' + (c.name || 'component') + '"' : 'Note cleared');
+  };
+  window.rapClearNote = function (key, i) {
+    var c = list(key)[i]; if (c) c.notes = '';
+    rapCloseNote(); render(); toast('Note removed');
+  };
+  window.rapCloseNote = function () { var ov = document.getElementById('rap-note'); if (ov) ov.remove(); };
   /* view packaging detail */
   window.rapViewPkg = function (name) {
     /* find the matching packaging in PACKAGINGS_RA by component type name (fuzzy) */
@@ -421,20 +546,21 @@
     }
   };
   function blankComp(name, level, material) {
-    return { name: name || ('Component ' + (COMPS.length + 1)), level: level || 'Primary', material: material || '', weight: '', pcr: '', recycle: '', notes: '', status: 'Awaiting', qty: 1, approved: false };
+    return { name: name || ('Component ' + (ACTUAL.length + EXPECTED.length + 1)), level: level || 'Primary', material: material || '', weight: '', pcr: '', recycle: '', notes: '', status: 'Awaiting', qty: 1, approved: false };
   }
-  function addComp(c) {
-    COMPS.push(c);
-    openIdx = COMPS.length - 1;
-    pendingHl = [COMPS.length - 1];
+  function addComp(key, c) {
+    var L = list(key);
+    L.push(c);
+    openIdx = L.length - 1;
+    pendingHl = [{ key: key, i: L.length - 1 }];
     render();
-    var last = document.querySelector('.rap-comp[data-i="' + (COMPS.length - 1) + '"]');
+    var last = document.querySelector('.rap-comp[data-key="' + key + '"][data-i="' + (L.length - 1) + '"]');
     if (last && last.scrollIntoView) last.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    focusCompName(COMPS.length - 1);
+    focusCompName(key, L.length - 1);
   }
-  function focusCompName(i) {
+  function focusCompName(key, i) {
     setTimeout(function () {
-      var card = document.querySelector('.rap-comp[data-i="' + i + '"]');
+      var card = document.querySelector('.rap-comp[data-key="' + key + '"][data-i="' + i + '"]');
       var name = card && card.querySelector('.rap-comp-name-edit');
       if (!name) return;
       name.focus();
@@ -442,18 +568,18 @@
     }, 60);
   }
 
-  /* Add a component directly (blank row, not from the library) */
-  window.rapAddDirect = function () {
-    addComp(blankComp('', 'Primary', ''));
-    toast('New component added — rename it and await supplier detail');
+  /* Add an EXPECTED component directly (blank row) */
+  window.rapAddExpected = function () {
+    addComp('expected', blankComp('', 'Primary', ''));
+    toast('Expected component added — rename it to what you expect the supplier to provide');
   };
   /* Send the supplier a reminder for an outstanding component */
   window.rapRemind = function (i) {
-    var c = COMPS[i]; if (!c) return;
+    var c = ACTUAL[i]; if (!c) return;
     toast('Reminder for "' + (c.name || 'component') + '" will be sent to ' + PROD.supplier + ' as an email.');
   };
 
-  /* Add packaging component from list → picker (library or create new) */
+  /* Add an ACTUAL packaging component from list → picker (library or create new) */
   window.rapAdd = function () { openPicker(); };
 
   function openPicker() {
@@ -503,7 +629,7 @@
   window.rapPickLib = function (i) {
     var x = (window.PKG_LIBRARY || [])[i]; if (!x) return;
     closePicker();
-    addComp(blankComp(x.name, x.level, x.material));
+    addComp('actual', blankComp(x.name, x.level, x.material));
     toast('"' + x.name + '" added — awaiting supplier detail');
   };
   window.rapPickShowCreate = function () {
@@ -524,14 +650,14 @@
     var level = (document.getElementById('rap-new-level') || {}).value || 'Primary';
     if (!name.trim()) { toast('Enter a component name'); return; }
     closePicker();
-    addComp(blankComp(name.trim(), level, ''));
+    addComp('actual', blankComp(name.trim(), level, ''));
     toast('"' + name.trim() + '" created — awaiting supplier detail');
   };
   function closePicker() { var ov = document.getElementById('rap-picker'); if (ov) ov.remove(); }
   window.rapClosePicker = closePicker;
 
   window.rapApprove = function () {
-    if (COMPS.length === 0) { toast('Add at least one component first'); return; }
+    if (ACTUAL.length === 0) { toast('Add at least one component first'); return; }
     if (awaitingCount() > 0) { toast('All components must be provided by the supplier first'); return; }
     APPROVED = true; render(); toast('Product approved ✅');
   };

@@ -695,3 +695,52 @@
     fireBurst(btn,null,null);
   });
 })();
+
+/* ── Generic hover/focus tooltip (window.GSTip) ──────────────────────────────
+   Any element carrying [data-gs-tip="..."] shows a themed bubble on hover/focus.
+   Self-contained (injects its own CSS + a single fixed bubble) so it works the
+   same in every prototype regardless of CSS divergence, and escapes the
+   overflow:hidden of cards like .grp because the bubble is position:fixed on
+   <body>. Delegated + MutationObserver-safe, so runtime-rendered markup works. */
+(function(){
+  if(window.GSTip) return;
+  var bubble=null, hideT=null;
+  function css(){
+    if(document.getElementById('gs-tip-css')) return;
+    var s=document.createElement('style'); s.id='gs-tip-css';
+    s.textContent=
+      '[data-gs-tip]{cursor:help}'+
+      '.gs-tip{position:fixed;z-index:12000;max-width:300px;pointer-events:none;'+
+      'background:linear-gradient(160deg,rgba(16,32,56,.98),rgba(11,24,48,.98));'+
+      'border:1px solid rgba(143,227,182,.28);border-radius:10px;padding:10px 12px;'+
+      'box-shadow:0 12px 34px rgba(0,0,0,.5);opacity:0;transform:translateY(4px);'+
+      'transition:opacity .16s ease,transform .16s ease;font-family:inherit}'+
+      '.gs-tip.on{opacity:1;transform:translateY(0)}'+
+      '.gs-tip-b{font-size:11.5px;line-height:1.5;color:var(--tw2,rgba(255,255,255,.82))}';
+    document.head.appendChild(s);
+  }
+  function ensure(){ if(bubble) return bubble; css();
+    bubble=document.createElement('div'); bubble.className='gs-tip'; bubble.setAttribute('role','tooltip');
+    bubble.innerHTML='<div class="gs-tip-b"></div>'; document.body.appendChild(bubble); return bubble; }
+  function show(el){
+    var txt=el.getAttribute('data-gs-tip'); if(!txt) return;
+    clearTimeout(hideT); var b=ensure(); b.querySelector('.gs-tip-b').textContent=txt;
+    b.style.opacity='0'; b.classList.add('on');
+    // position after paint so we know the bubble size
+    requestAnimationFrame(function(){
+      var r=el.getBoundingClientRect(), bw=b.offsetWidth, bh=b.offsetHeight, m=8;
+      var left=r.left+r.width/2-bw/2;
+      left=Math.max(m,Math.min(left,window.innerWidth-bw-m));
+      var top=r.bottom+8;
+      if(top+bh>window.innerHeight-m) top=r.top-bh-8;   // flip above if no room below
+      b.style.left=left+'px'; b.style.top=Math.max(m,top)+'px'; b.style.opacity='';
+    });
+  }
+  function hide(){ if(!bubble) return; bubble.classList.remove('on'); }
+  document.addEventListener('mouseover',function(e){ var t=e.target.closest&&e.target.closest('[data-gs-tip]'); if(t) show(t); });
+  document.addEventListener('mouseout',function(e){ var t=e.target.closest&&e.target.closest('[data-gs-tip]'); if(t) hide(); });
+  document.addEventListener('focusin',function(e){ var t=e.target.closest&&e.target.closest('[data-gs-tip]'); if(t) show(t); });
+  document.addEventListener('focusout',function(e){ var t=e.target.closest&&e.target.closest('[data-gs-tip]'); if(t) hide(); });
+  document.addEventListener('scroll',hide,true);
+  window.GSTip={show:show,hide:hide};
+})();

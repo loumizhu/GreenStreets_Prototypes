@@ -485,10 +485,14 @@ function raDownloadDoc(sku) {
 function raApproveProduct(sku, btn) {
   var t = document.getElementById('ra-toast');
   if (!t) { t = document.createElement('div'); t.id = 'ra-toast'; document.body.appendChild(t); }
-  var already = btn && btn.getAttribute('data-approved') === 'true';
-  t.textContent = already ? 'Product '+sku+' is already approved' : 'Product ' + sku + ' approved';
+  var rec = (window.PRODUCTS_RA || []).filter(function(r){ return r.sku === sku; })[0];
+  var already = rec ? rec.status === 'Complete' : (btn && btn.getAttribute('data-approved') === 'true');
+  t.textContent = already ? 'Product '+sku+' is already approved' : 'Product ' + sku + ' approved — DoC now available';
   t.className = 'show';
-  if (!already && btn) {
+  if (!already && rec) {
+    rec.status = 'Complete'; rec.pill = 'pill-green'; rec.pkg = 'Approved';
+    if (typeof ptRender === 'function') ptRender('ra');
+  } else if (!already && btn) {
     btn.setAttribute('data-approved', 'true');
     btn.textContent = 'Approved';
     btn.style.background = 'var(--gs)';
