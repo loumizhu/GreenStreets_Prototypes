@@ -526,9 +526,9 @@ table[tabindex]:focus-visible{outline:none}
 .pcmp-x:hover{background:rgba(224,82,82,.28);color:#fff}
 /* Per-component retailer note — a small amber envelope shown only when a note
    exists; hovering/focusing it pops the #gs-comp-note bubble. */
-.pcmp-note-ic{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:4px;color:#f5a623;background:rgba(245,166,35,.14);border:1px solid rgba(245,166,35,.32);flex-shrink:0;cursor:help;transition:all .12s;vertical-align:middle}
+.pcmp-note-ic{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;color:#f5a623;background:none;border:none;flex-shrink:0;cursor:help;transition:color .12s;vertical-align:middle}
 .pd-card-name .pcmp-note-ic{margin-left:6px}
-.pcmp-note-ic:hover{background:rgba(245,166,35,.3);color:#ffd479}
+.pcmp-note-ic:hover{color:#ffd479}
 .pcmp-has-note{border-color:rgba(245,166,35,.34);background:rgba(78,187,129,.12)}
 /* Per-component quantity: a "× N" badge (slightly different colour) + a −/+ stepper pair next to the × */
 .pcmp-qty{font-size:10px;font-weight:800;color:#ffd479;background:rgba(245,196,107,.16);border:1px solid rgba(245,196,107,.4);border-radius:5px;padding:1px 5px;flex-shrink:0;font-variant-numeric:tabular-nums;line-height:1.4;letter-spacing:.3px}

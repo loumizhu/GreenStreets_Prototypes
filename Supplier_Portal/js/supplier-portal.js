@@ -108,7 +108,7 @@ function gsFadeInRows(container, sel){
       ? '<ul class="gct-list">'+p.expected.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul>'
       : '<div class="gct-empty">No expected components specified</div>';
     var html = '<div class="gct-sec"><div class="gct-h gct-h-exp">'
-      + '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-3"/></svg>Expected packaging</div>'
+      + '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-3"/></svg>Expected Packaging as indicated by Retailer</div>'
       + exp + '</div>';
     if(p.note){
       html += '<div class="gct-sec gct-note"><div class="gct-h gct-h-note">'
