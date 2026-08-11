@@ -553,7 +553,13 @@
     L.push(c);
     openIdx = L.length - 1;
     pendingHl = [{ key: key, i: L.length - 1 }];
+    /* Adding a new component changes the packaging make-up — an already-approved product must be
+       re-reviewed, so cancel the approval and bring the "Approve product" button back. */
+    var wasApproved = APPROVED;
+    if (wasApproved) APPROVED = false;
+    addComp._cancelled = wasApproved;   // callers check this to avoid overwriting the cancellation toast
     render();
+    if (wasApproved) toast('Product approval cancelled — a new component was added, please re-approve');
     var last = document.querySelector('.rap-comp[data-key="' + key + '"][data-i="' + (L.length - 1) + '"]');
     if (last && last.scrollIntoView) last.scrollIntoView({ behavior: 'smooth', block: 'center' });
     focusCompName(key, L.length - 1);
@@ -571,7 +577,7 @@
   /* Add an EXPECTED component directly (blank row) */
   window.rapAddExpected = function () {
     addComp('expected', blankComp('', 'Primary', ''));
-    toast('Expected component added — rename it to what you expect the supplier to provide');
+    if (!addComp._cancelled) toast('Expected component added — rename it to what you expect the supplier to provide');
   };
   /* Send the supplier a reminder for an outstanding component */
   window.rapRemind = function (i) {
@@ -630,7 +636,7 @@
     var x = (window.PKG_LIBRARY || [])[i]; if (!x) return;
     closePicker();
     addComp('actual', blankComp(x.name, x.level, x.material));
-    toast('"' + x.name + '" added — awaiting supplier detail');
+    if (!addComp._cancelled) toast('"' + x.name + '" added — awaiting supplier detail');
   };
   window.rapPickShowCreate = function () {
     document.getElementById('rap-pick-list-wrap').style.display = 'none';
@@ -651,7 +657,7 @@
     if (!name.trim()) { toast('Enter a component name'); return; }
     closePicker();
     addComp('actual', blankComp(name.trim(), level, ''));
-    toast('"' + name.trim() + '" created — awaiting supplier detail');
+    if (!addComp._cancelled) toast('"' + name.trim() + '" created — awaiting supplier detail');
   };
   function closePicker() { var ov = document.getElementById('rap-picker'); if (ov) ov.remove(); }
   window.rapClosePicker = closePicker;

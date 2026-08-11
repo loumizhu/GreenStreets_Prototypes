@@ -211,7 +211,7 @@ html,body{height:100%;font-family:"Inter",sans-serif;color:var(--tw)}
 .pkg-detail-section-hdr{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:700;color:#fff;margin-bottom:13px}
 .pkg-detail-section-num{width:21px;height:21px;border-radius:50%;background:rgba(78,187,129,.18);border:1px solid var(--gs);color:var(--gs);font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .pkg-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 20px}
-.pkg-detail-feat{display:flex;flex-direction:column;gap:3px}
+.pkg-detail-feat{display:flex;flex-direction:column;gap:8px}
 .pkg-detail-feat-lbl{font-size:10px;color:var(--tw3);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
 .pkg-detail-feat-val{font-size:13px;color:#fff;font-weight:500;display:flex;align-items:center;gap:6px}
 .pkg-doc-download-btn{display:flex;align-items:center;gap:7px;height:36px;padding:0 16px;background:var(--gs);border:none;color:#04160e;border-radius:8px;cursor:pointer;font-family:"Inter",sans-serif;font-size:12px;font-weight:600;white-space:nowrap;flex-shrink:0}
@@ -221,7 +221,7 @@ html,body{height:100%;font-family:"Inter",sans-serif;color:var(--tw)}
 .pkg-edit-toggle-btn{display:flex;align-items:center;gap:7px;height:36px;padding:0 14px;background:rgba(91,156,246,.14);border:1px solid rgba(91,156,246,.3);color:#5b9cf6;border-radius:8px;cursor:pointer;font-family:"Inter",sans-serif;font-size:12px;font-weight:600;white-space:nowrap;flex-shrink:0}
 .pkg-edit-toggle-btn:hover{background:rgba(91,156,246,.24)}
 .pkg-edit-toggle-btn.pkg-edit-toggle-active{background:var(--gs);border-color:var(--gs);color:#fff}
-.pkg-detail-feat-input{font-size:13px;color:#fff;font-weight:500;background:transparent;border:1px solid transparent;border-radius:5px;padding:3px 6px;margin:-3px -6px;font-family:"Inter",sans-serif;width:100%}
+.pkg-detail-feat-input{font-size:13px;color:#fff;font-weight:500;background:transparent;border:1px solid transparent;border-radius:5px;padding:3px 6px;margin:0 -6px;font-family:"Inter",sans-serif;width:100%}
 .pkg-edit-mode .pkg-detail-feat-input{background:rgba(255,255,255,.07);border-color:rgba(91,156,246,.4);cursor:text}
 .pkg-edit-mode .pkg-detail-feat-input:focus{outline:none;border-color:var(--gs);background:rgba(78,187,129,.08)}
 .comp-lib-item{display:flex;align-items:center;gap:9px;padding:7px 12px;cursor:pointer;transition:background .1s}
@@ -328,7 +328,7 @@ html,body{height:100%;font-family:"Inter",sans-serif;color:var(--tw)}
 .sec-edit-btn:hover{background:rgba(91,156,246,.22)}
 .sec-edit-btn.active{background:var(--gs);border-color:var(--gs);color:#fff}
 /* Editable select in detail sections */
-.pkg-detail-feat-select{font-size:13px;color:#fff;font-weight:500;background:rgba(255,255,255,.07);border:1px solid rgba(91,156,246,.4);border-radius:5px;padding:3px 6px;margin:-3px -6px;font-family:"Inter",sans-serif;width:100%;display:none}
+.pkg-detail-feat-select{font-size:13px;color:#fff;font-weight:500;background:rgba(255,255,255,.07);border:1px solid rgba(91,156,246,.4);border-radius:5px;padding:3px 6px;margin:0 -6px;font-family:"Inter",sans-serif;width:100%;display:none}
 .pkg-detail-feat-select option{background:#1a2f4a}
 .pkg-sec-edit-mode .pkg-detail-feat-select{display:block}
 .pkg-sec-edit-mode .pkg-detail-feat-input{display:none}
@@ -959,7 +959,7 @@ select.pd-input option{background:#16294a;color:#fff}
 .pkg-sec-edit-mode .gs-has-seg .gs-seg{display:flex}
 
 /* % slider + number stepper */
-.gs-pct{display:none;align-items:center;gap:12px;margin-top:2px}
+.gs-pct{display:none;align-items:center;gap:12px;margin-top:0}
 .gs-pct-slider{-webkit-appearance:none;appearance:none;flex:1;min-width:90px;height:6px;border-radius:999px;background:linear-gradient(90deg,var(--gs) var(--gs-pct,0%),rgba(255,255,255,.16) var(--gs-pct,0%));cursor:pointer}
 .gs-pct-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;background:#fff;border:2px solid var(--gs);box-shadow:0 1px 4px rgba(0,0,0,.4);cursor:pointer}
 .gs-pct-slider::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#fff;border:2px solid var(--gs);cursor:pointer}
