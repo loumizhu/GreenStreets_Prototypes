@@ -524,6 +524,12 @@ table[tabindex]:focus-visible{outline:none}
 .pcmp-txt{font-size:11.5px;font-weight:600;color:var(--gs);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
 .pcmp-x{display:flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:4px;color:rgba(255,255,255,.5);flex-shrink:0;cursor:pointer;transition:all .12s}
 .pcmp-x:hover{background:rgba(224,82,82,.28);color:#fff}
+/* Per-component retailer note — a small amber envelope shown only when a note
+   exists; hovering/focusing it pops the #gs-comp-note bubble. */
+.pcmp-note-ic{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:4px;color:#f5a623;background:rgba(245,166,35,.14);border:1px solid rgba(245,166,35,.32);flex-shrink:0;cursor:help;transition:all .12s;vertical-align:middle}
+.pd-card-name .pcmp-note-ic{margin-left:6px}
+.pcmp-note-ic:hover{background:rgba(245,166,35,.3);color:#ffd479}
+.pcmp-has-note{border-color:rgba(245,166,35,.34);background:rgba(78,187,129,.12)}
 /* Per-component quantity: a "× N" badge (slightly different colour) + a −/+ stepper pair next to the × */
 .pcmp-qty{font-size:10px;font-weight:800;color:#ffd479;background:rgba(245,196,107,.16);border:1px solid rgba(245,196,107,.4);border-radius:5px;padding:1px 5px;flex-shrink:0;font-variant-numeric:tabular-nums;line-height:1.4;letter-spacing:.3px}
 .pcmp-steppers{display:flex;align-items:center;gap:2px;flex-shrink:0}
@@ -1219,6 +1225,14 @@ button.gs-crumb:hover{background:rgba(78,187,129,.15);border-color:rgba(78,187,1
 #gs-cell-tip .gct-empty{font-size:11px;color:rgba(255,255,255,.5)}
 #gs-cell-tip .gct-note-txt{font-size:11.5px;line-height:1.5;color:#f3e6cf}
 #gs-cell-tip .gct-note .gct-note-txt{background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.22);border-radius:8px;padding:8px 10px}
+/* Per-component note bubble (the little envelope-icon hover) */
+#gs-comp-note{position:fixed;z-index:10000;max-width:260px;display:none;
+  background:#16233b;border:1px solid rgba(245,166,35,.34);border-radius:10px;
+  padding:9px 11px;box-shadow:0 14px 34px rgba(0,0,0,.55);font-family:'Inter',sans-serif;pointer-events:none}
+#gs-comp-note.on{display:block;animation:gsRowIn .13s ease both}
+#gs-comp-note .gcn-h{display:flex;align-items:center;gap:5px;font-size:9px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;color:#f5a623;margin-bottom:5px}
+#gs-comp-note .gcn-b{font-size:11.5px;line-height:1.5;color:#f3e6cf}
 
 /* ══ Product table headers — vertically centered + breathing room ═════════ */
 .prod-tbl thead th{vertical-align:middle;line-height:1.25;padding-top:11px;padding-bottom:11px}
@@ -1233,3 +1247,25 @@ button.gs-crumb:hover{background:rgba(78,187,129,.15);border-color:rgba(78,187,1
 .pcmp-accept{display:flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:4px;color:#ffc46b;flex-shrink:0;cursor:pointer;transition:all .12s}
 .pcmp-accept:hover{background:var(--gs);color:#fff}
 .pd-sugg-card{cursor:pointer}
+/* ---- Saved-component hover card (green pills), styled like packaging-detail ---- */
+.pcmp-pill:not(.pcmp-pill-sugg){cursor:pointer}
+.pcmp-tip{position:fixed;z-index:10050;display:none;width:300px;max-width:calc(100vw - 20px);max-height:70vh;overflow:auto;padding:13px 14px;
+  background:rgba(20,34,54,.97);border:1px solid rgba(255,255,255,.14);border-radius:12px;
+  box-shadow:0 18px 46px rgba(0,0,0,.5),0 0 0 1px rgba(78,187,129,.12);backdrop-filter:blur(14px);
+  opacity:0;transform:translateY(4px);transition:opacity .13s ease,transform .13s ease;pointer-events:none}
+.pcmp-tip.pcmp-tip-in{opacity:1;transform:translateY(0)}
+.pcmp-tip[data-side="below"]{transform:translateY(-4px)}
+.pcmp-tip[data-side="below"].pcmp-tip-in{transform:translateY(0)}
+.pcmp-tip-head{display:flex;align-items:center;gap:10px;padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid rgba(255,255,255,.1)}
+.pcmp-tip-img{width:38px;height:38px;border-radius:8px;object-fit:cover;flex-shrink:0;border:1px solid rgba(255,255,255,.12)}
+.pcmp-tip-name{font-size:14px;font-weight:800;color:#fff;line-height:1.2}
+.pcmp-tip-level{display:inline-block;margin-top:5px;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px}
+.pcmp-tip-sec{margin-top:11px}
+.pcmp-tip-sec:first-of-type{margin-top:0}
+.pcmp-tip-sec-hdr{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;color:#fff;margin-bottom:6px}
+.pcmp-tip-num{width:18px;height:18px;border-radius:50%;background:rgba(78,187,129,.18);border:1px solid var(--gs);color:var(--gs);font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pcmp-tip-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;padding-left:25px}
+.pcmp-tip-feat{display:flex;flex-direction:column;gap:2px;min-width:0}
+.pcmp-tip-lbl{font-size:9px;color:var(--tw3);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.pcmp-tip-val{font-size:12px;color:#fff;font-weight:500;word-break:break-word}
+.pcmp-tip-empty{font-size:12px;color:var(--tw3);font-style:italic}

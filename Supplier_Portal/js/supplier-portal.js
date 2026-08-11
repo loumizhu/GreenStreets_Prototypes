@@ -148,6 +148,58 @@ function gsFadeInRows(container, sel){
   window.addEventListener('scroll', function(){ if(tip) tip.classList.remove('on'); }, true);
 })();
 
+/* ── Per-component note tooltip ─────────────────────────────────────────────
+   The little envelope icon next to a component name (.pcmp-note-ic, added by
+   prodCompNoteIc) carries the retailer's note in data-note. Hovering or focusing
+   it pops a small body-level bubble with the note, positioned above the icon and
+   flipped below when there's no room. Works for both the products-listing pills
+   and the product-detail card heads. */
+(function(){
+  var tip = null, curIc = null;
+  function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function ensure(){
+    if(tip) return tip;
+    tip = document.createElement('div');
+    tip.id = 'gs-comp-note';
+    tip.setAttribute('role','tooltip');
+    document.body.appendChild(tip);
+    return tip;
+  }
+  function show(ic){
+    var note = ic.getAttribute('data-note'); if(!note) return;
+    curIc = ic;
+    var t = ensure();
+    t.innerHTML = '<div class="gcn-h"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Note from retailer</div>'
+      + '<div class="gcn-b">'+esc(note)+'</div>';
+    t.classList.add('on');
+    var r = ic.getBoundingClientRect();
+    var tw = t.offsetWidth, th = t.offsetHeight;
+    var left = Math.max(12, Math.min(r.left + r.width/2 - tw/2, window.innerWidth - tw - 12));
+    var top = r.top - th - 8;
+    if(top < 12) top = r.bottom + 8; /* flip below when no room above */
+    t.style.left = left + 'px';
+    t.style.top = top + 'px';
+  }
+  function hide(ic){ if(tip && (!ic || ic===curIc)){ tip.classList.remove('on'); curIc = null; } }
+  document.addEventListener('mouseover', function(e){
+    var ic = e.target.closest && e.target.closest('.pcmp-note-ic');
+    if(ic) show(ic);
+  });
+  document.addEventListener('mouseout', function(e){
+    var ic = e.target.closest && e.target.closest('.pcmp-note-ic');
+    if(ic) hide(ic);
+  });
+  document.addEventListener('focusin', function(e){
+    var ic = e.target.closest && e.target.closest('.pcmp-note-ic');
+    if(ic) show(ic);
+  });
+  document.addEventListener('focusout', function(e){
+    var ic = e.target.closest && e.target.closest('.pcmp-note-ic');
+    if(ic) hide(ic);
+  });
+  window.addEventListener('scroll', function(){ if(tip) tip.classList.remove('on'); }, true);
+})();
+
 function togglePkgEditMode(key) {
   var body = document.getElementById('pkgdetail-body-' + key);
   if(!body) return;
@@ -196,6 +248,21 @@ var PRODUCTS = [
   PRODUCTS.forEach(function(p){
     var s = seeds[p.id]; if(!s) return;
     p.compQty = p.comps.map(function(name){ return s[name] || 1; });
+  });
+})();
+/* Seed a few example PER-COMPONENT retailer notes. compNotes is a parallel array
+   to comps: a short note the retailer left about that specific component. Only
+   components with a note get the little note icon + hover tooltip. */
+(function seedCompNotes(){
+  var seeds = {
+    0:{"Swing Tag":"Must be FSC-certified — include the certificate reference on the Declaration of Conformity.","Tissue Paper":"Switch to acid-free tissue with ≥50% recycled content."},
+    4:{"Shipping Carton":"Please confirm the carton dimensions match the new pallet configuration."},
+    5:{"Poly Bag":"Move to a recycled-content mailer where possible for this line."},
+    6:{"Swing Tag":"Reuse the AW26 branded tag artwork — do not use the plain stock tag."}
+  };
+  PRODUCTS.forEach(function(p){
+    var s = seeds[p.id]; if(!s) return;
+    p.compNotes = p.comps.map(function(name){ return s[name] || ''; });
   });
 })();
 
@@ -365,10 +432,12 @@ function prodCompCell(p){
   var X = '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
   var n = p.comps.length;
   prodEnsureQty(p);
+  prodEnsureNotes(p);
   var pills = p.comps.map(function(name, idx){
     var q = p.compQty[idx]||1;
     var qBadge = q>1 ? '<span class="pcmp-qty" title="'+q+' of this component">× '+q+'</span>' : '';
-    return '<span class="pcmp-pill"><span class="pcmp-num">'+(idx+1)+'</span><span class="pcmp-txt" title="'+name+(q>1?' × '+q:'')+'">'+name+'</span>'+qBadge
+    var noteIc = prodCompNoteIc(p.compNotes[idx]);
+    return '<span class="pcmp-pill'+(p.compNotes[idx]?' pcmp-has-note':'')+'"><span class="pcmp-num">'+(idx+1)+'</span><span class="pcmp-txt" data-cn="'+name+(q>1?' × '+q:'')+'">'+name+'</span>'+noteIc+qBadge
       + '<span class="pcmp-steppers">'
       +   '<button class="pcmp-step pcmp-step-minus" title="Fewer of this component"'+(q<=1?' disabled':'')+' onclick="event.stopPropagation();prodDecComp('+p.id+','+idx+')"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>'
       +   '<button class="pcmp-step pcmp-step-plus" title="More of this component" onclick="event.stopPropagation();prodIncComp('+p.id+','+idx+')"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>'
@@ -386,7 +455,6 @@ function prodCompCell(p){
     return '<span class="pcmp-pill pcmp-pill-sugg" title="Suggested by retailer — click to choose a component or create one" data-pi="'+p.id+'" data-si="'+si+'" onclick="event.stopPropagation();suggListClick(this,'+p.id+','+si+')">'
       + '<svg class="pcmp-sugg-ic" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 9v4m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>'
       + '<span class="pcmp-txt">'+name+'</span>'
-      + '<span class="pcmp-accept" title="Accept this component" onclick="event.stopPropagation();pdAcceptSugg('+p.id+','+si+')"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>'
       + '<span class="pcmp-x pcmp-x-sugg" title="Remove this suggestion" onclick="event.stopPropagation();pdDismissSugg('+p.id+','+si+')">'+X+'</span></span>';
   }).join('') : '';
   var list = (n||suggPills) ? '<div class="pcmp-list">'+pills+suggPills+'</div>' : '';
@@ -395,6 +463,87 @@ function prodCompCell(p){
     + '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Add component</button></span>';
   return '<div class="pcmp-cell">'+count+list+addWrap+'</div>';
 }
+/* ---- Saved-component hover card (green pills) ------------------------------
+   A green pill is a component already in the library. On hover/focus we show a
+   compact card laid out like the packaging-detail page — numbered sections with
+   label/value rows — built from COMPONENT_LIBRARY_JS. */
+function pcmpEsc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function pcmpTipRow(lbl,val){
+  return '<div class="pcmp-tip-feat"><div class="pcmp-tip-lbl">'+pcmpEsc(lbl)+'</div><div class="pcmp-tip-val">'+pcmpEsc(val)+'</div></div>';
+}
+function pcmpTipSection(num,title,rows){
+  if(!rows) return '';
+  return '<div class="pcmp-tip-sec"><div class="pcmp-tip-sec-hdr"><span class="pcmp-tip-num">'+num+'</span>'+pcmpEsc(title)+'</div><div class="pcmp-tip-grid">'+rows+'</div></div>';
+}
+function pcmpTooltipHTML(name){
+  var c = (typeof COMPONENT_LIBRARY_JS!=='undefined')
+    ? COMPONENT_LIBRARY_JS.find(function(x){return x.name.toLowerCase()===String(name).toLowerCase();}) : null;
+  var lvlColors = { primary:'#3aa8d8', secondary:'#6bbf59', tertiary:'#d65fc4' };
+  if(!c){
+    return '<div class="pcmp-tip-head"><div class="pcmp-tip-name">'+pcmpEsc(name)+'</div></div>'
+      + '<div class="pcmp-tip-empty">No saved details yet for this component.</div>';
+  }
+  var lvl = c.level ? (c.level.charAt(0).toUpperCase()+c.level.slice(1)) : 'Primary';
+  var lc = lvlColors[c.level] || '#3aa8d8';
+  var pcrM = String(c.recycled||'').match(/(\d+)/); var pcr = pcrM ? pcrM[1] : '0';
+  var rec = (pcr && pcr!=='0') ? 'Yes' : 'No';
+  var head = '<div class="pcmp-tip-head">'
+    + (c.img ? '<img class="pcmp-tip-img" src="'+pcmpEsc(c.img)+'" alt="">' : '')
+    + '<div><div class="pcmp-tip-name">'+pcmpEsc(c.name)+'</div>'
+    + '<span class="pcmp-tip-level" style="background:'+lc+'22;color:'+lc+';border:1px solid '+lc+'55">'+pcmpEsc(lvl)+' packaging</span></div></div>';
+  var body =
+      pcmpTipSection(1,'Packaging Level & Format', pcmpTipRow('Packaging Level',lvl)+pcmpTipRow('Packaging Type',c.pkg_type||c.name))
+    + pcmpTipSection(3,'Material Information', pcmpTipRow('Base Material',c.material||'—'))
+    + pcmpTipSection(4,'Recycled Content', pcmpTipRow('Recycled Content',rec)+(rec==='Yes'?pcmpTipRow('Post-Consumer Recycled (%)',pcr):''))
+    + pcmpTipSection(5,'Colour & Decoration', pcmpTipRow('Material Colour',c.colour||'—'))
+    + pcmpTipSection(6,'Weight & Grammage', pcmpTipRow('Weight',c.weight||'—'))
+    + pcmpTipSection(8,'Additional Information', pcmpTipRow('Certification',c.cert||'None')+(c.doc_ref?pcmpTipRow('Supporting Document',c.doc_ref):''));
+  return head + body;
+}
+function pcmpTipEl(){
+  var t = document.getElementById('gs-pcmp-tip');
+  if(!t){ t = document.createElement('div'); t.id='gs-pcmp-tip'; t.className='pcmp-tip'; document.body.appendChild(t); }
+  return t;
+}
+function pcmpShowTip(pill){
+  var txt = pill.querySelector('.pcmp-txt'); if(!txt) return;
+  var name = txt.getAttribute('data-cn') || txt.textContent;
+  name = String(name).split(' × ')[0].trim();
+  var t = pcmpTipEl();
+  t.innerHTML = pcmpTooltipHTML(name);
+  t.style.display='block'; t.style.visibility='hidden'; t.classList.remove('pcmp-tip-in');
+  var r = pill.getBoundingClientRect();
+  var tw = t.offsetWidth, th = t.offsetHeight;
+  var left = Math.max(10, Math.min(r.left, window.innerWidth - tw - 10));
+  var spaceAbove = r.top, top;
+  if(spaceAbove >= th + 12){ top = r.top - th - 8; t.setAttribute('data-side','above'); }
+  else { top = r.bottom + 8; t.setAttribute('data-side','below'); }
+  t.style.left = left+'px'; t.style.top = Math.max(10,top)+'px';
+  t.style.visibility='visible'; t.classList.add('pcmp-tip-in');
+}
+function pcmpHideTip(){ var t=document.getElementById('gs-pcmp-tip'); if(t){ t.style.display='none'; t.classList.remove('pcmp-tip-in'); } }
+document.addEventListener('mouseover', function(e){
+  var pill = e.target.closest && e.target.closest('.pcmp-pill');
+  if(pill && !pill.classList.contains('pcmp-pill-sugg')){ pcmpShowTip(pill); }
+});
+document.addEventListener('mouseout', function(e){
+  var pill = e.target.closest && e.target.closest('.pcmp-pill');
+  if(pill && !pill.classList.contains('pcmp-pill-sugg')){
+    var to = e.relatedTarget;
+    if(!to || !pill.contains(to)) pcmpHideTip();
+  }
+});
+document.addEventListener('focusin', function(e){
+  var pill = e.target.closest && e.target.closest('.pcmp-pill');
+  if(pill && !pill.classList.contains('pcmp-pill-sugg')) pcmpShowTip(pill);
+});
+document.addEventListener('focusout', function(e){
+  var pill = e.target.closest && e.target.closest('.pcmp-pill');
+  if(pill && !pill.classList.contains('pcmp-pill-sugg')){
+    setTimeout(function(){ var a=document.activeElement; if(!pill.contains(a)) pcmpHideTip(); },0);
+  }
+});
+window.addEventListener('scroll', pcmpHideTip, true);
 /* Dropdown is built on demand and appended to <body> so it isn't trapped by the
    transformed .landing-tab-panel (the screen-entrance animation leaves a
    transform that would otherwise become the containing block for position:fixed). */
@@ -478,6 +627,23 @@ function prodEnsureQty(p){
     p.compQty = p.comps.map(function(_, i){ return old[i] || 1; });
   }
   return p.compQty;
+}
+/* Per-component retailer note: a parallel array to p.comps, defaulting each to
+   '' (no note). Kept length-synced with comps so a mismatched/absent array
+   self-heals when components are added or removed. */
+function prodEnsureNotes(p){
+  if(!p.compNotes || p.compNotes.length!==p.comps.length){
+    var old = p.compNotes || [];
+    p.compNotes = p.comps.map(function(_, i){ return old[i] || ''; });
+  }
+  return p.compNotes;
+}
+/* Small note-icon markup shown next to a component's name when the retailer left
+   a note about it. Hovering it reveals the note (see the #gs-comp-note tooltip). */
+function prodCompNoteIc(note){
+  if(!note) return '';
+  return '<span class="pcmp-note-ic" tabindex="0" role="button" aria-label="Note from retailer" data-note="'+pdEsc(note)+'" onclick="event.stopPropagation()">'
+    + '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>';
 }
 function prodIncComp(pi, idx){
   var p = PRODUCTS.filter(function(x){return x.id===pi;})[0];
@@ -620,8 +786,10 @@ function pdCardHeadInner(pi,pk){
     + chip('Colour', fval(pkg,'Material Colour'));
   var p = PRODUCTS.filter(function(x){return x.id===pi;})[0];
   prodEnsureQty(p);
+  prodEnsureNotes(p);
   var q = p.compQty[pk]||1;
   var qBadge = q>1 ? '<span class="pd-qty-badge" title="'+q+' of this component">× '+q+'</span>' : '';
+  var noteIc = prodCompNoteIc(p.compNotes[pk]);
   /* − / + steppers to make this packaging component double, triple, … (× N badge) */
   var qCtrl = '<span class="pd-qty" title="How many of this component this product uses" onclick="event.stopPropagation()">'
     + '<button class="pd-qty-step" title="Fewer of this component"'+(q<=1?' disabled':'')+' onclick="event.stopPropagation();prodDecComp('+pi+','+pk+')"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>'
@@ -629,7 +797,7 @@ function pdCardHeadInner(pi,pk){
     + '<button class="pd-qty-step" title="More of this component" onclick="event.stopPropagation();prodIncComp('+pi+','+pk+')"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>'
     + '</span>';
   return '<span class="pkg-level-pill-sm" style="background:'+col+'22;color:'+col+';border:1px solid '+col+'55">'+pdEsc(lvl)+'</span>'
-    + '<div class="pd-card-name">'+pdEsc(pkg.name)+'</div>'
+    + '<div class="pd-card-name">'+pdEsc(pkg.name)+noteIc+'</div>'
     + '<div class="pd-sum">'+sum+'</div>'
     + qCtrl
     + (pkg._saved

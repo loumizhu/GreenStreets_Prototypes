@@ -241,6 +241,9 @@ body.lt .breadcrumb .bc-cur{color:var(--lt-ink)}
 .lt-toggle-th{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
 .lt-toggle input:checked~.lt-toggle-tk{background:var(--lt-accent)}
 .lt-toggle input:checked~.lt-toggle-th{transform:translateX(16px)}
+/* Approve button — lighter green, tending to #4ebb81 (DoC button, also .btn-p, has no [data-approved] so it's unaffected) */
+.act-cell [data-approved]{background:#4ebb81!important;border-color:#4ebb81!important;color:#fff!important;box-shadow:none!important}
+.act-cell [data-approved]:hover{background:#43ad74!important;border-color:#43ad74!important}
 </style>
 </head>
 <body class="lt">
@@ -280,15 +283,17 @@ body.lt .breadcrumb .bc-cur{color:var(--lt-ink)}
             </select>
           </div>
           <div class="tbl-wrap"><table class="tbl" id="pt-table-s11">
-            <colgroup><col width="15%"><col width="23%"><col width="10%"><col width="16%"><col width="16%"><col width="10%"><col width="6%"><col width="4%"></colgroup>
+            <colgroup><col width="3%"><col width="13%"><col width="13%"><col width="8%"><col width="13%"><col width="13%"><col width="11%"><col width="9%"><col width="13%"><col width="4%"></colgroup>
             <thead><tr>
+              <th style="text-align:center;padding-left:0;padding-right:0"><input type="checkbox" id="saprod-selectall" aria-label="Select all products" title="Select all" onclick="saProdToggleAll(this)"></th>
               <th data-col="sku" onclick="ptSort('s11','sku')" style="cursor:pointer;user-select:none">SKU <span class="sort-arrow" style="opacity:.4;font-size:9px">↕</span></th>
               <th>Description</th>
               <th data-col="cat" onclick="ptSort('s11','cat')" style="cursor:pointer;user-select:none">Category <span class="sort-arrow" style="opacity:.4;font-size:9px">↕</span></th>
+              <th data-col="retailer" onclick="ptSort('s11','retailer')" style="cursor:pointer;user-select:none">Retailer <span class="sort-arrow" style="opacity:.4;font-size:9px">↕</span></th>
               <th>Supplier</th>
               <th>Packaging</th>
               <th data-col="status" onclick="ptSort('s11','status')" style="cursor:pointer;user-select:none">Status <span class="sort-arrow" style="opacity:.4;font-size:9px">↕</span></th>
-              <th>Activity</th>
+              <th>Actions</th>
               <th></th>
             </tr></thead>
             <tbody id="pt-tbody-s11"></tbody></table></div>
