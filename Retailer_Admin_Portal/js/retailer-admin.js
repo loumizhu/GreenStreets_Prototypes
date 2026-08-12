@@ -47,6 +47,45 @@ function openProductRA(sku){ try{ sessionStorage.setItem('ra_pi', sku); }catch(e
 /* Open the packaging detail page for a given packaging id (round-trips via sessionStorage). */
 function openPackagingRA(id){ try{ sessionStorage.setItem('ra_pkg', id); }catch(e){} go('ra_packaging'); }
 
+/* ===== deep-link to a listing with a filter pre-applied =====
+   goFilter('ra9', {search:'Overdue'})            -> navigate + prefill the search box
+   goFilter('ra6', {selectValue:'Incomplete'})    -> navigate + set the matching <select> filter
+   The intent is stashed in sessionStorage and consumed once on the target page. */
+function goFilter(pageId, intent){
+  try{ sessionStorage.setItem('ra_filter', JSON.stringify(intent||{})); }catch(e){}
+  go(pageId);
+}
+function applyRaFilter(f){
+  if(!f) return;
+  if(f.search){
+    var s = document.querySelector('input.fi-search');
+    if(s){ s.value = f.search; s.dispatchEvent(new Event('input', {bubbles:true})); }
+  }
+  if(f.selectValue){
+    var target = null;
+    document.querySelectorAll('select.fi').forEach(function(sel){
+      if(target) return;
+      for(var i=0;i<sel.options.length;i++){
+        var o = sel.options[i];
+        if(o.value === f.selectValue || (o.text||'').trim() === f.selectValue){ target = sel; sel.selectedIndex = i; break; }
+      }
+    });
+    if(target){ target.dispatchEvent(new Event('change', {bubbles:true})); }
+  }
+}
+(function(){
+  function run(){
+    var raw; try{ raw = sessionStorage.getItem('ra_filter'); }catch(e){}
+    if(!raw) return;
+    try{ sessionStorage.removeItem('ra_filter'); }catch(e){}
+    var f; try{ f = JSON.parse(raw); }catch(e){ return; }
+    /* wait for the custom-select / data-grid enhancers to wire up first */
+    setTimeout(function(){ try{ applyRaFilter(f); }catch(e){} }, 140);
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
+  else run();
+})();
+
 /* ===== supplier contact rows (Add-Supplier) ===== */
 (function(){
   window.addSupContact = function(){
