@@ -7,6 +7,38 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/greenstreets-theme.css?v=40">
 <link rel="stylesheet" href="css/retailer-user.css?v=11">
+<style>
+/* Dashboard weekly-chart: grouped pixel bars over a dashed grid (ported from Retailer Admin) */
+.wk-chart{display:flex;gap:7px}
+.wk-yaxis{display:flex;flex-direction:column;justify-content:space-between;height:140px;font-size:9px;color:var(--tw3);text-align:right;min-width:14px;padding-bottom:1px}
+.wk-plotcol{flex:1;display:flex;flex-direction:column;gap:6px;min-width:0}
+.wk-plot{position:relative;height:140px}
+.wk-hline{position:absolute;left:0;right:0;height:0;border-top:1px dashed rgba(255,255,255,.12)}
+.wk-vline{position:absolute;top:0;bottom:0;width:0;border-left:1px dashed rgba(255,255,255,.06)}
+.wk-hline2{position:absolute;left:0;right:0;height:0;border-top:1px dotted rgba(255,255,255,.055)}
+.wk-vline2{position:absolute;top:0;bottom:0;width:0;border-left:1px dotted rgba(255,255,255,.05)}
+.wk-bars-row{position:absolute;inset:0;display:flex;align-items:flex-end;gap:2px;z-index:1}
+.wk-col{flex:1;display:flex;align-items:flex-end;justify-content:center;gap:2px;height:100%}
+.wk-bar{width:28%;min-height:3px;border-radius:2px 2px 0 0;transition:opacity .15s,filter .12s;cursor:pointer}
+.wk-bar:hover{filter:brightness(1.18)}
+.wk-approved{background:#8ad2ac}
+.wk-submitted{background:#2a5298}
+.wk-halftone{background:#16223f}
+.wk-bar.wk-approved{box-shadow:0 0 7px rgba(138,210,172,.45)}
+.wk-bar.wk-submitted{box-shadow:0 0 8px rgba(70,120,210,.49)}
+.wk-bar.wk-halftone{box-shadow:0 0 8px rgba(70,120,210,.38)}
+.wk-days{display:flex;gap:2px}
+.wk-day{flex:1;text-align:center;font-size:12px;font-weight:600;color:var(--tw2)}
+.wk-day span{font-size:10px;font-weight:400;color:var(--tw3)}
+.wk-legend{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;margin-top:12px}
+.wk-key{display:inline-flex;align-items:center;gap:6px;font-size:10px;color:var(--tw2);background:none;border:1px solid transparent;cursor:pointer;padding:4px 9px;border-radius:6px;transition:all .12s}
+.wk-key:hover{background:rgba(255,255,255,.05)}
+.wk-key.off{opacity:.42}
+.wk-key .wk-sw{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.wk-key.off .wk-sw{filter:grayscale(.85)}
+.exp-remind{flex-shrink:0;height:26px;padding:0 9px;font-size:10px;display:inline-flex;align-items:center;gap:4px;border-radius:6px;border:1px solid rgba(69,125,195,.4);background:rgba(69,125,195,.12);color:#9dc4ff;cursor:pointer;transition:all .12s}
+.exp-remind:hover{background:rgba(69,125,195,.22);border-color:rgba(69,125,195,.6)}
+</style>
 </head>
 <body>
 <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true"><defs><symbol id="gsi-0" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></symbol><symbol id="gsi-1" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol><symbol id="gsi-2" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></symbol><symbol id="gsi-3" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></symbol><symbol id="gsi-4" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></symbol><symbol id="gsi-5" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></symbol><symbol id="gsi-6" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol><symbol id="gsi-7" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></symbol><symbol id="gsi-8" viewBox="0 0 24 24"><path d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'/><polyline points='17 8 12 3 7 8'/><line x1='12' y1='3' x2='12' y2='15'/></symbol><symbol id="gsi-9" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></symbol><symbol id="gsi-10" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></symbol><symbol id="gsi-11" viewBox="0 0 24 24"><path d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/><polyline points='14 2 14 8 20 8'/></symbol><symbol id="gsi-12" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></symbol><symbol id="gsi-13" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol><symbol id="gsi-14" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol></defs></svg>
@@ -74,10 +106,13 @@
 
       <!-- Metric tiles -->
       <div id="ru-tour-dash" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px">
-        <div class="stat" style="cursor:pointer" onclick="go('ru6')">
-          <div class="stat-lbl">Declaration of conformity</div>
-          <div class="stat-val" style="color:#8fe3b6">15<span style="font-size:14px;color:var(--tw3);font-weight:400">/20</span></div>
-          <div style="font-size:10px;color:var(--tw3);margin-top:3px">Click to view all DoC products →</div>
+        <div class="stat" style="cursor:pointer;display:flex;align-items:center;gap:10px;justify-content:space-between" onclick="go('ru6')">
+          <div style="min-width:0">
+            <div class="stat-lbl">Declaration of conformity</div>
+            <div class="stat-val" style="color:#8fe3b6">15<span style="font-size:14px;color:var(--tw3);font-weight:400">/20</span></div>
+            <div style="font-size:10px;color:var(--tw3);margin-top:3px">Click to view all DoC products →</div>
+          </div>
+          <div tabindex="0" role="img" aria-label="DoC status breakdown" onclick="event.stopPropagation()" data-gs-tip="Declaration of Conformity across 20 products — 15 approved &amp; DoC generated (green), 3 awaiting supplier data (blue), 2 missing mandatory fields (red)." style="width:38px;height:38px;border-radius:50%;flex-shrink:0;background:conic-gradient(#8ad2ac 0 75%,#2a5298 75% 90%,#ff9c96 90% 100%);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)"></div>
         </div>
         <div class="stat" style="cursor:pointer">
           <div class="stat-lbl">Substance compliance (PFAS)</div>
@@ -97,6 +132,108 @@
         <span>Article 21 — AI-flagged: 2 SKUs may have importer/manufacturer role implications. <a onclick="go('ru6')" style="color:#f5a623;cursor:pointer;text-decoration:underline">Review now →</a></span>
       </div>
 
+      <!-- Insight row: weekly data-collection chart + expiring documents (ported from Retailer Admin) -->
+      <div style="display:grid;grid-template-columns:1.35fr 1fr;gap:12px;margin-bottom:12px">
+
+        <!-- Weekly data-collection chart (segmented bars, clickable -> filter Products) -->
+        <div class="grp" style="margin-bottom:0">
+          <div class="grp-hdr">Packaging data collection · last 7 days
+            <span style="margin-left:auto;font-weight:400;text-transform:none;letter-spacing:0;color:var(--tw3);font-size:10px">Submissions per day, by outcome</span>
+          </div>
+          <div class="grp-body">
+            <div class="wk-chart">
+              <div class="wk-yaxis"><span>15</span><span>10</span><span>5</span><span>0</span></div>
+              <div class="wk-plotcol">
+                <div class="wk-plot">
+                  <div class="wk-hline" style="bottom:100%"></div>
+                  <div class="wk-hline" style="bottom:66.7%"></div>
+                  <div class="wk-hline" style="bottom:33.3%"></div>
+                  <div class="wk-hline" style="bottom:0"></div>
+                  <div class="wk-vline" style="left:14.28%"></div>
+                  <div class="wk-vline" style="left:28.57%"></div>
+                  <div class="wk-vline" style="left:42.86%"></div>
+                  <div class="wk-vline" style="left:57.14%"></div>
+                  <div class="wk-vline" style="left:71.43%"></div>
+                  <div class="wk-vline" style="left:85.71%"></div>
+                  <div class="wk-hline2" style="bottom:16.65%"></div>
+                  <div class="wk-hline2" style="bottom:50%"></div>
+                  <div class="wk-hline2" style="bottom:83.35%"></div>
+                  <div class="wk-vline2" style="left:7.14%"></div>
+                  <div class="wk-vline2" style="left:21.43%"></div>
+                  <div class="wk-vline2" style="left:35.71%"></div>
+                  <div class="wk-vline2" style="left:50%"></div>
+                  <div class="wk-vline2" style="left:64.29%"></div>
+                  <div class="wk-vline2" style="left:78.57%"></div>
+                  <div class="wk-vline2" style="left:92.86%"></div>
+                  <div class="wk-bars-row">
+                    <div class="wk-col"><div class="wk-bar wk-approved" data-series="approved" style="height:33%" title="Mon · approved 5"></div><div class="wk-bar wk-submitted" data-series="submitted" style="height:47%" title="Mon · submitted 7"></div><div class="wk-bar wk-halftone" data-series="inprog" style="height:40%" title="Mon · in progress 6"></div></div>
+                    <div class="wk-col"><div class="wk-bar wk-approved" data-series="approved" style="height:47%" title="Tue · approved 7"></div><div class="wk-bar wk-submitted" data-series="submitted" style="height:67%" title="Tue · submitted 10"></div><div class="wk-bar wk-halftone" data-series="inprog" style="height:47%" title="Tue · in progress 7"></div></div>
+                    <div class="wk-col"><div class="wk-bar wk-approved" data-series="approved" style="height:27%" title="Wed · approved 4"></div><div class="wk-bar wk-submitted" data-series="submitted" style="height:33%" title="Wed · submitted 5"></div><div class="wk-bar wk-halftone" data-series="inprog" style="height:40%" title="Wed · in progress 6"></div></div>
+                    <div class="wk-col"><div class="wk-bar wk-approved" data-series="approved" style="height:80%" title="Thu · approved 12"></div><div class="wk-bar wk-submitted" data-series="submitted" style="height:80%" title="Thu · submitted 12"></div><div class="wk-bar wk-halftone" data-series="inprog" style="height:47%" title="Thu · in progress 7"></div></div>
+                    <div class="wk-col"><div class="wk-bar wk-approved" data-series="approved" style="height:93%" title="Fri · approved 14"></div><div class="wk-bar wk-submitted" data-series="submitted" style="height:87%" title="Fri · submitted 13"></div><div class="wk-bar wk-halftone" data-series="inprog" style="height:47%" title="Fri · in progress 7"></div></div>
+                    <div class="wk-col"><div class="wk-bar wk-approved" data-series="approved" style="height:13%" title="Sat · approved 2"></div><div class="wk-bar wk-submitted" data-series="submitted" style="height:20%" title="Sat · submitted 3"></div><div class="wk-bar wk-halftone" data-series="inprog" style="height:27%" title="Sat · in progress 4"></div></div>
+                    <div class="wk-col"><div class="wk-bar wk-approved" data-series="approved" style="height:20%" title="Sun · approved 3"></div><div class="wk-bar wk-submitted" data-series="submitted" style="height:33%" title="Sun · submitted 5"></div><div class="wk-bar wk-halftone" data-series="inprog" style="height:27%" title="Sun · in progress 4"></div></div>
+                  </div>
+                </div>
+                <div class="wk-days">
+                  <div class="wk-day">Mon <span>3</span></div>
+                  <div class="wk-day">Tue <span>4</span></div>
+                  <div class="wk-day">Wed <span>5</span></div>
+                  <div class="wk-day">Thu <span>6</span></div>
+                  <div class="wk-day">Fri <span>7</span></div>
+                  <div class="wk-day">Sat <span>8</span></div>
+                  <div class="wk-day">Sun <span>9</span></div>
+                </div>
+              </div>
+            </div>
+            <div style="margin-top:11px;padding-top:9px;border-top:1px solid var(--bw);display:flex;justify-content:space-between;font-size:11px;color:var(--tw3)">
+              <span><b style="color:var(--tw)">143</b> supplier submissions this week</span>
+              <span style="color:#8fe3b6">▲ 22% vs. previous week</span>
+            </div>
+            <div class="wk-legend">
+              <button class="wk-key" data-series="approved" onclick="wkToggle(this)"><span class="wk-sw wk-approved"></span>Retailer approved</button>
+              <button class="wk-key" data-series="submitted" onclick="wkToggle(this)"><span class="wk-sw wk-submitted"></span>Supplier submitted</button>
+              <button class="wk-key" data-series="inprog" onclick="wkToggle(this)"><span class="wk-sw wk-halftone"></span>In progress</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Documents expiring soon -->
+        <div class="grp" style="margin-bottom:0;cursor:pointer" onclick="go('ru7')" title="Open Documents">
+          <div class="grp-hdr">Documents expiring soon
+            <span style="margin-left:auto;display:inline-flex;align-items:center;gap:5px;color:#ff9c96;font-weight:600">4 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><use href="#gsi-10"/></svg></span>
+          </div>
+          <div class="grp-body" style="padding:0">
+            <div class="exp-row" style="display:flex;align-items:center;gap:9px;padding:9px 14px;border-bottom:1px solid var(--bw)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff9c96" stroke-width="2" style="flex-shrink:0"><use href="#gsi-11"/></svg>
+              <div style="flex:1;min-width:0"><div class="tbl-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">REACH_EcoPack.pdf</div><div style="font-size:10px;color:var(--tw3)">Test report · EcoPack GmbH</div></div>
+              <span class="pill pill-red" style="font-size:10px;flex-shrink:0">Expires in 6 days</span>
+              <button class="exp-remind" onclick="ruRemindDoc(event,this)" title="Send reminder to supplier"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-5"/></svg>Remind</button>
+            </div>
+            <div class="exp-row" style="display:flex;align-items:center;gap:9px;padding:9px 14px;border-bottom:1px solid var(--bw)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff9c96" stroke-width="2" style="flex-shrink:0"><use href="#gsi-11"/></svg>
+              <div style="flex:1;min-width:0"><div class="tbl-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">FSC_CoC_Luntai.pdf</div><div style="font-size:10px;color:var(--tw3)">Certificate · Luntai Packaging</div></div>
+              <span class="pill pill-red" style="font-size:10px;flex-shrink:0">Expires in 9 days</span>
+              <button class="exp-remind" onclick="ruRemindDoc(event,this)" title="Send reminder to supplier"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-5"/></svg>Remind</button>
+            </div>
+            <div class="exp-row" style="display:flex;align-items:center;gap:9px;padding:9px 14px;border-bottom:1px solid var(--bw)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff9c96" stroke-width="2" style="flex-shrink:0"><use href="#gsi-11"/></svg>
+              <div style="flex:1;min-width:0"><div class="tbl-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Lab_Migration_Verdepak.pdf</div><div style="font-size:10px;color:var(--tw3)">Test report · Verdepak S.A.</div></div>
+              <span class="pill pill-red" style="font-size:10px;flex-shrink:0">Expires in 12 days</span>
+              <button class="exp-remind" onclick="ruRemindDoc(event,this)" title="Send reminder to supplier"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-5"/></svg>Remind</button>
+            </div>
+            <div class="exp-row" style="display:flex;align-items:center;gap:9px;padding:9px 14px">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff9c96" stroke-width="2" style="flex-shrink:0"><use href="#gsi-11"/></svg>
+              <div style="flex:1;min-width:0"><div class="tbl-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">FSC_CoC_Indotex.pdf</div><div style="font-size:10px;color:var(--tw3)">Certificate · Indotex Mfg</div></div>
+              <span class="pill pill-red" style="font-size:10px;flex-shrink:0">Expires in 14 days</span>
+              <button class="exp-remind" onclick="ruRemindDoc(event,this)" title="Send reminder to supplier"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-5"/></svg>Remind</button>
+            </div>
+            <div style="padding:8px 14px;border-top:1px solid var(--bw);text-align:right"><a class="bc-link" style="font-size:11px" onclick="event.stopPropagation();go('ru7')">View all documents →</a></div>
+          </div>
+        </div>
+
+      </div>
+
       <!-- RAG table -->
       <div class="grp" id="ru-tour-dash-list" style="grid-column:1/-1"><div class="grp-hdr">SKU conformity overview</div><div class="grp-body"><table class="tbl">
 <colgroup><col width="16%"><col width="16%"><col width="10%"><col width="28%"><col width="30%"></colgroup>
@@ -109,6 +246,67 @@
   <tr><td><span class="gs-id-cell">PRK-005-TEE-WHT</span></td><td class="tbl-muted">White Essential T-Shirt</td><td><span class="rag rag-g">●</span></td><td class="tbl-muted">All checks passed</td><td><a class="view-link" onclick="go('ru6')">View product →</a></td></tr>
 </tbody></table>
 <div class="tbl-footer">Showing 5 of 380 SKUs · <span style="color:#ff9c96">5 red</span> · <span style="color:#f5a623">8 amber</span> · <span style="color:#4ebb81">367 green</span></div></div></div>
+
+      <!-- Supplier activity (read-only monitoring, ported & adapted from Retailer Admin) -->
+      <div class="grp" style="grid-column:1/-1;margin-top:12px">
+        <div class="grp-hdr">
+          <a onclick="go('ru3')" style="cursor:pointer;color:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:5px" title="Open Suppliers">Supplier activity <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="opacity:.7"><use href="#gsi-10"/></svg></a>
+          <span style="margin-left:auto;font-size:11px;color:var(--tw3);font-weight:400">380 invited · 68% responded</span>
+        </div>
+        <div class="grp-body" style="padding:0">
+          <table class="tbl">
+          <colgroup><col width="22%"><col width="13%"><col width="12%"><col width="16%"><col width="15%"><col width="13%"><col width="9%"></colgroup>
+          <thead><tr><th>Supplier</th><th>Invited</th><th>Opened</th><th>Portal activity</th><th>Status</th><th>Last active</th><th></th></tr></thead>
+          <tbody>
+            <tr onclick="go('ru4')" style="cursor:pointer">
+              <td><div class="tbl-name">Indotex Manufacturing</div><div class="tbl-sub">indotex@supplier.ie</div></td>
+              <td class="tbl-muted">14 Jun</td>
+              <td style="font-size:11px;color:#4ebb81">14 Jun · 1hr later</td>
+              <td style="font-size:11px;color:var(--tw2)">3 sessions</td>
+              <td><span class="pill pill-green">Approved</span></td>
+              <td class="tbl-muted">2 hrs ago</td>
+              <td style="padding:6px 11px"><a class="bc-link" style="font-size:11px" onclick="event.stopPropagation();go('ru4')">View →</a></td>
+            </tr>
+            <tr onclick="go('ru4')" style="cursor:pointer">
+              <td><div class="tbl-name">EcoPack GmbH</div><div class="tbl-sub">ops@ecopack.de</div></td>
+              <td class="tbl-muted">14 Jun</td>
+              <td style="font-size:11px;color:#4ebb81">15 Jun</td>
+              <td style="font-size:11px;color:var(--tw2)">2 sessions · uploading</td>
+              <td><span class="pill pill-blue">In Progress</span></td>
+              <td class="tbl-muted">3 hrs ago</td>
+              <td style="padding:6px 11px"><a class="bc-link" style="font-size:11px" onclick="event.stopPropagation();go('ru4')">View →</a></td>
+            </tr>
+            <tr onclick="go('ru4')" style="cursor:pointer;background:rgba(78,187,129,.04)">
+              <td><div class="tbl-name">Nordic Materials AB</div><div class="tbl-sub">nordic@materials.se</div></td>
+              <td class="tbl-muted">10 Jun</td>
+              <td style="font-size:11px;color:#4ebb81">10 Jun · same day</td>
+              <td style="font-size:11px;color:var(--tw2)">2 sessions · submitted</td>
+              <td><span class="pill pill-blue" style="font-size:10px">Awaiting Approval</span></td>
+              <td class="tbl-muted">1 day ago</td>
+              <td style="padding:6px 11px"><a class="bc-link" style="font-size:11px" onclick="event.stopPropagation();go('ru4')">View →</a></td>
+            </tr>
+            <tr onclick="go('ru4')" style="cursor:pointer;background:rgba(245,166,35,.03)">
+              <td><div class="tbl-name">Verdepak S.A.</div><div class="tbl-sub">contact@verdepak.ie</div></td>
+              <td class="tbl-muted">14 Jun</td>
+              <td style="font-size:11px;color:#f5a623">Not opened</td>
+              <td style="font-size:11px;color:var(--tw3)">No activity</td>
+              <td><span class="pill pill-grey">Pending</span></td>
+              <td class="tbl-muted">—</td>
+              <td style="padding:6px 11px"><button class="exp-remind" onclick="event.stopPropagation();ruRemindDoc(event,this)" title="Send reminder to supplier"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-5"/></svg>Remind</button></td>
+            </tr>
+            <tr onclick="go('ru4')" style="cursor:pointer;background:rgba(224,82,82,.03)">
+              <td><div class="tbl-name">Luntai Packaging Co.</div><div class="tbl-sub">luntai@pack.cn</div></td>
+              <td class="tbl-muted">14 Jun</td>
+              <td style="font-size:11px;color:#9dc4ff">Once — Day 7</td>
+              <td style="font-size:11px;color:var(--tw3)">Opened, did not submit</td>
+              <td><span class="pill pill-red">Overdue</span></td>
+              <td class="tbl-muted" style="color:#ff9c96">21 days ago</td>
+              <td style="padding:6px 11px"><button class="exp-remind" onclick="event.stopPropagation();ruRemindDoc(event,this)" title="Send reminder to supplier"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-5"/></svg>Remind</button></td>
+            </tr>
+          </tbody></table>
+          <div class="tbl-footer" style="padding:7px 14px">Showing 5 of 380 suppliers · <a class="bc-link" style="font-size:11px" onclick="go('ru3')">View all suppliers →</a></div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -116,5 +314,40 @@
 <script src="js/greenstreets-theme.js?v=22"></script>
 <script src="js/gs-appearance.js?v=5"></script>
 <script src="js/ru-tour.js?v=2"></script>
+<script>
+/* Weekly-chart legend toggle: click a key to hide that series (isolate the chart) */
+function wkToggle(btn){
+  var s = btn.getAttribute('data-series');
+  btn.classList.toggle('off');
+  var hide = btn.classList.contains('off');
+  document.querySelectorAll('.wk-bar[data-series="'+s+'"]').forEach(function(b){ b.style.display = hide ? 'none' : ''; });
+}
+/* Deep-link to the Products listing with a status filter pre-applied. Stashed in
+   sessionStorage and consumed once on the Products page. */
+function ruGoFilter(pageId, intent){
+  try{ sessionStorage.setItem('ru_filter', JSON.stringify(intent||{})); }catch(e){}
+  go(pageId);
+}
+/* Click a bar -> open the Products catalogue filtered to that packaging-data
+   status (the chart represents product packaging progress). */
+document.addEventListener('click', function(e){
+  var bar = e.target.closest && e.target.closest('.wk-bar');
+  if(!bar) return;
+  var map = { approved:'Complete', submitted:'Incomplete', inprog:'Pending' };
+  var status = map[bar.getAttribute('data-series')];
+  if(status) ruGoFilter('ru6', {selectValue: status});
+});
+/* Quick "remind supplier" on an expiring-document / overdue-supplier row (row is
+   clickable, so stop the bubble). In-place feedback only — no page navigation. */
+function ruRemindDoc(ev, btn){
+  if(ev){ ev.stopPropagation(); }
+  if(btn.dataset.sent) return;
+  btn.dataset.sent = '1';
+  var orig = btn.innerHTML;
+  btn.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><use href="#gsi-0"/></svg>Sent';
+  btn.style.background='rgba(78,187,129,.15)'; btn.style.borderColor='rgba(78,187,129,.35)'; btn.style.color='#8fe3b6';
+  setTimeout(function(){ btn.innerHTML=orig; btn.style.background=''; btn.style.borderColor=''; btn.style.color=''; delete btn.dataset.sent; }, 2200);
+}
+</script>
 </body>
 </html>

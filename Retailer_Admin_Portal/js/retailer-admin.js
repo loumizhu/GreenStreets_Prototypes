@@ -17,6 +17,7 @@ var GS_PAGES = {
   'ra_onboard3':     '02-Greenstreets_retailer_admin_Setup-3.html',
   'ra1':             '02-Greenstreets_retailer_admin_Dashboard.html',
   'ra4':             '02-Greenstreets_retailer_admin_Suppliers.html',
+  'ra_suphub':       '02-Greenstreets_retailer_admin_Suppliers-Hub.html',
   'ra_addsup':       '02-Greenstreets_retailer_admin_Add-Supplier.html',
   'ra4_validate':    '02-Greenstreets_retailer_admin_Validate-Import.html',
   'ra6':             '02-Greenstreets_retailer_admin_Products.html',

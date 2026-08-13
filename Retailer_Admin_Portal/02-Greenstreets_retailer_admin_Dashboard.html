@@ -371,13 +371,14 @@ function wkToggle(btn){
   var hide = btn.classList.contains('off');
   document.querySelectorAll('.wk-bar[data-series="'+s+'"]').forEach(function(b){ b.style.display = hide ? 'none' : ''; });
 }
-/* Click a bar -> open the supplier tracker filtered to that submission outcome */
+/* Click a bar -> open the Products catalogue filtered to that packaging-data
+   status (the chart represents product packaging progress, not suppliers). */
 document.addEventListener('click', function(e){
   var bar = e.target.closest && e.target.closest('.wk-bar');
   if(!bar) return;
-  var map = { approved:'Approved', submitted:'Complete', inprog:'Progress' };
-  var term = map[bar.getAttribute('data-series')];
-  if(term && typeof goFilter === 'function') goFilter('ra9', {search: term});
+  var map = { approved:'Complete', submitted:'Incomplete', inprog:'Pending' };
+  var status = map[bar.getAttribute('data-series')];
+  if(status && typeof goFilter === 'function') goFilter('ra6', {selectValue: status});
 });
 /* Quick "remind supplier" on an expiring document row (card is clickable, so stop the bubble) */
 function raRemindDoc(ev, btn){
