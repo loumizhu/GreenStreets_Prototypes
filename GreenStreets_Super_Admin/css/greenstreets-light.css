@@ -1,0 +1,343 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   GreenStreets Super Admin — LIGHT THEME LAYER  (greenstreets-light.css)
+   ═══════════════════════════════════════════════════════════════════════════
+   A soft, pastel light variant of the glass design system. Link this AFTER
+   css/greenstreets-theme.css so these rules win by source order, and put
+   class="lt" on <body>. The dark pages are untouched — a light page is just the
+   same markup with the extra body class + this stylesheet.
+
+   Palette lives in --lt-* custom properties (the "Meadow" tone lifted from the
+   pilot 01-…_Products-Light.html) so it stays tunable. Every shared design token
+   (--tw*, --line*, --gs-l, --amber, focus/ripple colours, shadows) is re-mapped
+   to light values on body.lt, so shared components (breadcrumb, headers, pills,
+   buttons, focus ring, keyboard outlines) follow along without per-selector work.
+   ═════════════════════════════════════════════════════════════════════════ */
+
+:root{
+  /* pastel palette — values match the pilot 01-…_Products-Light default theme so
+     every light page reads identically (that page is the canonical model). */
+  --lt-page-1:#f6f8fb; --lt-page-2:#eef2f8; --lt-page-3:#f3f0fa;
+  --lt-surface:#ffffff; --lt-surface-2:#fbfcfe;
+  --lt-ink:#33415c; --lt-ink-2:#5a6b86; --lt-ink-3:#5e6b85;
+  --lt-line:#e6ebf3; --lt-line-2:#dbe2ee;
+  --lt-accent:#6ea8fe;            /* soft cornflower */
+  --lt-accent-ink:#4f79b7;
+  --lt-radius:14px;
+  /* sidebar (left pane) — mint→lavender, horizontal, green stroke (Products-Light model) */
+  --lt-sb-1:#edf8f6; --lt-sb-2:#eaf1fd; --lt-sb-angle:90deg;
+  --lt-sb-stroke:#c5e7d6; --lt-sb-stroke-w:2px;
+  --lt-logo-bg:#e6eaef;
+  /* card title text gradient (teal→blue) + card-header bar background */
+  --lt-title-1:#16c0b2; --lt-title-2:#81c1fd;
+  --lt-hdr-1:#e6efff; --lt-hdr-2:#e7f5ee;
+  /* element sizing (Products-Light model) */
+  --lt-pgtitle-size:23px; --lt-title-size:19px; --lt-th-size:11px; --lt-td-size:14px;
+  --lt-nav-size:14px; --lt-sb-width:222px;
+  /* table column washes */
+  --lt-col-alpha:1; --lt-stripe:1;
+  --lt-c1:#f6fafe;  /* col 1 */
+  --lt-c2:#fbfcfe;  /* col 2 */
+  --lt-c3:#ecf6f8;  /* col 3 */
+  --lt-c4:#edf4f8;  /* col 4 */
+  --lt-c5:#e9f7f2;  /* col 5 */
+  --lt-c6:#e7f1fd;  /* col 6 */
+  --lt-c7:#ebf4ff;  /* col 7 */
+  --lt-c8:#f5f7fa;  /* col 8 */
+}
+
+/* ── page canvas ─────────────────────────────────────────────────────────── */
+body.lt{
+  color:var(--lt-ink);
+  background-color:var(--lt-page-1);
+  background-image:
+    radial-gradient(900px 620px at 8% -8%,rgba(110,168,254,.10),transparent 60%),
+    radial-gradient(760px 720px at 108% 6%,rgba(150,196,255,.09),transparent 58%),
+    radial-gradient(900px 700px at 46% 118%,rgba(180,160,235,.10),transparent 60%),
+    linear-gradient(165deg,var(--lt-page-1) 0%,var(--lt-page-2) 55%,var(--lt-page-3) 100%);
+}
+
+/* re-map the shared design tokens to light values */
+body.lt{
+  --tw:var(--lt-ink); --tw2:var(--lt-ink-2); --tw3:var(--lt-ink-3); --tw4:#66728d;
+  --line:var(--lt-line); --line-2:var(--lt-line-2);
+  --bl-l:var(--lt-accent-ink); --gs-l:#157043; --amber:#ffa821; --red:#cf5751;
+  --field-stroke-color:var(--lt-accent);
+  --ripple-color-hex:#6ea8fe; --ripple-rgb:110,168,254; --ripple-opacity:.30;
+  --particle-color-hex:#8fd0b6; --particle-rgb:143,208,182; --particle-opacity:.7;
+  --sh-1:0 8px 26px -14px rgba(60,90,140,.28);
+  --sh-2:0 16px 40px -18px rgba(60,90,140,.32);
+}
+
+/* ── sidebar → soft pastel glass ───────────────────────────────────────────── */
+body.lt .sidebar{
+  background:linear-gradient(var(--lt-sb-angle,200deg),var(--lt-sb-1) 0%,var(--lt-sb-2) 100%);
+  border:var(--lt-sb-stroke-w,1px) solid var(--lt-sb-stroke,var(--lt-line));
+  box-shadow:var(--sh-1);
+  width:var(--lt-sb-width,222px);
+  backdrop-filter:none;-webkit-backdrop-filter:none;
+}
+/* this override sits after the shared collapsed rule, so re-assert the collapsed width */
+body.lt .sidebar.sb-collapsed{width:64px}
+body.lt .sb-logo-zone{background:var(--lt-logo-bg);border-bottom:1px solid var(--lt-sb-stroke)}
+body.lt .sb-logo{filter:none}
+body.lt .nav-item{color:var(--lt-ink-2);font-size:var(--lt-nav-size)}
+body.lt .nav-item:hover{background:rgba(110,168,254,.10);color:var(--lt-ink)}
+body.lt .nav-item.active{
+  background:linear-gradient(90deg,transparent,rgba(110,168,254,.10) 45%,rgba(110,168,254,.22));
+  color:var(--lt-accent-ink);box-shadow:inset 0 0 0 1px rgba(110,168,254,.30);
+}
+body.lt .nav-item.active::before{background:var(--lt-accent);box-shadow:0 0 8px rgba(110,168,254,.55)}
+body.lt .sb-bell-btn,body.lt .sb-notif-row:hover{background:rgba(110,168,254,.08)}
+body.lt .sb-collapse-btn{background:#eaf7ee;color:var(--gs-l)}
+body.lt .sb-collapse-btn:hover{background:#d7efdd}
+body.lt .sb-user-name{color:var(--lt-ink)}
+body.lt .sb-logout{color:var(--lt-ink-3)}
+body.lt .sb-logout:hover{background:rgba(110,168,254,.10);color:var(--lt-accent-ink)}
+
+/* ── cards ─────────────────────────────────────────────────────────────────── */
+body.lt .grp{
+  background:var(--lt-surface);border:1px solid var(--lt-line);border-radius:var(--lt-radius);
+  box-shadow:var(--sh-1);backdrop-filter:none;-webkit-backdrop-filter:none;
+}
+body.lt .grp-hdr{
+  background:linear-gradient(90deg,var(--lt-hdr-1),var(--lt-hdr-2));
+  color:var(--lt-accent-ink);border-bottom:1px solid var(--lt-line);
+  box-shadow:none;-webkit-text-fill-color:initial;font-weight:700;
+}
+/* a plain-text .grp-hdr title still reads as accent-gradient ink */
+body.lt .grp-hdr>:first-child:not(.btn-p):not(.btn-g):not(.btn-g-sm):not(div){
+  background:linear-gradient(90deg,var(--lt-title-1),var(--lt-title-2));
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
+}
+/* the pilot page marks its card title with .lt-cardtitle */
+body.lt .lt-cardtitle{
+  font-weight:700;letter-spacing:-.01em;font-size:var(--lt-title-size);
+  background:linear-gradient(90deg,var(--lt-title-1),var(--lt-title-2));
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
+}
+/* element sizing — matches the Products-Light model */
+body.lt .pg-title{font-size:var(--lt-pgtitle-size)}
+
+/* ── buttons & fields ──────────────────────────────────────────────────────── */
+/* primary button — brighter mint→teal gradient in light */
+body.lt .btn-p{background:linear-gradient(120deg,#80e7b4 0%,#5df3a4 45%,#59cdc7 100%)}
+body.lt .btn-p:hover{box-shadow:0 12px 26px -8px rgba(93,243,164,.5)}
+body.lt .btn-g{background:#fff;color:var(--lt-ink-2);border:1px solid var(--lt-line-2)}
+body.lt .btn-g:hover{background:rgba(110,168,254,.10);color:var(--lt-accent-ink);border-color:var(--lt-accent)}
+body.lt .btn-g-sm{background:#fff;color:var(--lt-ink-2);border:1px solid var(--lt-line-2)}
+body.lt .btn-g-sm:hover{background:rgba(110,168,254,.10);color:var(--lt-accent-ink)}
+body.lt .fi{background:#fff;border:1px solid var(--lt-line-2);color:var(--lt-ink)}
+body.lt .fi::placeholder{color:#9aa7bd}
+body.lt .fi:focus{background:#fff;box-shadow:0 0 0 3px rgba(110,168,254,.18)}
+body.lt select.fi{color-scheme:light}
+/* themed custom-select popup (built by greenstreets-theme.js) */
+body.lt .cs-trigger{background:#fff;border:1px solid var(--lt-line-2);color:var(--lt-ink)}
+body.lt .cs-menu{background:#fff;border:1px solid var(--lt-line-2);box-shadow:var(--sh-2)}
+body.lt .cs-opt{color:var(--lt-ink-2)}
+body.lt .cs-opt:hover,body.lt .cs-opt.cs-active{background:rgba(110,168,254,.12);color:var(--lt-accent-ink)}
+
+/* ── stat chips ────────────────────────────────────────────────────────────── */
+body.lt .stat-mini{background:var(--lt-surface-2);border:1px solid var(--lt-line);box-shadow:none}
+body.lt .stat-val{color:var(--lt-ink)}
+body.lt .stat-lbl{color:var(--lt-ink-3)}
+body.lt .stat-icon.i-bl{background:#eaf1ff;color:#3f74c7;box-shadow:inset 0 0 0 1px rgba(110,168,254,.25)}
+body.lt .stat-icon.i-tl{background:#e8f6f4;color:#3aa39c;box-shadow:inset 0 0 0 1px rgba(67,179,173,.25)}
+body.lt .stat-icon.i-gs{background:#eaf7ee;color:#3fae74;box-shadow:inset 0 0 0 1px rgba(78,187,129,.25)}
+body.lt .stat-icon.i-am{background:#fdf3e6;color:#d9932b;box-shadow:inset 0 0 0 1px rgba(245,166,35,.3)}
+
+/* header notification button (Retailers page inline component) */
+body.lt .hdr-notif{background:#fff;border:1px solid var(--lt-line-2);color:var(--lt-ink-2)}
+body.lt .hdr-notif:hover{background:rgba(78,187,129,.10);border-color:#8fd0b6;color:#2f9c62}
+/* notification badges — brand red #ff5f5f */
+body.lt .hdr-notif-badge{background:#ff5f5f;color:#fff;box-shadow:0 0 0 2px var(--lt-page-2)}
+body.lt .bell-badge{background:#ff5f5f;box-shadow:0 0 0 2px var(--lt-logo-bg)}
+
+/* ── TABLE — pastel harmonious columns ─────────────────────────────────────── */
+body.lt .tbl-wrap{border:1px solid var(--lt-line);border-radius:12px;overflow:hidden;background:#fff;
+  backdrop-filter:none;-webkit-backdrop-filter:none}
+body.lt .tbl th{
+  background:var(--lt-surface-2);color:var(--lt-ink-2);
+  border-bottom:1px solid var(--lt-line-2);font-weight:600;font-size:var(--lt-th-size);
+}
+/* shared theme paints the stripe gradient on <tr>; null it out so per-column td tints show */
+body.lt .tbl tbody tr,
+body.lt .tbl tbody tr:nth-child(odd),
+body.lt .tbl tbody tr:nth-child(even){background:transparent}
+body.lt .tbl td{color:var(--lt-ink-2);border-bottom:1px solid var(--lt-line);font-size:var(--lt-td-size)}
+body.lt .tbl-name{color:var(--lt-ink)}
+body.lt .tbl-val{color:var(--lt-ink)}
+body.lt .tbl-muted{color:var(--lt-ink-3)}
+
+/* per-column pastel wash — colour folds --lt-col-alpha against white so one value dials them all;
+   a faint left→right sheen lives on background-image so both layers coexist */
+body.lt .tbl th,body.lt .tbl td{
+  background-image:linear-gradient(90deg,rgba(255,255,255,.55),rgba(255,255,255,0) 55%);
+}
+body.lt .tbl th:nth-child(1),body.lt .tbl td:nth-child(1){background-color:color-mix(in srgb,var(--lt-c1) calc(var(--lt-col-alpha)*100%),#fff)}
+body.lt .tbl th:nth-child(2),body.lt .tbl td:nth-child(2){background-color:color-mix(in srgb,var(--lt-c2) calc(var(--lt-col-alpha)*100%),#fff)}
+body.lt .tbl th:nth-child(3),body.lt .tbl td:nth-child(3){background-color:color-mix(in srgb,var(--lt-c3) calc(var(--lt-col-alpha)*100%),#fff)}
+body.lt .tbl th:nth-child(4),body.lt .tbl td:nth-child(4){background-color:color-mix(in srgb,var(--lt-c4) calc(var(--lt-col-alpha)*100%),#fff)}
+body.lt .tbl th:nth-child(5),body.lt .tbl td:nth-child(5){background-color:color-mix(in srgb,var(--lt-c5) calc(var(--lt-col-alpha)*100%),#fff)}
+body.lt .tbl th:nth-child(6),body.lt .tbl td:nth-child(6){background-color:color-mix(in srgb,var(--lt-c6) calc(var(--lt-col-alpha)*100%),#fff)}
+body.lt .tbl th:nth-child(7),body.lt .tbl td:nth-child(7){background-color:color-mix(in srgb,var(--lt-c7) calc(var(--lt-col-alpha)*100%),#fff)}
+body.lt .tbl th:nth-child(8),body.lt .tbl td:nth-child(8){background-color:color-mix(in srgb,var(--lt-c8) calc(var(--lt-col-alpha)*100%),#fff)}
+
+/* zebra: a faint darkening + sheen on even rows (background-color keeps the column tint) */
+body.lt .tbl tbody tr:nth-child(even) td{
+  background-image:
+    linear-gradient(rgba(90,120,170,calc(.05*var(--lt-stripe))),rgba(90,120,170,calc(.05*var(--lt-stripe)))),
+    linear-gradient(90deg,rgba(255,255,255,.5),rgba(255,255,255,0) 55%);
+}
+/* hover — a gentle accent wash over the whole row (keeps the column tint underneath) */
+body.lt .tbl tbody tr:hover td{
+  background-image:linear-gradient(90deg,rgba(110,168,254,.20),rgba(110,168,254,.10) 60%,rgba(143,208,182,.12)) !important;
+}
+
+/* ── pills → soft solid pastels with readable ink ──────────────────────────── */
+body.lt .pill-grey{background:#eef1f6;color:#5a6b86;border:1px solid #e0e6ef}
+body.lt .pill-gs,body.lt .pill-green{background:#e6f6ec;color:#2f9c62;border:1px solid #cbead6}
+body.lt .pill-blue{background:#e9f1ff;color:#3f74c7;border:1px solid #d3e2fb}
+body.lt .pill-amber{background:#fdf2e2;color:#c9852a;border:1px solid #f4e0c0}
+body.lt .pill-red{background:#fdeceb;color:#cf5751;border:1px solid #f6d5d3}
+
+/* ── health dots + packaging bars ──────────────────────────────────────────── */
+body.lt .pkg-bar{background:#eef1f6}
+body.lt .health-lbl{color:var(--lt-ink-3)}
+/* softer pastel dots (was saturated --gs/--amber/--red) */
+body.lt .hdot-g{background:#6cc79a;box-shadow:0 0 0 3px rgba(108,199,154,.18)}
+body.lt .hdot-a{background:#f0c069;box-shadow:0 0 0 3px rgba(240,192,105,.20)}
+body.lt .hdot-r{background:#e39a95;box-shadow:0 0 0 3px rgba(227,154,149,.20)}
+
+/* ── soften saturated status content into pastels (light theme) ──────────────
+   The packaging progress bars carry saturated dark-theme gradients inline; override
+   them (a later CSS !important beats an inline style) to pastel fills, keyed to the
+   status word on the sibling .pkg-frac so each bar keeps its meaning. */
+body.lt .pkg-frac.good ~ .pkg-bar-wrap .pkg-bar-fill{background:linear-gradient(90deg,#8fd0b6,#bce7d2)!important}
+body.lt .pkg-frac.warn ~ .pkg-bar-wrap .pkg-bar-fill{background:linear-gradient(90deg,#f6cd8f,#fbe3b8)!important}
+body.lt .pkg-frac.bad  ~ .pkg-bar-wrap .pkg-bar-fill{background:linear-gradient(90deg,#eaa8a4,#f2c9c6)!important}
+/* status numbers — a touch softer while staying readable */
+body.lt .pkg-frac.good{color:#3a9e6b}
+body.lt .pkg-frac.warn{color:#cf9236}
+body.lt .pkg-frac.bad{color:#d07a75}
+/* tier / status pills — lighter, quieter fills */
+body.lt .pill-gs,body.lt .pill-green{background:#eaf6ef;color:#3a9e6b;border:1px solid #d6ecdf}
+
+/* ── row action cell ───────────────────────────────────────────────────────── */
+body.lt .act-mini{background:#fff;border-color:var(--lt-line-2);color:var(--lt-ink-2)}
+body.lt .act-mini:hover{background:rgba(78,187,129,.12);border-color:#8fd0b6;color:#2f9c62}
+body.lt .act-arrow{background:#fff;border:1px solid var(--lt-line-2);color:var(--lt-ink-2)}
+body.lt .tbl tbody tr:hover .act-arrow,
+body.lt .act-arrow:hover{background:var(--lt-accent);color:#fff;border-color:transparent;box-shadow:0 6px 16px -6px rgba(110,168,254,.5)}
+body.lt .chev-btn{background:#fff;border:1px solid var(--lt-line-2);color:var(--lt-ink-2)}
+body.lt .tbl tbody tr:hover .chev-btn{background:var(--lt-accent);color:#fff;border-color:transparent}
+
+body.lt .tbl-footer{color:var(--lt-ink-3);border-top:1px solid var(--lt-line)}
+body.lt .breadcrumb .bc-cur{color:var(--lt-ink)}
+body.lt .breadcrumb .bc-link{color:var(--lt-ink-3)}
+body.lt .breadcrumb .bc-link:hover{color:var(--lt-accent-ink)}
+
+/* pager (data-grid toolkit) */
+body.lt .gs-pager{color:var(--lt-ink-3)}
+
+/* ═══ LOGIN ═══════════════════════════════════════════════════════════════════ */
+body.lt .login-wrap::before{
+  background:
+    radial-gradient(460px 340px at 22% 28%,rgba(143,208,182,.30),transparent 65%),
+    radial-gradient(460px 360px at 82% 74%,rgba(110,168,254,.26),transparent 65%);
+}
+body.lt .login-card{
+  border:1px solid var(--lt-line-2);
+  box-shadow:0 26px 60px -22px rgba(60,90,140,.42),0 0 0 1px rgba(110,168,254,.06);
+}
+body.lt .login-logo-zone{
+  background:linear-gradient(160deg,#eef6f0,#eaf1fe 60%,#ffffff);
+  border-bottom:1px solid var(--lt-line);
+  backdrop-filter:none;-webkit-backdrop-filter:none;
+}
+body.lt .login-form-zone{
+  background:linear-gradient(175deg,#ffffff,#fbfcfe);
+  backdrop-filter:none;-webkit-backdrop-filter:none;
+}
+body.lt .login-eyebrow{color:#2f9c62}
+body.lt .gs-logo-img{filter:drop-shadow(0 2px 10px rgba(60,90,140,.18))}
+body.lt .login-title{color:var(--lt-ink)}
+body.lt .login-sub{color:var(--lt-ink-3)}
+body.lt .fi-icon-wrap svg{color:#9aa7bd}
+body.lt .mfa-hint{color:var(--lt-accent-ink)}
+body.lt .forgot{color:var(--lt-ink-3)}
+body.lt .forgot:hover{color:var(--lt-accent-ink)}
+/* the login card's animated contour reads softer on white */
+body.lt .login-card::before{--card-glow-color1:rgba(110,168,254,.55);--card-glow-color2:rgba(143,208,182,.55)}
+
+/* ═══ TOOLTIPS → light ═════════════════════════════════════════════════════════
+   Both float on document.body (which carries .lt), so these override the dark bubbles.
+   .stat-tip = dashboard stat-chip explainer; .gs-grid-hint = keyboard coach hint. */
+body.lt .stat-tip{
+  background:linear-gradient(160deg,#ffffff,#f6f9fe);
+  border:1px solid var(--lt-line-2);
+  box-shadow:0 14px 34px -10px rgba(60,90,140,.34);
+}
+body.lt .stat-tip .stat-tip-h{color:#2f9c62}
+body.lt .stat-tip .stat-tip-b{color:var(--lt-ink-2)}
+
+body.lt .gs-grid-hint{
+  background:#fff;border:1px solid var(--lt-line-2);color:var(--lt-ink-2);
+  box-shadow:0 12px 30px -8px rgba(60,90,140,.32);
+}
+body.lt .gs-grid-hint::after{background:#fff;border-right-color:var(--lt-line-2);border-bottom-color:var(--lt-line-2)}
+body.lt .gs-grid-hint-keys{color:#2f9c62;background:rgba(78,187,129,.12);border-color:rgba(78,187,129,.35)}
+body.lt .gs-grid-hint-x{color:var(--lt-ink-3)}
+body.lt .gs-grid-hint-x:hover{color:var(--lt-ink)}
+
+/* ═══ SUPPLIER-PORTAL packaging-detail components → light ═══════════════════════
+   The five Packaging-*-Light pages load supplier-portal.css (dark component styles).
+   Re-tint its white-on-dark parts so the packaging detail template reads on light. */
+body.lt .pkg-detail-section{background:var(--lt-surface);border:1px solid var(--lt-line);border-radius:12px}
+body.lt .gs-pkg-name-input{color:var(--lt-ink)}
+body.lt .gs-pkg-name-input:hover{background:rgba(110,168,254,.08);border-color:var(--lt-line-2)}
+body.lt .gs-pkg-name-input:focus{background:#fff;border-color:var(--lt-accent)}
+body.lt .gs-pkg-name-edit{background:#fff;border:1px solid var(--lt-line-2);color:var(--lt-ink-3)}
+body.lt .gs-pkg-name-edit:hover{background:rgba(110,168,254,.10);color:var(--lt-accent-ink)}
+body.lt .pkg-detail-section-hdr{color:var(--lt-ink)}
+body.lt .pkg-detail-section-num{background:#eaf7ee;border-color:#8fd0b6;color:#2f9c62}
+body.lt .pkg-detail-feat-lbl{color:var(--lt-ink-3)}
+body.lt .pkg-detail-feat-input{color:var(--lt-ink)}
+body.lt .pkg-edit-mode .pkg-detail-feat-input,
+body.lt .pkg-sec-edit-mode .pkg-detail-feat-input.editable-text,
+body.lt .pkg-detail-feat-select{background:#fff;border-color:var(--lt-line-2);color:var(--lt-ink)}
+body.lt .pkg-detail-feat-select option{background:#fff;color:var(--lt-ink)}
+body.lt .pkg-edit-mode .pkg-detail-feat-input:focus,
+body.lt .pkg-sec-edit-mode .pkg-detail-feat-input.editable-text:focus{border-color:var(--lt-accent);background:#fff}
+body.lt .air-feat .pkg-detail-feat-input[value="—"]{color:#9aa7bd}
+body.lt .gs-toggle-lbl{color:var(--lt-ink)}
+body.lt .gs-toggle-track{background:#dfe5ef;border-color:#cfd8e6}
+body.lt .gs-seg-opt{background:#fff;border:1px solid var(--lt-line-2);color:var(--lt-ink-2)}
+body.lt .gs-seg-opt:hover{background:rgba(110,168,254,.08);color:var(--lt-accent-ink)}
+/* .gs-seg-opt.on and .gs-toggle.on keep the green fill — reads fine on light */
+body.lt .doc-add-btn{background:#fff;border:1px dashed var(--lt-line-2);color:var(--lt-ink-3)}
+body.lt .doc-add-btn:hover{background:rgba(78,187,129,.09);border-color:#8fd0b6;color:#2f9c62}
+body.lt .pkg-back-btn{background:#fff;border:1px solid var(--lt-line-2);color:var(--lt-ink-3)}
+body.lt .pkg-back-btn:hover{background:rgba(78,187,129,.12);border-color:#8fd0b6;color:#2f9c62}
+body.lt .pkg-mat-add-btn{background:rgba(78,187,129,.08);border-color:#a6d9bf;color:#2f9c62}
+body.lt .pkg-mat-add-btn:hover{background:rgba(78,187,129,.14)}
+/* Duplicate button — softer readable purple on light */
+body.lt .pkg-duplicate-btn{background:#f2ecfd;border:1px solid #dcccf7;color:#7c5cd6}
+body.lt .pkg-duplicate-btn:hover{background:#e9defb}
+/* .pkg-doc-download-btn keeps the green fill (dark ink) — fine on light */
+
+/* ═══ "you are viewing" mode banner + link back to the dark page ═══════════════ */
+.lt-modebar{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  margin-bottom:var(--sp-4);padding:8px 12px;border-radius:12px;
+  background:linear-gradient(90deg,rgba(110,168,254,.12),rgba(143,208,182,.10));
+  border:1px solid var(--lt-line-2);font-size:12px;color:var(--lt-ink-2);
+}
+.lt-modebar b{color:var(--lt-ink)}
+.lt-modebar a{color:var(--lt-accent-ink);font-weight:600;text-decoration:none;margin-left:auto}
+.lt-modebar a:hover{text-decoration:underline}
+/* login variant — centred, sits above the card */
+.lt-modebar.lt-modebar-login{
+  position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:20;
+  margin:0;box-shadow:var(--sh-1);background:rgba(255,255,255,.9);backdrop-filter:blur(6px);
+}
+.lt-modebar.lt-modebar-login a{margin-left:6px}

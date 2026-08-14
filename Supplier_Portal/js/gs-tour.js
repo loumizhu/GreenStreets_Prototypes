@@ -71,11 +71,18 @@ try{ window.gsNoDocsToPackaging = gsNoDocsToPackaging; }catch(_){}
    "Add component" button, its library menu and the "Create a new component"
    wizard shortcut — all live on this screen, so the tour runs here.        */
 (function(){
-  if(!document.getElementById('prod-tbody')) return;   // Landing page only
+  var onProducts  = !!document.getElementById('prod-tbody');
+  var onPackaging = !!document.getElementById('pkg-lib-tbody');
+  if(!onProducts && !onPackaging) return;   // listing pages only
   function tryBegin(){
-    /* Packaging-components tour takes priority (armed from AI-Upload). */
+    /* Packaging-components tour (armed from AI-Upload → navigates to the
+       Packaging page). It runs on the Packaging listing page. If we're not
+       there yet, hop to it; otherwise begin once its rows exist. */
     if(_gsPkgTourIsActive()){
-      if(typeof switchLandingTab === 'function'){ try{ switchLandingTab('packaging'); }catch(_){} }
+      if(!onPackaging){
+        if(typeof gsGoLanding === 'function'){ try{ gsGoLanding('packaging'); }catch(_){} }
+        return;
+      }
       var ptries = 0;
       (function waitForPkg(){
         if(document.querySelector('#pkg-lib-tbody tr')){ _gsPkgTourBegin(); }
@@ -83,8 +90,12 @@ try{ window.gsNoDocsToPackaging = gsNoDocsToPackaging; }catch(_){}
       })();
       return;
     }
+    /* Products tour (onboarding step 2 → navigates to the Products page). */
     if(!_gsTourIsActive()) return;
-    if(typeof switchLandingTab === 'function'){ try{ switchLandingTab('products'); }catch(_){} }
+    if(!onProducts){
+      if(typeof gsGoLanding === 'function'){ try{ gsGoLanding('products'); }catch(_){} }
+      return;
+    }
     var tries = 0;
     (function waitForRows(){
       if(document.querySelector('#prod-tbody .prod-tr')){ _gsTourBegin(); }

@@ -31,7 +31,7 @@ button{font-family:inherit;border:none;background:none;appearance:none;-webkit-a
   --anim-dur:.25s;--anim-shift:8px;--anim-stagger:.045s;--anim-ease:cubic-bezier(.2,.7,.2,1);
   /* button click ripple + particle burst — fired from the cursor (or button centre on keyboard), easing out; live-tunable */
   --ripple-enabled:1;--ripple-color-hex:#ffffff;--ripple-rgb:255,255,255;--ripple-opacity:.45;
-  --ripple-duration:.62s;--ripple-ease:cubic-bezier(.22,.61,.36,1);--ripple-size:1;
+  --ripple-duration:.62s;--ripple-ease:cubic-bezier(.22,.61,.36,1);--ripple-size:.55;
   --particle-enabled:1;--particle-color-hex:#8fe3b6;--particle-rgb:143,227,182;--particle-opacity:.85;
   --particle-count:10;--particle-size:5px;--particle-distance:42px;--particle-duration:.7s;
   /* clicking a listing row/card/menu-option gets a gentler burst — this scales the ripple + particle spread down (default = half) */

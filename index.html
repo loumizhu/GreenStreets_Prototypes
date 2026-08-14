@@ -20,9 +20,11 @@
   .idx-head h1{font-size:38px; font-weight:700; margin:0 0 12px; letter-spacing:-.5px;}
   .idx-head p{font-size:15px; line-height:1.6; color:rgba(234,245,238,.7); margin:0;}
   .idx-grid{
-    display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
-    gap:22px; width:100%; max-width:1080px;
+    display:grid; grid-template-columns:repeat(4,1fr);
+    gap:16px; width:100%; max-width:1200px;
   }
+  @media (max-width:1024px){ .idx-grid{grid-template-columns:repeat(2,1fr); max-width:660px;} }
+  @media (max-width:560px){ .idx-grid{grid-template-columns:1fr; max-width:360px;} }
   .idx-card{
     position:relative; overflow:hidden;
     display:flex; flex-direction:column;
@@ -161,9 +163,9 @@
 
   <div class="idx-sub-h">Variations</div>
   <div class="idx-mini-grid">
-    <a class="idx-mini" href="GreenStreets_Super_Admin/01-greenstreets_super_admin_Products-Light.html">
+    <a class="idx-mini" href="GreenStreets_Super_Admin/01-greenstreets_super_admin_Login-Light.html">
       <span class="idx-mini-code" style="background:rgba(126,178,255,.14);color:#aecbff;border-color:rgba(126,178,255,.3)">☀</span>
-      <div><h3>Products — Light theme</h3><p>Pastel-column light variant of the Super Admin Products listing, with a live page customizer.</p></div>
+      <div><h3>Super Admin — Light theme</h3><p>Pastel light variant of the whole Super Admin portal — opens at the login screen; every screen has a light twin.</p></div>
     </a>
   </div>
 

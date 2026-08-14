@@ -50,22 +50,36 @@ function gsFlipCapture(container, sel){
   });
   return m;
 }
+/* FLIP with a leading-edge STAGGER (matches the Super Admin listing motion):
+   every moved row is displaced to its old position, then released to its new
+   one — but not all at once. Rows are released top→bottom (the one that lands
+   highest starts first, each row below follows a few ms later), so the reorder
+   ripples down the list. The whole cascade stays under ~500ms even for a full
+   page of rows. */
 function gsFlipPlay(container, sel, first){
   if(!container || !first || gsReduceMotion()) return;
-  var moved = false;
+  var moving = [];
   container.querySelectorAll(sel).forEach(function(el){
     if(el.offsetParent === null) return;
     var k = el.getAttribute('data-flip-key'); if(k == null || !(k in first)) return;
-    var dy = first[k] - el.getBoundingClientRect().top;
-    if(Math.abs(dy) > 0.5){ el.style.transition = 'none'; el.style.transform = 'translateY(' + dy + 'px)'; moved = true; }
+    var newTop = el.getBoundingClientRect().top;
+    var dy = first[k] - newTop;
+    if(Math.abs(dy) > 0.5){ el.style.transition = 'none'; el.style.transform = 'translateY(' + dy + 'px)'; moving.push({el:el, top:newTop}); }
   });
-  if(!moved) return;
+  if(!moving.length) return;
+  /* order by final (post-sort) position so the top row leads the cascade */
+  moving.sort(function(a,b){ return a.top - b.top; });
+  var n = moving.length, DUR = 320;
+  /* per-row delay, capped so (last delay + duration) stays < ~500ms */
+  var step = Math.max(8, Math.min(26, Math.floor(180 / Math.max(1, n-1))));
   void container.offsetHeight;
   requestAnimationFrame(function(){ requestAnimationFrame(function(){
-    container.querySelectorAll(sel).forEach(function(el){
-      if(el.style.transform){ el.style.transition = 'transform .42s cubic-bezier(.2,0,.2,1)'; el.style.transform = ''; }
+    moving.forEach(function(m, i){
+      m.el.style.transition = 'transform ' + DUR + 'ms cubic-bezier(.2,0,.2,1) ' + (i*step) + 'ms';
+      m.el.style.transform = '';
     });
-    setTimeout(function(){ container.querySelectorAll(sel).forEach(function(el){ el.style.transition = ''; }); }, 480);
+    var totalMs = DUR + (n-1)*step + 60;
+    setTimeout(function(){ moving.forEach(function(m){ m.el.style.transition = ''; }); }, totalMs);
   }); });
 }
 /* Honours the Settings → Appearance → Motion → Reduced toggle (root class
@@ -408,7 +422,7 @@ function prodRowHtml(p){
   var expIcon = '<svg class="prod-cell-ind prod-cell-ind-exp" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-3"/></svg>';
   var noteIcon = p.note ? '<svg class="prod-cell-ind prod-cell-ind-note" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>' : '';
   var compCell = prodCompCell(p);
-  return '<tr class="prod-tr ' + m.st + '" data-pi="' + p.id + '" data-status="' + p.status + '" onclick="openProductDetail(' + p.id + ')">'
+  return '<tr class="prod-tr ' + m.st + '" data-pi="' + p.id + '" data-flip-key="' + p.id + '" data-status="' + p.status + '" onclick="openProductDetail(' + p.id + ')">'
     + '<td class="prod-name-td" data-pi="' + p.id + '"><div class="gs-name-cell"><input type="checkbox" class="gs-row-check" title="Select" onclick="event.stopPropagation()" onchange="gsProdRowToggle(' + p.id + ',this)"><div class="gs-name-textcol"><div class="prod-cell-code">' + p.code + expIcon + noteIcon + '</div><div class="prod-cell-name">' + p.name + '</div></div></div></td>'
     + '<td>' + p.category + '</td>'
     + '<td><span class="prod-status-pill ' + m.cls + '">' + m.lbl + '</span></td>'
@@ -1264,6 +1278,7 @@ function prodGoto(cmd){
   else if(cmd==="next") prodState.page = Math.min(pages-1, prodState.page+1);
   else if(cmd==="last") prodState.page = pages-1;
   else { var n = parseInt(cmd,10); if(!isNaN(n)) prodState.page = n; }
+  prodRender._fadeNext = true;
   prodRender();
 }
 
@@ -1284,12 +1299,8 @@ function prodRender(animatingPi){
   var tb = document.getElementById('prod-tbody');
   if(!tb) return;
 
-  var firstPositions = {};
-  var oldTrs = tb.querySelectorAll('tr[data-pi]');
-  oldTrs.forEach(function(tr){
-    var pi = tr.getAttribute('data-pi');
-    firstPositions[pi] = tr.getBoundingClientRect();
-  });
+  /* Capture pre-render row positions for the staggered FLIP reorder (sort). */
+  var _flip = gsReduceMotion() ? null : gsFlipCapture(tb, 'tr[data-pi]');
 
   var all = PRODUCTS.filter(prodMatches);
   var key = prodState.sortKey, dir = prodState.sortDir;
@@ -1312,45 +1323,16 @@ function prodRender(animatingPi){
     slice.forEach(function(p){ tb.insertAdjacentHTML('beforeend', prodRowHtml(p)); });
   }
 
-  var newTrs = tb.querySelectorAll('tr[data-pi]');
-  var hasMoved = false;
-  var _reduce = gsReduceMotion();
-  newTrs.forEach(function(tr){
-    var pi = tr.getAttribute('data-pi');
-    var first = _reduce ? null : firstPositions[pi];
-    if(first){
-      var last = tr.getBoundingClientRect();
-      var dy = first.top - last.top;
-      if(Math.abs(dy) > 0.5){
-        hasMoved = true;
-        tr.style.transform = 'translateY(' + dy + 'px)';
-        tr.style.transition = 'none';
-      }
-    }
-    if(animatingPi != null && String(pi) === String(animatingPi)){
-      tr.classList.add('prod-row-complete-flash');
-    }
-  });
+  /* Staggered FLIP reorder for rows that moved (e.g. after a sort). */
+  gsFlipPlay(tb, 'tr[data-pi]', _flip);
 
-  if(hasMoved || animatingPi != null){
-    void tb.offsetHeight;
-    requestAnimationFrame(function(){
-      requestAnimationFrame(function(){
-        newTrs.forEach(function(tr){
-          var pi = tr.getAttribute('data-pi');
-          if(firstPositions[pi]){
-            tr.style.transition = 'transform 0.45s cubic-bezier(0.2,0,0.2,1)';
-            tr.style.transform = '';
-          }
-        });
-        setTimeout(function(){
-          newTrs.forEach(function(tr){
-            tr.style.transition = '';
-            tr.classList.remove('prod-row-complete-flash');
-          });
-        }, 800);
-      });
-    });
+  /* Mark-complete flash on a specific row (independent of the reorder). */
+  if(animatingPi != null){
+    var fr = tb.querySelector('tr[data-pi="' + animatingPi + '"]');
+    if(fr){
+      fr.classList.add('prod-row-complete-flash');
+      setTimeout(function(){ fr.classList.remove('prod-row-complete-flash'); }, 800);
+    }
   }
 
   var from = total ? start+1 : 0;
@@ -1378,8 +1360,10 @@ function prodRender(animatingPi){
 
   updateProdArrows();
   if(typeof gsProdBulkAfterRender==='function') gsProdBulkAfterRender();
-  if(!prodRender._faded && tb.querySelector('tr[data-pi]') && tb.querySelector('tr[data-pi]').offsetParent!==null){
-    prodRender._faded = true;
+  /* Staggered fade-in when a new page is shown (first-load fade is done once,
+     at DOM-ready, by the listing-page init — prodRender can run pre-layout). */
+  if(prodRender._fadeNext){
+    prodRender._fadeNext = false;
     gsFadeInRows(tb, 'tr[data-pi]');
   }
 }
@@ -1722,9 +1706,15 @@ function renderPkgTable() {
   var countEl = document.getElementById('pkg-tbl-count');
   if (countEl) countEl.textContent = visible.length + ' component' + (visible.length !== 1 ? 's' : '');
   renderPkgActiveFilters();
+  /* Staggered fade-in of the shown page on pagination (first-load fade is done
+     once, at DOM-ready, by the listing-page init). */
+  if(renderPkgTable._fadeNext){
+    renderPkgTable._fadeNext = false;
+    gsFadeInRows(tbody, 'tr');
+  }
 }
 /* Pkg table pagination helpers */
-function pkgGotoPrev() { if (_pkgTblPage > 0) { _pkgTblPage--; renderPkgTable(); } }
+function pkgGotoPrev() { if (_pkgTblPage > 0) { _pkgTblPage--; renderPkgTable._fadeNext = true; renderPkgTable(); } }
 function pkgGotoNext() {
   var tbody = document.getElementById('pkg-lib-tbody');
   if (!tbody) return;
@@ -1734,9 +1724,9 @@ function pkgGotoNext() {
   /* easier: just check against the current page count from the select */
   var jumpSel = document.getElementById('pkg-pg-jump');
   var maxPage = jumpSel ? jumpSel.options.length - 1 : 0;
-  if (_pkgTblPage < maxPage) { _pkgTblPage++; renderPkgTable(); }
+  if (_pkgTblPage < maxPage) { _pkgTblPage++; renderPkgTable._fadeNext = true; renderPkgTable(); }
 }
-function pkgGotoPage(p) { _pkgTblPage = p; renderPkgTable(); }
+function pkgGotoPage(p) { _pkgTblPage = p; renderPkgTable._fadeNext = true; renderPkgTable(); }
 /* Show a small, low-contrast auto-generated ID beneath every packaging name in
    the components listing (name stays primary; the ID reads as a sub-line). */
 function pkgInitRowIds(){
@@ -2008,7 +1998,6 @@ window.gsGridRefresh = function(){
 /* Run on load */
 document.addEventListener('DOMContentLoaded', function(){
   pkgInitMaterialFilter(); pkgInitCellFilters(); pkgInitRowIds(); renderPkgTable();
-  gsFadeInRows(document.getElementById('pkg-lib-tbody'), 'tr');
   gsGridNav('prod-tbl-el','prod-tbody');
   gsGridNav('pkg-lib-table','pkg-lib-tbody');
   gsGridNav('docs-tbl','docs-tbody-new');
@@ -2546,11 +2535,11 @@ function gsBuildBreadcrumb(){
       {label:'Packaging Components',  act:"gsGoLanding('packaging')"},
       {label:'Supporting Documents',  act:"gsGoLanding('docs')"}
     ];
-  } else if(document.getElementById('prod-tbody')){
-    /* Landing: the three section tabs live in the header now — hide the old row. */
+  } else if(document.getElementById('prod-tbody') || document.getElementById('pkg-lib-tbody') || document.getElementById('docs-tbody-new')){
+    /* One of the three listing pages: the section tabs live in the header now.
+       Detect which page we're on by its listing table and highlight it. */
     isTabs = true;
-    var active = (document.querySelector('.landing-tab.active')||{}).id || 'tab-btn-products';
-    var act = active.replace('tab-btn-','');
+    var act = (typeof gsCurrentLandingTab==='function' && gsCurrentLandingTab()) || 'products';
     crumbs = [
       {label:'Products',              act:"switchLandingTab('products')",  current:act==='products'},
       {label:'Packaging Components',  act:"switchLandingTab('packaging')", current:act==='packaging'},
@@ -2886,28 +2875,13 @@ function reuseComponentInForm(key, sectionNum, pi) {
   }
 }
 
+/* The Landing was split into three standalone pages (Products / Packaging /
+   Supporting Documents). Switching section is now a real page navigation.
+   Kept as a thin alias of gsGoLanding so every existing caller — header tabs,
+   detail-page breadcrumbs, the wizard (via window.parent), the tours — keeps
+   working unchanged. No-op when already on the requested section's page. */
 function switchLandingTab(tab) {
-  document.querySelectorAll('.landing-tab').forEach(function(b){ b.classList.remove('active'); });
-  document.querySelectorAll('.landing-tab-panel').forEach(function(p){
-    p.classList.remove('active');
-    p.style.display = 'none';
-  });
-  var btn = document.getElementById('tab-btn-' + tab);
-  var panel = document.getElementById('tab-panel-' + tab);
-  if(btn) btn.classList.add('active');
-  if(panel){ panel.classList.add('active'); panel.style.display = 'block'; }
-  /* Fade the listing in the first time each tab is revealed. */
-  switchLandingTab._faded = switchLandingTab._faded || {};
-  if(!switchLandingTab._faded[tab]){
-    switchLandingTab._faded[tab] = true;
-    requestAnimationFrame(function(){
-      if(tab==='products') gsFadeInRows(document.getElementById('prod-tbody'), 'tr[data-pi]');
-      else if(tab==='packaging') gsFadeInRows(document.getElementById('pkg-lib-tbody'), 'tr');
-      else if(tab==='docs'){ var tv=document.getElementById('docs-thumb-view'); if(tv && tv.style.display!=='none') gsFadeInRows(tv,'.docs-thumb'); else gsFadeInRows(document.getElementById('docs-tbody-new'),'tr'); }
-    });
-  }
-  if(typeof gsBuildBreadcrumb==='function') gsBuildBreadcrumb();
-  if(typeof window.gsGridRefresh==='function') window.gsGridRefresh();   // give the revealed grid its tab stop
+  if(typeof gsGoLanding === 'function') gsGoLanding(tab);
 }
 
 var pkgActiveLevel = 'all';
@@ -3293,7 +3267,9 @@ var GS_PAGES = {
   'sp1':                   '04-greenstreets_supplier_portal_Login.html',
   'sp_welcome':            '04-greenstreets_supplier_portal_Welcome.html',
   'sp_settings':           '04-greenstreets_supplier_portal_Settings.html',
-  'sp2':                   '04-greenstreets_supplier_portal_Landing.html',
+  'sp2':                   '04-greenstreets_supplier_portal_Products.html',
+  'sp2_pkg':               '04-greenstreets_supplier_portal_Packaging.html',
+  'sp2_docs':              '04-greenstreets_supplier_portal_Documents.html',
   's_upload_0':            '04-greenstreets_supplier_portal_AI-Upload.html',
   'sp_ai':                 '04-greenstreets_supplier_portal_AI-Processing.html',
   'air-0':                 '04-greenstreets_supplier_portal_AI-Review-1.html',
@@ -3334,14 +3310,32 @@ launchWizard = function(code, name, origin, pi){
   go('wiz5');
 };
 
-/* Wizard success -> Landing, flashing the newly-saved component. */
+/* The three listing pages are now separate documents. Map a section name to
+   its page id so tab clicks / returns navigate to the right page. */
+var GS_LANDING_PAGE = { products:'sp2', packaging:'sp2_pkg', docs:'sp2_docs' };
+function gsLandingPageId(tab){ return GS_LANDING_PAGE[tab] || 'sp2'; }
+/* Marker id present on each listing page, used to detect the current section. */
+function gsCurrentLandingTab(){
+  if(document.getElementById('prod-tbody')) return 'products';
+  if(document.getElementById('pkg-lib-tbody')) return 'packaging';
+  if(document.getElementById('docs-tbody-new')) return 'docs';
+  return null;
+}
+
+/* Wizard success -> the origin's listing page, flashing the newly-saved component. */
 gsWizardDone = function(origin, name, id){
+  origin = (origin==='packaging') ? 'packaging' : 'products';
   sessionStorage.setItem('gs_flash', JSON.stringify({ origin: origin, name: name, id: id }));
-  go('sp2');
+  go(gsLandingPageId(origin));
 };
 
-/* Land on a specific Landing tab (used by sp9 buttons + wizard Back). */
-gsGoLanding = function(tab){ sessionStorage.setItem('gs_tab', tab || 'products'); go('sp2'); };
+/* Navigate to a specific listing page (used by sp9 buttons + wizard Back +
+   detail-page breadcrumb tabs). No-op if already on that page. */
+gsGoLanding = function(tab){
+  tab = tab || 'products';
+  if(gsCurrentLandingTab() === tab) return;
+  go(gsLandingPageId(tab));
+};
 
 /* ==========================================================================
    ONBOARDING — first-run welcome + 3-step guided walkthrough.
@@ -3432,15 +3426,18 @@ function gsOnbRenderWelcome(){
         renderProductDetail(pi);
       }
     }
-    /* --- Landing page --- */
-    if(document.getElementById('prod-tbody')){
+    /* --- Listing pages (Products / Packaging / Documents) --- */
+    var curTab = (typeof gsCurrentLandingTab === 'function') ? gsCurrentLandingTab() : null;
+    if(curTab){
+      /* A pending gs_flash is consumed on whichever listing page matches its
+         origin (gsWizardDone already navigated us to the right page). If it
+         doesn't match this page, leave it for the correct page to pick up. */
       var flashRaw = sessionStorage.getItem('gs_flash');
       if(flashRaw){
-        sessionStorage.removeItem('gs_flash');
         var f = null; try { f = JSON.parse(flashRaw); } catch(e){}
-        if(f){
-          var origin = (f.origin === 'packaging') ? 'packaging' : 'products';
-          if(typeof switchLandingTab === 'function') switchLandingTab(origin);
+        var origin = (f && f.origin === 'packaging') ? 'packaging' : 'products';
+        if(f && origin === curTab){
+          sessionStorage.removeItem('gs_flash');
           if(origin === 'packaging'){
             if(typeof gsFlashNewPackaging === 'function') gsFlashNewPackaging(f.name, f.id);
           } else {
@@ -3449,11 +3446,18 @@ function gsOnbRenderWelcome(){
           }
         }
       }
-      var tab = sessionStorage.getItem('gs_tab');
-      if(tab){
-        sessionStorage.removeItem('gs_tab');
-        if(typeof switchLandingTab === 'function') switchLandingTab(tab);
-      }
+      /* Staggered fade-in on first load. Done here (DOM-ready) rather than
+         inside the render functions because prodRender/renderPkgTable can run
+         pre-layout (offsetParent null), which would skip the animation. */
+      requestAnimationFrame(function(){
+        if(curTab==='products') gsFadeInRows(document.getElementById('prod-tbody'), 'tr[data-pi]');
+        else if(curTab==='packaging') gsFadeInRows(document.getElementById('pkg-lib-tbody'), 'tr');
+        else if(curTab==='docs'){
+          var tv=document.getElementById('docs-thumb-view');
+          if(tv && tv.style.display!=='none') gsFadeInRows(tv,'.docs-thumb');
+          else gsFadeInRows(document.getElementById('docs-tbody-new'),'tr');
+        }
+      });
     }
   }
   if(document.readyState !== 'loading') init();
@@ -3470,7 +3474,9 @@ function gsOnbRenderWelcome(){
     {id:3, name:'RecycledContent_SupplierDeclaration_Apr2026.pdf',type:'Declaration',   ref:'Shipping Carton, Display Box',        date:'28 Apr 2026', size:'87 KB',   color:'#e05252'},
     {id:4, name:'HeavyMetals_TestReport_Q1_2026.xlsx',            type:'Test Report',   ref:'All primary packaging',              date:'15 Mar 2026', size:'1.2 MB',  color:'#5b9cf6'},
     {id:5, name:'PEFC_WoodCertification_Pallet_2026.pdf',         type:'Certification', ref:'Pallet',                             date:'29 Jun 2026', size:'512 KB',  color:'#e05252'},
-    {id:6, name:'OEKOTEX_Certificate_SwingTag_2026.pdf',          type:'Certification', ref:'Swing Tag',                          date:'14 Jun 2026', size:'289 KB',  color:'#e05252'}
+    {id:6, name:'OEKOTEX_Certificate_SwingTag_2026.pdf',          type:'Certification', ref:'Swing Tag',                          date:'14 Jun 2026', size:'289 KB',  color:'#e05252'},
+    {id:7, name:'ISO14001_EnvCertificate_2025.pdf',              type:'Certification', ref:'All primary packaging',              date:'25 Aug 2026', size:'421 KB',  color:'#e05252', expSoon:true},
+    {id:8, name:'FoodContact_Declaration_PolyBag_2025.pdf',       type:'Declaration',   ref:'Poly Bag, GOH Polybag',              date:'6 Sep 2026',  size:'156 KB',  color:'#e05252', expSoon:true}
   ];
   var _docsView='list', _docsPage=0, DOCS_PG_SIZE=8;
   var _docsSearch='', _docsType='all', _docsSelected={}, _docConfirmTimers={};
@@ -3511,7 +3517,9 @@ function gsOnbRenderWelcome(){
       html+='<td><div class="doc-name-wrap">'+docsSvgFile(d.color)+'<span class="doc-name-col" title="'+d.name+'">'+sn+'</span></div></td>';
       html+='<td class="doc-secondary">'+d.type+'</td>';
       html+='<td class="doc-secondary">'+d.ref+'</td>';
-      html+='<td class="doc-secondary">'+d.date+'</td>';
+      html+=(d.expSoon
+        ? '<td class="doc-secondary doc-date-exp" title="Expires soon"><span class="doc-exp-dot" aria-hidden="true"></span>'+d.date+'</td>'
+        : '<td class="doc-secondary">'+d.date+'</td>');
       html+='<td class="doc-secondary">'+d.size+'</td>';
       html+='<td class="doc-actions-col" onclick="event.stopPropagation()"><button class="docs-dl-btn" onclick="docsDownload()" style="margin-right:2px">Download</button>';
       html+='<button class="doc-del-btn" title="Delete" onclick="docsAskDelete('+d.id+',this)">'+DOCS_X_SVG+'</button>';
@@ -3534,7 +3542,7 @@ function gsOnbRenderWelcome(){
       html+='<input type="checkbox" class="docs-thumb-cb" data-id="'+d.id+'" '+(sel?'checked':'')+' onclick="event.stopPropagation()" onchange="docsToggleRow('+d.id+',this)">';
       html+='<div class="docs-thumb-icon">'+docsSvgFile(d.color)+'</div>';
       html+='<div class="docs-thumb-name" title="'+d.name+'">'+sn+'</div>';
-      html+='<div class="docs-thumb-type">'+d.type+'</div>';
+      html+='<div class="docs-thumb-type">'+d.type+(d.expSoon?' <span class="doc-exp-badge" title="Expires soon"><span class="doc-exp-dot" aria-hidden="true"></span>Expires '+d.date+'</span>':'')+'</div>';
       html+='<div class="docs-thumb-actions" onclick="event.stopPropagation()"><button class="docs-thumb-dl" onclick="docsDownload()">&#8595; DL</button>';
       html+='<button class="docs-thumb-del-btn" title="Delete" onclick="docsAskDelete('+d.id+',this)">'+DOCS_X_SVG+'</button>';
       html+='</div></div>';
@@ -3549,10 +3557,17 @@ function gsOnbRenderWelcome(){
     });
   }
 
+  var _docsFadeNext=false;
   function docsRender(){
     if(_docsView==='list') docsRenderList(); else docsRenderThumb();
     var cl=document.getElementById('docs-count-lbl');
     if(cl) cl.textContent=DOCS_DATA.length+' document'+(DOCS_DATA.length!==1?'s':'');
+    /* Staggered fade-in of the shown page on pagination. */
+    if(_docsFadeNext){
+      _docsFadeNext=false;
+      if(_docsView==='list') gsFadeInRows(document.getElementById('docs-tbody-new'),'tr');
+      else gsFadeInRows(document.getElementById('docs-thumb-view'),'.docs-thumb');
+    }
   }
 
   function docsUpdatePager(visCount){
@@ -3717,9 +3732,9 @@ function gsOnbRenderWelcome(){
     docsRender();
     if(typeof gsToast==='function') gsToast(files.length+' file'+(files.length!==1?'s':'')+' uploaded');
   };
-  window.docsGotoPrev=function(){ if(_docsPage>0){_docsPage--;docsRender();} };
-  window.docsGotoNext=function(){ if(_docsPage<docsPageCount()-1){_docsPage++;docsRender();} };
-  window.docsGotoPage=function(p){ _docsPage=p; docsRender(); };
+  window.docsGotoPrev=function(){ if(_docsPage>0){_docsPage--;_docsFadeNext=true;docsRender();} };
+  window.docsGotoNext=function(){ if(_docsPage<docsPageCount()-1){_docsPage++;_docsFadeNext=true;docsRender();} };
+  window.docsGotoPage=function(p){ _docsPage=p;_docsFadeNext=true; docsRender(); };
 
   function init(){
     if(!document.getElementById('docs-tbody-new')&&!document.getElementById('docs-thumb-view')) return;

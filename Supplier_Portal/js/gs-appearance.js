@@ -52,11 +52,14 @@
     var preset = PRESETS[s.theme] || PRESETS[DEFAULT_THEME];
     var accent = s.accent || preset.accent;
     root.setProperty('--gs', accent);
-    root.setProperty('--gs-l', shade(accent, 0.34));
+    var accentLight = shade(accent, 0.34);
+    root.setProperty('--gs-l', accentLight);
     root.setProperty('--gs-d', shade(accent, -0.28));
-    var rgb = hexToRgb(accent).join(',');
-    root.setProperty('--particle-color-hex', accent);
-    root.setProperty('--particle-rgb', rgb);
+    /* Click-burst particles use the LIGHT accent shade (mint), matching the
+       Super Admin portal's particle animation — the raw accent looked darker
+       and heavier. With the default emerald this resolves to ~#8fe3b6. */
+    root.setProperty('--particle-color-hex', accentLight);
+    root.setProperty('--particle-rgb', hexToRgb(accentLight).join(','));
     root.setProperty('--card-glow-color1', shade(accent, 0.34));
     root.setProperty('--field-stroke-color', accent);
     if (s.theme && preset) {

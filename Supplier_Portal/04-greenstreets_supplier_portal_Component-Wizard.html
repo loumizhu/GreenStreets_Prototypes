@@ -259,7 +259,7 @@ textarea.fi{height:auto;min-height:88px;padding:12px 15px;resize:vertical;line-h
 .nameid-id-lbl{font-size:9.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--tx3)}
 .nameid-id-val{font-family:"SFMono-Regular",ui-monospace,Menlo,monospace;font-size:13.5px;font-weight:700;color:var(--gs);letter-spacing:.01em}
 </style>
-<link rel="stylesheet" href="css/greenstreets-theme.css?v=40">
+<link rel="stylesheet" href="css/greenstreets-theme.css?v=41">
 </head>
 <body>
 
@@ -267,9 +267,9 @@ textarea.fi{height:auto;min-height:88px;padding:12px 15px;resize:vertical;line-h
   <aside class="snav" aria-label="Form sections">
     <div class="snav-product ph-brand">
       <div class="wiz-crumbs">
-        <button class="wiz-crumb wiz-crumb-home" title="Home" aria-label="Home" onclick="window.location.href='04-greenstreets_supplier_portal_Landing.html'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9.5 21v-6h5v6"/></svg></button>
+        <button class="wiz-crumb wiz-crumb-home" title="Home" aria-label="Home" onclick="window.location.href='04-greenstreets_supplier_portal_Products.html'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9.5 21v-6h5v6"/></svg></button>
         <span class="wiz-crumb-sep">›</span>
-        <button class="wiz-crumb" onclick="sessionStorage.setItem('gs_tab','packaging');window.location.href='04-greenstreets_supplier_portal_Landing.html'">Packaging Components</button>
+        <button class="wiz-crumb" onclick="window.location.href='04-greenstreets_supplier_portal_Packaging.html'">Packaging Components</button>
         <span class="wiz-crumb-sep">›</span>
         <span class="wiz-crumb wiz-crumb-current">New component</span>
       </div>
@@ -937,15 +937,18 @@ setTimeout(function(){
     var nm = nameEl ? nameEl.value.trim() : '';
     var id = idEl ? idEl.textContent.trim() : '';
     sessionStorage.setItem('gs_flash', JSON.stringify({ origin: WIZ_ORIGIN, name: nm, id: id, pi: pi }));
-    window.location.href = '04-greenstreets_supplier_portal_Landing.html';
+    window.location.href = WIZ_ORIGIN === 'packaging'
+      ? '04-greenstreets_supplier_portal_Packaging.html'
+      : '04-greenstreets_supplier_portal_Products.html';
   };
   wizBack = function(){
-    sessionStorage.setItem('gs_tab', WIZ_ORIGIN === 'packaging' ? 'packaging' : 'products');
-    window.location.href = '04-greenstreets_supplier_portal_Landing.html';
+    window.location.href = WIZ_ORIGIN === 'packaging'
+      ? '04-greenstreets_supplier_portal_Packaging.html'
+      : '04-greenstreets_supplier_portal_Products.html';
   };
 })();
 </script>
 <script src="js/greenstreets-theme.js?v=29"></script>
-<script src="js/gs-appearance.js?v=5"></script>
+<script src="js/gs-appearance.js?v=6"></script>
 </body>
 </html>

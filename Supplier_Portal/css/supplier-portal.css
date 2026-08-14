@@ -716,6 +716,14 @@ select.pd-input option{background:#16294a;color:#fff}
 .docs-tbl-new .doc-secondary{color:rgba(255,255,255,.6);font-size:11px}
 .docs-tbl-new .doc-actions-col{text-align:right;white-space:nowrap;width:110px}
 
+/* ── Docs: expiring-soon date indicator ── */
+.doc-date-exp{color:#f2706e!important;font-weight:700!important;white-space:nowrap}
+.doc-exp-dot{display:inline-block;position:relative;width:7px;height:7px;margin-right:7px;border-radius:50%;background:#f2706e;vertical-align:middle;flex-shrink:0}
+.doc-exp-dot::after{content:"";position:absolute;inset:0;border-radius:50%;background:#f2706e;animation:docExpRipple 2.4s ease-out infinite}
+@keyframes docExpRipple{0%{transform:scale(1);opacity:.55}70%{transform:scale(3.2);opacity:0}100%{transform:scale(3.2);opacity:0}}
+.doc-exp-badge{display:inline-flex;align-items:center;gap:0;margin-top:4px;padding:2px 8px 2px 6px;border-radius:20px;background:rgba(242,112,110,.14);border:1px solid rgba(242,112,110,.4);color:#f2706e;font-size:9.5px;font-weight:700;white-space:nowrap}
+.gs-reduce-motion .doc-exp-dot::after{animation:none;opacity:0}
+
 /* ── Docs: per-row delete btn ── */
 .doc-del-btn{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:6px;border:1px solid rgba(255,255,255,.1);background:transparent;color:rgba(255,255,255,.35);cursor:pointer;transition:all .12s;margin-left:5px;vertical-align:middle}
 .doc-del-btn:hover{background:rgba(224,82,82,.18);border-color:rgba(224,82,82,.4);color:#f87171}

@@ -40,7 +40,7 @@
             '<strong>PFAS substance compliance</strong> and <strong>technical documentation</strong> — while the banner ' +
             'above tracks overall packaging data collection. Below them, the <strong>SKU conformity overview</strong> ' +
             'lists each product\'s status and any failing check, so you can jump straight to what needs attention. Use ' +
-            'the <strong>left menu</strong> any time to reach Suppliers, Products, Packagings, Documents and your Audit trail.',
+            'the <strong>left menu</strong> any time to reach Suppliers, Products, Packagings, Documents and your Audit log.',
       sel: '#ru-tour-dash, #ru-tour-dash-list', position: 'below' },
 
     { key: 'suppliers', screen: 'ru3', icon: '🏭', title: 'Monitor your suppliers', stepNo: 2,
