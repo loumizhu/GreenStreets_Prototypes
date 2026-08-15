@@ -5,263 +5,13 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>GreenStreets Super Admin · Products (Light)</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/greenstreets-theme.css?v=40">
-<!-- ═══ LIGHT-MODE PASTEL OVERRIDE ═══
-     A soft, easy-on-the-eye light variant of the Products listing. Loaded AFTER the shared
-     glass theme so these rules win by source order. Everything the customizer widget tunes is a
-     CSS variable (--lt-*) so it can be reshaped live. This file is a *variation* — the dark
-     Products page is untouched. -->
-<style id="light-theme">
-:root{
-  /* pastel palette — harmonious, low-saturation. tuned live by the customizer widget */
-  --lt-page-1:#f6f8fb; --lt-page-2:#eef2f8; --lt-page-3:#f3f0fa;
-  --lt-surface:#ffffff; --lt-surface-2:#fbfcfe;
-  --lt-ink:#33415c; --lt-ink-2:#5a6b86; --lt-ink-3:#5e6b85;
-  --lt-line:#e6ebf3; --lt-line-2:#dbe2ee;
-  --lt-accent:#6ea8fe;           /* soft cornflower */
-  --lt-accent-ink:#3f74c7;
-  --lt-radius:14px;
-  /* gradients — all tunable from the widget */
-  --lt-sb-1:#eaf1fe; --lt-sb-2:#e7f5ee;      /* sidebar (left pane) start → end */
-  --lt-sb-angle:200deg;                       /* left-pane gradient direction */
-  --lt-sb-stroke:#cdd8ea; --lt-sb-stroke-w:1px; /* left-pane border/stroke colour + width */
-  --lt-logo-bg:#e4ebf6;                        /* the area behind the logo (top of sidebar) */
-  --lt-title-1:#3f74c7; --lt-title-2:#4bbd8c; /* card-title text gradient start → end */
-  --lt-hdr-1:#e6efff; --lt-hdr-2:#e7f5ee;     /* card-title header BAR background start → end */
-  /* element sizing — all tunable from the widget */
-  --lt-pgtitle-size:24px;   /* page title */
-  --lt-title-size:13px;     /* card (part) title */
-  --lt-th-size:10px;        /* column headers */
-  --lt-td-size:12.5px;      /* table body text */
-  --lt-nav-size:12.5px;     /* sidebar nav text */
-  --lt-sb-width:222px;      /* left-pane width */
-  --lt-col-alpha:1;              /* master intensity multiplier for column tints (0 = white, 1 = full pastel) */
-  --lt-stripe:1;                 /* 1 = zebra rows on, 0 = off */
-  /* per-column pastel tints (8 columns) — quiet, differentiated hues */
-  --lt-c1:#eaf1ff;  /* SKU        — blue    */
-  --lt-c2:#fbfcfe;  /* Description— near-white */
-  --lt-c3:#f2edfd;  /* Category   — lavender */
-  --lt-c4:#e8f6f4;  /* Supplier   — teal    */
-  --lt-c5:#eaf7ee;  /* Packaging  — green   */
-  --lt-c6:#fdf3e6;  /* Status     — peach   */
-  --lt-c7:#fbecf1;  /* Activity   — rose    */
-  --lt-c8:#f5f7fa;  /* chevron    — neutral */
-}
-
-/* ── page canvas ── */
-body.lt{
-  color:var(--lt-ink);
-  background-color:var(--lt-page-1);
-  background-image:
-    radial-gradient(900px 620px at 8% -8%,rgba(110,168,254,.10),transparent 60%),
-    radial-gradient(760px 720px at 108% 6%,rgba(150,196,255,.09),transparent 58%),
-    radial-gradient(900px 700px at 46% 118%,rgba(180,160,235,.10),transparent 60%),
-    linear-gradient(165deg,var(--lt-page-1) 0%,var(--lt-page-2) 55%,var(--lt-page-3) 100%);
-}
-
-/* re-map the shared design tokens to light values so shared components (breadcrumb, headers,
-   pills, buttons, focus ring) follow along without per-selector overrides */
-body.lt{
-  --tw:var(--lt-ink); --tw2:var(--lt-ink-2); --tw3:var(--lt-ink-3); --tw4:#66728d;
-  --line:var(--lt-line); --line-2:var(--lt-line-2);
-  --bl-l:var(--lt-accent-ink); --gs-l:#157043; --amber:#ffa821;
-  --field-stroke-color:var(--lt-accent);
-  --ripple-color-hex:#6ea8fe; --ripple-rgb:110,168,254; --ripple-opacity:.30;
-  --particle-color-hex:#8fd0b6; --particle-rgb:143,208,182; --particle-opacity:.7;
-  --sh-1:0 8px 26px -14px rgba(60,90,140,.28);
-  --sh-2:0 16px 40px -18px rgba(60,90,140,.32);
-}
-
-/* ── sidebar → soft white glass ── */
-body.lt .sidebar{
-  /* soft pastel wash — stops, direction, stroke, width all tunable from the widget */
-  background:linear-gradient(var(--lt-sb-angle,200deg),var(--lt-sb-1) 0%,var(--lt-sb-2) 100%);
-  border:var(--lt-sb-stroke-w,1px) solid var(--lt-sb-stroke,var(--lt-line)); box-shadow:var(--sh-1);
-  width:var(--lt-sb-width,222px);
-  backdrop-filter:none;-webkit-backdrop-filter:none;
-}
-/* keep the collapse working — this override sits later in source order than the shared
-   .sidebar.sb-collapsed rule, so it must re-assert the collapsed width itself */
-body.lt .sidebar.sb-collapsed{width:64px}
-/* the area behind the logo (top of the sidebar) — a touch darker so the logo sits on a panel */
-body.lt .sb-logo-zone{background:var(--lt-logo-bg);border-bottom:1px solid var(--lt-sb-stroke)}
-body.lt .nav-item{font-size:var(--lt-nav-size)}
-/* element sizing */
-body.lt .pg-title{font-size:var(--lt-pgtitle-size)}
-body.lt .lt-cardtitle{font-size:var(--lt-title-size)}
-body.lt .tbl th{font-size:var(--lt-th-size)}
-body.lt .tbl td{font-size:var(--lt-td-size)}
-body.lt .sb-logo{filter:none}
-body.lt .nav-item{color:var(--lt-ink-2)}
-body.lt .nav-item:hover{background:rgba(110,168,254,.10);color:var(--lt-ink)}
-body.lt .nav-item.active{
-  background:linear-gradient(90deg,transparent,rgba(110,168,254,.10) 45%,rgba(110,168,254,.22));
-  color:var(--lt-accent-ink);box-shadow:inset 0 0 0 1px rgba(110,168,254,.30);
-}
-body.lt .nav-item.active::before{background:var(--lt-accent);box-shadow:0 0 8px rgba(110,168,254,.55)}
-body.lt .sb-bell-btn,body.lt .sb-notif-row:hover{background:rgba(110,168,254,.08)}
-body.lt .sb-collapse-btn{background:#eaf7ee;color:var(--gs-d)}
-body.lt .sb-collapse-btn:hover{background:#d7efdd}
-body.lt .sb-user-name{color:var(--lt-ink)}
-
-/* ── cards ── */
-body.lt .grp{
-  background:var(--lt-surface);border:1px solid var(--lt-line);border-radius:var(--lt-radius);
-  box-shadow:var(--sh-1);backdrop-filter:none;-webkit-backdrop-filter:none;
-}
-body.lt .grp-hdr{
-  background:linear-gradient(90deg,var(--lt-hdr-1),var(--lt-hdr-2));
-  color:var(--lt-ink);border-bottom:1px solid var(--lt-line);
-  -webkit-text-fill-color:initial;
-}
-/* card title → accent gradient text (follows the customizer accent) */
-body.lt .lt-cardtitle{
-  font-weight:700;letter-spacing:-.01em;
-  background:linear-gradient(90deg,var(--lt-title-1),var(--lt-title-2));
-  -webkit-background-clip:text;background-clip:text;
-  -webkit-text-fill-color:transparent;color:transparent;
-}
-body.lt .btn-g-sm{background:#fff;color:var(--lt-ink-2);border:1px solid var(--lt-line-2)}
-body.lt .btn-g-sm:hover{background:rgba(110,168,254,.10);color:var(--lt-accent-ink)}
-body.lt .fi{background:#fff;border:1px solid var(--lt-line-2);color:var(--lt-ink)}
-body.lt .fi:focus{background:#fff;box-shadow:0 0 0 3px rgba(110,168,254,.18)}
-body.lt select.fi{color-scheme:light}
-
-/* ── stat chips ── */
-body.lt .stat-mini{background:var(--lt-surface-2);border:1px solid var(--lt-line);box-shadow:none}
-body.lt .stat-val{color:var(--lt-ink)}
-body.lt .stat-icon.i-tl{background:#e8f6f4;color:#3aa39c;box-shadow:inset 0 0 0 1px rgba(67,179,173,.25)}
-body.lt .stat-icon.i-gs{background:#eaf7ee;color:#3fae74;box-shadow:inset 0 0 0 1px rgba(78,187,129,.25)}
-body.lt .stat-icon.i-am{background:#fdf3e6;color:#d9932b;box-shadow:inset 0 0 0 1px rgba(245,166,35,.3)}
-
-/* ── TABLE — the pastel harmonious columns ── */
-body.lt .tbl-wrap{border:1px solid var(--lt-line);border-radius:12px;overflow:hidden;background:#fff}
-body.lt .tbl th{
-  background:var(--lt-surface-2);color:var(--lt-ink-2);
-  border-bottom:1px solid var(--lt-line-2);font-weight:600;
-}
-body.lt .tbl td{color:var(--lt-ink-2);border-bottom:1px solid var(--lt-line)}
-body.lt .tbl-name{color:var(--lt-ink)}
-body.lt .tbl-val{color:var(--lt-ink)}
-
-/* base per-column pastel wash — the tint lives on background-COLOR (color-mix folds the master
-   intensity --lt-col-alpha against white so one slider dials them all), while a subtle left→right
-   sheen lives on background-IMAGE so the two layers coexist and every row reads as a gentle gradient. */
-body.lt .tbl th,body.lt .tbl td{
-  background-image:linear-gradient(90deg,rgba(255,255,255,.55),rgba(255,255,255,0) 55%);
-}
-body.lt .tbl th:nth-child(1),body.lt .tbl td:nth-child(1){background-color:color-mix(in srgb,var(--lt-c1) calc(var(--lt-col-alpha)*100%),#fff)}
-body.lt .tbl th:nth-child(2),body.lt .tbl td:nth-child(2){background-color:color-mix(in srgb,var(--lt-c2) calc(var(--lt-col-alpha)*100%),#fff)}
-body.lt .tbl th:nth-child(3),body.lt .tbl td:nth-child(3){background-color:color-mix(in srgb,var(--lt-c3) calc(var(--lt-col-alpha)*100%),#fff)}
-body.lt .tbl th:nth-child(4),body.lt .tbl td:nth-child(4){background-color:color-mix(in srgb,var(--lt-c4) calc(var(--lt-col-alpha)*100%),#fff)}
-body.lt .tbl th:nth-child(5),body.lt .tbl td:nth-child(5){background-color:color-mix(in srgb,var(--lt-c5) calc(var(--lt-col-alpha)*100%),#fff)}
-body.lt .tbl th:nth-child(6),body.lt .tbl td:nth-child(6){background-color:color-mix(in srgb,var(--lt-c6) calc(var(--lt-col-alpha)*100%),#fff)}
-body.lt .tbl th:nth-child(7),body.lt .tbl td:nth-child(7){background-color:color-mix(in srgb,var(--lt-c7) calc(var(--lt-col-alpha)*100%),#fff)}
-body.lt .tbl th:nth-child(8),body.lt .tbl td:nth-child(8){background-color:color-mix(in srgb,var(--lt-c8) calc(var(--lt-col-alpha)*100%),#fff)}
-
-/* zebra: layer a faint darkening + the same sheen on even rows (background-color keeps the column tint).
-   Toggled to nothing when --lt-stripe is 0. */
-body.lt .tbl tbody tr:nth-child(even) td{
-  background-image:
-    linear-gradient(rgba(90,120,170,calc(.05*var(--lt-stripe))),rgba(90,120,170,calc(.05*var(--lt-stripe)))),
-    linear-gradient(90deg,rgba(255,255,255,.5),rgba(255,255,255,0) 55%);
-}
-
-/* hover — a gentle unified accent wash over the whole row (keeps the column tint underneath) */
-body.lt .tbl tbody tr:hover td{
-  background-image:linear-gradient(90deg,rgba(110,168,254,.20),rgba(110,168,254,.10) 60%,rgba(143,208,182,.12)) !important;
-}
-
-/* pills → soft solid pastels with readable ink */
-body.lt .pill-grey{background:#eef1f6;color:#5a6b86;border:1px solid #e0e6ef}
-body.lt .pill-gs,body.lt .pill-green{background:#e6f6ec;color:#2f9c62;border:1px solid #cbead6}
-body.lt .pill-blue{background:#e9f1ff;color:#3f74c7;border:1px solid #d3e2fb}
-body.lt .pill-amber{background:#fdf2e2;color:#c9852a;border:1px solid #f4e0c0}
-body.lt .pill-red{background:#fdeceb;color:#cf5751;border:1px solid #f6d5d3}
-
-body.lt .chev-btn{background:#fff;border:1px solid var(--lt-line-2);color:var(--lt-ink-2)}
-body.lt .tbl tbody tr:hover .chev-btn{background:var(--lt-accent);color:#fff;border-color:transparent;box-shadow:0 6px 16px -6px rgba(110,168,254,.5)}
-body.lt .breadcrumb .bc-cur{color:var(--lt-ink)}
-
-/* ── a slim "you are viewing" banner + link back to the dark page ── */
-.lt-modebar{
-  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
-  margin-bottom:var(--sp-4);padding:8px 12px;border-radius:12px;
-  background:linear-gradient(90deg,rgba(110,168,254,.12),rgba(143,208,182,.10));
-  border:1px solid var(--lt-line-2);font-size:12px;color:var(--lt-ink-2);
-}
-.lt-modebar b{color:var(--lt-ink)}
-.lt-modebar a{color:var(--lt-accent-ink);font-weight:600;text-decoration:none;margin-left:auto}
-.lt-modebar a:hover{text-decoration:underline}
-
-/* ── FLOATING CUSTOMIZER WIDGET ── */
-.lt-fab{
-  position:fixed;right:22px;bottom:22px;z-index:900;width:50px;height:50px;border-radius:50%;
-  background:linear-gradient(135deg,var(--lt-accent),#8fd0b6);color:#fff;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;box-shadow:0 12px 28px -8px rgba(90,120,180,.55);
-  transition:transform .15s;
-}
-.lt-fab:hover{transform:scale(1.06)}
-.lt-fab:active{transform:scale(.94)}
-.lt-panel{
-  position:fixed;right:22px;bottom:84px;z-index:901;width:280px;max-height:calc(100vh - 120px);overflow-y:auto;
-  background:#fff;border:1px solid var(--lt-line-2);border-radius:16px;box-shadow:0 24px 60px -16px rgba(60,90,140,.4);
-  opacity:0;visibility:hidden;transform:translateY(8px);transition:all .18s;
-}
-.lt-panel.open{opacity:1;visibility:visible;transform:none}
-.lt-panel-hdr{display:flex;align-items:center;justify-content:space-between;padding:13px 15px;border-bottom:1px solid var(--lt-line);font-size:13px;font-weight:700;color:var(--lt-ink)}
-.lt-panel-close{width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;color:var(--lt-ink-3);cursor:pointer;font-size:15px}
-.lt-panel-close:hover{background:#f0f3f8;color:var(--lt-ink)}
-.lt-panel-body{padding:14px 15px}
-.lt-sec{font-size:9.5px;font-weight:700;color:var(--lt-ink-3);letter-spacing:.1em;text-transform:uppercase;margin:14px 0 8px}
-.lt-sec:first-child{margin-top:0}
-.lt-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:5px 0}
-.lt-row-lbl{font-size:12px;color:var(--lt-ink-2)}
-.lt-swatches{display:flex;gap:6px}
-.lt-sw{width:24px;height:24px;border-radius:7px;border:1px solid var(--lt-line-2);cursor:pointer;padding:0}
-.lt-color{width:26px;height:26px;border-radius:7px;border:1px solid var(--lt-line-2);background:none;cursor:pointer;padding:0}
-.lt-range{-webkit-appearance:none;appearance:none;width:120px;height:4px;border-radius:3px;background:#e2e8f2;outline:none;cursor:pointer}
-.lt-range::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--lt-accent);cursor:pointer;box-shadow:0 0 0 2px #fff,0 0 0 3px var(--lt-line-2)}
-.lt-presets{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.lt-preset{display:flex;flex-direction:column;align-items:center;gap:5px;padding:8px 4px;border-radius:9px;cursor:pointer;border:1px solid var(--lt-line);background:#fbfcfe}
-.lt-preset:hover{border-color:var(--lt-accent)}
-.lt-preset.active{border-color:var(--lt-accent);box-shadow:0 0 0 1px var(--lt-accent)}
-.lt-preset-sw{display:flex;gap:2px}
-.lt-preset-sw span{width:9px;height:9px;border-radius:50%}
-.lt-preset-nm{font-size:9.5px;color:var(--lt-ink-3);font-weight:600}
-.lt-sel{font-family:'Inter',sans-serif;font-size:11.5px;color:var(--lt-ink-2);background:#fff;border:1px solid var(--lt-line-2);border-radius:8px;padding:5px 8px;cursor:pointer;outline:none}
-.lt-io{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
-.lt-io-btn{padding:9px;font-size:12px;font-weight:600;color:var(--lt-accent-ink);background:#fff;border:1px solid var(--lt-line-2);border-radius:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
-.lt-io-btn:hover{background:rgba(110,168,254,.10)}
-.lt-reset{width:100%;margin-top:12px;padding:9px;font-size:12px;font-weight:600;color:var(--lt-ink-2);background:#f5f7fb;border:1px solid var(--lt-line-2);border-radius:9px;cursor:pointer}
-.lt-reset:hover{background:#f0f3f8;color:var(--lt-ink)}
-.lt-toggle{position:relative;width:36px;height:20px;display:inline-block}
-.lt-toggle input{opacity:0;width:100%;height:100%;margin:0;cursor:pointer;position:absolute;inset:0;z-index:1}
-.lt-toggle-tk{position:absolute;inset:0;background:#dfe5ef;border-radius:20px;transition:background .2s}
-.lt-toggle-th{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
-.lt-toggle input:checked~.lt-toggle-tk{background:var(--lt-accent)}
-.lt-toggle input:checked~.lt-toggle-th{transform:translateX(16px)}
-/* Approve button — lighter green, tending to #4ebb81 (DoC button, also .btn-p, has no [data-approved] so it's unaffected) */
+<link rel="stylesheet" href="css/greenstreets-theme.css?v=46">
+<!-- Products-Light now uses the SHARED light theme (no separate/duplicated CSS) -->
+<link rel="stylesheet" href="css/greenstreets-light.css?v=10">
+<style>
+/* Products-specific only: Approve action button = lighter green */
 .act-cell [data-approved]{background:#4ebb81!important;border-color:#4ebb81!important;color:#fff!important;box-shadow:none!important}
 .act-cell [data-approved]:hover{background:#43ad74!important;border-color:#43ad74!important}
-
-/* ── tooltips → light (this page is self-contained; it doesn't link greenstreets-light.css,
-   so the dark stat-chip bubble + keyboard coach hint need their own light overrides here) ── */
-body.lt .stat-tip{
-  background:linear-gradient(160deg,#ffffff,#f6f9fe);
-  border:1px solid var(--lt-line-2);
-  box-shadow:0 14px 34px -10px rgba(60,90,140,.34);
-}
-body.lt .stat-tip .stat-tip-h{color:#2f9c62}
-body.lt .stat-tip .stat-tip-b{color:var(--lt-ink-2)}
-body.lt .gs-grid-hint{
-  background:#fff;border:1px solid var(--lt-line-2);color:var(--lt-ink-2);
-  box-shadow:0 12px 30px -8px rgba(60,90,140,.32);
-}
-body.lt .gs-grid-hint::after{background:#fff;border-right-color:var(--lt-line-2);border-bottom-color:var(--lt-line-2)}
-body.lt .gs-grid-hint-keys{color:#2f9c62;background:rgba(78,187,129,.12);border-color:rgba(78,187,129,.35)}
-body.lt .gs-grid-hint-x{color:var(--lt-ink-3)}
-body.lt .gs-grid-hint-x:hover{color:var(--lt-ink)}
 </style>
 </head>
 <body class="lt">
@@ -274,7 +24,6 @@ body.lt .gs-grid-hint-x:hover{color:var(--lt-ink)}
     <div class="sidebar" data-active="s11"></div>
     <div class="main">
       <div class="breadcrumb"><a class="bc-link" onclick="go('s2')">Retailers</a><span class="bc-sep">›</span><a class="bc-link" onclick="go('s4')">Primark Stores Ltd</a><span class="bc-sep">›</span><span class="bc-cur">Products</span></div>
-      <div class="lt-modebar">🎨 <b>Light theme preview</b> — pastel column variation of the Products listing. <a data-nolight href="01-greenstreets_super_admin_Products.html">← Back to standard (dark) view</a></div>
       <div class="pg-hdr-bar">
         <div><div class="pg-title">Products — Primark Stores Ltd</div><div class="pg-sub">Product catalogue and packaging coverage at a glance</div></div>
         <div class="pg-actions hdr-stat-row">
@@ -441,9 +190,9 @@ body.lt .gs-grid-hint-x:hover{color:var(--lt-ink)}
   </div>
 </div>
 
-<script src="js/super-admin.js?v=13"></script>
-<script src="js/greenstreets-theme.js?v=32"></script>
-<script src="js/greenstreets-light.js?v=1"></script>
+<script src="js/super-admin.js?v=15"></script>
+<script src="js/greenstreets-theme.js?v=36"></script>
+<script src="js/greenstreets-light.js?v=2"></script>
 <script>
 /* ── Light-page customizer widget ── self-contained; edits the --lt-* CSS variables on :root.
    Persists to localStorage so a designer's tweaks survive a reload. */
@@ -461,7 +210,7 @@ body.lt .gs-grid-hint-x:hover{color:var(--lt-ink)}
   var root=document.documentElement, LS='gs-light-products-v2';
   /* default theme for THIS page — imported from greenstreets-light-theme (1).json */
   var DEFAULTS={
-    accent:'#6ea8fe', alpha:'1', stripe:true, radius:'14',
+    accent:'#6ea8fe', alpha:'0.55', stripe:true, radius:'14',
     cols:['#f6fafe','#fbfcfe','#ecf6f8','#edf4f8','#e9f7f2','#e7f1fd','#ebf4ff','#f5f7fa'],
     sb:['#edf8f6','#eaf1fd'], sbDir:'90deg', sbStroke:'#c5e7d6', sbStrokeW:'2', logoBg:'#e6eaef', sbWidth:'222',
     title:['#16c0b2','#81c1fd'], hdr:['#e6efff','#e7f5ee'], hdrFlat:false,

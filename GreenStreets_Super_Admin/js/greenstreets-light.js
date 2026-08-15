@@ -55,19 +55,9 @@
     });
   }
 
-  /* 4 — "back to dark" banner (skip if the page already ships one) */
-  function injectBanner(){
-    if(document.querySelector('.lt-modebar')) return;
-    var host=document.querySelector('.main')||document.querySelector('.pshell')
-           ||document.querySelector('.onb-body')||document.querySelector('.login-wrap');
-    if(!host) return;
-    var dark=(location.pathname.split('/').pop()||'').replace('-Light.html','.html');
-    var bar=document.createElement('div'); bar.className='lt-modebar';
-    bar.innerHTML='🎨 <b>Light theme preview</b> <a data-nolight href="'+dark+'">← Back to standard (dark) view</a>';
-    host.insertBefore(bar,host.firstChild);
-  }
+  /* (the old "Light theme preview" banner was removed — the header theme switch replaces it) */
 
-  function run(){ swapLogos(); rewriteLinks(); rewriteInlineNav(); injectBanner(); }
+  function run(){ swapLogos(); rewriteLinks(); rewriteInlineNav(); }
   run();
   window.addEventListener('load',run);
   /* sidebar + listings render after load — keep re-applying (debounced) */

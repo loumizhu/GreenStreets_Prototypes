@@ -3,11 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>GreenStreets Super Admin · Retailers (Light)</title>
+<title>GreenStreets Super Admin · Retailers (Light v2 · AuthKit)</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/greenstreets-theme.css?v=46">
-<!-- light theme layer — loaded AFTER the shared glass theme so it wins by source order -->
-<link rel="stylesheet" href="css/greenstreets-light.css?v=10">
 <style>
   .hdr-notif{position:relative;display:inline-flex;align-items:center;justify-content:center;
     width:40px;height:40px;margin-left:6px;border-radius:12px;cursor:pointer;
@@ -18,6 +16,144 @@
     display:flex;align-items:center;justify-content:center;border-radius:9px;
     background:var(--amber,#e0a52e);color:#1a1205;font-size:11px;font-weight:700;line-height:1;
     box-shadow:0 0 0 2px var(--nv)}
+</style>
+
+<!-- ═══ AUTHKIT-STYLE LIGHT THEME (v2) ═══════════════════════════════════════════
+     A flat, minimal light variant inspired by authkit.com: off-white surfaces,
+     hairline borders, filled rounded inputs, a single solid accent button, and
+     generous whitespace. Self-contained (does NOT link greenstreets-light.css);
+     it remaps the shared design tokens to neutral light values, then restyles the
+     distinctive components. Accent kept green per brief. ═════════════════════════ -->
+<style id="authkit-light">
+:root{
+  --ak-bg:#f3f4f7; --ak-surface:#ffffff; --ak-surface-2:#fafbfc;
+  --ak-ink:#1e2330; --ak-ink-2:#5b6270; --ak-ink-3:#8a90a0;
+  --ak-line:#ecedf1; --ak-line-2:#e1e3ea; --ak-input:#f1f2f5;
+  --ak-accent:#2fa46a; --ak-accent-strong:#268a58; --ak-accent-soft:#e9f6ef; --ak-accent-ink:#2f9c62;
+  --ak-radius:10px; --ak-radius-lg:16px;
+  --ak-shadow-sm:0 1px 2px rgba(16,24,40,.05);
+  --ak-shadow:0 1px 2px rgba(16,24,40,.05),0 10px 26px -14px rgba(16,24,40,.18);
+}
+/* page canvas + token remap so shared components follow the light palette */
+body.lt{
+  color:var(--ak-ink); background:var(--ak-bg);
+  --tw:var(--ak-ink); --tw2:var(--ak-ink-2); --tw3:var(--ak-ink-3); --tw4:#9aa0ad;
+  --line:var(--ak-line); --line-2:var(--ak-line-2); --stroke:var(--ak-line-2);
+  --gs-l:var(--ak-accent-ink); --bl-l:var(--ak-accent-ink); --amber:#b7791f; --red:#d9534f;
+  --field-stroke-color:var(--ak-accent); --swoosh-opacity:0;
+  --ripple-color-hex:#2fa46a; --ripple-rgb:47,164,106; --ripple-opacity:.22;
+  --particle-color-hex:#2fa46a; --particle-rgb:47,164,106; --particle-opacity:.5;
+  --sh-1:0 1px 2px rgba(16,24,40,.05),0 8px 22px -14px rgba(16,24,40,.15);
+  --sh-2:0 14px 40px -18px rgba(16,24,40,.22);
+}
+
+/* ── sidebar — clean white panel, hairline border ── */
+body.lt .sidebar{background:var(--ak-surface);border:1px solid var(--ak-line);border-radius:var(--ak-radius-lg);box-shadow:var(--ak-shadow-sm);backdrop-filter:none;-webkit-backdrop-filter:none}
+body.lt .sb-logo-zone{background:transparent;border-bottom:1px solid var(--ak-line)}
+body.lt .sb-logo{filter:none}
+body.lt .sb-section{color:var(--ak-ink-3)}
+body.lt .nav-item{color:var(--ak-ink-2);border-radius:8px}
+body.lt .nav-item:hover{background:#f4f5f7;color:var(--ak-ink)}
+body.lt .nav-item.active{background:var(--ak-accent-soft);color:var(--ak-accent-strong);box-shadow:none}
+body.lt .nav-item.active::before{background:var(--ak-accent);box-shadow:none}
+body.lt .sb-divider{background:var(--ak-line)}
+body.lt .sb-notif-row{border-top-color:var(--ak-line)}
+body.lt .sb-notif-row:hover{background:#f4f5f7}
+body.lt .sb-bell-btn{background:#f1f2f5;color:var(--ak-ink-2)}
+body.lt .bell-badge{background:#e5484d;box-shadow:0 0 0 2px var(--ak-surface)}
+body.lt .sb-notif-label{color:var(--ak-ink-2)}
+body.lt .sb-user{border-top-color:var(--ak-line)}
+body.lt .sb-user-name{color:var(--ak-ink)}
+body.lt .sb-user-role{color:var(--ak-ink-3)}
+body.lt .sb-avatar{background:linear-gradient(135deg,var(--ak-accent),#5cc98f);color:#fff;box-shadow:none}
+body.lt .sb-logout{color:var(--ak-ink-3)}
+body.lt .sb-logout:hover{background:#f4f5f7;color:var(--ak-ink)}
+body.lt .sb-collapse-btn{background:#f1f2f5;color:var(--ak-ink-2)}
+
+/* ── header ── */
+body.lt .pg-eyebrow{color:var(--ak-ink-3)}
+body.lt .pg-title{color:var(--ak-ink)}
+body.lt .pg-sub{color:var(--ak-ink-3)}
+body.lt .stat-mini{background:var(--ak-surface);border:1px solid var(--ak-line);border-radius:12px;box-shadow:var(--ak-shadow-sm)}
+body.lt .stat-lbl{color:var(--ak-ink-3)}
+body.lt .stat-val{color:var(--ak-ink)}
+body.lt .stat-icon.i-bl,body.lt .stat-icon.i-gs,body.lt .stat-icon.i-tl{background:var(--ak-accent-soft);color:var(--ak-accent);box-shadow:none}
+body.lt .stat-icon.i-am{background:#fbf1de;color:#b7791f;box-shadow:none}
+body.lt .hdr-notif{background:var(--ak-surface);border:1px solid var(--ak-line-2);color:var(--ak-ink-2)}
+body.lt .hdr-notif:hover{background:var(--ak-accent-soft);border-color:var(--ak-accent);color:var(--ak-accent-strong)}
+body.lt .hdr-notif-badge{background:#e5484d;color:#fff;box-shadow:0 0 0 2px var(--ak-bg)}
+body.lt .hdr-theme-toggle{background:var(--ak-surface);border:1px solid var(--ak-line-2);color:var(--ak-ink-2);box-shadow:var(--ak-shadow-sm)}
+body.lt .hdr-theme-toggle:hover{background:var(--ak-accent-soft);border-color:var(--ak-accent);color:var(--ak-accent-strong)}
+
+/* ── cards ── */
+body.lt .grp{background:var(--ak-surface);border:1px solid var(--ak-line);border-radius:var(--ak-radius-lg);box-shadow:var(--ak-shadow);backdrop-filter:none;-webkit-backdrop-filter:none}
+body.lt .grp-hdr{background:var(--ak-surface);border-bottom:1px solid var(--ak-line);color:var(--ak-ink);box-shadow:none}
+body.lt .lt-cardtitle{font-weight:600;letter-spacing:-.01em;background:none;-webkit-background-clip:initial;background-clip:initial;-webkit-text-fill-color:initial;color:var(--ak-ink)}
+
+/* ── buttons ── */
+body.lt .btn-p{background:var(--ak-accent);color:#fff;border-radius:var(--ak-radius);box-shadow:var(--ak-shadow-sm)}
+body.lt .btn-p:hover{background:var(--ak-accent-strong);filter:none;box-shadow:0 6px 16px -8px rgba(47,164,106,.5)}
+body.lt .btn-p::after{opacity:0}
+body.lt .btn-g,body.lt .btn-g-sm{background:var(--ak-surface);color:var(--ak-ink-2);border:1px solid var(--ak-line-2);border-radius:var(--ak-radius);box-shadow:var(--ak-shadow-sm)}
+body.lt .btn-g:hover,body.lt .btn-g-sm:hover{background:#f4f5f7;color:var(--ak-ink);border-color:var(--ak-line-2)}
+
+/* ── inputs / selects ── */
+body.lt .fi{background:var(--ak-input);border:1px solid var(--ak-line-2);color:var(--ak-ink);border-radius:var(--ak-radius)}
+body.lt .fi::placeholder{color:var(--ak-ink-3)}
+body.lt .fi:focus{background:#fff;border-color:var(--ak-accent);box-shadow:0 0 0 3px rgba(47,164,106,.16)}
+body.lt select.fi{color-scheme:light}
+body.lt .cs-trigger{background:var(--ak-input);border:1px solid var(--ak-line-2);color:var(--ak-ink);border-radius:var(--ak-radius)}
+body.lt .cs-menu{background:#fff;border:1px solid var(--ak-line-2);box-shadow:var(--ak-shadow);border-radius:12px}
+body.lt .cs-opt{color:var(--ak-ink-2)}
+body.lt .cs-opt:hover,body.lt .cs-opt.cs-active{background:var(--ak-accent-soft);color:var(--ak-accent-strong)}
+body.lt .search-wrap svg{color:var(--ak-ink-3)}
+
+/* ── table — clean monochrome, no column tints ── */
+body.lt .tbl-wrap{background:var(--ak-surface);border:1px solid var(--ak-line);border-radius:12px;overflow:hidden;backdrop-filter:none;-webkit-backdrop-filter:none}
+body.lt .tbl th{background:var(--ak-surface-2);color:var(--ak-ink-3);border-bottom:1px solid var(--ak-line);font-weight:600;text-transform:uppercase;letter-spacing:.04em;background-image:none}
+body.lt .tbl td{color:var(--ak-ink-2);border-bottom:1px solid var(--ak-line)}
+body.lt .tbl tbody tr,body.lt .tbl tbody tr:nth-child(odd),body.lt .tbl tbody tr:nth-child(even){background:transparent}
+body.lt .tbl tbody tr td{background-image:none !important;background-color:transparent !important}
+body.lt .tbl tbody tr:hover td{background-color:#f7f8fa !important}
+body.lt .tbl-name{color:var(--ak-ink)}
+body.lt .tbl-sub{color:var(--ak-ink-3)}
+body.lt .tbl-val{color:var(--ak-ink)}
+body.lt .tbl-muted{color:var(--ak-ink-3)}
+body.lt .tbl-footer{color:var(--ak-ink-3);border-top:1px solid var(--ak-line)}
+
+/* ── pills ── */
+body.lt .pill-grey{background:#f1f2f5;color:var(--ak-ink-2);border:1px solid var(--ak-line-2)}
+body.lt .pill-gs,body.lt .pill-green{background:var(--ak-accent-soft);color:var(--ak-accent-strong);border:1px solid #cdebda}
+body.lt .pill-blue{background:#eef1ff;color:#4759c9;border:1px solid #dfe4fb}
+body.lt .pill-amber{background:#fbf1de;color:#a9781f;border:1px solid #f0e2c2}
+body.lt .pill-red{background:#fdecec;color:#c9433f;border:1px solid #f6d5d4}
+
+/* ── health + packaging bars ── */
+body.lt .health-lbl{color:var(--ak-ink-3)}
+body.lt .pkg-bar{background:#edeef2}
+body.lt .pkg-frac.good{color:var(--ak-accent-ink)}
+body.lt .pkg-frac.warn{color:#b7791f}
+body.lt .pkg-frac.bad{color:#d9534f}
+body.lt .hdot-g{background:#3aae74;box-shadow:0 0 0 3px rgba(58,174,116,.15)}
+body.lt .hdot-a{background:#e6b357;box-shadow:0 0 0 3px rgba(230,179,87,.18)}
+body.lt .hdot-r{background:#e07a75;box-shadow:0 0 0 3px rgba(224,122,117,.18)}
+
+/* ── row actions ── */
+body.lt .act-mini{background:var(--ak-surface);border:1px solid var(--ak-line-2);color:var(--ak-ink-2);border-radius:8px}
+body.lt .act-mini:hover{background:var(--ak-accent-soft);border-color:var(--ak-accent);color:var(--ak-accent-strong)}
+body.lt .act-arrow{background:var(--ak-surface);border:1px solid var(--ak-line-2);color:var(--ak-ink-2);border-radius:8px}
+body.lt .tbl tbody tr:hover .act-arrow,body.lt .act-arrow:hover{background:var(--ak-accent);color:#fff;border-color:transparent;box-shadow:0 6px 14px -6px rgba(47,164,106,.5)}
+
+/* ── data-grid toolkit bits (checkbox col, column menu, bulk bar, pager) ── */
+body.lt .tbl td.gs-check-col input,body.lt .tbl th.gs-check-col input,body.lt .gs-colmenu input[type=checkbox]{background:#fff;border-color:var(--ak-line-2);box-shadow:none}
+body.lt .gs-colmenu{background:#fff;border:1px solid var(--ak-line-2);box-shadow:var(--ak-shadow)}
+body.lt .gs-colmenu label{color:var(--ak-ink-2)}
+body.lt .gs-colmenu label:hover{background:#f4f5f7;color:var(--ak-ink)}
+body.lt .gs-bulkbar{background:#fff;border:1px solid var(--ak-line-2);box-shadow:var(--ak-shadow)}
+body.lt .gs-pager{color:var(--ak-ink-3)}
+body.lt .breadcrumb .bc-cur{color:var(--ak-ink)}
+body.lt .breadcrumb .bc-link{color:var(--ak-ink-3)}
+body.lt .breadcrumb .bc-link:hover{color:var(--ak-accent-strong)}
 </style>
 </head>
 <body class="lt">
@@ -166,6 +302,8 @@
   </div>
 </div>
 
+<script>/* this variant's filename is off the -Light convention, so point the theme switch at the dark page explicitly */
+window.gsToggleTheme=function(){ window.location.href='01-greenstreets_super_admin_Retailers.html'; };</script>
 <script src="js/super-admin.js?v=15"></script>
 <script src="js/greenstreets-theme.js?v=36"></script>
 <script src="js/greenstreets-light.js?v=2"></script>
