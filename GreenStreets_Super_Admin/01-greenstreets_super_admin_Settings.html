@@ -67,18 +67,25 @@
       <div class="grp" style="margin-bottom:var(--sp-4)">
         <div class="grp-hdr">Appearance &amp; theme</div>
         <div class="grp-body">
-          <div id="settings-appearance"></div>
-          <div class="sap-light-sec">
-            <div class="sap-light-h">Light theme</div>
+          <!-- ═ Theme: mode toggle + both palettes grouped together ═ -->
+          <div class="sap-light-sec" style="margin-top:0;padding-top:0;border-top:none">
+            <div class="sap-light-h">Theme</div>
             <div class="tgl-row"><div class="tgl-info">Theme mode<small>Switch this console between the dark and light appearance</small></div>
               <div class="gs-theme-seg" id="gsThemeSeg"><button type="button" class="gs-seg-btn" data-mode="dark">Dark</button><button type="button" class="gs-seg-btn" data-mode="light">Light</button></div>
             </div>
             <div style="padding-top:var(--sp-3)">
-              <div class="flbl" style="margin-bottom:6px">Light theme palette</div>
+              <div class="flbl" style="margin-bottom:4px">Dark theme presets</div>
+              <div class="fhint" style="margin:0 0 10px">Colour theme used while the console is in the dark appearance.</div>
+              <div id="settings-theme-presets"></div>
+            </div>
+            <div style="padding-top:var(--sp-3)">
+              <div class="flbl" style="margin-bottom:4px">Light theme presets</div>
+              <div class="fhint" style="margin:0 0 10px">Colour set used while the console is in the light appearance.</div>
               <div class="gs-lp-grid" id="gsLpGrid"></div>
-              <div class="tbl-muted" style="font-size:11px;margin-top:9px">Pick a harmonious colour set — it applies across every light-theme screen.</div>
             </div>
           </div>
+          <!-- Personalise: accent, logo, display &amp; advanced customizer -->
+          <div id="settings-appearance"></div>
         </div>
       </div>
 
@@ -90,7 +97,7 @@
   </div>
 </div>
 
-<script src="js/super-admin.js?v=15"></script>
+<script src="js/super-admin.js?v=16"></script>
 <script src="js/greenstreets-theme.js?v=36"></script>
 </body>
 </html>

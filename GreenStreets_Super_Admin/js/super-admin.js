@@ -1202,9 +1202,10 @@ function buildSettingsAppearance(){
   advBtn.onclick=function(ev){ ev.stopPropagation(); toggleThemePanel(true); };
   advSec.appendChild(advBtn); wrap.appendChild(advSec);
 
-  /* Theme preset */
+  /* Theme preset (dark-appearance palettes). If the Settings page provides the
+     grouped theme-cluster mount (#settings-theme-presets), inject the swatches
+     there — next to the light-theme palette — instead of into the personalise block. */
   if(typeof PRESETS!=='undefined'){
-    var themeSec=gsaSection('Theme','Choose a colour theme for the console.');
     var pg=document.createElement('div'); pg.className='appr-presets';
     PRESETS.forEach(function(p,i){
       var sw=p.swatch.map(function(c){return '<span style="background:'+c+'"></span>';}).join('');
@@ -1213,7 +1214,9 @@ function buildSettingsAppearance(){
       card.onclick=function(){ gsaSet({theme:i, accent:undefined}); gsaRefresh(); };
       pg.appendChild(card);
     });
-    themeSec.appendChild(pg); wrap.appendChild(themeSec);
+    var presetMount=document.getElementById('settings-theme-presets');
+    if(presetMount){ presetMount.innerHTML=''; presetMount.appendChild(pg); }
+    else { var themeSec=gsaSection('Dark theme presets','Colour theme used in the dark appearance.'); themeSec.appendChild(pg); wrap.appendChild(themeSec); }
   }
 
   /* Accent colour */
