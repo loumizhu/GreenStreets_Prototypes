@@ -19,7 +19,7 @@
 .wk-vline2{position:absolute;top:0;bottom:0;width:0;border-left:1px dotted rgba(255,255,255,.05)}
 .wk-bars-row{position:absolute;inset:0;display:flex;align-items:flex-end;gap:2px;z-index:1}
 .wk-col{flex:1;display:flex;align-items:flex-end;justify-content:center;gap:2px;height:100%}
-.wk-bar{width:28%;min-height:3px;border-radius:2px 2px 0 0;transition:opacity .15s,filter .12s;cursor:pointer}
+.wk-bar{width:28%;min-height:3px;border-radius:4px 4px 1px 1px;transition:opacity .15s,filter .12s;cursor:pointer}
 .wk-bar:hover{filter:brightness(1.18)}
 .wk-approved{background:#8ad2ac}
 .wk-submitted{background:#2a5298}
@@ -38,9 +38,17 @@
 .wk-key.off .wk-sw{filter:grayscale(.85)}
 .exp-remind{flex-shrink:0;height:26px;padding:0 9px;font-size:10px;display:inline-flex;align-items:center;gap:4px;border-radius:6px;border:1px solid rgba(69,125,195,.4);background:rgba(69,125,195,.12);color:#9dc4ff;cursor:pointer;transition:all .12s}
 .exp-remind:hover{background:rgba(69,125,195,.22);border-color:rgba(69,125,195,.6)}
+
+/* ============ ENTRANCE ANIMATION (ported from Retailer Admin) ============ */
+#ru1 .main>*{animation:none!important}
+html.gs-anim-armed #ru1 .pg-hdr-bar,
+html.gs-anim-armed #ru1 #ru-tour-dash .stat,
+html.gs-anim-armed #ru1 .alert,
+html.gs-anim-armed #ru1 .grp{opacity:0}
 </style>
 </head>
 <body>
+<script>document.documentElement.classList.add('gs-anim-armed');</script>
 <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true"><defs><symbol id="gsi-0" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></symbol><symbol id="gsi-1" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol><symbol id="gsi-2" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></symbol><symbol id="gsi-3" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></symbol><symbol id="gsi-4" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></symbol><symbol id="gsi-5" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></symbol><symbol id="gsi-6" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol><symbol id="gsi-7" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></symbol><symbol id="gsi-8" viewBox="0 0 24 24"><path d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'/><polyline points='17 8 12 3 7 8'/><line x1='12' y1='3' x2='12' y2='15'/></symbol><symbol id="gsi-9" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></symbol><symbol id="gsi-10" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></symbol><symbol id="gsi-11" viewBox="0 0 24 24"><path d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/><polyline points='14 2 14 8 20 8'/></symbol><symbol id="gsi-12" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></symbol><symbol id="gsi-13" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol><symbol id="gsi-14" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol></defs></svg>
 <div class="screen on" id="ru1">
   <div class="app-body">
@@ -94,23 +102,13 @@
         </div>
       </div>
 
-      <!-- Overall progress banner -->
-      <div style="background:linear-gradient(135deg,rgba(78,187,129,.12),rgba(78,187,129,.05));border:1px solid rgba(78,187,129,.25);border-radius:10px;padding:12px 16px;margin-bottom:12px;display:flex;align-items:center;gap:16px">
-        <div style="flex:1">
-          <div style="font-size:11px;color:var(--tw3);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em;font-weight:600">Overall packaging data collection</div>
-          <div class="prog" style="width:100%;max-width:400px;height:6px"><div class="prog-f" style="width:62%"></div></div>
-        </div>
-        <div style="font-size:28px;font-weight:700;color:var(--gs)">62%</div>
-        <div style="font-size:12px;color:var(--tw3);text-align:right">15 of 20<br>DoCs ready</div>
-      </div>
-
-      <!-- Metric tiles -->
-      <div id="ru-tour-dash" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px">
+      <!-- Metric tiles — all four in a single row (matches Retailer Admin) -->
+      <div id="ru-tour-dash" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px">
         <div class="stat" style="cursor:pointer;display:flex;align-items:center;gap:10px;justify-content:space-between" onclick="go('ru6')">
           <div style="min-width:0">
             <div class="stat-lbl">Declaration of conformity</div>
             <div class="stat-val" style="color:#8fe3b6">15<span style="font-size:14px;color:var(--tw3);font-weight:400">/20</span></div>
-            <div style="font-size:10px;color:var(--tw3);margin-top:3px">Click to view all DoC products →</div>
+            <div style="font-size:10px;color:var(--tw3);margin-top:3px">Click to view →</div>
           </div>
           <div tabindex="0" role="img" aria-label="DoC status breakdown" onclick="event.stopPropagation()" data-gs-tip="Declaration of Conformity across 20 products — 15 approved &amp; DoC generated (green), 3 awaiting supplier data (blue), 2 missing mandatory fields (red)." style="width:38px;height:38px;border-radius:50%;flex-shrink:0;background:conic-gradient(#8ad2ac 0 75%,#2a5298 75% 90%,#ff9c96 90% 100%);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)"></div>
         </div>
@@ -123,6 +121,12 @@
           <div class="stat-lbl">Technical documentation</div>
           <div class="stat-val" style="color:#f5a623">14<span style="font-size:14px;color:var(--tw3);font-weight:400">/20</span></div>
           <div style="font-size:10px;color:#f5a623;margin-top:3px">6 docs outstanding →</div>
+        </div>
+        <div class="stat" style="cursor:pointer" onclick="go('ru7')" title="Open Documents">
+          <div class="stat-lbl">Overall data collection</div>
+          <div class="stat-val" style="color:var(--gs)">62%</div>
+          <div class="prog" style="width:100%;height:5px;margin-top:7px"><div class="prog-f" style="width:62%"></div></div>
+          <div style="font-size:10px;color:var(--tw3);margin-top:5px">15 of 20 DoCs ready · view outstanding →</div>
         </div>
       </div>
 
@@ -348,6 +352,228 @@ function ruRemindDoc(ev, btn){
   btn.style.background='rgba(78,187,129,.15)'; btn.style.borderColor='rgba(78,187,129,.35)'; btn.style.color='#8fe3b6';
   setTimeout(function(){ btn.innerHTML=orig; btn.style.background=''; btn.style.borderColor=''; btn.style.color=''; delete btn.dataset.sent; }, 2200);
 }
+</script>
+
+<!-- =========================================================================
+     ENTRANCE ANIMATION ENGINE  (ported from Retailer Admin dashboard)
+     Staged, overlapping (follow-through) intro for the dashboard.
+     ========================================================================= -->
+<script>
+(function(){
+  'use strict';
+
+  var CFG = {
+    delay:0, speed:1.7, overlap:0.55, dist:20, rowDist:12,
+    ease:'cubic-bezier(.22,1,.36,1)',
+    sidebarDur:520, sidebarDist:46, pieDur:260, numDur:360,
+    stages:[
+      {key:'header',     dur:420},
+      {key:'tile1',      dur:560},
+      {key:'tile2',      dur:440},
+      {key:'tile3',      dur:440},
+      {key:'tile4',      dur:260},
+      {key:'alert',      dur:360},
+      {key:'chart',      dur:520, grid:260, text:360, barDur:300, barStag:55},
+      {key:'expiring',   dur:480, rowDur:420, rowStag:80},
+      {key:'conformity', dur:480, rowDur:420, rowStag:75},
+      {key:'invites',    dur:480, rowDur:420, rowStag:65}
+    ]
+  };
+
+  var $  = function(s,r){ return (r||document).querySelector(s); };
+  var $$ = function(s,r){ return Array.prototype.slice.call((r||document).querySelectorAll(s)); };
+
+  var els = {};
+  function grab(){
+    els.sidebar   = $('#ru1 .sidebar');
+    els.header    = $('#ru1 .pg-hdr-bar');
+    els.tiles     = $$('#ru-tour-dash > .stat');
+    els.pie       = $('#ru-tour-dash [role="img"][aria-label="DoC status breakdown"]');
+    els.progFill  = $('#ru-tour-dash .prog-f');
+    els.alert     = $('#ru1 .alert');
+    els.chartCard = closestGrp($('#ru1 .wk-chart'));
+    els.expCard   = closestGrp($('#ru1 .exp-row'));
+    els.confCard  = $('#ru-tour-dash-list');
+    els.invCard   = $$('#ru1 .grp').filter(function(g){ return /Supplier activity/.test(g.textContent); })[0];
+    els.gridLines = $$('#ru1 .wk-hline, #ru1 .wk-hline2, #ru1 .wk-vline, #ru1 .wk-vline2');
+    els.bars      = $$('#ru1 .wk-bar');
+    els.chartText = [ $('#ru1 .wk-days'), $('#ru1 .wk-legend'),
+                      els.chartCard ? els.chartCard.querySelector('.grp-body > div[style*="border-top"]') : null ].filter(Boolean);
+    els.expRows   = $$('#ru1 .exp-row');
+    els.confRows  = els.confCard ? $$('tbody tr', els.confCard) : [];
+    els.invRows   = els.invCard  ? $$('tbody tr', els.invCard)  : [];
+    els.nums = els.tiles.map(function(t){ return t.querySelector('.stat-val'); });
+  }
+  function closestGrp(node){ while(node && !(node.classList && node.classList.contains('grp'))) node=node.parentElement; return node; }
+
+  function captureNumbers(){
+    els.nums.forEach(function(v){
+      if(!v || v._gsNumNode) return;
+      var node = v.childNodes[0];
+      if(node && node.nodeType===3){
+        var m = String(node.nodeValue).match(/^\s*(\d+)(.*)$/);
+        if(m){ v._gsNumNode=node; v._gsTarget=parseInt(m[1],10); v._gsSuffix=m[2]||''; }
+      }
+    });
+    if(els.progFill && els.progFill._gsW==null){ els.progFill._gsW = els.progFill.style.width || '0%'; }
+  }
+
+  var RUN = { timers:[], rafs:[], anims:[] };
+  function stop(){
+    RUN.timers.forEach(clearTimeout); RUN.rafs.forEach(cancelAnimationFrame);
+    RUN.anims.forEach(function(a){ try{a.cancel();}catch(e){} });
+    RUN = { timers:[], rafs:[], anims:[] };
+  }
+  var SP = 1;
+  function at(ms, fn){ RUN.timers.push(setTimeout(fn, Math.max(0,ms)/SP)); }
+
+  var easeOutCubic = function(t){ return 1 - Math.pow(1-t, 3); };
+  function tween(dur, onUpd, onDone){
+    var start=null;
+    function frame(ts){
+      if(start==null) start=ts;
+      var t = Math.min(1, (ts-start)/(dur/SP));
+      onUpd(easeOutCubic(t), t);
+      if(t<1){ RUN.rafs.push(requestAnimationFrame(frame)); } else if(onDone){ onDone(); }
+    }
+    RUN.rafs.push(requestAnimationFrame(frame));
+  }
+  function rise(el, dur, dist){
+    if(!el) return;
+    var a = el.animate(
+      [{opacity:0, transform:'translateY('+dist+'px)'},{opacity:1, transform:'translateY(0)'}],
+      {duration:dur/SP, easing:CFG.ease, fill:'both'});
+    RUN.anims.push(a);
+    a.finished && a.finished.then(function(){ el.style.opacity=''; el.style.transform=''; }).catch(function(){});
+  }
+  function slideDown(el, dur, dist){
+    if(!el) return;
+    var a = el.animate(
+      [{opacity:0, transform:'translateY(-'+dist+'px)'},{opacity:1, transform:'translateY(0)'}],
+      {duration:dur/SP, easing:CFG.ease, fill:'both'});
+    RUN.anims.push(a);
+    a.finished && a.finished.then(function(){ el.style.opacity=''; el.style.transform=''; }).catch(function(){});
+  }
+  function growBar(el, dur){
+    if(!el) return;
+    var a = el.animate(
+      [{opacity:0, transform:'scaleY(0)'},{opacity:1, transform:'scaleY(1)'}],
+      {duration:dur/SP, easing:'cubic-bezier(.2,.8,.25,1)', fill:'both'});
+    RUN.anims.push(a);
+    a.finished && a.finished.then(function(){ el.style.opacity=''; el.style.transform=''; }).catch(function(){});
+  }
+  function fadeIn(el, dur){
+    if(!el) return;
+    var a = el.animate([{opacity:0},{opacity:1}], {duration:dur/SP, easing:'ease-out', fill:'both'});
+    RUN.anims.push(a);
+    a.finished && a.finished.then(function(){ el.style.opacity=''; }).catch(function(){});
+  }
+  function countUp(v, dur){
+    if(!v || !v._gsNumNode) return;
+    tween(dur, function(p){
+      v._gsNumNode.nodeValue = Math.round(v._gsTarget * p) + v._gsSuffix;
+    }, function(){ v._gsNumNode.nodeValue = v._gsTarget + v._gsSuffix; });
+  }
+  function pieSweep(el, dur){
+    if(!el) return;
+    tween(dur, function(p){
+      var a = (360*p).toFixed(1)+'deg';
+      var mask = 'conic-gradient(#000 '+a+', transparent 0)';
+      el.style.webkitMaskImage = mask; el.style.maskImage = mask;
+    }, function(){ el.style.webkitMaskImage=''; el.style.maskImage=''; });
+  }
+  function growProg(el, dur){
+    if(!el) return;
+    var target = el._gsW || '62%';
+    el.style.width = '0%';
+    var a = el.animate([{width:'0%'},{width:target}], {duration:dur/SP, easing:CFG.ease, fill:'both'});
+    RUN.anims.push(a);
+    a.finished && a.finished.then(function(){ el.style.width=target; }).catch(function(){});
+  }
+
+  function arm(){
+    grab(); captureNumbers();
+    var hide = function(el){ if(el){ el.style.opacity='0'; } };
+    hide(els.sidebar); if(els.sidebar) els.sidebar.style.transform='translateX(-'+CFG.sidebarDist+'%)';
+    hide(els.header);
+    els.tiles.forEach(hide);
+    els.nums.forEach(function(v){ if(v && v._gsNumNode) v._gsNumNode.nodeValue = '0'+v._gsSuffix; });
+    if(els.pie){ els.pie.style.webkitMaskImage='conic-gradient(#000 0deg, transparent 0)'; els.pie.style.maskImage='conic-gradient(#000 0deg, transparent 0)'; }
+    if(els.progFill){ els.progFill.style.width='0%'; }
+    hide(els.alert);
+    [els.chartCard, els.expCard, els.confCard, els.invCard].forEach(hide);
+    els.gridLines.forEach(hide);
+    els.chartText.forEach(hide);
+    els.bars.forEach(function(b){ b.style.opacity='0'; b.style.transform='scaleY(0)'; b.style.transformOrigin='bottom'; });
+    [].concat(els.expRows, els.confRows, els.invRows).forEach(function(r){ if(r){ r.style.opacity='0'; } });
+    document.documentElement.classList.remove('gs-anim-armed');
+  }
+
+  function runStage(s){
+    var sub = function(off, fn){ at(off, fn); };
+    switch(s.key){
+      case 'header':  rise(els.header, s.dur, CFG.dist); break;
+      case 'tile1':
+        rise(els.tiles[0], s.dur, CFG.dist);
+        sub(60, function(){ countUp(els.nums[0], CFG.numDur); pieSweep(els.pie, CFG.pieDur); });
+        break;
+      case 'tile2':
+        rise(els.tiles[1], s.dur, CFG.dist);
+        sub(50, function(){ countUp(els.nums[1], CFG.numDur); });
+        break;
+      case 'tile3':
+        rise(els.tiles[2], s.dur, CFG.dist);
+        sub(50, function(){ countUp(els.nums[2], CFG.numDur); });
+        break;
+      case 'tile4':
+        rise(els.tiles[3], s.dur, CFG.dist);
+        sub(60, function(){ countUp(els.nums[3], CFG.numDur); growProg(els.progFill, s.dur); });
+        break;
+      case 'alert':   rise(els.alert, s.dur, CFG.dist*0.7); break;
+      case 'chart':
+        rise(els.chartCard, s.dur, CFG.dist);
+        sub(s.dur*0.35, function(){ els.gridLines.forEach(function(g){ fadeIn(g, s.grid); }); });
+        sub(s.dur*0.35 + s.grid*0.6, function(){ els.chartText.forEach(function(t){ rise(t, s.text, CFG.dist*0.6); }); });
+        var barStart = s.dur*0.35 + s.grid*0.6 + s.text*0.4;
+        els.bars.forEach(function(b,i){ sub(barStart + i*s.barStag, function(){ growBar(b, s.barDur); }); });
+        break;
+      case 'expiring':  cardRows(els.expCard,  els.expRows,  s); break;
+      case 'conformity':cardRows(els.confCard, els.confRows, s); break;
+      case 'invites':   cardRows(els.invCard,  els.invRows,  s); break;
+    }
+  }
+  function cardRows(card, rows, s){
+    rise(card, s.dur, CFG.dist);
+    var rowStart = s.dur*0.30;
+    rows.forEach(function(r,i){ at(rowStart + i*s.rowStag, function(){ slideDown(r, s.rowDur, CFG.rowDist); }); });
+  }
+
+  function play(){
+    stop();
+    SP = CFG.speed || 1;
+    arm();
+    at(CFG.delay, function(){
+      if(!els.sidebar) return;
+      var a = els.sidebar.animate(
+        [{opacity:0, transform:'translateX(-'+CFG.sidebarDist+'%)'},{opacity:1, transform:'translateX(0)'}],
+        {duration:CFG.sidebarDur/SP, easing:CFG.ease, fill:'both'});
+      RUN.anims.push(a);
+      a.finished && a.finished.then(function(){ els.sidebar.style.opacity=''; els.sidebar.style.transform=''; }).catch(function(){});
+    });
+    var t = CFG.delay + CFG.sidebarDur*0.5;
+    CFG.stages.forEach(function(s){
+      var start = t;
+      at(start, function(){ runStage(s); });
+      t += s.dur * (1 - CFG.overlap);
+    });
+  }
+
+  function boot(){ arm(); play(); }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+
+  window.GSDashAnim = { play:play, cfg:CFG };
+})();
 </script>
 </body>
 </html>
