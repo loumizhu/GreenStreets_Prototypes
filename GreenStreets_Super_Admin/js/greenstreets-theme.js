@@ -1107,14 +1107,14 @@ window.gsToggleTheme = window.gsToggleTheme || function(){
 
 /* ── Light-theme palettes (harmonious sets; mirror the Products-Light presets) ── */
 window.gsLightPresets = window.gsLightPresets || {
-  'Meadow'  :{accent:'#6ea8fe',sb:['#eaf1fe','#e7f5ee'],sbStroke:'#e6ebf3',title:['#3f74c7','#4bbd8c'],hdr:['#e6efff','#e7f5ee'],pg:['#f6f8fb','#eef2f8','#f3f0fa'],cols:['#eaf1ff','#fbfcfe','#f2edfd','#e8f6f4','#eaf7ee','#fdf3e6','#fbecf1','#f5f7fa']},
-  'Sorbet'  :{accent:'#f19bb0',sb:['#fdecf1','#fdf0e6'],sbStroke:'#f3dde3',title:['#d9607f','#e8894f'],hdr:['#fde9ef','#fdefe6'],pg:['#fdf7f8','#fbf1ee','#f9f0f6'],cols:['#fdeef2','#fffafc','#fdf0e8','#fef7e6','#eef8ee','#e9f4fb','#f3edfb','#f7f5f8']},
-  'Mist'    :{accent:'#7fb0c9',sb:['#eef4f7','#eef5f2'],sbStroke:'#dde7ea',title:['#4f7f96','#5aa0a0'],hdr:['#e9f1f4','#e9f4f0'],pg:['#f5f8fa','#eef3f6','#f0f4f5'],cols:['#eef4f7','#fbfdfe','#eaf3f4','#eef5f2','#f0f4f8','#f2f0f6','#f6f0f3','#f4f6f8']},
-  'Lavender':{accent:'#a78bfa',sb:['#f0ecfe','#f5ecfb'],sbStroke:'#e6ddf5',title:['#7c5cd6','#b06fc9'],hdr:['#efe9fe','#f3e9fb'],pg:['#f8f6fd','#f2eefb','#f6eefb'],cols:['#f1ecfe','#fcfbff','#efe9fd','#eef0fc','#f1ecfa','#f7eefb','#fbecf6','#f5f4fb']},
-  'Citrus'  :{accent:'#9cc861',sb:['#f2f7e2','#eef7ea'],sbStroke:'#e0ecca',title:['#5f9a2f','#4bbd8c'],hdr:['#eef6df','#eaf6e6'],pg:['#f8faf2','#f3f7ea','#f1f7ee'],cols:['#f2f7e2','#fcfdf6','#eef7e6','#eef7ee','#f4f7e4','#fbf6e2','#f6f4e2','#f5f7ee']},
-  'Ocean'   :{accent:'#4fb0c9',sb:['#e6f3f6','#e4f2f0'],sbStroke:'#d3e7ea',title:['#2f8ba0','#3fae74'],hdr:['#e2f1f4','#e0f1ee'],pg:['#f2f9fa','#e9f4f6','#eef6f4'],cols:['#e6f3f6','#f8fdfe','#e6f1f4','#e6f4f1','#eaf5f4','#eef4f7','#f0f2f6','#f2f6f7']},
+  'Meadow'  :{accent:'#6ea8fe',sb:['#eaf1fe','#e7f5ee'],sbStroke:'#c5e7d6',title:['#3f74c7','#4bbd8c'],hdr:['#e6efff','#e7f5ee'],pg:['#f6f8fb','#eef2f8','#f3f0fa'],cols:['#eaf1ff','#fbfcfe','#f2edfd','#e8f6f4','#eaf7ee','#fdf3e6','#fbecf1','#f5f7fa']},
+  'Sorbet'  :{accent:'#f19bb0',sb:['#fdecf1','#fdf0e6'],sbStroke:'#eec2ce',title:['#d9607f','#e8894f'],hdr:['#fde9ef','#fdefe6'],pg:['#fdf7f8','#fbf1ee','#f9f0f6'],cols:['#fdeef2','#fffafc','#fdf0e8','#fef7e6','#eef8ee','#e9f4fb','#f3edfb','#f7f5f8']},
+  'Mist'    :{accent:'#7fb0c9',sb:['#eef4f7','#eef5f2'],sbStroke:'#bfd6db',title:['#4f7f96','#5aa0a0'],hdr:['#e9f1f4','#e9f4f0'],pg:['#f5f8fa','#eef3f6','#f0f4f5'],cols:['#eef4f7','#fbfdfe','#eaf3f4','#eef5f2','#f0f4f8','#f2f0f6','#f6f0f3','#f4f6f8']},
+  'Lavender':{accent:'#a78bfa',sb:['#f0ecfe','#f5ecfb'],sbStroke:'#d3c2ec',title:['#7c5cd6','#b06fc9'],hdr:['#efe9fe','#f3e9fb'],pg:['#f8f6fd','#f2eefb','#f6eefb'],cols:['#f1ecfe','#fcfbff','#efe9fd','#eef0fc','#f1ecfa','#f7eefb','#fbecf6','#f5f4fb']},
+  'Citrus'  :{accent:'#9cc861',sb:['#f2f7e2','#eef7ea'],sbStroke:'#cbe0a2',title:['#5f9a2f','#4bbd8c'],hdr:['#eef6df','#eaf6e6'],pg:['#f8faf2','#f3f7ea','#f1f7ee'],cols:['#f2f7e2','#fcfdf6','#eef7e6','#eef7ee','#f4f7e4','#fbf6e2','#f6f4e2','#f5f7ee']},
+  'Ocean'   :{accent:'#4fb0c9',sb:['#e6f3f6','#e4f2f0'],sbStroke:'#b4d7dd',title:['#2f8ba0','#3fae74'],hdr:['#e2f1f4','#e0f1ee'],pg:['#f2f9fa','#e9f4f6','#eef6f4'],cols:['#e6f3f6','#f8fdfe','#e6f1f4','#e6f4f1','#eaf5f4','#eef4f7','#f0f2f6','#f2f6f7']},
   /* flat, minimal (AuthKit-style) — a structural variant, toggled via the .lt-ak body class */
-  'Minimal' :{style:'flat',accent:'#2fa46a',sb:['#ffffff','#f3f4f7'],sbStroke:'#ecedf1',title:['#1e2330','#2fa46a'],hdr:['#ffffff','#ffffff'],pg:['#f3f4f7','#f3f4f7','#f3f4f7'],cols:['#eef0f3','#f7f8fa','#e9f6ef','#eef0f3','#f7f8fa','#eef0f3','#f2f3f5','#f7f8fa']}
+  'Minimal' :{style:'flat',accent:'#2fa46a',sb:['#ffffff','#f3f4f7'],sbStroke:'#d9dbe1',title:['#1e2330','#2fa46a'],hdr:['#ffffff','#ffffff'],pg:['#f3f4f7','#f3f4f7','#f3f4f7'],cols:['#eef0f3','#f7f8fa','#e9f6ef','#eef0f3','#f7f8fa','#eef0f3','#f2f3f5','#f7f8fa']}
 };
 window.GS_LIGHT_PRESET_KEY = 'gs-sa-light-preset';
 (function(){
@@ -1126,7 +1126,6 @@ window.GS_LIGHT_PRESET_KEY = 'gs-sa-light-preset';
     var p = window.gsLightPresets[name]; if(!p) return;
     if(save){ try{ localStorage.setItem(window.GS_LIGHT_PRESET_KEY, name); }catch(e){} }
     if(!(document.body && document.body.classList.contains('lt'))) return;   // dark pages ignore --lt-*
-    if(document.getElementById('ltFab')) return;   // Products-Light owns its own customizer — don't fight it
     document.body.classList.toggle('lt-ak', p.style === 'flat');   // structural (flat/minimal) variant
     var r = document.documentElement.style;
     r.setProperty('--lt-accent',p.accent); r.setProperty('--lt-accent-ink',shade(p.accent,-0.28));

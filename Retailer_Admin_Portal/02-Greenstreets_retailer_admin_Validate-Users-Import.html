@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Greenstreets — Retailer Admin · Validate user import</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/greenstreets-theme.css?v=40">
+<link rel="stylesheet" href="css/retailer-admin.css?v=18">
+<style>
+  /* Inline row editing on the import-validation table */
+  input.vu-in{height:34px;padding:6px 10px;font-size:12.5px}
+  td .vu-in,td .cs-wrap{width:100%}
+  td .cs-trigger{min-height:0;height:34px;padding:6px 30px 6px 10px;font-size:12.5px;display:flex;align-items:center}
+  .tbl td{padding-top:7px;padding-bottom:7px;vertical-align:middle}
+  input.vu-bad{border-color:rgba(224,82,82,.55)!important;background:rgba(224,82,82,.06)!important}
+  .cs-wrap:has(select.vu-bad) .cs-trigger{border-color:rgba(224,82,82,.55)!important;background:rgba(224,82,82,.06)!important}
+  .vu-err{background:rgba(224,82,82,.045)}
+  .vu-err td{border-bottom-color:rgba(224,82,82,.18)}
+  /* Clickable step markers on the import wizard */
+  .step{flex:1;text-align:center;position:relative;z-index:1}
+  .step-nav{cursor:pointer;transition:opacity .15s,transform .15s}
+  .step-nav:hover{opacity:.72}
+  .step-nav:active{transform:scale(.94)}
+  .step-dot{width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;background:var(--nv2);border:2px solid var(--bw);color:var(--tw3)}
+  .step-lbl{font-size:10px;margin-top:4px;color:var(--tw3)}
+  .step.is-current .step-dot{border-color:var(--gs);color:var(--gs)}
+  .step.is-current .step-lbl{color:var(--gs)}
+  .step.is-done .step-dot{border-color:var(--gs);color:#fff;background:var(--gs)}
+  .step.is-done .step-lbl{color:var(--gs)}
+</style>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true"><defs><symbol id="gsi-0" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol><symbol id="gsi-1" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></symbol><symbol id="gsi-2" viewBox="0 0 24 24"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/></symbol><symbol id="gsi-3" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></symbol><symbol id="gsi-4" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></symbol><symbol id="gsi-6" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol><symbol id="gsi-7" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></symbol><symbol id="gsi-8" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414A1 1 0 0 1 19 9.414V19a2 2 0 0 1-2 2z"/></symbol><symbol id="gsi-9" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></symbol><symbol id="gsi-10" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol><symbol id="gsi-19" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></symbol></defs></svg>
+<div class="screen on" id="ra7_validate">
+  <div class="app-body">
+    <div class="sidebar">
+  <div class="sb-logo-zone"><img class="gs-logo-img sb-logo" src="" alt="Greenstreets"></div>
+  <div class="sb-section">Retailer Admin</div>
+  <a class="nav-item" onclick="go('ra1')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#gsi-0"/></svg>Dashboard</a>
+<a class="nav-item active" onclick="go('ra7')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#gsi-6"/></svg>Users</a>
+<a class="nav-item" onclick="go('ra4')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#gsi-1"/></svg>Suppliers</a>
+<a class="nav-item" onclick="go('ra6')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#gsi-2"/></svg>Products</a>
+<a class="nav-item" onclick="go('ra5')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#gsi-3"/></svg>Packagings</a>
+
+<a class="nav-item" onclick="go('ra13')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#gsi-4"/></svg>Documents</a>
+
+  <div class="sb-divider"></div>
+  <a class="nav-item" onclick="go('ra_config')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#gsi-7"/></svg> Settings</a>
+  <a class="nav-item" onclick="go('ra15')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#gsi-8"/></svg> Audit log</a>
+  <div class="sb-notif-row" onclick="go('ra16')">
+    <div class="sb-bell-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#gsi-9"/></svg><span class="bell-badge">4</span></div>
+    <span class="sb-notif-label">Notifications</span>
+  </div>
+  <div class="sb-user" onclick="go('ra_config')" style="cursor:pointer" title="Account settings">
+    <div class="sb-avatar" style="background:#2a5298">KO</div>
+    <div class="sb-user-info">
+      <div class="sb-user-name">Keith O'Sullivan</div>
+      <div class="sb-user-role">Retailer Admin · <span style="color:var(--gs)">Primark</span></div>
+    </div>
+    <button class="sb-logout" onclick="event.stopPropagation()" title="Log out"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#gsi-10"/></svg></button>
+  </div>
+</div>
+    <div class="main">
+      <div class="breadcrumb"><a class="bc-link" onclick="go('ra7')">Users</a><span class="bc-sep">›</span><a class="bc-link" onclick="go('ra_importusers')">Import</a><span class="bc-sep">›</span><span class="bc-cur">Validation</span></div>
+      <div class="pg-hdr-bar">
+        <div><div class="pg-title">Import users</div><div class="pg-sub">Review and edit each row before inviting anyone — fix the flagged fields to include them</div></div>
+      </div>
+
+      <div class="grp">
+        <div class="grp-hdr">Import from CSV / XLSX</div>
+        <div class="grp-body">
+          <div style="display:flex;align-items:center;gap:0;margin-bottom:18px;position:relative">
+            <div style="position:absolute;top:13px;left:0;right:0;height:1px;background:var(--bw)"></div>
+            <div class="step is-done step-nav" onclick="go('ra_importusers')" title="Back to upload"><div class="step-dot">1</div><div class="step-lbl">Upload</div></div>
+            <div class="step is-current"><div class="step-dot">2</div><div class="step-lbl">Validate</div></div>
+            <div class="step" title="Import the valid rows to continue"><div class="step-dot">3</div><div class="step-lbl">Confirm</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;padding:10px 14px;background:rgba(78,187,129,.08);border:1px solid rgba(78,187,129,.2);border-radius:8px">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ebb81" stroke-width="2"><use href="#gsi-19"/></svg>
+            <span style="font-size:13px;color:var(--tw)"><strong>24 rows valid</strong> · <span style="color:#ff9c96">2 rows with errors</span></span>
+            <button class="btn-g" style="height:32px;padding:0 12px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'/><polyline points='7 10 12 15 17 10'/></svg>Download error report</button>
+          </div>
+          <div class="tbl-wrap"><table class="tbl" data-nosort><colgroup><col width="7%"><col width="27%"><col width="30%"><col width="21%"><col width="15%"></colgroup>
+          <thead><tr><th>Row</th><th>Full name</th><th>Email</th><th>Role</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td class="tbl-muted">1</td>
+              <td><input class="fi vu-in" value="Aoife Brennan" aria-label="Full name, row 1"></td>
+              <td><input class="fi vu-in" type="email" value="aoife@primark.com" aria-label="Email, row 1"></td>
+              <td><select class="fi vu-in" aria-label="Role, row 1"><option selected>Retailer User</option><option>Retailer Admin</option></select></td>
+              <td><span class="pill pill-green">Valid</span></td></tr>
+            <tr><td class="tbl-muted">2</td>
+              <td><input class="fi vu-in" value="Liam Murphy" aria-label="Full name, row 2"></td>
+              <td><input class="fi vu-in" type="email" value="liam@primark.com" aria-label="Email, row 2"></td>
+              <td><select class="fi vu-in" aria-label="Role, row 2"><option>Retailer User</option><option selected>Retailer Admin</option></select></td>
+              <td><span class="pill pill-green">Valid</span></td></tr>
+            <tr><td class="tbl-muted">3</td>
+              <td><input class="fi vu-in" value="Niamh Kelly" aria-label="Full name, row 3"></td>
+              <td><input class="fi vu-in" type="email" value="niamh@primark.com" aria-label="Email, row 3"></td>
+              <td><select class="fi vu-in" aria-label="Role, row 3"><option selected>Retailer User</option><option>Retailer Admin</option></select></td>
+              <td><span class="pill pill-green">Valid</span></td></tr>
+            <tr class="vu-err"><td class="tbl-muted">14</td>
+              <td><input class="fi vu-in" value="Cian Doyle" aria-label="Full name, row 14"></td>
+              <td><input class="fi vu-in vu-bad" type="email" value="cian.doyle(at)primark" aria-label="Email, row 14"></td>
+              <td><select class="fi vu-in" aria-label="Role, row 14"><option selected>Retailer User</option><option>Retailer Admin</option></select></td>
+              <td><span class="pill pill-red">Invalid email</span></td></tr>
+            <tr class="vu-err"><td class="tbl-muted">22</td>
+              <td><input class="fi vu-in vu-bad" value="" placeholder="Add full name" aria-label="Full name, row 22"></td>
+              <td><input class="fi vu-in" type="email" value="orla@primark.com" aria-label="Email, row 22"></td>
+              <td><select class="fi vu-in vu-bad" aria-label="Role, row 22"><option value="" selected disabled>Select role…</option><option>Retailer User</option><option>Retailer Admin</option></select></td>
+              <td><span class="pill pill-red">Needs details</span></td></tr>
+          </tbody></table></div>
+          <div class="faction" style="justify-content:space-between;align-items:center">
+            <button class="btn-g" onclick="go('ra7')" style="height:36px;padding:0 16px;display:inline-flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-10"/></svg>Return to users</button>
+            <div style="display:flex;gap:8px">
+              <button class="btn-g" onclick="go('ra_importusers')" style="height:36px;padding:0 16px">Back</button>
+              <button class="btn-p" onclick="go('ra7_importdone')" style="height:36px;padding:0 16px"><img class="btn-sw" src="" alt="" data-sw><span class="btn-c"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-19"/></svg>Import 24 valid users</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="js/retailer-admin.js?v=27"></script>
+<script src="js/greenstreets-theme.js?v=24"></script>
+<script src="js/ra-tour.js?v=10"></script>
+<script src="js/gs-appearance.js?v=5"></script>
+</body>
+</html>
