@@ -8,6 +8,11 @@ button{font-family:inherit;border:none;background:none;appearance:none;-webkit-a
   --bl:#5b9cf6;--bl-d:#3766b0;--bl-l:#9dc4ff;
   --teal:#43b3ad;
   --amber:#f5a623;--red:#e0605a;
+  /* semantic status layer — maps meaning→brand colour; single source of truth for OK/warn/danger/info */
+  --status-ok:var(--gs-l);--status-ok-strong:var(--gs);
+  --status-warn:var(--amber);
+  --status-danger:var(--red);
+  --status-info:var(--bl-l);--status-info-strong:var(--bl-d);
   /* surface */
   --bg-0:#070f1c;--bg-1:#0b1830;--bg-2:#37e1ae;
   --tw:#fff;--tw2:rgba(255,255,255,.74);--tw3:rgba(255,255,255,.62);--tw4:rgba(255,255,255,.58);

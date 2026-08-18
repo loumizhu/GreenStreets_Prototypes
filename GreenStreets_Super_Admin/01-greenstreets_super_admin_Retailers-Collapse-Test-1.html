@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>GreenStreets Super Admin · Retailers (Light v2 · AuthKit)</title>
+<title>GreenStreets Super Admin · Retailers (Collapse Test 1)</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/greenstreets-theme.css?v=47">
 <style>
@@ -16,150 +16,52 @@
     display:flex;align-items:center;justify-content:center;border-radius:9px;
     background:var(--amber,#e0a52e);color:#1a1205;font-size:11px;font-weight:700;line-height:1;
     box-shadow:0 0 0 2px var(--nv)}
-</style>
 
-<!-- ═══ AUTHKIT-STYLE LIGHT THEME (v2) ═══════════════════════════════════════════
-     A flat, minimal light variant inspired by authkit.com: off-white surfaces,
-     hairline borders, filled rounded inputs, a single solid accent button, and
-     generous whitespace. Self-contained (does NOT link greenstreets-light.css);
-     it remaps the shared design tokens to neutral light values, then restyles the
-     distinctive components. Accent kept green per brief. ═════════════════════════ -->
-<style id="authkit-light">
-:root{
-  --ak-bg:#f3f4f7; --ak-surface:#ffffff; --ak-surface-2:#fafbfc;
-  --ak-ink:#1e2330; --ak-ink-2:#5b6270; --ak-ink-3:#8a90a0;
-  --ak-line:#ecedf1; --ak-line-2:#e1e3ea; --ak-input:#f1f2f5;
-  --ak-accent:#2fa46a; --ak-accent-strong:#268a58; --ak-accent-soft:#e9f6ef; --ak-accent-ink:#2f9c62;
-  --ak-radius:10px; --ak-radius-lg:16px;
-  --ak-shadow-sm:0 1px 2px rgba(16,24,40,.05);
-  --ak-shadow:0 1px 2px rgba(16,24,40,.05),0 10px 26px -14px rgba(16,24,40,.18);
-}
-/* page canvas + token remap so shared components follow the light palette */
-body.lt{
-  color:var(--ak-ink); background:var(--ak-bg);
-  --tw:var(--ak-ink); --tw2:var(--ak-ink-2); --tw3:var(--ak-ink-3); --tw4:#9aa0ad;
-  --line:var(--ak-line); --line-2:var(--ak-line-2); --stroke:var(--ak-line-2);
-  --gs-l:var(--ak-accent-ink); --bl-l:var(--ak-accent-ink); --amber:#b7791f; --red:#d9534f;
-  --field-stroke-color:var(--ak-accent); --swoosh-opacity:0;
-  --ripple-color-hex:#2fa46a; --ripple-rgb:47,164,106; --ripple-opacity:.22;
-  --particle-color-hex:#2fa46a; --particle-rgb:47,164,106; --particle-opacity:.5;
-  --sh-1:0 1px 2px rgba(16,24,40,.05),0 8px 22px -14px rgba(16,24,40,.15);
-  --sh-2:0 14px 40px -18px rgba(16,24,40,.22);
-}
-
-/* ── sidebar — clean white panel, hairline border ── */
-body.lt .sidebar{background:var(--ak-surface);border:1px solid var(--ak-line);border-radius:var(--ak-radius-lg);box-shadow:var(--ak-shadow-sm);backdrop-filter:none;-webkit-backdrop-filter:none}
-body.lt .sb-logo-zone{background:transparent;border-bottom:1px solid var(--ak-line)}
-body.lt .sb-logo{filter:none}
-body.lt .sb-section{color:var(--ak-ink-3)}
-body.lt .nav-item{color:var(--ak-ink-2);border-radius:8px}
-body.lt .nav-item:hover{background:#f4f5f7;color:var(--ak-ink)}
-body.lt .nav-item.active{background:var(--ak-accent-soft);color:var(--ak-accent-strong);box-shadow:none}
-body.lt .nav-item.active::before{background:var(--ak-accent);box-shadow:none}
-body.lt .sb-divider{background:var(--ak-line)}
-body.lt .sb-notif-row{border-top-color:var(--ak-line)}
-body.lt .sb-notif-row:hover{background:#f4f5f7}
-body.lt .sb-bell-btn{background:#f1f2f5;color:var(--ak-ink-2)}
-body.lt .bell-badge{background:#e5484d;box-shadow:0 0 0 2px var(--ak-surface)}
-body.lt .sb-notif-label{color:var(--ak-ink-2)}
-body.lt .sb-user{border-top-color:var(--ak-line)}
-body.lt .sb-user-name{color:var(--ak-ink)}
-body.lt .sb-user-role{color:var(--ak-ink-3)}
-body.lt .sb-avatar{background:linear-gradient(135deg,var(--ak-accent),#5cc98f);color:#fff;box-shadow:none}
-body.lt .sb-logout{color:var(--ak-ink-3)}
-body.lt .sb-logout:hover{background:#f4f5f7;color:var(--ak-ink)}
-body.lt .sb-collapse-btn{background:#f1f2f5;color:var(--ak-ink-2)}
-
-/* ── header ── */
-body.lt .pg-eyebrow{color:var(--ak-ink-3)}
-body.lt .pg-title{color:var(--ak-ink)}
-body.lt .pg-sub{color:var(--ak-ink-3)}
-body.lt .stat-mini{background:var(--ak-surface);border:1px solid var(--ak-line);border-radius:12px;box-shadow:var(--ak-shadow-sm)}
-body.lt .stat-lbl{color:var(--ak-ink-3)}
-body.lt .stat-val{color:var(--ak-ink)}
-body.lt .stat-icon.i-bl,body.lt .stat-icon.i-gs,body.lt .stat-icon.i-tl{background:var(--ak-accent-soft);color:var(--ak-accent);box-shadow:none}
-body.lt .stat-icon.i-am{background:#fbf1de;color:#b7791f;box-shadow:none}
-body.lt .hdr-notif{background:var(--ak-surface);border:1px solid var(--ak-line-2);color:var(--ak-ink-2)}
-body.lt .hdr-notif:hover{background:var(--ak-accent-soft);border-color:var(--ak-accent);color:var(--ak-accent-strong)}
-body.lt .hdr-notif-badge{background:#e5484d;color:#fff;box-shadow:0 0 0 2px var(--ak-bg)}
-body.lt .hdr-theme-toggle{background:var(--ak-surface);border:1px solid var(--ak-line-2);color:var(--ak-ink-2);box-shadow:var(--ak-shadow-sm)}
-body.lt .hdr-theme-toggle:hover{background:var(--ak-accent-soft);border-color:var(--ak-accent);color:var(--ak-accent-strong)}
-
-/* ── cards ── */
-body.lt .grp{background:var(--ak-surface);border:1px solid var(--ak-line);border-radius:var(--ak-radius-lg);box-shadow:var(--ak-shadow);backdrop-filter:none;-webkit-backdrop-filter:none}
-body.lt .grp-hdr{background:var(--ak-surface);border-bottom:1px solid var(--ak-line);color:var(--ak-ink);box-shadow:none}
-body.lt .lt-cardtitle{font-weight:600;letter-spacing:-.01em;background:none;-webkit-background-clip:initial;background-clip:initial;-webkit-text-fill-color:initial;color:var(--ak-ink)}
-
-/* ── buttons ── */
-body.lt .btn-p{background:var(--ak-accent);color:#fff;border-radius:var(--ak-radius);box-shadow:var(--ak-shadow-sm)}
-body.lt .btn-p:hover{background:var(--ak-accent-strong);filter:none;box-shadow:0 6px 16px -8px rgba(47,164,106,.5)}
-body.lt .btn-p::after{opacity:0}
-body.lt .btn-g,body.lt .btn-g-sm{background:var(--ak-surface);color:var(--ak-ink-2);border:1px solid var(--ak-line-2);border-radius:var(--ak-radius);box-shadow:var(--ak-shadow-sm)}
-body.lt .btn-g:hover,body.lt .btn-g-sm:hover{background:#f4f5f7;color:var(--ak-ink);border-color:var(--ak-line-2)}
-
-/* ── inputs / selects ── */
-body.lt .fi{background:var(--ak-input);border:1px solid var(--ak-line-2);color:var(--ak-ink);border-radius:var(--ak-radius)}
-body.lt .fi::placeholder{color:var(--ak-ink-3)}
-body.lt .fi:focus{background:#fff;border-color:var(--ak-accent);box-shadow:0 0 0 3px rgba(47,164,106,.16)}
-body.lt select.fi{color-scheme:light}
-body.lt .cs-trigger{background:var(--ak-input);border:1px solid var(--ak-line-2);color:var(--ak-ink);border-radius:var(--ak-radius)}
-body.lt .cs-menu{background:#fff;border:1px solid var(--ak-line-2);box-shadow:var(--ak-shadow);border-radius:12px}
-body.lt .cs-opt{color:var(--ak-ink-2)}
-body.lt .cs-opt:hover,body.lt .cs-opt.cs-active{background:var(--ak-accent-soft);color:var(--ak-accent-strong)}
-body.lt .search-wrap svg{color:var(--ak-ink-3)}
-
-/* ── table — clean monochrome, no column tints ── */
-body.lt .tbl-wrap{background:var(--ak-surface);border:1px solid var(--ak-line);border-radius:12px;overflow:hidden;backdrop-filter:none;-webkit-backdrop-filter:none}
-body.lt .tbl th{background:var(--ak-surface-2);color:var(--ak-ink-3);border-bottom:1px solid var(--ak-line);font-weight:600;text-transform:uppercase;letter-spacing:.04em;background-image:none}
-body.lt .tbl td{color:var(--ak-ink-2);border-bottom:1px solid var(--ak-line)}
-body.lt .tbl tbody tr,body.lt .tbl tbody tr:nth-child(odd),body.lt .tbl tbody tr:nth-child(even){background:transparent}
-body.lt .tbl tbody tr td{background-image:none !important;background-color:transparent !important}
-body.lt .tbl tbody tr:hover td{background-color:#f7f8fa !important}
-body.lt .tbl-name{color:var(--ak-ink)}
-body.lt .tbl-sub{color:var(--ak-ink-3)}
-body.lt .tbl-val{color:var(--ak-ink)}
-body.lt .tbl-muted{color:var(--ak-ink-3)}
-body.lt .tbl-footer{color:var(--ak-ink-3);border-top:1px solid var(--ak-line)}
-
-/* ── pills ── */
-body.lt .pill-grey{background:#f1f2f5;color:var(--ak-ink-2);border:1px solid var(--ak-line-2)}
-body.lt .pill-gs,body.lt .pill-green{background:var(--ak-accent-soft);color:var(--ak-accent-strong);border:1px solid #cdebda}
-body.lt .pill-blue{background:#eef1ff;color:#4759c9;border:1px solid #dfe4fb}
-body.lt .pill-amber{background:#fbf1de;color:#a9781f;border:1px solid #f0e2c2}
-body.lt .pill-red{background:#fdecec;color:#c9433f;border:1px solid #f6d5d4}
-
-/* ── health + packaging bars ── */
-body.lt .health-lbl{color:var(--ak-ink-3)}
-body.lt .pkg-bar{background:#edeef2}
-body.lt .pkg-frac.good{color:var(--ak-accent-ink)}
-body.lt .pkg-frac.warn{color:#b7791f}
-body.lt .pkg-frac.bad{color:#d9534f}
-body.lt .hdot-g{background:#3aae74;box-shadow:0 0 0 3px rgba(58,174,116,.15)}
-body.lt .hdot-a{background:#e6b357;box-shadow:0 0 0 3px rgba(230,179,87,.18)}
-body.lt .hdot-r{background:#e07a75;box-shadow:0 0 0 3px rgba(224,122,117,.18)}
-
-/* ── row actions ── */
-body.lt .act-mini{background:var(--ak-surface);border:1px solid var(--ak-line-2);color:var(--ak-ink-2);border-radius:8px}
-body.lt .act-mini:hover{background:var(--ak-accent-soft);border-color:var(--ak-accent);color:var(--ak-accent-strong)}
-body.lt .act-arrow{background:var(--ak-surface);border:1px solid var(--ak-line-2);color:var(--ak-ink-2);border-radius:8px}
-body.lt .tbl tbody tr:hover .act-arrow,body.lt .act-arrow:hover{background:var(--ak-accent);color:#fff;border-color:transparent;box-shadow:0 6px 14px -6px rgba(47,164,106,.5)}
-
-/* ── data-grid toolkit bits (checkbox col, column menu, bulk bar, pager) ── */
-body.lt .tbl td.gs-check-col input,body.lt .tbl th.gs-check-col input,body.lt .gs-colmenu input[type=checkbox]{background:#fff;border-color:var(--ak-line-2);box-shadow:none}
-body.lt .gs-colmenu{background:#fff;border:1px solid var(--ak-line-2);box-shadow:var(--ak-shadow)}
-body.lt .gs-colmenu label{color:var(--ak-ink-2)}
-body.lt .gs-colmenu label:hover{background:#f4f5f7;color:var(--ak-ink)}
-body.lt .gs-bulkbar{background:#fff;border:1px solid var(--ak-line-2);box-shadow:var(--ak-shadow)}
-body.lt .gs-pager{color:var(--ak-ink-3)}
-body.lt .breadcrumb .bc-cur{color:var(--ak-ink)}
-body.lt .breadcrumb .bc-link{color:var(--ak-ink-3)}
-body.lt .breadcrumb .bc-link:hover{color:var(--ak-accent-strong)}
+  /* ══ COLLAPSE-EDGE AFFORDANCE — TEST 1 ══════════════════════════════════════
+     Idea: make the right-edge hotspot obviously "clickable to collapse" by
+     (a) swapping the plain col-resize cursor for a cursor that IS the collapse
+     button icon, and (b) widening the hit area + showing a small chevron "tab"
+     hint that slides out of the seam on hover. Nothing else about the collapse
+     behaviour changes (the shared .sb-edge click still toggles). */
+  .sidebar .sb-edge{
+    width:14px;                     /* wider, easier-to-hit hotspot */
+    /* the cursor becomes a little "collapse panel" button */
+    cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Ccircle cx='15' cy='15' r='13' fill='%23163a2b' stroke='%238fe3b6' stroke-width='2'/%3E%3Crect x='8' y='8' width='14' height='14' rx='2.5' fill='none' stroke='%238fe3b6' stroke-width='2'/%3E%3Cpath d='M13.5 8v14' stroke='%238fe3b6' stroke-width='2'/%3E%3C/svg%3E") 15 15, col-resize;
+  }
+  .sidebar .sb-edge:hover{
+    background:linear-gradient(90deg,transparent,rgba(143,227,182,.35));
+  }
+  /* chevron "tab" hint that pokes out of the seam on hover */
+  .sidebar .sb-edge::after{
+    content:"";
+    position:absolute;top:50%;right:-1px;
+    width:18px;height:44px;transform:translateY(-50%) translateX(6px);
+    opacity:0;pointer-events:none;
+    border-radius:0 8px 8px 0;
+    background:
+      /* chevron ‹ drawn with the collapse tint */
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23c7f2da' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 6l-6 6 6 6'/%3E%3C/svg%3E") center/16px no-repeat,
+      linear-gradient(90deg,rgba(23,58,43,.96),rgba(29,74,54,.96));
+    border:1px solid rgba(143,227,182,.45);border-left:none;
+    box-shadow:2px 0 12px rgba(0,0,0,.35);
+    transition:opacity .18s ease,transform .18s cubic-bezier(.34,1.4,.64,1);
+  }
+  .sidebar .sb-edge:hover::after{
+    opacity:1;transform:translateY(-50%) translateX(0);
+  }
+  /* when already collapsed, flip the chevron to point › (expand) */
+  .sidebar.sb-collapsed .sb-edge::after{
+    background:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23c7f2da' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 6l6 6-6 6'/%3E%3C/svg%3E") center/16px no-repeat,
+      linear-gradient(90deg,rgba(23,58,43,.96),rgba(29,74,54,.96));
+  }
 </style>
 </head>
-<body class="lt">
-<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true"><defs><symbol id="gsi-0" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol><symbol id="gsi-1" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/></symbol><symbol id="gsi-2" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></symbol><symbol id="gsi-3" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol><symbol id="gsi-4" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol><symbol id="gsi-5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></symbol><symbol id="gsi-6" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></symbol><symbol id="gsi-7" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol></defs></svg>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true"><defs><symbol id="gsi-0" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol><symbol id="gsi-1" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/></symbol><symbol id="gsi-2" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></symbol><symbol id="gsi-3" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol><symbol id="gsi-4" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol><symbol id="gsi-5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></symbol><symbol id="gsi-6" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></symbol><symbol id="gsi-7" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol><symbol id="gsi-8" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol><symbol id="gsi-9" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></symbol><symbol id="gsi-10" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></symbol><symbol id="gsi-11" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></symbol><symbol id="gsi-12" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></symbol><symbol id="gsi-13" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></symbol><symbol id="gsi-14" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></symbol><symbol id="gsi-15" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol><symbol id="gsi-16" viewBox="0 0 24 24"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/></symbol><symbol id="gsi-17" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol><symbol id="gsi-18" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></symbol><symbol id="gsi-19" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></symbol></defs></svg>
 
-<!-- ═══ RETAILERS (LIGHT) ═══ -->
+
+<!-- ═══ DASHBOARD ═══ -->
 <div class="screen on" id="s2">
   <div class="app-body">
 
@@ -198,7 +100,7 @@ body.lt .breadcrumb .bc-link:hover{color:var(--ak-accent-strong)}
 
       <div class="grp">
         <div class="grp-hdr">
-          <span class="lt-cardtitle">Retailer directory</span>
+          Retailer directory
           <div style="display:flex;gap:8px;align-items:center">
             <button class="btn-p" onclick="go('p1')" style="height:34px;font-size:12px;padding:0 16px">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#gsi-4"/></svg>
@@ -302,10 +204,7 @@ body.lt .breadcrumb .bc-link:hover{color:var(--ak-accent-strong)}
   </div>
 </div>
 
-<script>/* this variant's filename is off the -Light convention, so point the theme switch at the dark page explicitly */
-window.gsToggleTheme=function(){ window.location.href='01-greenstreets_super_admin_Retailers.html'; };</script>
 <script src="js/super-admin.js?v=16"></script>
 <script src="js/greenstreets-theme.js?v=37"></script>
-<script src="js/greenstreets-light.js?v=2"></script>
 </body>
 </html>

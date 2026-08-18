@@ -61,10 +61,10 @@ html,body{height:100%;font-family:'Inter',sans-serif;color:var(--tw);background:
 :root{--sb-logo-size:36px}   /* Retailer Admin default (theme default is 85); the Settings→Appearance "Logo size" slider overrides this via documentElement.style */
 .sb-logo{display:block;width:auto;max-width:100%;height:var(--sb-logo-size);object-fit:contain;object-position:left center}
 .sb-section{padding:11px 16px 4px;font-size:10px;font-weight:600;color:var(--tw3);letter-spacing:.08em;text-transform:uppercase}
-.nav-item{display:flex;align-items:center;gap:9px;padding:7px 13px;cursor:pointer;color:var(--tw3);font-size:12px;text-decoration:none;transition:all .12s;margin:1px 5px;border-radius:6px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:7px 13px;cursor:pointer;color:var(--tw3);font-size:12px;text-decoration:none;transition:all .12s;margin:1px 7px;border-radius:6px}
 .nav-item:hover{background:rgba(255,255,255,.06);color:var(--tw)}
 .nav-item.active{background:linear-gradient(90deg,transparent,rgba(78,187,129,.08) 45%,rgba(143,227,182,.24));color:var(--gs-l);font-weight:600;box-shadow:inset 0 0 0 1px rgba(143,227,182,.22)}
-.nav-item.active::before{content:'';position:absolute;right:-3px;top:16%;bottom:16%;width:3px;border-radius:3px;background:var(--gs-l);box-shadow:0 0 8px rgba(143,227,182,.6)}
+.nav-item.active::before{content:'';position:absolute;right:-6px;top:16%;bottom:16%;width:3px;border-radius:3px;background:var(--gs-l);box-shadow:0 0 8px rgba(143,227,182,.6)}
 .sb-divider{height:1px;background:var(--bw);margin:7px 12px}
 
 /* notification row — above profile */

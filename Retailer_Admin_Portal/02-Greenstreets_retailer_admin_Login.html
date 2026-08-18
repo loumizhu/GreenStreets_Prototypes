@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Greenstreets — Retailer Admin · Login</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/greenstreets-theme.css?v=40">
-<link rel="stylesheet" href="css/retailer-admin.css?v=18">
+<link rel="stylesheet" href="css/greenstreets-theme.css?v=41">
+<link rel="stylesheet" href="css/retailer-admin.css?v=19">
 <style>
 /* ── Login button: border-draw activation ─────────────────────────
    Dormant until both email + password are filled, then a bright line
@@ -74,7 +74,7 @@
         </div>
         <input class="fi" type="email" placeholder="keith@primark.com" style="margin-bottom:8px">
         <input class="fi" type="password" placeholder="Password" style="margin-bottom:12px">
-        <button class="btn-p ra-login-btn" style="width:100%;justify-content:center;height:38px;padding:0 16px" onclick="go('ra_welcome')"><img class="btn-sw" src="" alt="" data-sw><span class="btn-c"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>Sign in</span></button>
+        <button class="btn-p ra-login-btn" style="width:100%;justify-content:center;height:38px;padding:0 16px" onclick="(window.gsRaSignIn?gsRaSignIn():go('ra_welcome'))"><img class="btn-sw" src="" alt="" data-sw><span class="btn-c"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>Sign in</span></button>
         <a style="display:block;text-align:center;margin-top:10px;font-size:11px;color:var(--tw3)">Forgot password?</a>
       </div>
     </div>
@@ -82,7 +82,7 @@
 </div>
 <script src="js/retailer-admin.js?v=27"></script>
 <script src="js/greenstreets-theme.js?v=24"></script>
-<script src="js/ra-tour.js?v=10"></script>
+<script src="js/ra-tour.js?v=11"></script>
 <script src="js/gs-appearance.js?v=5"></script>
 <script>
 /* Arm the login button once both credentials are filled */

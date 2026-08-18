@@ -950,12 +950,12 @@ table[data-gs-grid] tbody tr.gs-kbd-row{ outline:2px solid var(--field-stroke-co
 
 /* ── Row action group (Retailers / Suppliers listings): small label buttons + a bigger arrow ── */
 .act-cell{text-align:right}
-.act-group{display:flex;flex-wrap:wrap;gap:5px;align-items:center;justify-content:flex-end}
+.act-group{display:grid;grid-auto-flow:row;grid-template-columns:1fr 1fr auto;gap:5px;align-items:stretch;justify-content:end;width:max-content;margin-left:auto}
 .act-mini{font-size:10px;font-weight:600;line-height:1;padding:4px 8px;border-radius:7px;cursor:pointer;
   color:var(--tw2);background:rgba(255,255,255,.05);border:1px solid var(--line-2);
-  transition:background .14s,border-color .14s,color .14s;white-space:nowrap}
+  transition:background .14s,border-color .14s,color .14s;white-space:nowrap;text-align:center}
 .act-mini:hover{background:rgba(143,227,182,.14);border-color:rgba(143,227,182,.4);color:var(--gs-l)}
-.act-arrow{flex-shrink:0;width:30px;height:30px;border-radius:9px;display:inline-flex;align-items:center;justify-content:center;
+.act-arrow{grid-column:3;grid-row:1 / span 2;align-self:stretch;flex-shrink:0;width:34px;height:auto;border-radius:9px;display:inline-flex;align-items:center;justify-content:center;
   cursor:pointer;color:#04160e;background:linear-gradient(135deg,var(--gs),var(--teal));border:none;
   box-shadow:0 2px 8px rgba(78,187,129,.35);transition:transform .14s,box-shadow .14s;margin-left:2px}
 .act-arrow:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(78,187,129,.5)}
