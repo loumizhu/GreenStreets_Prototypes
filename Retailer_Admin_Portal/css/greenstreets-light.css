@@ -130,8 +130,9 @@ body.lt .alert-warn{background:#fdf2e2;border:1px solid #f4e0c0;color:#c9852a}
 body.lt .alert-info{background:#e9f1ff;border:1px solid #d3e2fb;color:#3f74c7}
 
 /* ── buttons & fields ──────────────────────────────────────────────────────── */
-body.lt .btn-p{background:linear-gradient(120deg,#80e7b4 0%,#5df3a4 45%,#59cdc7 100%);color:#08321f}
-body.lt .btn-p:hover{box-shadow:0 12px 26px -8px rgba(93,243,164,.5)}
+/* primary button follows the theme accent (incl. the swoosh-image button) */
+body.lt .btn-p{background:var(--lt-accent-ink);color:#fff}
+body.lt .btn-p:hover{filter:brightness(1.06);box-shadow:0 12px 26px -8px color-mix(in srgb,var(--lt-accent) 60%,transparent)}
 body.lt .btn-g,body.lt .btn-g-sm{background:#fff;color:var(--lt-ink-2);border:1px solid var(--lt-line-2)}
 body.lt .btn-g:hover,body.lt .btn-g-sm:hover{background:rgba(110,168,254,.10);color:var(--lt-accent-ink)}
 body.lt .fi{background:#fff;border:1px solid var(--lt-line-2);color:var(--lt-ink)}
@@ -161,7 +162,9 @@ body.lt .gs-theme-seg{background:var(--lt-surface-2);border-color:var(--lt-line-
 body.lt .gs-seg-btn{color:var(--lt-ink-3)}
 body.lt .gs-seg-btn:hover{color:var(--lt-ink)}
 /* active segment reads like the primary button (bright mint + dark-green ink) */
-body.lt .gs-seg-btn.on{background:linear-gradient(120deg,#80e7b4 0%,#5df3a4 45%,#59cdc7 100%);color:#08321f}
+body.lt .gs-seg-btn.on{background:var(--lt-accent-ink);color:#fff}
+/* RA appearance segmented control (gs-appearance.js) — active follows accent, flat */
+body.lt .gsa-seg-btn.sel{background:var(--lt-accent-ink);border-color:var(--lt-accent-ink);color:#fff}
 body.lt.lt-ak .gs-seg-btn.on{background:var(--ak-accent);color:#fff}
 
 /* ── TABLE — pastel harmonious columns ─────────────────────────────────────── */
@@ -227,8 +230,8 @@ body.lt .act-mini{background:#fff;border-color:var(--lt-line-2);color:var(--lt-i
 body.lt .act-mini:hover{background:rgba(78,187,129,.12);border-color:#8fd0b6;color:#2f9c62}
 body.lt .act-mini.act-view{color:#2f9c62;background:#eaf7ee;border-color:#bfe6cf}
 body.lt .act-mini.act-view:hover{background:#dcf1e5;border-color:#8fd0b6;color:#1f7a49}
-body.lt .act-arrow{background:linear-gradient(135deg,#5df3a4,#59cdc7);color:#08321f;box-shadow:0 2px 8px rgba(89,205,199,.4)}
-body.lt .act-arrow:hover{box-shadow:0 4px 12px rgba(89,205,199,.55)}
+body.lt .act-arrow{background:var(--lt-accent-ink);color:#fff;box-shadow:0 2px 8px color-mix(in srgb,var(--lt-accent) 45%,transparent)}
+body.lt .act-arrow:hover{box-shadow:0 4px 12px color-mix(in srgb,var(--lt-accent) 55%,transparent)}
 body.lt .chev-btn{background:#fff;border:1px solid var(--lt-line-2);color:var(--lt-ink-2)}
 body.lt .tbl tbody tr:hover .chev-btn{background:var(--lt-accent);color:#fff;border-color:transparent}
 
@@ -237,7 +240,10 @@ body.lt .tgl-row{border-bottom-color:var(--lt-line)}
 body.lt .tgl-info{color:var(--lt-ink)}
 body.lt .tgl-info small{color:var(--lt-ink-3)}
 body.lt .tgl{background:#dfe5ef;border:1px solid #cfd8e6}
-body.lt .tgl.on{background:var(--gs,#4ebb81);border-color:var(--gs,#4ebb81)}
+body.lt .tgl.on{background:var(--lt-accent-ink);border-color:transparent}
+/* white knob (both states) so it's visible on the light track and not the dark #04160e */
+body.lt .tgl::after{background:#fff;box-shadow:0 1px 3px rgba(60,90,140,.35)}
+body.lt .tgl.on::after{background:#fff}
 
 /* ── doc chips ─────────────────────────────────────────────────────────────── */
 body.lt .doc-chip{background:#e6f6ec;border:1px solid #cbead6;color:#2f9c62}

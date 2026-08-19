@@ -69,7 +69,7 @@
     }
     /* Logo size — sets the sidebar logo height (px). Clamped to the slider range. */
     if (s.logoSize) {
-      var ls = Math.max(24, Math.min(90, parseInt(s.logoSize, 10) || 36));
+      var ls = Math.max(24, Math.min(90, parseInt(s.logoSize, 10) || 70));
       root.setProperty('--sb-logo-size', ls + 'px');
     }
     /* Text / UI size — a zoom on the page content so text AND layout scale. */
@@ -135,28 +135,32 @@
     var wrap = document.createElement('div');
     wrap.className = 'gsa-wrap';
 
-    /* Theme presets */
-    var themeSec = document.createElement('div');
-    themeSec.className = 'gsa-sec';
-    themeSec.innerHTML = '<div class="gsa-lbl">Theme</div><div class="gsa-hint">Sets the accent colour and background tone across the portal.</div>';
-    var grid = document.createElement('div'); grid.className = 'gsa-themes';
-    Object.keys(PRESETS).forEach(function (id) {
-      var p = PRESETS[id];
-      var card = document.createElement('div');
-      card.className = 'gsa-theme' + (id === s.theme ? ' sel' : '');
-      card.setAttribute('data-theme', id);
-      card.innerHTML =
-        '<div class="gsa-swatch" style="background:linear-gradient(135deg,' + p.bg0 + ',' + p.bg1 + ')">' +
-          '<span class="gsa-dot" style="background:' + p.accent + '"></span></div>' +
-        '<div class="gsa-theme-name">' + p.name + '</div>';
-      card.onclick = function () {
-        s = load(); s.theme = id; s.accent = null; /* theme resets custom accent */
-        save(s); apply(s); refresh();
-      };
-      grid.appendChild(card);
-    });
-    themeSec.appendChild(grid);
-    wrap.appendChild(themeSec);
+    /* Dark theme presets — accent + background tone swatches. Only shown while the
+       console is in the DARK appearance (these palettes set dark --bg-0/--bg-1);
+       the light appearance uses its own "Light theme presets" grid instead. */
+    if (!(document.body && document.body.classList.contains('lt'))) {
+      var themeSec = document.createElement('div');
+      themeSec.className = 'gsa-sec';
+      themeSec.innerHTML = '<div class="gsa-lbl">Dark theme presets</div><div class="gsa-hint">Sets the accent colour and background tone across the portal.</div>';
+      var grid = document.createElement('div'); grid.className = 'gsa-themes';
+      Object.keys(PRESETS).forEach(function (id) {
+        var p = PRESETS[id];
+        var card = document.createElement('div');
+        card.className = 'gsa-theme' + (id === s.theme ? ' sel' : '');
+        card.setAttribute('data-theme', id);
+        card.innerHTML =
+          '<div class="gsa-swatch" style="background:linear-gradient(135deg,' + p.bg0 + ',' + p.bg1 + ')">' +
+            '<span class="gsa-dot" style="background:' + p.accent + '"></span></div>' +
+          '<div class="gsa-theme-name">' + p.name + '</div>';
+        card.onclick = function () {
+          s = load(); s.theme = id; s.accent = null; /* theme resets custom accent */
+          save(s); apply(s); refresh();
+        };
+        grid.appendChild(card);
+      });
+      themeSec.appendChild(grid);
+      wrap.appendChild(themeSec);
+    }
 
     /* Accent colour */
     var accSec = document.createElement('div');
@@ -218,7 +222,7 @@
     sizeSec.innerHTML = '<div class="gsa-lbl">Logo size</div><div class="gsa-hint">Adjust how large the logo appears in the sidebar (the login logo scales to match).</div>';
     var sizeRow = document.createElement('div');
     sizeRow.style.cssText = 'display:flex;align-items:center;gap:14px;flex-wrap:wrap';
-    var curSize = s.logoSize || 36;
+    var curSize = s.logoSize || 70;
     var range = document.createElement('input');
     range.type = 'range'; range.min = '24'; range.max = '90'; range.step = '1'; range.value = curSize;
     range.style.cssText = 'width:50%;min-width:150px;accent-color:var(--gs)';

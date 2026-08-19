@@ -841,7 +841,12 @@ window.GS_LIGHT_PRESET_KEY = 'gs-ra-light-preset';
   /* Settings page: build the on/off switch + palette picker (no header toggle there) */
   function initLightSettings(){
     var grid = document.getElementById('gsLpGrid');
-    if(grid && !grid._built){
+    /* Light theme presets only apply in the light appearance — hide the whole
+       section on dark pages (dark uses gs-appearance's "Dark theme presets"). */
+    if(grid && !document.body.classList.contains('lt')){
+      var sec = grid.closest('div[style*="padding-top:12px"]') || grid.parentNode;
+      if(sec) sec.style.display = 'none';
+    } else if(grid && !grid._built){
       grid._built = true;
       var active = savedPreset() || 'Meadow';
       Object.keys(window.gsLightPresets).forEach(function(name){

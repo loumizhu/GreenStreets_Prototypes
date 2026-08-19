@@ -121,8 +121,9 @@ body.lt .pg-title{font-size:var(--lt-pgtitle-size)}
 
 /* ── buttons & fields ──────────────────────────────────────────────────────── */
 /* primary button — brighter mint→teal gradient in light */
-body.lt .btn-p{background:linear-gradient(120deg,#80e7b4 0%,#5df3a4 45%,#59cdc7 100%)}
-body.lt .btn-p:hover{box-shadow:0 12px 26px -8px rgba(93,243,164,.5)}
+/* primary button follows the theme accent (incl. the swoosh-image button) — flat, no gradient */
+body.lt .btn-p{background:var(--lt-accent-ink);color:#fff}
+body.lt .btn-p:hover{filter:brightness(1.06);box-shadow:0 12px 26px -8px color-mix(in srgb,var(--lt-accent) 60%,transparent)}
 body.lt .btn-g{background:#fff;color:var(--lt-ink-2);border:1px solid var(--lt-line-2)}
 body.lt .btn-g:hover{background:rgba(110,168,254,.10);color:var(--lt-accent-ink);border-color:var(--lt-accent)}
 body.lt .btn-g-sm{background:#fff;color:var(--lt-ink-2);border:1px solid var(--lt-line-2)}
@@ -158,7 +159,10 @@ body.lt .gs-theme-seg{background:var(--lt-surface-2,#fafbfc);border-color:var(--
 body.lt .gs-seg-btn{color:var(--lt-ink-3)}
 body.lt .gs-seg-btn:hover{color:var(--lt-ink)}
 /* active segment reads like the primary button (bright mint + dark-green ink) */
-body.lt .gs-seg-btn.on{background:linear-gradient(120deg,#80e7b4 0%,#5df3a4 45%,#59cdc7 100%);color:#08321f}
+body.lt .gs-seg-btn.on{background:var(--lt-accent-ink);color:#fff}
+/* SA appearance segmented control (Density / text size) — active follows accent, flat */
+body.lt .gsa-seg-btn.active{background:var(--lt-accent-ink);color:#fff}
+body.lt.lt-ak .gsa-seg-btn.active{background:var(--ak-accent);color:#fff}
 body.lt.lt-ak .gs-seg-btn.on{background:var(--ak-accent);color:#fff}
 /* header notification button (Retailers page inline component) */
 body.lt .hdr-notif{background:#fff;border:1px solid var(--lt-line-2);color:var(--lt-ink-2)}
@@ -472,3 +476,15 @@ body.lt.lt-ak .gs-lp-nm{color:var(--ak-ink-2)}
 /* super-admin shield badge — light */
 body.lt .pg-badge{color:#2f9c62;background:#e6f6ec;box-shadow:inset 0 0 0 1px #cbead6}
 body.lt.lt-ak .pg-badge{color:var(--ak-accent-ink);background:var(--ak-accent-soft);box-shadow:inset 0 0 0 1px #cdebda}
+
+/* ── toggle switches (.tgl) ──────────────────────────────────────────────────
+   The dark theme used a translucent-white off-track + white off-knob (both
+   invisible on light) and a near-black knob when on (#04160e — too dark). Give
+   the light theme a visible grey track and a white knob with a soft shadow so it
+   reads on both the off (grey) and on (green) states. */
+body.lt .tgl{background:#dfe5ef;border:1px solid #cfd8e6}
+body.lt .tgl::after{background:#fff;box-shadow:0 1px 3px rgba(60,90,140,.35)}
+body.lt .tgl.on{background:var(--lt-accent-ink);border-color:transparent}
+body.lt .tgl.on::after{background:#fff}
+body.lt.lt-ak .tgl{background:#e3e5ea;border-color:#d7dae1}
+body.lt.lt-ak .tgl.on{background:var(--ak-accent);border-color:transparent}

@@ -58,7 +58,7 @@ html,body{height:100%;font-family:'Inter',sans-serif;color:var(--tw);background:
   overflow:hidden;
 }
 .sb-logo-zone{padding:10px 14px 8px;border-bottom:1px solid var(--bw);flex-shrink:0;width:100%;box-sizing:border-box;overflow:hidden}
-:root{--sb-logo-size:36px}   /* Retailer Admin default (theme default is 85); the Settings→Appearance "Logo size" slider overrides this via documentElement.style */
+:root{--sb-logo-size:70px}   /* Retailer Admin default; the Settings→Appearance "Logo size" slider overrides this via documentElement.style */
 .sb-logo{display:block;width:auto;max-width:100%;height:var(--sb-logo-size);object-fit:contain;object-position:left center}
 .sb-section{padding:11px 16px 4px;font-size:10px;font-weight:600;color:var(--tw3);letter-spacing:.08em;text-transform:uppercase}
 .nav-item{display:flex;align-items:center;gap:9px;padding:7px 13px;cursor:pointer;color:var(--tw3);font-size:12px;text-decoration:none;transition:all .12s;margin:1px 7px;border-radius:6px}
