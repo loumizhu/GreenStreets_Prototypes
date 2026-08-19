@@ -1151,6 +1151,16 @@ window.GS_LIGHT_PRESET_KEY = 'gs-sa-light-preset';
     btn.innerHTML = lt ? MOON : SUN;
     btn.addEventListener('click', window.gsToggleTheme);
     var q=function(s){ return document.querySelector(s); };
+    /* match a neighbouring BUTTON's height (not the tall header stat cards), so the
+       toggle sits flush with the row's buttons on every page */
+    function fitHeight(container){
+      try{
+        var ctrl=[].slice.call(container.querySelectorAll('button,.btn-g,.btn-p,.btn-g-sm'))
+          .filter(function(c){ return c!==btn && !btn.contains(c); })[0];
+        var h = ctrl ? ctrl.getBoundingClientRect().height : 0;
+        if(h>0){ h=Math.round(h); btn.style.height=h+'px'; btn.style.width=h+'px'; }
+      }catch(e){}
+    }
 
     var bell = q('.hdr-notif');
     if(bell){
@@ -1160,7 +1170,7 @@ window.GS_LIGHT_PRESET_KEY = 'gs-sa-light-preset';
       wrap.appendChild(btn); return;
     }
     var acts = q('.pg-hdr-bar .pg-actions') || q('.pg-hdr-bar .hdr-stat-row') || q('.pg-actions') || q('.hdr-stat-row');
-    if(acts){ btn.classList.add('hdr-theme-inrow'); acts.appendChild(btn); return; }
+    if(acts){ btn.classList.add('hdr-theme-inrow'); acts.appendChild(btn); fitHeight(acts); return; }
     var bar = q('.pg-hdr-bar');
     if(bar){
       var kids = [].slice.call(bar.children).filter(function(k){ return k!==btn; });
@@ -1169,7 +1179,7 @@ window.GS_LIGHT_PRESET_KEY = 'gs-sa-light-preset';
         var grp = kids[kids.length-1];
         if(getComputedStyle(grp).display.indexOf('flex') < 0){ grp.style.display='inline-flex'; grp.style.alignItems='center'; }
         grp.style.gap = '8px';
-        btn.classList.add('hdr-theme-ingroup'); grp.appendChild(btn); return;
+        btn.classList.add('hdr-theme-ingroup'); grp.appendChild(btn); fitHeight(grp); return;
       }
       /* title-only header — the toggle becomes the right-hand flex child */
       btn.classList.add('hdr-theme-inbar'); bar.appendChild(btn); return;

@@ -781,3 +781,41 @@ mark.gs-hl{background:rgba(245,205,90,.32);color:inherit;border-radius:3px;paddi
   .grids,.fg2,.tier-grid,.recap-grid{grid-template-columns:1fr}
   .fg3,.fg4{grid-template-columns:1fr}
 }
+
+/* ═══ Dark/Light theme toggle button + Settings light-theme controls ══════════
+   Ported from the Super Admin. The button is auto-mounted by greenstreets-theme.js;
+   the palette picker + segmented toggle render on the Settings Appearance card. */
+.hdr-notif-wrap{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:space-between;align-self:stretch}
+.hdr-notif-wrap .hdr-notif{width:30px;height:30px;margin:0;border-radius:9px}
+.hdr-notif-wrap .hdr-notif svg{width:16px;height:16px}
+.hdr-theme-toggle{
+  width:40px;height:40px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;
+  color:var(--tw);background:rgba(255,255,255,.04);border:1px solid var(--line-2);cursor:pointer;
+  transition:background .15s,border-color .15s,color .15s;box-shadow:var(--sh-1)}
+.hdr-theme-toggle:hover{background:rgba(78,187,129,.12);border-color:var(--gs);color:var(--gs-l)}
+.hdr-theme-toggle svg{width:20px;height:20px}
+/* inline in a header actions row / joined trailing group: match the adjacent
+   buttons' height (.btn-g is 32px, the bell is 32px) instead of the standalone 40px */
+.hdr-theme-inrow,.hdr-theme-ingroup{align-self:flex-start;width:32px;height:32px;border-radius:9px;box-shadow:none}
+.hdr-theme-inrow svg,.hdr-theme-ingroup svg{width:17px;height:17px}
+.hdr-theme-topright{position:absolute;top:0;right:0;z-index:20}
+.hdr-theme-bc{margin-left:auto}
+.hdr-theme-fixed{position:fixed;top:14px;right:16px;z-index:9998}
+.hdr-notif-wrap .hdr-theme-toggle{width:30px;height:30px;border-radius:9px;box-shadow:none}
+.hdr-notif-wrap .hdr-theme-toggle svg{width:16px;height:16px}
+
+/* Light-theme palette picker (Settings) */
+.gs-lp-grid{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+.gs-lp{display:flex;flex-direction:column;align-items:center;gap:7px;padding:9px 8px;border-radius:11px;border:1px solid var(--line-2);background:rgba(255,255,255,.03);cursor:pointer;width:86px;transition:border-color .15s,box-shadow .15s}
+.gs-lp:hover{border-color:var(--gs)}
+.gs-lp.active{border-color:var(--gs);box-shadow:0 0 0 1px var(--gs)}
+.gs-lp-sw{display:flex;gap:3px}
+.gs-lp-sw span{width:13px;height:13px;border-radius:4px;border:1px solid rgba(0,0,0,.06)}
+.gs-lp-nm{font-size:11px;color:var(--tw2);font-weight:600}
+/* Settings: Light-theme sub-section inside the Appearance card + Dark/Light segmented toggle */
+.sap-light-sec{margin-top:var(--sp-4);padding-top:var(--sp-4);border-top:1px solid var(--line)}
+.sap-light-h{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--tw3);font-weight:700;margin-bottom:10px}
+.gs-theme-seg{display:inline-flex;gap:2px;padding:3px;border-radius:9px;background:rgba(255,255,255,.05);border:1px solid var(--line-2);flex-shrink:0}
+.gs-seg-btn{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;padding:5px 15px;border:none;border-radius:7px;background:transparent;color:var(--tw3);cursor:pointer;transition:background .15s,color .15s}
+.gs-seg-btn:hover{color:var(--tw)}
+.gs-seg-btn.on{background:linear-gradient(120deg,var(--gs-l),var(--gs));color:#04160e}

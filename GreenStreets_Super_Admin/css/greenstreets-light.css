@@ -157,6 +157,9 @@ body.lt .sap-light-sec{border-top-color:var(--lt-line)}
 body.lt .gs-theme-seg{background:var(--lt-surface-2,#fafbfc);border-color:var(--lt-line-2)}
 body.lt .gs-seg-btn{color:var(--lt-ink-3)}
 body.lt .gs-seg-btn:hover{color:var(--lt-ink)}
+/* active segment reads like the primary button (bright mint + dark-green ink) */
+body.lt .gs-seg-btn.on{background:linear-gradient(120deg,#80e7b4 0%,#5df3a4 45%,#59cdc7 100%);color:#08321f}
+body.lt.lt-ak .gs-seg-btn.on{background:var(--ak-accent);color:#fff}
 /* header notification button (Retailers page inline component) */
 body.lt .hdr-notif{background:#fff;border:1px solid var(--lt-line-2);color:var(--lt-ink-2)}
 body.lt .hdr-notif:hover{background:rgba(78,187,129,.10);border-color:#8fd0b6;color:#2f9c62}
@@ -465,3 +468,7 @@ body.lt.lt-ak .breadcrumb .bc-link{color:var(--ak-ink-3)}
 body.lt.lt-ak .breadcrumb .bc-link:hover{color:var(--ak-accent-strong)}
 body.lt.lt-ak .gs-lp{background:var(--ak-surface);border-color:var(--ak-line-2)}
 body.lt.lt-ak .gs-lp-nm{color:var(--ak-ink-2)}
+
+/* super-admin shield badge — light */
+body.lt .pg-badge{color:#2f9c62;background:#e6f6ec;box-shadow:inset 0 0 0 1px #cbead6}
+body.lt.lt-ak .pg-badge{color:var(--ak-accent-ink);background:var(--ak-accent-soft);box-shadow:inset 0 0 0 1px #cdebda}

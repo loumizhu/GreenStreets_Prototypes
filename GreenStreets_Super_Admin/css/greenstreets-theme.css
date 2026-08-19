@@ -355,7 +355,9 @@ select.fi option{background-color:#0f2038;color:var(--tw)}
 .hdr-theme-toggle:hover{background:rgba(78,187,129,.12);border-color:var(--gs);color:var(--gs-l)}
 .hdr-theme-toggle svg{width:20px;height:20px}
 /* placement variants (single button on bell-less pages, aligned to the first line) */
-.hdr-theme-inrow{align-self:center}
+/* when the toggle is shorter than the row's tall items (header stat cards),
+   pin it to the TOP of the row rather than vertically centering it */
+.hdr-theme-inrow,.hdr-theme-ingroup{align-self:flex-start}
 .hdr-theme-topright{position:absolute;top:0;right:0;z-index:20}
 .hdr-theme-bc{margin-left:auto}
 .hdr-theme-fixed{position:fixed;top:14px;right:16px;z-index:9998}
@@ -418,7 +420,10 @@ select.fi option{background-color:#0f2038;color:var(--tw)}
 .main{flex:1;overflow-y:auto;padding:var(--sp-6);position:relative}
 /* .pbody is the supplier-portal (04) scroll container — positioned so the absolute focus ring scrolls with content */
 .pbody{position:relative}
-.pg-hdr-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--sp-5);gap:var(--sp-4)}
+/* align-items:flex-start so the page title sits at the same top margin on every
+   page, whether or not the header carries tall stat cards (which used to push a
+   centered title downward) */
+.pg-hdr-bar{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:var(--sp-5);gap:var(--sp-4)}
 .pg-eyebrow{font-size:10px;font-weight:700;letter-spacing:.14em;color:var(--gs-l);text-transform:uppercase;margin-bottom:var(--sp-2);opacity:.9}
 .pg-title{font-size:24px;font-weight:700;letter-spacing:-.015em;color:var(--tw)}
 .pg-sub{font-size:12px;color:var(--tw3);margin-top:var(--sp-1)}
@@ -1033,3 +1038,7 @@ table[data-gs-grid] tbody tr.gs-kbd-row{ outline:2px solid var(--field-stroke-co
 .pd-code .gs-id{gap:10px}
 .pd-code .gs-id-ic{width:22px;height:22px;border-radius:6px}
 .pd-code .gs-id-text{font-size:inherit;letter-spacing:inherit}
+
+/* Super-admin shield badge on the page title */
+.pg-badge{display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;margin-left:9px;width:23px;height:23px;border-radius:7px;color:var(--gs-l);background:rgba(143,227,182,.14);box-shadow:inset 0 0 0 1px rgba(143,227,182,.3);position:relative;top:-2px}
+.pg-badge svg{width:14px;height:14px}
