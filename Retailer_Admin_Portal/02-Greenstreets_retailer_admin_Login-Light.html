@@ -54,6 +54,14 @@
   #ra_login .ra-login-btn.armed::before,
   #ra_login .ra-login-btn.lit::before{animation:none;opacity:1}
 }
+
+/* Light login: halve the logo (retailer-admin.css sets .login-logo{width:100%},
+   which overrode --login-logo-size and made it render ~302px). */
+#ra_login .login-logo{width:50%;margin:0 auto}
+/* Drop the photo backdrop so the animated blobs read (matches the Super Admin
+   light login). retailer-admin.js sets it as an INLINE style, so !important is
+   required here, and the inline value is also cleared in JS below. */
+#ra_login .login-wrap{background-image:none!important;background-color:transparent!important}
 </style>
 </head>
 <body class="lt">
@@ -111,5 +119,11 @@
 })();
 </script>
 <script src="js/greenstreets-light.js?v=1"></script>
+<script>
+/* retailer-admin.js sets .login-wrap's background photo as an inline style;
+   clear it before the FX script paints, so the blobs are the background. */
+(function(){var w=document.querySelector('#ra_login .login-wrap');if(w){w.style.backgroundImage='none';w.style.background='transparent';}})();
+</script>
+<script src="js/login-fx-light.js?v=1"></script>
 </body>
 </html>

@@ -217,7 +217,10 @@ var Stroke = (function(){
     total = pts.length;
   }
   function resize(){
-    W = card.clientWidth; H = card.clientHeight;
+    // offsetWidth/Height (NOT client*) — the card has a 1px border, and the canvas is
+    // positioned from its border-box origin; client* excludes the border, which left the
+    // path ~2px short along the bottom and right edges.
+    W = card.offsetWidth; H = card.offsetHeight;
     var cw = W+PAD*2, ch = H+PAD*2;
     cv.width=Math.max(1,cw*DPR); cv.height=Math.max(1,ch*DPR);
     cv.style.width=cw+'px'; cv.style.height=ch+'px';
