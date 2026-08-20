@@ -112,7 +112,7 @@ html,body{height:100%;font-family:'Inter',sans-serif;color:var(--tw);background:
 /* ── GROUPS ── */
 .grids{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .grp{background:rgba(255,255,255,.03);border:1px solid rgba(69,125,195,.2);border-radius:var(--rs);overflow:hidden;margin-bottom:0}
-.grp-hdr{padding:8px 14px;background:rgba(14,30,56,.8);font-size:10px;font-weight:600;color:rgba(255,255,255,.6);letter-spacing:.05em;text-transform:uppercase;border-bottom:1px solid rgba(69,125,195,.15);display:flex;align-items:center;justify-content:space-between}
+.grp-hdr{padding:8px 14px;background:linear-gradient(100deg,rgba(var(--gs-rgb,78,187,129),.10),rgba(var(--gs-rgb,78,187,129),.03));font-size:10px;font-weight:600;color:rgba(255,255,255,.6);letter-spacing:.05em;text-transform:uppercase;border-bottom:1px solid rgba(69,125,195,.15);display:flex;align-items:center;justify-content:space-between}
 .grp-body{padding:14px}
 
 /* ── STATS ── */

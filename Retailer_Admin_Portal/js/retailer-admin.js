@@ -41,12 +41,23 @@ var GS_PAGES = {
   'ra11':            '02-Greenstreets_retailer_admin_Compliance.html',
   'ra12':            '02-Greenstreets_retailer_admin_Generate-DoC.html',
   'ra13':            '02-Greenstreets_retailer_admin_Documents.html',
+  'ra_docdetail':    '02-Greenstreets_retailer_admin_Document-Detail.html',
   'ra15':            '02-Greenstreets_retailer_admin_Audit-Log.html',
   'ra16':            '02-Greenstreets_retailer_admin_Notifications.html',
   'ra_config':       '02-Greenstreets_retailer_admin_Settings.html',
   'ra_custom_invite': '02-Greenstreets_retailer_admin_Custom-Invite.html'
 };
 function go(id){ var u = GS_PAGES[id]; if(u) window.location.href = u; }
+
+/* Open the document detail page for a given document id, optionally deep-linking to one
+   of its action sections ('evidence'|'manual'|'versions'|'audit'|'export') — round-trips via sessionStorage. */
+function openDocumentRA(docId, section){
+  try{
+    sessionStorage.setItem('ra_di', docId);
+    if (section) sessionStorage.setItem('ra_di_section', section); else sessionStorage.removeItem('ra_di_section');
+  }catch(e){}
+  go('ra_docdetail');
+}
 
 /* Open the product detail page for a given SKU (round-trips via sessionStorage). */
 function openProductRA(sku){ try{ sessionStorage.setItem('ra_pi', sku); }catch(e){} go('ra_product'); }
@@ -691,14 +702,37 @@ var PKG_LIBRARY = [
 
 
 function toggleDropdown(btn) {
-  var dd = btn.nextElementSibling;
+  var dd = btn._gsDropdown || btn.nextElementSibling;
   if (!dd || !dd.classList.contains('reminder-dropdown')) return;
+  btn._gsDropdown = dd;
   // close all others first
   document.querySelectorAll('.reminder-dropdown.open').forEach(function(d){
     if(d !== dd) d.classList.remove('open');
   });
+  var opening = !dd.classList.contains('open');
   dd.classList.toggle('open');
+  if (opening) {
+    /* .reminder-dropdown is position:fixed so it can escape a clipping ancestor (e.g. a
+       table's overflow:hidden .tbl-wrap) — but a glass card ancestor with backdrop-filter/
+       filter creates its own containing block for fixed descendants, which silently breaks
+       viewport-relative fixed positioning. Reparent to <body> once so it truly floats above
+       everything, using btn._gsDropdown (not nextElementSibling) to keep finding it afterward. */
+    if (dd.parentElement !== document.body) document.body.appendChild(dd);
+    positionDropdown(btn, dd);
+  }
 }
+function positionDropdown(btn, dd) {
+  var r = btn.getBoundingClientRect();
+  var menuW = dd.offsetWidth || 200, menuH = dd.offsetHeight || 0;
+  var left = Math.max(4, Math.min(r.right - menuW, window.innerWidth - menuW - 4));
+  var top = r.bottom + 4;
+  if (top + menuH > window.innerHeight) top = r.top - menuH - 4;
+  dd.style.left = left + 'px';
+  dd.style.top = top + 'px';
+}
+window.addEventListener('scroll', function(){
+  document.querySelectorAll('.reminder-dropdown.open').forEach(function(d){ d.classList.remove('open'); });
+}, true);
 function sendReminder(btn) {
   var row = btn.closest('tr');
   var name = row ? row.querySelector('.tbl-name') : null;
@@ -713,9 +747,9 @@ function sendReminder(btn) {
     btn.style.background = '';btn.style.borderColor = '';btn.style.color = '';
   }, 2000);
 }
-// Close dropdowns on outside click
+// Close dropdowns on outside click (dropdown itself may be reparented to <body>, so check both)
 document.addEventListener('click', function(e) {
-  if (!e.target.closest('.reminder-btn-wrap')) {
+  if (!e.target.closest('.reminder-btn-wrap') && !e.target.closest('.reminder-dropdown')) {
     document.querySelectorAll('.reminder-dropdown.open').forEach(function(d){ d.classList.remove('open'); });
   }
 });

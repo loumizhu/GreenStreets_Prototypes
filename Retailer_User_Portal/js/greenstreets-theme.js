@@ -691,3 +691,144 @@
     fireBurst(btn,null,null);
   });
 })();
+
+/* ═══ Dark/Light theme switch + light-theme palettes ═══════════════════════════
+   Ported from the Retailer Admin / Super Admin. Sun = switch to light, Moon =
+   switch to dark; navigates between a page and its -Light twin. Loaded by
+   every page, so the switch is global. A header toggle auto-mounts (into
+   .pg-actions / header bar / breadcrumb, else fixed top-right); Settings
+   shows in-page controls instead. */
+window.gsToggleTheme = window.gsToggleTheme || function(){
+  var f = (location.pathname.split('/').pop() || '');
+  var t = /-Light\.html$/i.test(f) ? f.replace(/-Light\.html$/i,'.html') : f.replace(/\.html$/i,'-Light.html');
+  if(t && t !== f) window.location.href = t;
+};
+
+/* ── Light-theme palettes (the shared Meadow/Sorbet/… sets) ── */
+window.gsLightPresets = window.gsLightPresets || {
+  'Meadow'  :{accent:'#6ea8fe',sb:['#eaf1fe','#e7f5ee'],sbStroke:'#c5e7d6',title:['#3f74c7','#4bbd8c'],hdr:['#e6efff','#e7f5ee'],pg:['#f6f8fb','#eef2f8','#f3f0fa'],cols:['#eaf1ff','#fbfcfe','#f2edfd','#e8f6f4','#eaf7ee','#fdf3e6','#fbecf1','#f5f7fa']},
+  'Sorbet'  :{accent:'#f19bb0',sb:['#fdecf1','#fdf0e6'],sbStroke:'#eec2ce',title:['#d9607f','#e8894f'],hdr:['#fde9ef','#fdefe6'],pg:['#fdf7f8','#fbf1ee','#f9f0f6'],cols:['#fdeef2','#fffafc','#fdf0e8','#fef7e6','#eef8ee','#e9f4fb','#f3edfb','#f7f5f8']},
+  'Mist'    :{accent:'#7fb0c9',sb:['#eef4f7','#eef5f2'],sbStroke:'#bfd6db',title:['#4f7f96','#5aa0a0'],hdr:['#e9f1f4','#e9f4f0'],pg:['#f5f8fa','#eef3f6','#f0f4f5'],cols:['#eef4f7','#fbfdfe','#eaf3f4','#eef5f2','#f0f4f8','#f2f0f6','#f6f0f3','#f4f6f8']},
+  'Lavender':{accent:'#a78bfa',sb:['#f0ecfe','#f5ecfb'],sbStroke:'#d3c2ec',title:['#7c5cd6','#b06fc9'],hdr:['#efe9fe','#f3e9fb'],pg:['#f8f6fd','#f2eefb','#f6eefb'],cols:['#f1ecfe','#fcfbff','#efe9fd','#eef0fc','#f1ecfa','#f7eefb','#fbecf6','#f5f4fb']},
+  'Citrus'  :{accent:'#9cc861',sb:['#f2f7e2','#eef7ea'],sbStroke:'#cbe0a2',title:['#5f9a2f','#4bbd8c'],hdr:['#eef6df','#eaf6e6'],pg:['#f8faf2','#f3f7ea','#f1f7ee'],cols:['#f2f7e2','#fcfdf6','#eef7e6','#eef7ee','#f4f7e4','#fbf6e2','#f6f4e2','#f5f7ee']},
+  'Ocean'   :{accent:'#4fb0c9',sb:['#e6f3f6','#e4f2f0'],sbStroke:'#b4d7dd',title:['#2f8ba0','#3fae74'],hdr:['#e2f1f4','#e0f1ee'],pg:['#f2f9fa','#e9f4f6','#eef6f4'],cols:['#e6f3f6','#f8fdfe','#e6f1f4','#e6f4f1','#eaf5f4','#eef4f7','#f0f2f6','#f2f6f7']},
+  /* flat, minimal (AuthKit-style) — a structural variant, toggled via the .lt-ak body class */
+  'Minimal' :{style:'flat',accent:'#2fa46a',sb:['#ffffff','#f3f4f7'],sbStroke:'#d9dbe1',title:['#1e2330','#2fa46a'],hdr:['#ffffff','#ffffff'],pg:['#f3f4f7','#f3f4f7','#f3f4f7'],cols:['#eef0f3','#f7f8fa','#e9f6ef','#eef0f3','#f7f8fa','#eef0f3','#f2f3f5','#f7f8fa']}
+};
+window.GS_LIGHT_PRESET_KEY = 'gs-ru-light-preset';
+(function(){
+  function shade(hex,pct){ var n=parseInt(hex.slice(1),16),r=n>>16,g=(n>>8)&255,b=n&255,t=pct<0?0:255,p=Math.abs(pct);
+    r=Math.round((t-r)*p)+r;g=Math.round((t-g)*p)+g;b=Math.round((t-b)*p)+b; return '#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1); }
+  function savedPreset(){ try{ return localStorage.getItem(window.GS_LIGHT_PRESET_KEY); }catch(e){ return null; } }
+  window.gsApplyLightPreset = function(name, save){
+    var p = window.gsLightPresets[name]; if(!p) return;
+    if(save){ try{ localStorage.setItem(window.GS_LIGHT_PRESET_KEY, name); }catch(e){} }
+    if(!(document.body && document.body.classList.contains('lt'))) return;   // dark pages ignore --lt-*
+    document.body.classList.toggle('lt-ak', p.style === 'flat');
+    var r = document.documentElement.style;
+    r.setProperty('--lt-accent',p.accent); r.setProperty('--lt-accent-ink',shade(p.accent,-0.28));
+    r.setProperty('--lt-sb-1',p.sb[0]); r.setProperty('--lt-sb-2',p.sb[1]); r.setProperty('--lt-sb-stroke',p.sbStroke);
+    r.setProperty('--lt-title-1',p.title[0]); r.setProperty('--lt-title-2',p.title[1]);
+    r.setProperty('--lt-hdr-1',p.hdr[0]); r.setProperty('--lt-hdr-2',p.hdr[1]);
+    r.setProperty('--lt-page-1',p.pg[0]); r.setProperty('--lt-page-2',p.pg[1]); r.setProperty('--lt-page-3',p.pg[2]);
+    for(var i=0;i<8;i++) r.setProperty('--lt-c'+(i+1),p.cols[i]);
+  };
+
+  var SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+  var MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+
+  function mountToggle(){
+    var file = (location.pathname.split('/').pop() || '');
+    if(/Settings/i.test(file)) return;   // Settings has its own in-page light controls
+    if(document.querySelector('.hdr-theme-toggle')) return;
+    var lt = document.body && document.body.classList.contains('lt');
+    var btn = document.createElement('button');
+    btn.type='button'; btn.className='hdr-theme-toggle';
+    btn.title = 'Switch to '+(lt?'dark':'light')+' mode';
+    btn.setAttribute('aria-label', btn.title);
+    btn.innerHTML = lt ? MOON : SUN;
+    btn.addEventListener('click', window.gsToggleTheme);
+    var q=function(s){ return document.querySelector(s); };
+    /* size the toggle to exactly match its neighbours' height (buttons vary
+       32/36px per page), so it never sticks out taller than the row */
+    function fitHeight(container){
+      try{
+        var hs=[].slice.call(container.children)
+          .filter(function(c){ return c!==btn; })
+          .map(function(c){ return c.getBoundingClientRect().height; })
+          .filter(function(h){ return h>0; });
+        if(hs.length){ var m=Math.round(Math.max.apply(null,hs)); btn.style.height=m+'px'; btn.style.width=m+'px'; }
+      }catch(e){}
+    }
+
+    var bell = q('.hdr-notif');
+    if(bell){
+      var wrap = (bell.parentNode.classList && bell.parentNode.classList.contains('hdr-notif-wrap'))
+        ? bell.parentNode
+        : (function(){ var w=document.createElement('span'); w.className='hdr-notif-wrap'; bell.parentNode.insertBefore(w,bell); w.appendChild(bell); return w; })();
+      wrap.appendChild(btn); return;
+    }
+    var acts = q('.pg-hdr-bar .pg-actions') || q('.pg-hdr-bar .hdr-stat-row') || q('.pg-actions') || q('.hdr-stat-row');
+    if(acts){ btn.classList.add('hdr-theme-inrow'); acts.appendChild(btn); fitHeight(acts); return; }
+    var bar = q('.pg-hdr-bar');
+    if(bar){
+      var kids = [].slice.call(bar.children).filter(function(k){ return k!==btn; });
+      if(kids.length >= 2){
+        var grp = kids[kids.length-1];
+        if(getComputedStyle(grp).display.indexOf('flex') < 0){ grp.style.display='inline-flex'; grp.style.alignItems='center'; }
+        grp.style.gap = '8px';
+        btn.classList.add('hdr-theme-ingroup'); grp.appendChild(btn); fitHeight(grp); return;
+      }
+      btn.classList.add('hdr-theme-inbar'); bar.appendChild(btn); return;
+    }
+    var bc = q('.breadcrumb');
+    if(bc){ btn.classList.add('hdr-theme-bc'); if(getComputedStyle(bc).display.indexOf('flex')<0){ bc.style.display='flex'; bc.style.alignItems='center'; } bc.appendChild(btn); return; }
+    btn.classList.add('hdr-theme-fixed'); document.body.appendChild(btn);
+  }
+
+  /* Settings page: build the on/off switch + palette picker (no header toggle there) */
+  function initLightSettings(){
+    var grid = document.getElementById('gsLpGrid');
+    /* Light theme presets only apply in the light appearance — hide the whole
+       section on dark pages (dark uses gs-appearance's "Dark theme presets"). */
+    if(grid && !document.body.classList.contains('lt')){
+      var sec = grid.closest('div[style*="padding-top:12px"]') || grid.parentNode;
+      if(sec) sec.style.display = 'none';
+    } else if(grid && !grid._built){
+      grid._built = true;
+      var active = savedPreset() || 'Meadow';
+      Object.keys(window.gsLightPresets).forEach(function(name){
+        var p = window.gsLightPresets[name];
+        var sw = '<span class="gs-lp-sw">'+[p.accent,p.cols[3],p.cols[4],p.cols[2]].map(function(c){return '<span style="background:'+c+'"></span>';}).join('')+'</span>';
+        var el = document.createElement('button'); el.type='button';
+        el.className = 'gs-lp'+(name===active?' active':'');
+        el.innerHTML = sw+'<span class="gs-lp-nm">'+name+'</span>';
+        el.addEventListener('click', function(){
+          grid.querySelectorAll('.gs-lp').forEach(function(x){ x.classList.remove('active'); });
+          el.classList.add('active');
+          window.gsApplyLightPreset(name, true);
+        });
+        grid.appendChild(el);
+      });
+    }
+    var seg = document.getElementById('gsThemeSeg');
+    if(seg && !seg._built){
+      seg._built = true;
+      var isLight = document.body.classList.contains('lt');
+      [].slice.call(seg.querySelectorAll('.gs-seg-btn')).forEach(function(b){
+        var mode = b.getAttribute('data-mode');
+        b.classList.toggle('on', (mode==='light') === isLight);
+        b.addEventListener('click', function(){
+          if((mode==='light') !== document.body.classList.contains('lt')) window.gsToggleTheme();
+        });
+      });
+    }
+  }
+
+  function run(){
+    if(document.body && document.body.classList.contains('lt')){ var s=savedPreset(); if(s) window.gsApplyLightPreset(s, false); }
+    mountToggle();
+    initLightSettings();
+  }
+  if(document.readyState!=='loading') run(); else document.addEventListener('DOMContentLoaded', run);
+})();

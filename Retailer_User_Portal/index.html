@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Greenstreets — Retailer User · Screen index</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/greenstreets-theme.css?v=40">
-<link rel="stylesheet" href="css/retailer-user.css?v=12">
+<link rel="stylesheet" href="css/greenstreets-theme.css?v=42">
+<link rel="stylesheet" href="css/retailer-user.css?v=14">
 <style>
   body{font-family:'Inter',sans-serif;background:var(--nv);color:var(--tw);min-height:100vh;padding:40px 24px}
   .idx-wrap{max-width:900px;margin:0 auto}
@@ -18,12 +18,25 @@
   .idx-card:hover{background:rgba(78,187,129,.1);border-color:var(--gs)}
   .idx-id{font-size:11px;color:var(--tw3);font-family:monospace}
   .idx-name{font-size:15px;font-weight:600;color:var(--tw)}
+  /* theme toggle — flips every card between the dark pages and their -Light twins */
+  .idx-toggle{display:inline-flex;gap:4px;padding:4px;border-radius:11px;background:rgba(255,255,255,.04);
+    border:1px solid var(--stroke);margin-bottom:26px}
+  .idx-tg-btn{font-family:'Inter',sans-serif;font-size:12.5px;font-weight:600;padding:7px 16px;border-radius:8px;
+    border:none;cursor:pointer;background:transparent;color:var(--tw3);display:flex;align-items:center;gap:7px}
+  .idx-tg-btn.on{background:linear-gradient(120deg,var(--gs-l),var(--gs));color:#04160e;box-shadow:0 6px 16px -8px rgba(78,187,129,.6)}
+  .idx-tg-btn .dot{width:9px;height:9px;border-radius:50%;background:currentColor;opacity:.7}
 </style>
 </head>
 <body>
   <div class="idx-wrap">
     <div class="idx-h">Greenstreets — Retailer User</div>
-    <div class="idx-sub">13 screens, one HTML file each. Click a screen to open it. In-app navigation is via each page's sidebar and buttons.</div>
+    <div class="idx-sub">13 screens, one HTML file each. Click a screen to open it. In-app navigation is via each page's sidebar and buttons. Every screen now has a <b>light-theme twin</b> — use the toggle to browse either.</div>
+
+    <div class="idx-toggle" role="tablist" aria-label="Theme">
+      <button class="idx-tg-btn on" id="tgDark" role="tab" aria-selected="true"><span class="dot"></span>Standard (dark)</button>
+      <button class="idx-tg-btn" id="tgLight" role="tab" aria-selected="false"><span class="dot"></span>Light theme</button>
+    </div>
+
     <div class="idx-grid">
       <a class="idx-card" href="03-greenstreets_retailer_user_Login.html"><span class="idx-id">ru_login</span><span class="idx-name">Login</span></a>
       <a class="idx-card" href="03-greenstreets_retailer_user_Welcome.html"><span class="idx-id">ru_welcome</span><span class="idx-name">Welcome</span></a>
@@ -40,5 +53,27 @@
       <a class="idx-card" href="03-greenstreets_retailer_user_Settings.html"><span class="idx-id">ru9</span><span class="idx-name">Settings</span></a>
     </div>
   </div>
+<script>
+/* Theme toggle — flips every screen card between the dark page and its -Light twin.
+   Every card's original (dark) href is remembered so the toggle is reversible. */
+(function(){
+  var cards=[].slice.call(document.querySelectorAll('.idx-card'));
+  cards.forEach(function(a){ a.dataset.dark=a.getAttribute('href'); });
+  var dark=document.getElementById('tgDark'), light=document.getElementById('tgLight');
+  function apply(isLight){
+    cards.forEach(function(a){
+      var d=a.dataset.dark;
+      a.setAttribute('href', isLight ? d.replace(/\.html$/,'-Light.html') : d);
+    });
+    dark.classList.toggle('on',!isLight); dark.setAttribute('aria-selected',String(!isLight));
+    light.classList.toggle('on',isLight); light.setAttribute('aria-selected',String(isLight));
+    try{ localStorage.setItem('gs-ru-index-theme', isLight?'light':'dark'); }catch(e){}
+  }
+  dark.addEventListener('click',function(){ apply(false); });
+  light.addEventListener('click',function(){ apply(true); });
+  var saved; try{ saved=localStorage.getItem('gs-ru-index-theme'); }catch(e){}
+  apply(saved==='light');
+})();
+</script>
 </body>
 </html>

@@ -242,6 +242,10 @@
   }
   function setAlways(on) { var o = _onbGet(); o.always = !!on; _onbSet(o); }
   function isAlways() { return !!_onbGet().always; }
+  function isSeen() { return !!_onbGet().seen; }
+  /* where sign-in should land: the Welcome hub only if the user has never seen
+     onboarding, or has opted to always show it; otherwise straight to dashboard. */
+  function signInTarget() { return (isAlways() || !isSeen()) ? 'ru_welcome' : 'ru1'; }
 
   /* ══════════════════════════════════════════════════════════════════════
      WELCOME HUB — render step states + checkmark animation
@@ -249,6 +253,9 @@
   function render() {
     var host = document.querySelector('.onb-steps');
     if (!host) return;
+    /* viewing the hub counts as "seen" so the "Always show" toggle can govern
+       sign-in from here on (when off, we won't force the hub open again). */
+    if (!isSeen()) { var _o = _onbGet(); _o.seen = true; _onbSet(_o); }
     var cur = _currentIndex();
     var just = parseInt(_ss(JUST_KEY), 10); if (isNaN(just)) just = -1; _ssDel(JUST_KEY);
     var cards = host.querySelectorAll('.onb-step');
@@ -304,6 +311,7 @@
   window.gsRuOnbReset = reset;
   window.gsRuOnbSetAlways = setAlways;
   window.gsRuOnbIsAlways = isAlways;
+  window.gsRuSignIn = function () { if (typeof go === 'function') go(signInTarget()); };
 
   /* ── boot: resume a step after navigation, or render the hub ───────────── */
   function boot() {

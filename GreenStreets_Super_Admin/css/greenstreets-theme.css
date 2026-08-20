@@ -4,7 +4,7 @@ button{font-family:inherit;border:none;background:none;appearance:none;-webkit-a
 
 :root{
   /* brand */
-  --gs:#4ebb81;--gs-l:#8fe3b6;--gs-d:#2f9c62;
+  --gs:#4ebb81;--gs-l:#8fe3b6;--gs-d:#2f9c62;--gs-rgb:78,187,129;--accent-rgb:143,227,182;
   --bl:#5b9cf6;--bl-d:#3766b0;--bl-l:#9dc4ff;
   --teal:#43b3ad;
   --amber:#f5a623;--red:#e0605a;
@@ -287,7 +287,7 @@ select.fi option{background-color:#0f2038;color:var(--tw)}
   font-family:'Inter',sans-serif;font-size:13px;font-weight:600;height:42px;padding:0 16px;border-radius:var(--rs);
   cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;border:none;color:#04160e;
   background:linear-gradient(120deg,var(--gs-l) 0%,var(--gs) 45%,var(--teal) 100%);
-  box-shadow:0 10px 22px -8px rgba(78,187,129,.45);
+  box-shadow:0 10px 22px -8px rgba(var(--gs-rgb),.45);
   transition:filter .15s,transform .1s,box-shadow .15s;white-space:nowrap;
   position:relative;overflow:hidden;isolation:isolate;
 }
@@ -296,7 +296,7 @@ select.fi option{background-color:#0f2038;color:var(--tw)}
   background:url('../img/swoosh.png') center/cover no-repeat;
   opacity:var(--swoosh-opacity);mix-blend-mode:overlay;
 }
-.btn-p:hover{filter:brightness(1.06);box-shadow:0 12px 26px -8px rgba(78,187,129,.55)}
+.btn-p:hover{filter:brightness(1.06);box-shadow:0 12px 26px -8px rgba(var(--gs-rgb),.55)}
 /* press feedback lives in the shared PRESS FEEDBACK block below (scale-down, not translate) */
 .btn-g{
   font-family:'Inter',sans-serif;font-size:12px;font-weight:500;height:34px;padding:0 13px;border-radius:var(--rs);
@@ -476,7 +476,7 @@ select.fi option{background-color:#0f2038;color:var(--tw)}
 .grp-hdr{
   padding:var(--sp-4);
   /* Accent-gradient card title — mirrors the selected left-nav item (Super Admin) */
-  background:linear-gradient(90deg,rgba(var(--accent-rgb,143,227,182),.22),rgba(78,187,129,.07) 55%,transparent);
+  background:linear-gradient(90deg,rgba(var(--accent-rgb,143,227,182),.16),rgba(var(--accent-rgb,78,187,129),.04) 55%,transparent);
   box-shadow:inset 0 0 0 1px rgba(var(--accent-rgb,143,227,182),.20);
   font-size:13px;font-weight:600;color:var(--gs-l);
   border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:var(--sp-3);flex-wrap:wrap

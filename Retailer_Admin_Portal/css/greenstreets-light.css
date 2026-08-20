@@ -360,6 +360,9 @@ body.lt .hdr-notif{background:#fff;border:1px solid var(--lt-line-2);color:var(-
 body.lt .hdr-notif:hover{background:rgba(78,187,129,.10);border-color:#8fd0b6;color:#2f9c62}
 body.lt .hdr-notif-badge{background:#ff5f5f;color:#fff;box-shadow:0 0 0 2px var(--lt-page-2)}
 
+/* ── Dashboard "Documents expiring soon" rows (ra1) ────────────────────────── */
+body.lt .exp-row:hover{background:rgba(110,168,254,.05)}
+
 /* ── Notifications page (ra16) ─────────────────────────────────────────────── */
 body.lt .notif-item{border-bottom-color:var(--lt-line)}
 body.lt .notif-item:hover{background:rgba(110,168,254,.05)}

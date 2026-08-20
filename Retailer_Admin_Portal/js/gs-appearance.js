@@ -55,6 +55,7 @@
     root.setProperty('--gs-l', shade(accent, 0.34));
     root.setProperty('--gs-d', shade(accent, -0.28));
     var rgb = hexToRgb(accent).join(',');
+    root.setProperty('--gs-rgb', rgb);
     root.setProperty('--particle-color-hex', accent);
     root.setProperty('--particle-rgb', rgb);
     root.setProperty('--card-glow-color1', shade(accent, 0.34));

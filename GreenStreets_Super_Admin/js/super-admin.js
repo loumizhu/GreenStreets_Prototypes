@@ -895,6 +895,11 @@ function applySidebarColor(n,hex){
 function applyPreset(i){
   var p=PRESETS[i];
   Object.keys(p.vars).forEach(function(k){document.documentElement.style.setProperty(k,p.vars[k]);});
+  if(p.vars['--gs']){
+    var accRgb=hexToRgbStr(p.vars['--gs']);
+    document.documentElement.style.setProperty('--gs-rgb',accRgb);
+    document.documentElement.style.setProperty('--accent-rgb',hexToRgbStr(p.vars['--gs-l']||p.vars['--gs']));
+  }
   document.querySelectorAll('.theme-hex,.theme-color-input').forEach(function(inp){
     var k=inp.dataset.var;
     if(p.vars[k]!==undefined)inp.value=p.vars[k];
@@ -931,6 +936,8 @@ function resetTheme(){
   document.documentElement.style.removeProperty('--particle-color-hex');
   document.documentElement.style.removeProperty('--particle-rgb');
   document.documentElement.style.removeProperty('--particle-enabled');
+  document.documentElement.style.removeProperty('--gs-rgb');
+  document.documentElement.style.removeProperty('--accent-rgb');
   updateCardGlowAnimation();
   toggleLoginBg(true);
   buildThemePanel();
@@ -1135,7 +1142,12 @@ function gsaApply(s){
     root.setProperty('--gs',s.accent);
     root.setProperty('--gs-l',gsaShade(s.accent,.34));
     root.setProperty('--gs-d',gsaShade(s.accent,-.28));
-    if(typeof hexToRgbStr==='function'){ root.setProperty('--particle-rgb',hexToRgbStr(s.accent)); }
+    if(typeof hexToRgbStr==='function'){
+      var accRgb=hexToRgbStr(s.accent);
+      root.setProperty('--particle-rgb',accRgb);
+      root.setProperty('--gs-rgb',accRgb);
+      root.setProperty('--accent-rgb',hexToRgbStr(gsaShade(s.accent,.34)));
+    }
     root.setProperty('--particle-color-hex',s.accent);
     root.setProperty('--field-stroke-color',s.accent);
   }

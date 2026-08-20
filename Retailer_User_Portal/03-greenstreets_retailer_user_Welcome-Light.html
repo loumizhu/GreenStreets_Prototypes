@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Greenstreets — Retailer User · Getting started</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/greenstreets-theme.css?v=42">
+<link rel="stylesheet" href="css/retailer-user.css?v=14">
+<link rel="stylesheet" href="css/greenstreets-light.css?v=2">
+</head>
+<body class="lt">
+<div class="screen on" id="ru_welcome">
+  <div class="onb-wrap"><div class="onb-body">
+
+    <div class="onb-topbar">
+      <img class="gs-logo-img onb-logo" src="" alt="Greenstreets">
+      <button class="onb-skip" onclick="go('ru1')">Skip for now</button>
+    </div>
+
+    <div class="onb-hero">
+      <div class="onb-eyebrow">Getting started</div>
+      <h1>Welcome to Greenstreets, Sarah</h1>
+      <p>You've been added as a <strong>Retailer User</strong> (a <strong>Compliance Manager</strong> role) for
+      <strong>Primark Stores Ltd</strong>. Let's get you oriented in <strong>four quick steps</strong> — your
+      dashboard, your suppliers, your products, and how to request the data you need. It takes about a minute, and
+      you can revisit it any time from Settings.</p>
+    </div>
+
+    <div class="onb-steps">
+
+      <div class="onb-step" data-step="1" onclick="gsRuOnbStepClick('dash')">
+        <div class="onb-num">1</div>
+        <div class="onb-txt">
+          <h3>Get to know your dashboard <span class="onb-tag onb-state">Step 1</span></h3>
+          <p>See your live PPWR conformity at a glance — Declarations of Conformity, PFAS substance compliance and technical documentation — and learn where everything lives in the left menu.</p>
+          <button class="onb-cta" type="button" tabindex="-1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>Show me the dashboard</button>
+        </div>
+      </div>
+
+      <div class="onb-step" data-step="2" onclick="gsRuOnbStepClick('suppliers')">
+        <div class="onb-num">2</div>
+        <div class="onb-txt">
+          <h3>Monitor your suppliers <span class="onb-tag onb-state">Step 2</span></h3>
+          <p>Track who has submitted and who's overdue, and send reminders to keep suppliers moving. We'll point out exactly where.</p>
+          <button class="onb-cta" type="button" tabindex="-1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Monitor suppliers</button>
+        </div>
+      </div>
+
+      <div class="onb-step" data-step="3" onclick="gsRuOnbStepClick('products')">
+        <div class="onb-num">3</div>
+        <div class="onb-txt">
+          <h3>Review your products <span class="onb-tag onb-state">Step 3</span></h3>
+          <p>Every SKU shows its packaging completeness. We'll show you how to spot the products that still need supplier data, what the red and amber flags mean, and how to nudge a supplier from the list.</p>
+          <button class="onb-cta" type="button" tabindex="-1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>Review products</button>
+        </div>
+      </div>
+
+      <div class="onb-step" data-step="4" onclick="gsRuOnbStepClick('doc')">
+        <div class="onb-num">4</div>
+        <div class="onb-txt">
+          <h3>Request a Declaration of Conformity <span class="onb-tag onb-state">Step 4</span></h3>
+          <p>When a component is missing data, create a scoped DoC request and send it straight to the supplier. We'll walk you through the form.</p>
+          <button class="onb-cta" type="button" tabindex="-1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Request a DoC</button>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="onb-foot">
+      <div class="onb-progress" id="onb-progress"><b>0</b> of 4 steps complete</div>
+      <button class="onb-cta" id="onb-start-btn" onclick="gsRuOnbContinue()"><span class="onb-start-label">Start guided setup</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    </div>
+
+  </div></div>
+</div>
+<script src="js/retailer-user.js?v=8"></script>
+<script src="js/greenstreets-theme.js?v=23"></script>
+<script src="js/gs-appearance.js?v=7"></script>
+<script src="js/ru-tour.js?v=3"></script>
+<script src="js/greenstreets-light.js?v=2"></script>
+</body>
+</html>
