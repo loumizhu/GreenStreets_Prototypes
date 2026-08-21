@@ -171,10 +171,7 @@
 
   function statusPill(status) {
     var isExpired = status === 'Expired';
-    var icon = isExpired
-      ? '<svg class="gs-siren" viewBox="0 0 50 50"><use href="#gsi-32"/></svg>'
-      : '';
-    return '<span class="pill ' + (STATUS_PILL[status] || 'pill-grey') + (isExpired ? ' pill-pulse-red' : '') + '" style="font-size:11px;padding:4px 10px">' + icon + esc(status) + '</span>';
+    return '<span class="pill ' + (STATUS_PILL[status] || 'pill-grey') + (isExpired ? ' pill-expired' : '') + '" style="font-size:11px;padding:4px 10px">' + esc(status) + '</span>';
   }
 
   function render() {
@@ -224,12 +221,10 @@
           '</div>';
       }).join('') + '</div></div></div>';
 
-    /* Generate DoC + Manual Correction */
-    html += '<div class="grp" id="doc-sec-manual"><div class="grp-hdr">Admin actions</div><div class="grp-body">' +
-      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">' +
+    /* Generate DoC */
+    html += '<div class="grp"><div class="grp-hdr">Admin actions</div><div class="grp-body">' +
       '<div style="border:1px solid var(--bw);border-radius:8px;padding:12px"><div style="font-size:12px;font-weight:600;margin-bottom:4px">Generate DoC <span style="font-weight:400;color:var(--tw3)">(Admin only)</span></div><div style="font-size:11px;color:var(--tw3);margin-bottom:10px">Run the pre-generation checklist (PPWR Articles 6, 7, 9, 10, 11) and provide signatory details to produce the final PDF.</div><button class="btn-g" onclick="go(\'ra12\')">Open generation checklist</button></div>' +
-      '<div style="border:1px solid var(--bw);border-radius:8px;padding:12px"><div style="font-size:12px;font-weight:600;margin-bottom:4px">Manual correction</div><div style="font-size:11px;color:var(--tw3);margin-bottom:10px">If the supplier can\'t use the portal, or a minor error needs fixing, edit the packaging component data directly.</div><button class="btn-g" onclick="toastRaDoc(\'Manual correction mode — edit packaging data directly\')">Edit component data</button></div>' +
-      '</div></div></div>';
+      '</div></div>';
 
     /* Version management */
     html += '<div class="grp" id="doc-sec-versions"><div class="grp-hdr">Version management</div><div class="grp-body">' +

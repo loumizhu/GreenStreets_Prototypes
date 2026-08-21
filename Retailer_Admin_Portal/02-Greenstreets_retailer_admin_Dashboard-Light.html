@@ -6,7 +6,7 @@
 <title>Greenstreets — Retailer Admin · Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/greenstreets-theme.css?v=45">
-<link rel="stylesheet" href="css/retailer-admin.css?v=26">
+<link rel="stylesheet" href="css/retailer-admin.css?v=28">
 <link rel="stylesheet" href="css/greenstreets-light.css?v=7">
 <style>
 /* Dashboard weekly-chart: grouped pixel bars over a dashed grid */
@@ -203,7 +203,7 @@ html.gs-anim-armed #ra1 .grp{opacity:0}
             <div class="exp-row" style="display:flex;align-items:center;gap:9px;padding:9px 14px" onclick="raPreviewDoc(event,this)" data-doc-id="doc-022">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2" style="flex-shrink:0;stroke:var(--status-danger)"><use href="#gsi-29"/></svg>
               <div style="flex:1;min-width:0"><div class="tbl-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">DoC_PRK-022_v3.pdf</div><div style="font-size:10px;color:var(--tw3)">DoC · EcoPack</div></div>
-              <span class="pill pill-red pill-pulse-red" style="font-size:10px;flex-shrink:0;display:inline-flex;align-items:center;gap:3px"><svg class="gs-siren" viewBox="0 0 50 50" style="width:9px;height:9px"><use href="#gsi-32"/></svg>Expired 5 days ago</span>
+              <span class="pill pill-red pill-expired" style="font-size:10px;flex-shrink:0">Expired 5 days ago</span>
               <button class="exp-remind" onclick="raRemindDoc(event,this)" title="Send reminder to supplier"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-18"/></svg>Remind</button>
             </div>
             <div class="exp-row" style="display:flex;align-items:center;gap:9px;padding:9px 14px" onclick="raPreviewDoc(event,this)" data-doc-id="doc-030">
@@ -407,7 +407,7 @@ html.gs-anim-armed #ra1 .grp{opacity:0}
     </div>
   </div>
 </div>
-<script src="js/retailer-admin.js?v=31"></script>
+<script src="js/retailer-admin.js?v=32"></script>
 <script src="js/greenstreets-theme.js?v=27"></script>
 <script src="js/ra-tour.js?v=11"></script>
 <script src="js/gs-appearance.js?v=8"></script>

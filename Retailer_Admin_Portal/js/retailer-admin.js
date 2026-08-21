@@ -50,7 +50,7 @@ var GS_PAGES = {
 function go(id){ var u = GS_PAGES[id]; if(u) window.location.href = u; }
 
 /* Open the document detail page for a given document id, optionally deep-linking to one
-   of its action sections ('evidence'|'manual'|'versions'|'audit'|'export') — round-trips via sessionStorage. */
+   of its action sections ('evidence'|'versions'|'audit'|'export') — round-trips via sessionStorage. */
 function openDocumentRA(docId, section){
   try{
     sessionStorage.setItem('ra_di', docId);

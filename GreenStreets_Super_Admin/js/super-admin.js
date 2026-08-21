@@ -17,6 +17,7 @@ var GS_PAGES={
   's12':'01-greenstreets_super_admin_Product-Detail.html',
   's8':'01-greenstreets_super_admin_Packagings.html',
   's9':'01-greenstreets_super_admin_Documents.html',
+  'sa_docdetail':'01-greenstreets_super_admin_Document-Detail.html',
   's10':'01-greenstreets_super_admin_Supplier-Detail.html',
   's15':'01-greenstreets_super_admin_Audit-Log.html',
   's16':'01-greenstreets_super_admin_Notifications.html',
@@ -1028,6 +1029,46 @@ function toggleExportMenu(btn){
 document.addEventListener('click',function(e){
   if(!e.target.closest('.export-dd-wrap'))closeExportMenus();
 });
+
+/* ── Documents listing: row "more actions" kebab dropdown + document detail deep-link ── */
+function toggleDropdown(btn){
+  var dd=btn._gsDropdown||btn.nextElementSibling;
+  if(!dd||!dd.classList.contains('reminder-dropdown'))return;
+  btn._gsDropdown=dd;
+  document.querySelectorAll('.reminder-dropdown.open').forEach(function(d){ if(d!==dd)d.classList.remove('open'); });
+  var opening=!dd.classList.contains('open');
+  dd.classList.toggle('open');
+  if(opening){
+    if(dd.parentElement!==document.body)document.body.appendChild(dd);
+    positionDropdown(btn,dd);
+  }
+}
+function positionDropdown(btn,dd){
+  var r=btn.getBoundingClientRect();
+  var menuW=dd.offsetWidth||200,menuH=dd.offsetHeight||0;
+  var left=Math.max(4,Math.min(r.right-menuW,window.innerWidth-menuW-4));
+  var top=r.bottom+4;
+  if(top+menuH>window.innerHeight)top=r.top-menuH-4;
+  dd.style.left=left+'px';
+  dd.style.top=top+'px';
+}
+window.addEventListener('scroll',function(){
+  document.querySelectorAll('.reminder-dropdown.open').forEach(function(d){ d.classList.remove('open'); });
+},true);
+document.addEventListener('click',function(e){
+  if(!e.target.closest('.reminder-btn-wrap')&&!e.target.closest('.reminder-dropdown')){
+    document.querySelectorAll('.reminder-dropdown.open').forEach(function(d){ d.classList.remove('open'); });
+  }
+});
+/* Open the document detail page for a given document id, optionally deep-linking to one
+   of its action sections ('evidence'|'manual'|'versions'|'audit'|'export') — round-trips via sessionStorage. */
+function openDocumentSA(docId,section){
+  try{
+    sessionStorage.setItem('sa_di',docId);
+    if(section)sessionStorage.setItem('sa_di_section',section); else sessionStorage.removeItem('sa_di_section');
+  }catch(e){}
+  go('sa_docdetail');
+}
 
 /* login card glass hover — spotlight follows the cursor. Each zone gets its own --sx/--sy computed from
    its own rect (same fixed-px radius), so the circle reads as one continuous light across the zone seam. */
