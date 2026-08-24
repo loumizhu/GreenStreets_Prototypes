@@ -1766,8 +1766,20 @@ function pkgInitRowIds(){
    small tooltip pops up above it telling the user the arrow keys drive the grid. Shows
    once per page load, auto-dismisses, and closes on Esc / scroll / click. */
 var _gsHintShown = false, _gsHintT = null;
+/* Input-modality flag: the hint is only useful to someone actually driving the grid from the
+   keyboard, but `focusin` also fires when a row is clicked — which made the tooltip pop up for
+   mouse users. Track the last interaction and only coach on keyboard navigation. `:focus-visible`
+   isn't used here because rows are focused programmatically (focusRow) and the heuristic differs
+   across browsers. */
+var _gsKbdIntent = false;
+document.addEventListener('keydown', function(e){
+  if(e.key==='Tab' || e.key.indexOf('Arrow')===0 || e.key==='Home' || e.key==='End') _gsKbdIntent = true;
+}, true);
+document.addEventListener('pointerdown', function(){ _gsKbdIntent = false; }, true);
 function gsGridHint(tr){
-  if(_gsHintShown || !tr) return;
+  /* deliberately does NOT set _gsHintShown when skipped for a mouse user — the hint can still
+     appear later if they switch to the keyboard */
+  if(_gsHintShown || !tr || !_gsKbdIntent) return;
   _gsHintShown = true;
   var h = document.createElement('div');
   h.className = 'gs-grid-hint';
@@ -1793,11 +1805,15 @@ function gsGridHint(tr){
     h.classList.remove('gs-grid-hint-in');
     window.removeEventListener('scroll', close, true);
     document.removeEventListener('keydown', onEsc, true);
+    document.removeEventListener('pointerdown', onPointer, true);
     setTimeout(function(){ if(h.parentNode) h.remove(); }, 220);
   }
   function onEsc(e){ if(e.key==='Escape') close(); }
+  /* reaching for the mouse means the coaching is no longer relevant */
+  function onPointer(e){ if(!h.contains(e.target)) close(); }
   h.querySelector('.gs-grid-hint-x').addEventListener('click', close);
   document.addEventListener('keydown', onEsc, true);
+  document.addEventListener('pointerdown', onPointer, true);
   /* Attach the scroll-to-dismiss listener only after the initial reveal — focusing the
      row can itself scroll it into view, which would otherwise close the hint instantly. */
   setTimeout(function(){ window.addEventListener('scroll', close, true); }, 500);

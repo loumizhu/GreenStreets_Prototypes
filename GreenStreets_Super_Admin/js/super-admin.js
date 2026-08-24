@@ -1255,24 +1255,11 @@ function buildSettingsAppearance(){
   advBtn.onclick=function(ev){ ev.stopPropagation(); toggleThemePanel(true); };
   advSec.appendChild(advBtn); wrap.appendChild(advSec);
 
-  /* Theme preset (dark-appearance palettes). If the Settings page provides the
-     grouped theme-cluster mount (#settings-theme-presets), inject the swatches
-     there — next to the light-theme palette — instead of into the personalise block. */
-  if(typeof PRESETS!=='undefined'){
-    var pg=document.createElement('div'); pg.className='appr-presets';
-    PRESETS.forEach(function(p,i){
-      var sw=p.swatch.map(function(c){return '<span style="background:'+c+'"></span>';}).join('');
-      var card=document.createElement('div'); card.className='appr-preset'+((s.theme===i)?' active':'');
-      card.innerHTML='<div class="appr-preset-sw">'+sw+'</div><div class="appr-preset-name">'+p.name+'</div>';
-      card.onclick=function(){ gsaSet({theme:i, accent:undefined}); gsaRefresh(); };
-      pg.appendChild(card);
-    });
-    var presetMount=document.getElementById('settings-theme-presets');
-    if(presetMount){ presetMount.innerHTML=''; presetMount.appendChild(pg); }
-    else { var themeSec=gsaSection('Dark theme presets','Colour theme used in the dark appearance.'); themeSec.appendChild(pg); wrap.appendChild(themeSec); }
-  }
-
-  /* Accent colour */
+  /* Accent colour — the single accent control. The "Dark theme presets" swatch grid that used to
+     render above this (its own "Dark theme presets" section in the HTML, mounted at
+     #settings-theme-presets) was a second way to pick the same accent, so both the JS that built
+     it and its HTML section were removed; s.theme stays whatever it was and still supplies the
+     accent fallback below. */
   var accSec=gsaSection('Accent colour','Overrides the theme accent — buttons, highlights and effects use it.');
   var accRow=document.createElement('div'); accRow.className='appr-accents';
   var curAccent=(s.accent||getComputedStyle(document.documentElement).getPropertyValue('--gs').trim()).toLowerCase();

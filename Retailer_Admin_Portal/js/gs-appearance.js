@@ -136,34 +136,11 @@
     var wrap = document.createElement('div');
     wrap.className = 'gsa-wrap';
 
-    /* Dark theme presets — accent + background tone swatches. Only shown while the
-       console is in the DARK appearance (these palettes set dark --bg-0/--bg-1);
-       the light appearance uses its own "Light theme presets" grid instead. */
-    if (!(document.body && document.body.classList.contains('lt'))) {
-      var themeSec = document.createElement('div');
-      themeSec.className = 'gsa-sec';
-      themeSec.innerHTML = '<div class="gsa-lbl">Dark theme presets</div><div class="gsa-hint">Sets the accent colour and background tone across the portal.</div>';
-      var grid = document.createElement('div'); grid.className = 'gsa-themes';
-      Object.keys(PRESETS).forEach(function (id) {
-        var p = PRESETS[id];
-        var card = document.createElement('div');
-        card.className = 'gsa-theme' + (id === s.theme ? ' sel' : '');
-        card.setAttribute('data-theme', id);
-        card.innerHTML =
-          '<div class="gsa-swatch" style="background:linear-gradient(135deg,' + p.bg0 + ',' + p.bg1 + ')">' +
-            '<span class="gsa-dot" style="background:' + p.accent + '"></span></div>' +
-          '<div class="gsa-theme-name">' + p.name + '</div>';
-        card.onclick = function () {
-          s = load(); s.theme = id; s.accent = null; /* theme resets custom accent */
-          save(s); apply(s); refresh();
-        };
-        grid.appendChild(card);
-      });
-      themeSec.appendChild(grid);
-      wrap.appendChild(themeSec);
-    }
-
-    /* Accent colour */
+    /* Accent colour — the single accent control. The "Dark theme presets" grid that used to sit
+       above it (dark mode only) was a second way to pick the same accent, so it was removed;
+       s.theme stays at DEFAULT_THEME and still supplies the background tone + the accent fallback
+       below. The Settings page's separate "Light theme presets" grid (background palette, not
+       accent) is unrelated and stays. */
     var accSec = document.createElement('div');
     accSec.className = 'gsa-sec';
     accSec.innerHTML = '<div class="gsa-lbl">Accent colour</div><div class="gsa-hint">Overrides the theme accent. Buttons, highlights and effects use it.</div>';

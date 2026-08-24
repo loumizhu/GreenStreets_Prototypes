@@ -121,30 +121,9 @@
     var wrap = document.createElement('div');
     wrap.className = 'gsa-wrap';
 
-    /* Theme presets */
-    var themeSec = document.createElement('div');
-    themeSec.className = 'gsa-sec';
-    themeSec.innerHTML = '<div class="gsa-lbl">Theme</div><div class="gsa-hint">Sets the accent colour and background tone across the portal.</div>';
-    var grid = document.createElement('div'); grid.className = 'gsa-themes';
-    Object.keys(PRESETS).forEach(function (id) {
-      var p = PRESETS[id];
-      var card = document.createElement('div');
-      card.className = 'gsa-theme' + (id === s.theme ? ' sel' : '');
-      card.setAttribute('data-theme', id);
-      card.innerHTML =
-        '<div class="gsa-swatch" style="background:linear-gradient(135deg,' + p.bg0 + ',' + p.bg1 + ')">' +
-          '<span class="gsa-dot" style="background:' + p.accent + '"></span></div>' +
-        '<div class="gsa-theme-name">' + p.name + '</div>';
-      card.onclick = function () {
-        s = load(); s.theme = id; s.accent = null; /* theme resets custom accent */
-        save(s); apply(s); refresh();
-      };
-      grid.appendChild(card);
-    });
-    themeSec.appendChild(grid);
-    wrap.appendChild(themeSec);
-
-    /* Accent colour */
+    /* Accent colour — the single accent control. The theme-preset grid that used to sit above it
+       was a second way to pick the same accent, so it was removed; s.theme stays at DEFAULT_THEME
+       and still supplies the background tone + the accent fallback below. */
     var accSec = document.createElement('div');
     accSec.className = 'gsa-sec';
     accSec.innerHTML = '<div class="gsa-lbl">Accent colour</div><div class="gsa-hint">Overrides the theme accent. Buttons, highlights and effects use it.</div>';

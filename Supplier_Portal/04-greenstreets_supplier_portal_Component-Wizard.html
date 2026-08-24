@@ -145,6 +145,12 @@ textarea.fi{height:auto;min-height:88px;padding:12px 15px;resize:vertical;line-h
 .mat-list{display:flex;flex-direction:column;gap:12px}
 .mat-row{display:grid;grid-template-columns:1fr 200px 34px;gap:12px;align-items:start}
 .mat-row .mat-name{height:50px}
+/* Material name is a native <datalist> combobox, so it gets no caret of its own — give it the
+   same chevron affordance as the themed .cs-trigger selects so it reads as a dropdown too. */
+.mat-namewrap{position:relative}
+.mat-namewrap .mat-name{padding-right:38px}
+.mat-caret{position:absolute;right:13px;top:50%;transform:translateY(-50%);display:flex;pointer-events:none;color:rgba(255,255,255,.62)}
+.mat-name::-webkit-calendar-picker-indicator{display:none}
 .mat-row .mat-pctwrap{gap:7px}
 .mat-del{align-self:center;width:34px;height:34px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border-radius:9px;border:1px solid var(--brd2);background:rgba(255,255,255,.04);color:var(--tx3);cursor:pointer;transition:all .12s}
 .mat-del:hover{border-color:var(--red);color:var(--red);background:rgba(248,113,113,.1)}
@@ -259,7 +265,7 @@ textarea.fi{height:auto;min-height:88px;padding:12px 15px;resize:vertical;line-h
 .nameid-id-lbl{font-size:9.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--tx3)}
 .nameid-id-val{font-family:"SFMono-Regular",ui-monospace,Menlo,monospace;font-size:13.5px;font-weight:700;color:var(--gs);letter-spacing:.01em}
 </style>
-<link rel="stylesheet" href="css/greenstreets-theme.css?v=41">
+<link rel="stylesheet" href="css/greenstreets-theme.css?v=42">
 </head>
 <body>
 
@@ -503,7 +509,7 @@ const MAT_OPTIONS=['LDPE film','HDPE','PP','PET','rPET','Paper','Kraft paper','C
 function matRowHTML(){
   /* Combobox: type freely OR pick from the suggestion list (native <datalist>). */
   return `<div class="mat-row" data-mat-row>
-    <input class="fi mat-name" list="matDatalist" autocomplete="off" placeholder="Type or pick a material…" oninput="matSync()" onchange="matSync()">
+    <div class="mat-namewrap"><input class="fi mat-name" list="matDatalist" autocomplete="off" placeholder="Type or pick a material…" oninput="matSync()" onchange="matSync()"><span class="mat-caret"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></span></div>
     <div class="pct-field mat-pctwrap"><div class="fi-wrap"><input type="number" min="0" max="100" class="fi fi-has-unit mat-pct-num" placeholder="0" oninput="pctFromNum(this);matSync()"><span class="fi-unit">%</span></div>
     <input type="range" min="0" max="100" step="1" value="0" class="pct-slider mat-pct-range" oninput="pctFromRange(this);matSync()" aria-label="Material percentage"></div>
     <button type="button" class="mat-del" title="Remove material" onclick="matDelRow(this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
@@ -948,7 +954,7 @@ setTimeout(function(){
   };
 })();
 </script>
-<script src="js/greenstreets-theme.js?v=29"></script>
-<script src="js/gs-appearance.js?v=6"></script>
+<script src="js/greenstreets-theme.js?v=30"></script>
+<script src="js/gs-appearance.js?v=7"></script>
 </body>
 </html>

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Greenstreets — Supplier Portal · Screen index</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/greenstreets-theme.css?v=41">
+<link rel="stylesheet" href="css/greenstreets-theme.css?v=42">
 <link rel="stylesheet" href="css/supplier-portal.css?v=39">
 <style>
   body{font-family:'Inter',sans-serif;background:var(--nv);color:var(--tw);min-height:100vh;padding:40px 24px}
@@ -24,6 +24,7 @@
   <div class="idx-wrap">
     <div class="idx-h">Greenstreets — Supplier Portal</div>
     <div class="idx-sub">28 screens, one HTML file each. Click a screen to open it. In-app navigation is via each page's buttons and rows.</div>
+    <button type="button" id="idx-theme-btn" onclick="idxToggleTheme()" style="margin-bottom:18px;height:32px;padding:0 14px;border-radius:8px;border:1px solid var(--stroke);background:rgba(255,255,255,.04);color:var(--tw2);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer">Switch to light mode</button>
     <div class="idx-grid">
       <a class="idx-card" href="04-greenstreets_supplier_portal_Login.html"><span class="idx-id">sp1</span><span class="idx-name">Login</span></a>
       <a class="idx-card" href="04-greenstreets_supplier_portal_Products.html"><span class="idx-id">sp2</span><span class="idx-name">Products</span></a>
@@ -55,5 +56,29 @@
       <a class="idx-card" href="04-greenstreets_supplier_portal_Packaging-Fastener.html"><span class="idx-id">pkgdetail-fastener</span><span class="idx-name">Fastener</span></a>
     </div>
   </div>
+<script>
+/* Dark/Light toggle for the plain screen-index grid: re-points every idx-card
+   href to its -Light twin (Component Wizard included, since it has its own
+   self-contained Component-Wizard-Light.html) and persists the choice. */
+(function(){
+  var KEY='gs-sp-index-theme';
+  function toLight(href){ return /-Light\.html$/i.test(href) ? href : href.replace(/\.html$/i,'-Light.html'); }
+  function toDark(href){ return href.replace(/-Light\.html$/i,'.html'); }
+  function apply(mode){
+    document.querySelectorAll('.idx-card').forEach(function(a){
+      var h=a.getAttribute('href');
+      a.setAttribute('href', mode==='light' ? toLight(h) : toDark(h));
+    });
+    var btn=document.getElementById('idx-theme-btn');
+    if(btn) btn.textContent = mode==='light' ? 'Switch to dark mode' : 'Switch to light mode';
+  }
+  window.idxToggleTheme=function(){
+    var cur = (localStorage.getItem(KEY)||'dark')==='light' ? 'dark' : 'light';
+    try{ localStorage.setItem(KEY,cur); }catch(e){}
+    apply(cur);
+  };
+  apply(localStorage.getItem(KEY)||'dark');
+})();
+</script>
 </body>
 </html>

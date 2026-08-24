@@ -1,0 +1,991 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Greenstreets — New packaging component</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gs:#4ebb81; --gs-dim:rgba(78,187,129,.14); --gs-brd:rgba(78,187,129,.34);
+  --bl:#3b82f6; --bl-dim:rgba(59,130,246,.12); --bl-brd:rgba(59,130,246,.4);
+  --amb:#c9852a; --amb-dim:rgba(201,133,42,.13); --amb-brd:rgba(201,133,42,.35);
+  --red:#d64545; --ai:#7c5cd6;
+  --tx:#33415c; --tx2:#5a6b86; --tx3:#5e6b85;
+  --card:#ffffff; --brd:#e6ebf3; --brd2:#dbe2ee;
+  --topH:0px; --railW:0px; --barH:64px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-snap-type:y proximity;scroll-padding-top:14px}
+body{font-family:"Inter",sans-serif;color:var(--tx);background-color:#f6f8fb;background-image:radial-gradient(900px 620px at 8% -8%,rgba(110,168,254,.10),transparent 60%),radial-gradient(760px 720px at 108% 6%,rgba(150,196,255,.09),transparent 58%),radial-gradient(900px 700px at 46% 118%,rgba(180,160,235,.10),transparent 60%),linear-gradient(165deg,#f6f8fb 0%,#eef2f8 55%,#f3f0fa 100%);background-attachment:fixed;min-height:100vh;padding-right:var(--railW);padding-bottom:var(--barH)}
+html{scrollbar-width:thin;scrollbar-color:rgba(94,107,133,.3) transparent}
+html::-webkit-scrollbar{width:7px}
+html::-webkit-scrollbar-thumb{background:rgba(94,107,133,.3);border-radius:4px}
+html::-webkit-scrollbar-track{background:transparent}
+button{font-family:inherit}
+:focus-visible{outline:2px solid var(--bl);outline-offset:3px;border-radius:6px}
+
+/* Product identity — sits at the top of the left sidebar, above progress */
+.snav-product{background:var(--card);border:1px solid var(--brd);border-radius:14px;padding:15px}
+.wiz-crumbs{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:13px}
+.wiz-crumb{display:inline-flex;align-items:center;gap:6px;font-family:inherit;font-size:12px;font-weight:600;color:var(--tx2);background:rgba(94,107,133,.05);border:1px solid var(--brd);border-radius:999px;padding:5px 12px;cursor:pointer;line-height:1;transition:background .14s,border-color .14s,color .14s}
+button.wiz-crumb:hover{background:rgba(78,187,129,.14);border-color:var(--gs);color:var(--tx)}
+.wiz-crumb-home{padding:5px 9px}
+/* Supporting-document picker */
+.wdoc-chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:9px}
+.wdoc-chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:500;background:rgba(78,187,129,.12);border:1px solid rgba(78,187,129,.32);color:var(--tx);border-radius:8px;padding:6px 10px}
+.wdoc-chip button{background:none;border:none;color:var(--tx2);cursor:pointer;font-size:15px;line-height:1;padding:0;margin-left:2px}
+.wdoc-chip button:hover{color:#f87171}
+.wdoc-actions{display:flex;gap:9px;flex-wrap:wrap}
+.wdoc-btn{display:inline-flex;align-items:center;gap:7px;font-family:inherit;font-size:12.5px;font-weight:600;cursor:pointer;border-radius:9px;padding:9px 14px;border:1px solid var(--brd);background:rgba(94,107,133,.05);color:var(--tx)}
+.wdoc-btn:hover{border-color:var(--gs);color:var(--tx)}
+.wdoc-btn.on{border-color:var(--gs);color:var(--tx)}
+.wdoc-btn.on .wdoc-chev{transform:rotate(180deg)}
+.wdoc-chev{transition:transform .15s}
+/* Inline, in-flow panel so it stays contained within the step (no overlay). */
+.wdoc-menu{margin-top:9px;border:1px solid var(--brd);border-radius:11px;padding:6px;background:rgba(94,107,133,.03);display:none;max-height:230px;overflow:auto}
+.wdoc-menu.open{display:block}
+.wdoc-opt{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:8px;cursor:pointer;font-size:12.5px;color:var(--tx2)}
+.wdoc-opt:hover{background:rgba(78,187,129,.13);color:var(--tx)}
+.wiz-crumb-current{background:linear-gradient(120deg,rgba(78,187,129,.22),rgba(78,187,129,.12));border-color:var(--gs);color:var(--gs);cursor:default}
+.wiz-crumb-sep{color:var(--tx3);font-size:13px;user-select:none}
+.snav-product .ph-eyebrow{font-size:9.5px;color:var(--tx3);text-transform:uppercase;letter-spacing:.09em;font-weight:700;margin-bottom:6px}
+.snav-product .ph-product{font-size:21px;font-weight:800;line-height:1.12;letter-spacing:-.015em;display:block;color:var(--tx)}
+.snav-product .ph-forprod{font-size:11.5px;color:var(--tx2);margin-top:6px;line-height:1.35}
+.snav-product .ph-forprod-code{color:var(--gs);font-weight:700}
+.snav-product .ph-right{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px}
+.ph-sku{font-size:10px;background:var(--gs-dim);color:var(--gs);border:1px solid rgba(78,187,129,.25);padding:4px 9px;border-radius:6px;font-weight:600}
+.ph-due{font-size:11px;color:var(--tx3)}.ph-due strong{color:var(--amb)}
+
+/* Layout: sticky sidebar + scrolling main */
+.layout{max-width:1240px;margin:0 auto;padding:16px 20px 0;display:grid;grid-template-columns:270px 1fr;gap:26px;align-items:start}
+.snav{position:sticky;top:14px;display:flex;flex-direction:column;gap:12px;max-height:calc(100vh - 28px - var(--barH));overflow-y:auto;padding:2px 2px 2px 0}
+.snav::-webkit-scrollbar{width:4px}.snav::-webkit-scrollbar-thumb{background:rgba(94,107,133,.15);border-radius:2px}
+
+.prog-card{background:var(--card);border:1px solid var(--brd);border-radius:14px;padding:15px}
+.prog-top{display:flex;align-items:baseline;gap:6px}
+.prog-top b{font-size:24px;font-weight:800;color:var(--gs)}
+.prog-top span{font-size:12px;color:var(--tx2)}
+.prog-eta{font-size:11px;color:var(--tx3);margin-top:2px}
+.prog-bar{height:6px;background:rgba(94,107,133,.08);border-radius:3px;margin-top:11px;overflow:hidden}
+.prog-fill{height:100%;width:0;background:linear-gradient(90deg,#3aa870,var(--gs));border-radius:3px;transition:width .45s ease}
+.prefill-btn{margin-top:11px;width:100%;display:flex;align-items:center;justify-content:center;gap:7px;background:rgba(192,132,252,.12);border:1px solid rgba(192,132,252,.34);color:var(--ai);font-size:11.5px;font-weight:700;padding:9px;border-radius:9px;cursor:pointer}
+.prefill-btn:hover{background:rgba(192,132,252,.2)}
+.prefill-btn.hide{display:none}
+
+.snav-groups{background:var(--card);border:1px solid var(--brd);border-radius:14px;padding:8px 0}
+.snav-phase{padding:5px 0 2px}
+.snav-phase + .snav-phase{border-top:1px solid rgba(94,107,133,.06);margin-top:4px}
+.snav-phase-hdr{display:flex;align-items:center;justify-content:space-between;padding:6px 14px 4px;font-size:9.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--tx3)}
+.snav-phase-hdr .pc{font-weight:600;letter-spacing:0;font-size:10px;color:var(--tx3)}
+.snav-phase-hdr .pc.done{color:var(--gs)}
+.snav-item{display:flex;align-items:center;gap:9px;width:100%;background:none;border:none;border-left:2px solid transparent;padding:8px 12px 8px 14px;cursor:pointer;text-align:left;color:var(--tx2);font-size:12px;transition:background .12s,color .12s}
+.snav-item:hover{background:rgba(94,107,133,.05);color:var(--tx)}
+.snav-item.active{background:var(--bl-dim);border-left-color:var(--bl);color:var(--tx)}
+.snav-item .lbl{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.state{width:18px;height:18px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;border:1.6px solid rgba(94,107,133,.28);font-size:9px;color:var(--tx3);transition:all .2s}
+.state.done{background:var(--gs);border-color:var(--gs);color:var(--tx)}
+.state.part{border-color:var(--amb);color:var(--amb)}
+.snav-badge{min-width:17px;height:17px;padding:0 5px;border-radius:9px;font-size:9.5px;font-weight:700;display:flex;align-items:center;justify-content:center;background:var(--amb-dim);border:1px solid var(--amb-brd);color:var(--amb)}
+.snav-badge.hide{display:none}
+@keyframes pop{0%{transform:scale(.5)}70%{transform:scale(1.25)}100%{transform:scale(1)}}
+.state.pop{animation:pop .35s ease}
+
+.main{min-width:0}
+.sec{min-height:calc(100vh - var(--topH));scroll-snap-align:start;scroll-margin-top:var(--topH);display:flex;flex-direction:column;justify-content:center;padding:40px 6px 120px;position:relative}
+.sec-inner{width:100%;max-width:600px;margin:0 auto}
+.sec-head,.sec .fields>*{opacity:0;transform:translateY(26px);transition:opacity .5s cubic-bezier(.22,.61,.36,1),transform .5s cubic-bezier(.22,.61,.36,1)}
+.sec.in-view .sec-head,.sec.in-view .fields>*{opacity:1;transform:none}
+.sec.in-view .sec-head{transition-delay:.02s}
+.sec.in-view .fields>*:nth-child(1){transition-delay:.10s}
+.sec.in-view .fields>*:nth-child(2){transition-delay:.16s}
+.sec.in-view .fields>*:nth-child(3){transition-delay:.22s}
+.sec.in-view .fields>*:nth-child(4){transition-delay:.28s}
+.sec.in-view .fields>*:nth-child(5){transition-delay:.34s}
+.sec.in-view .fields>*:nth-child(6){transition-delay:.40s}
+
+.sec-head{margin-bottom:26px}
+.qnum{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:var(--bl);margin-bottom:8px}
+.qnum svg{width:14px;height:14px}
+.qnum .pill{margin-left:8px;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;color:var(--tx3);background:rgba(94,107,133,.06);border:1px solid var(--brd2)}
+.qnum .pill.done{color:var(--gs);background:var(--gs-dim);border-color:var(--gs-brd)}
+.qnum .pill.todo,.qnum .pill.part{color:var(--amb);background:var(--amb-dim);border-color:var(--amb-brd)}
+.q{font-size:clamp(22px,3.2vw,31px);font-weight:800;line-height:1.18;letter-spacing:-.01em}
+.qdesc{font-size:14px;color:var(--tx3);margin-top:9px;line-height:1.5}
+.fields{display:flex;flex-direction:column;gap:19px}
+
+.tf-field .lbl{display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px}
+.req{color:var(--gs);font-weight:700;margin-left:2px}
+.hint{font-size:11px;color:var(--tx3);margin-top:6px}
+.fi{width:100%;height:50px;background:rgba(94,107,133,.05);border:1.5px solid rgba(94,107,133,.16);border-radius:12px;color:var(--tx);font-family:inherit;font-size:16px;padding:0 15px;transition:border-color .15s,background .15s}
+.fi::placeholder{color:rgba(94,107,133,.55)}
+.fi:focus{outline:none;border-color:var(--bl);background:rgba(59,130,246,.06)}
+select.fi{cursor:pointer}select.fi option{background:#fff;color:var(--tx)}
+textarea.fi{height:auto;min-height:88px;padding:12px 15px;resize:vertical;line-height:1.5}
+.fi-ro{background:rgba(94,107,133,.03);color:var(--tx3);cursor:pointer;height:44px;font-size:14px}
+.fi-ro:hover{border-color:var(--bl-brd);color:var(--tx)}
+.fi-unlocked{background:rgba(59,130,246,.08)!important;border-color:var(--bl)!important;color:var(--tx)!important;cursor:text}
+.fi-wrap{position:relative}
+.fi-has-unit{padding-right:52px}
+.fi-unit{position:absolute;right:15px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--tx3);pointer-events:none}
+.fi.shake{animation:shake .4s;border-color:var(--red)!important}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:560px){.grid2{grid-template-columns:1fr}}
+
+/* Percentage fields: number input + slider stacked */
+.pct-field{display:flex;flex-direction:column;gap:9px}
+.pct-slider{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:4px;background:linear-gradient(90deg,var(--gs),rgba(78,187,129,.25));outline:none;cursor:pointer}
+.pct-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:18px;height:18px;border-radius:50%;background:#fff;border:3px solid var(--gs);cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.35)}
+.pct-slider::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#fff;border:3px solid var(--gs);cursor:pointer}
+.pct-slider:focus-visible{box-shadow:0 0 0 3px rgba(59,130,246,.25)}
+
+/* Dynamic materials list */
+.mat-list{display:flex;flex-direction:column;gap:12px}
+.mat-row{display:grid;grid-template-columns:1fr 200px 34px;gap:12px;align-items:start}
+.mat-row .mat-name{height:50px}
+/* Material name is a native <datalist> combobox, so it gets no caret of its own — give it the
+   same chevron affordance as the themed .cs-trigger selects so it reads as a dropdown too. */
+.mat-namewrap{position:relative}
+.mat-namewrap .mat-name{padding-right:38px}
+.mat-caret{position:absolute;right:13px;top:50%;transform:translateY(-50%);display:flex;pointer-events:none;color:var(--tx3)}
+.mat-name::-webkit-calendar-picker-indicator{display:none}
+.mat-row .mat-pctwrap{gap:7px}
+.mat-del{align-self:center;width:34px;height:34px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border-radius:9px;border:1px solid var(--brd2);background:rgba(94,107,133,.04);color:var(--tx3);cursor:pointer;transition:all .12s}
+.mat-del:hover{border-color:var(--red);color:var(--red);background:rgba(248,113,113,.1)}
+.mat-add{margin-top:14px;display:inline-flex;align-items:center;gap:8px;background:var(--bl-dim);border:1px solid var(--bl-brd);color:#93b4f5;font-family:inherit;font-size:13px;font-weight:700;padding:10px 16px;border-radius:10px;cursor:pointer;transition:all .12s}
+.mat-add:hover{background:rgba(59,130,246,.22)}
+.mat-summary{display:flex;align-items:center;gap:18px;margin-top:14px;font-size:12.5px;color:var(--tx2);flex-wrap:wrap}
+.mat-summary b{color:var(--tx);font-weight:700}
+.mat-warn{color:var(--amb);font-weight:600}
+@media(max-width:560px){.mat-row{grid-template-columns:1fr 120px 34px}}
+
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:rgba(94,107,133,.045);border:1.5px solid rgba(94,107,133,.18);border-radius:12px;padding:13px 15px;cursor:pointer;color:var(--tx);font-size:15px;font-weight:500;transition:all .13s}
+.opt:hover{border-color:var(--tx3);background:rgba(94,107,133,.07)}
+.opt:focus-visible{outline:none;border-color:var(--bl);box-shadow:0 0 0 3px rgba(59,130,246,.25)}
+.opt.sel{border-color:var(--gs);background:var(--gs-dim);color:var(--tx)}
+.opt .key{flex-shrink:0;width:25px;height:25px;border-radius:7px;background:rgba(94,107,133,.08);border:1px solid rgba(94,107,133,.24);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--tx2)}
+.opt.sel .key{background:var(--gs);border-color:var(--gs);color:var(--tx)}
+.opt .olbl{flex:1}
+.opt .tick{opacity:0;color:var(--gs);font-weight:800}.opt.sel .tick{opacity:1}
+
+.ai-tag{margin-left:6px;font-size:8.5px;font-weight:700;letter-spacing:.04em;color:var(--ai);background:rgba(192,132,252,.14);border:1px solid rgba(192,132,252,.4);border-radius:5px;padding:1px 5px;vertical-align:middle}
+.ai-input{padding-right:64px}
+.ai-input.ai-on{border-color:rgba(192,132,252,.45)}
+.ai-input.ai-on:focus{border-color:var(--ai);background:rgba(192,132,252,.07)}
+.ai-input.ai-accepted{border-color:var(--gs)!important;background:rgba(78,187,129,.12)!important}
+.ai-ghost{position:absolute;left:15px;top:50%;transform:translateY(-50%);font-size:16px;font-style:italic;color:rgba(192,132,252,.5);pointer-events:none;display:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:calc(100% - 78px)}
+.ai-wrap.show-ghost .ai-ghost{display:block}
+.ai-badge{position:absolute;right:9px;top:50%;transform:translateY(-50%);font-size:9px;font-weight:700;color:var(--ai);background:rgba(192,132,252,.16);border:1px solid rgba(192,132,252,.42);border-radius:6px;padding:3px 7px;pointer-events:none;white-space:nowrap;transition:all .15s}
+.ai-badge.badge-hint{color:#1a1030;background:var(--ai);border-color:var(--ai)}
+
+.err{color:var(--red);font-size:12.5px;margin-top:14px;min-height:16px;font-weight:600;opacity:0;transition:opacity .15s}
+.err.show{opacity:1}
+
+.sec-cta{margin-top:26px;display:flex;align-items:center;gap:14px}
+.cta-btn{display:flex;align-items:center;gap:9px;background:var(--gs);border:none;color:var(--tx);font-size:15px;font-weight:700;padding:12px 22px;border-radius:11px;cursor:pointer;transition:filter .15s}
+.cta-btn:hover{filter:brightness(1.08)}
+.cta-btn svg{width:15px;height:15px}
+.cta-hint{font-size:12px;color:var(--tx3)}.cta-hint b{color:var(--tx2)}
+
+/* Bottom bar — flush to the bottom, spanning the content area (left of the rail).
+   Every control shares one height and is centred, so they line up with each other. */
+.actbar{position:fixed;bottom:0;left:0;right:var(--railW);z-index:60;height:var(--barH);display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(14,30,56,.96);backdrop-filter:blur(10px);border-top:1px solid var(--brd2);padding:0 20px}
+.act-left{display:flex;align-items:center;gap:16px;min-width:0}
+.actbar-back{display:flex;align-items:center;gap:8px;height:40px;padding:0 16px;background:rgba(94,107,133,.05);border:1px solid var(--brd2);border-radius:10px;color:var(--tx2);font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .12s}
+.actbar-back:hover{color:var(--tx);border-color:rgba(94,107,133,.55);background:rgba(94,107,133,.08)}
+.actbar-back svg{width:14px;height:14px}
+.saved{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--tx3)}.saved svg{width:12px;height:12px;color:var(--gs)}
+.act-right{display:flex;align-items:center;gap:10px}
+.next-inc{display:flex;align-items:center;height:40px;background:transparent;border:1px solid var(--brd2);color:var(--tx2);font-size:12px;padding:0 16px;border-radius:10px;cursor:pointer}
+.next-inc:hover{color:var(--tx);border-color:rgba(94,107,133,.55)}
+.submit{height:40px;border:none;color:var(--tx);font-size:13px;font-weight:700;padding:0 22px;border-radius:10px;cursor:pointer;display:flex;align-items:center;gap:8px}
+.submit.locked{background:rgba(94,107,133,.09);color:var(--tx3)}.submit.locked:hover{background:rgba(94,107,133,.13)}
+.submit.ready{background:var(--gs)}.submit.ready:hover{filter:brightness(1.08)}
+.submit .cnt{background:var(--amb-dim);border:1px solid var(--amb-brd);color:var(--amb);font-size:10px;font-weight:700;padding:1px 7px;border-radius:9px}
+
+.toast{position:fixed;top:calc(var(--topH) + 14px);left:50%;transform:translateX(-50%) translateY(-12px);background:#16233b;color:#fff;border:1px solid rgba(255,255,255,.16);border-radius:11px;padding:12px 18px;font-size:13px;box-shadow:0 12px 36px rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:all .3s;z-index:300}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.good{border-color:var(--gs-brd)}.toast.warn{border-color:var(--amb-brd)}
+
+@media(max-width:900px){
+  .layout{grid-template-columns:1fr}
+  .snav{position:static;max-height:none;flex-direction:row;flex-wrap:wrap}
+  .snav-product{width:100%}
+  .snav-groups{display:none}
+  html{scroll-snap-type:none}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}.sec-head,.sec .fields>*{opacity:1;transform:none}}
+
+/* Review overlay */
+.rv-overlay{position:fixed;inset:0;z-index:400;background:rgba(8,18,36,.72);backdrop-filter:blur(6px);display:none;align-items:flex-start;justify-content:center;padding:32px 16px;overflow-y:auto}
+.rv-overlay.show{display:flex}
+.rv-card{width:100%;max-width:720px;background:#ffffff;border:1px solid var(--brd2);border-radius:18px;box-shadow:0 24px 70px rgba(0,0,0,.55);overflow:hidden;margin:auto}
+.rv-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:22px 26px 18px;border-bottom:1px solid rgba(94,107,133,.09)}
+.rv-eyebrow{font-size:10.5px;color:var(--tx3);text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin-bottom:6px}
+.rv-title{font-size:22px;font-weight:800;letter-spacing:-.015em;line-height:1.1}
+.rv-sub{font-size:12px;color:var(--tx3);margin-top:6px}
+.rv-close{width:34px;height:34px;border-radius:9px;border:1px solid var(--brd2);background:transparent;color:var(--tx2);font-size:16px;cursor:pointer;flex-shrink:0;line-height:1}
+.rv-close:hover{background:rgba(94,107,133,.08);color:var(--tx)}
+.rv-body{padding:8px 26px 6px;max-height:calc(100vh - 250px);overflow-y:auto}
+.rv-sec{padding:15px 0;border-bottom:1px solid rgba(94,107,133,.07)}
+.rv-sec:last-child{border-bottom:none}
+.rv-sec-title{font-size:13px;font-weight:800;color:var(--gs);margin-bottom:12px}
+.rv-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 22px}
+.rv-item{min-width:0}
+.rv-lbl{font-size:10.5px;color:var(--tx3);text-transform:uppercase;letter-spacing:.04em;font-weight:600;margin-bottom:3px}
+.rv-val{font-size:14px;color:var(--tx);font-weight:500;word-break:break-word}
+.rv-val.empty{color:var(--tx3);font-style:italic;font-weight:400}
+.rv-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 26px;border-top:1px solid rgba(94,107,133,.09);background:rgba(94,107,133,.02)}
+.rv-back{display:flex;align-items:center;gap:7px;background:transparent;border:1px solid var(--brd2);color:var(--tx2);font-size:13px;font-weight:600;padding:11px 18px;border-radius:10px;cursor:pointer}
+.rv-back:hover{color:var(--tx);border-color:rgba(94,107,133,.55)}
+.rv-submit{display:flex;align-items:center;gap:8px;background:var(--gs);border:none;color:var(--tx);font-size:14px;font-weight:700;padding:12px 24px;border-radius:10px;cursor:pointer}
+.rv-submit:hover{filter:brightness(1.08)}
+.rv-submit svg{width:15px;height:15px}
+@media(max-width:560px){.rv-grid{grid-template-columns:1fr}}
+
+/* Success overlay */
+.sx-overlay{position:fixed;inset:0;z-index:500;background:rgba(60,90,140,.28);display:none;align-items:center;justify-content:center;padding:24px}
+.sx-overlay.show{display:flex}
+.sx-card{text-align:center;max-width:460px}
+.sx-check{width:84px;height:84px;border-radius:50%;background:var(--gs-dim);border:2px solid var(--gs);display:flex;align-items:center;justify-content:center;margin:0 auto 22px;animation:sxpop .45s cubic-bezier(.22,.61,.36,1)}
+.sx-check svg{width:42px;height:42px;color:var(--gs)}
+@keyframes sxpop{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
+.sx-title{font-size:26px;font-weight:800;letter-spacing:-.01em;margin-bottom:10px}
+.sx-msg{font-size:14px;color:var(--tx2);line-height:1.55;margin-bottom:26px}
+.sx-msg b{color:var(--tx)}
+.sx-btn{display:inline-flex;align-items:center;gap:8px;background:var(--gs);border:none;color:var(--tx);font-size:14px;font-weight:700;padding:13px 26px;border-radius:11px;cursor:pointer}
+.sx-btn:hover{filter:brightness(1.08)}
+.sx-btn svg{width:15px;height:15px}
+.nameid-row{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap}
+.nameid-name{flex:1;min-width:220px}
+.nameid-id{display:flex;align-items:center;gap:8px;padding:0 14px;border-radius:10px;border:1px dashed var(--brd);background:rgba(78,187,129,.06);min-width:190px}
+.nameid-id-lbl{font-size:9.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--tx3)}
+.nameid-id-val{font-family:"SFMono-Regular",ui-monospace,Menlo,monospace;font-size:13.5px;font-weight:700;color:var(--gs);letter-spacing:.01em}
+</style>
+<link rel="stylesheet" href="css/greenstreets-theme.css?v=42">
+<!-- Light-theme reassertion: greenstreets-theme.css (shared, dark) loads AFTER this
+     page's own inline <style> above and would otherwise win the cascade on shared
+     classes (body background, .fi fields, themed custom-select). This wizard is
+     self-contained and doesn't link the shared greenstreets-light.css, so the few
+     shared selectors it actually uses get their light values re-asserted here. -->
+<style>
+body{
+  /* the shared theme's body{color:var(--tw)} is white and loads after this page's own
+     body{color:var(--tx)} — without this line every element that just inherits its colour
+     (headings, labels, hint text) rendered white on the light background */
+  color:var(--tx);
+  background-color:#f6f8fb;
+  background-image:
+    radial-gradient(900px 620px at 8% -8%,rgba(110,168,254,.10),transparent 60%),
+    radial-gradient(760px 720px at 108% 6%,rgba(150,196,255,.09),transparent 58%),
+    radial-gradient(900px 700px at 46% 118%,rgba(180,160,235,.10),transparent 60%),
+    linear-gradient(165deg,#f6f8fb 0%,#eef2f8 55%,#f3f0fa 100%);
+  background-attachment:fixed;
+}
+.fi{background:#fff;border:1px solid var(--brd2);color:var(--tx)}
+.fi::placeholder{color:#9aa7bd}
+.fi:focus{background:#fff;box-shadow:0 0 0 3px rgba(110,168,254,.18)}
+.fi-ro{background:rgba(94,107,133,.05)!important;color:var(--tx3)!important}
+select.fi{color-scheme:light}
+select.fi option{background:#fff;color:var(--tx)}
+.cs-trigger{background:#fff;border:1px solid var(--brd2);color:var(--tx)}
+.cs-caret{color:var(--tx3)}   /* was --tw3 (near-white) → the dropdown chevron was invisible */
+.cs-menu{background:#fff;border:1px solid var(--brd2);box-shadow:0 16px 40px -18px rgba(60,90,140,.32)}
+.cs-opt{color:var(--tx2)}
+.cs-opt:hover,.cs-opt.cs-active{background:rgba(110,168,254,.12);color:var(--tx)}
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <aside class="snav" aria-label="Form sections">
+    <div class="snav-product ph-brand">
+      <div class="wiz-crumbs">
+        <button class="wiz-crumb wiz-crumb-home" title="Home" aria-label="Home" onclick="window.location.href='04-greenstreets_supplier_portal_Products-Light.html'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9.5 21v-6h5v6"/></svg></button>
+        <span class="wiz-crumb-sep">›</span>
+        <button class="wiz-crumb" onclick="window.location.href='04-greenstreets_supplier_portal_Packaging-Light.html'">Packaging Components</button>
+        <span class="wiz-crumb-sep">›</span>
+        <span class="wiz-crumb wiz-crumb-current">New component</span>
+      </div>
+      <div class="ph-eyebrow">New packaging component</div>
+      <b class="ph-product" id="phPkgNameVal">Untitled component</b>
+      <div class="ph-forprod">for <span class="ph-forprod-code"></span> · New packaging component</div>
+      <div class="ph-right"><span class="ph-sku" id="sku"></span><span class="ph-due">Due: <strong>26 Jul 2026</strong></span></div>
+    </div>
+    <div class="prog-card">
+      <div class="prog-top"><b id="pDone">0</b><span>of 9 sections complete</span></div>
+      <div class="prog-eta" id="pEta">—</div>
+      <div class="prog-bar"><div class="prog-fill" id="pFill"></div></div>
+      <button class="prefill-btn" id="prefillBtn" onclick="applyPrefill()">✦ Prefill from a similar component</button>
+    </div>
+    <div class="snav-groups" id="snavGroups"></div>
+  </aside>
+
+  <main class="main" id="main"></main>
+</div>
+
+<div class="actbar">
+  <div class="act-left">
+    <button class="actbar-back" onclick="wizBack()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M19 12H5m0 0 6 6m-6-6 6-6"/></svg>Back to products</button>
+    <span class="saved"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="m4.5 12.5 5 5 10-11"/></svg><span id="savedTxt">Draft saved</span></span>
+  </div>
+  <div class="act-right">
+    <button class="next-inc" id="nextIncBtn" onclick="goNextIncomplete()">Next incomplete ↓</button>
+    <button class="submit locked" id="submitBtn" onclick="trySubmit()"><span id="submitLbl">Save</span><span class="cnt" id="submitCnt">— left</span></button>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<div class="rv-overlay" id="reviewScreen" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="rv-card">
+    <div class="rv-head">
+      <div><div class="rv-eyebrow">Review before saving</div><div class="rv-title">New packaging component</div><div class="rv-sub"> · check every answer, then save</div></div>
+      <button class="rv-close" onclick="closeReview()" title="Back to edit">✕</button>
+    </div>
+    <div class="rv-body" id="rvBody"></div>
+    <div class="rv-foot">
+      <button class="rv-back" onclick="closeReview()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M19 12H5m0 0 6 6m-6-6 6-6"/></svg>Back to edit</button>
+      <button class="rv-submit" onclick="confirmSubmit()">Save <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg></button>
+    </div>
+  </div>
+</div>
+
+<div class="sx-overlay" id="successScreen" role="dialog" aria-modal="true">
+  <div class="sx-card">
+    <div class="sx-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><path d="M20 6 9 17l-5-5"/></svg></div>
+    <div class="sx-title">Saved successfully</div>
+    <div class="sx-msg">The packaging component for <b>New packaging component</b> () has been saved. You can continue editing it any time from the products list.</div>
+    <button class="sx-btn" onclick="finishWizard()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M19 12H5m0 0 6 6m-6-6 6-6"/></svg>Back to products</button>
+  </div>
+</div>
+
+<script src="js/gs-schema.js?v=1"></script>
+<script>
+/* Step model — Product details + palletisation steps removed; starts at level & format */
+/* Controlled vocabularies + neutral source-type labels come from the shared
+   canonical schema (js/gs-schema.js) so the wizard matches AI Review and the
+   saved detail pages exactly. */
+var V = window.GS_VOCAB || {};
+var SRC = (typeof window.gsSourceTypeOptions==='function') ? window.gsSourceTypeOptions().map(function(o){return o.label;}) : ['Local'];
+const STEPS=[
+ {t:'Packaging name & ID', d:'Give this packaging component a name — a unique ID is generated automatically.', phase:'B', nav:'Name & ID',
+  fields:[
+   {type:'nameid', label:'Packaging name', req:true, ph:'e.g. Kraft Mailer Bag'}
+  ]},
+ {t:'Packaging level & format', d:'Identify the hierarchy and type of this component.', phase:'B', nav:'Level & format',
+  fields:[
+   {type:'chips', label:'Packaging Level', name:'level', req:true, value:'Primary', options:V.packagingLevel||['Primary','Secondary','Tertiary']},
+   {type:'select', label:'Packaging Type (name)', req:true, options:V.packagingType||[]},
+   {type:'text', label:'Other Packaging Type Description', ph:'Only if the type isn’t listed'}
+  ]},
+ {t:'Who supplies this packaging?', d:'Whether this packaging is locally sourced, retailer-preferred or retailer-nominated.', phase:'B', nav:'Source type',
+  fields:[
+   {type:'select', label:'Packaging Source Type', name:'source', req:true, options:SRC}
+  ]},
+ {t:'Material information', d:'Composition by material and percentage weight (must total 100%).', phase:'C', nav:'Materials',
+  fields:[
+   {type:'select', label:'Base Material', req:true, options:V.baseMaterial||[]},
+   {type:'materials', label:'Materials', req:true}
+  ]},
+ {t:'Recycled content', d:'Post-consumer and post-industrial recycled-content declarations.', phase:'C', nav:'Recycled content',
+  fields:[
+   {type:'chips', label:'Recycled Content', name:'recycled', req:true, options:['Yes','No']},
+   {type:'number', label:'Post-Consumer Recycled Content', unit:'%', id:'pcr', hint:'Required when recycled content = Yes'},
+   {type:'number', label:'Post-Industrial Recycled Content', unit:'%'},
+   {type:'select', label:'Supporting evidence of recycled content', options:V.recycledEvidence||[]},
+   {type:'textarea', label:'Recycled Content Comments', ph:'Anything the compliance team should know'}
+  ]},
+ {t:'Colour & decoration', d:'Visual properties of this packaging component.', phase:'C', nav:'Colour',
+  fields:[
+   {type:'select', label:'Material Colour', req:true, options:V.colour||[]},
+   {type:'select', label:'Opacity', name:'opacity', req:true, options:V.opacity||[]},
+   {type:'select', label:'Decoration', name:'deco', req:true, options:V.decoration||[]}
+  ]},
+ {t:'Weight & grammage', d:'Physical weight properties of this component.', phase:'C', nav:'Weight',
+  fields:[
+   {type:'number', label:'Weight (g)', unit:'g', req:true, ph:'e.g. 6.2'},
+   {type:'number', label:'Grammage (gsm)', unit:'gsm', ph:'e.g. 46'},
+   {type:'number', label:'Gauge in Micron (um)', unit:'um', ph:'e.g. 50 — film only'}
+  ]},
+ {t:'Material dimensions', d:'Flat / unassembled dimensions — leave any that don’t apply blank.', phase:'C', nav:'Dimensions',
+  fields:[
+   {type:'number', label:'Length (mm) (or diameter if applicable)', unit:'mm', ph:'e.g. 400'},
+   {type:'number', label:'Width (mm)', unit:'mm', ph:'e.g. 320'},
+   {type:'number', label:'Height or Depth (mm)', unit:'mm', ph:'Leave blank for flat components'}
+  ]},
+ {t:'Additional information', d:'Certifications, packaging supplier details and supporting documents.', phase:'D', nav:'Additional info',
+  fields:[
+   {type:'select', label:'Certification', req:true, options:V.certification||[]},
+   {type:'text', label:'Other Certification Details', ph:'Only if “Other” selected'},
+   {type:'text', label:'Packaging Supplier Name', req:true, ph:'Company name'},
+   {type:'text', label:'Packaging Supplier Address', req:true, ph:'Street, city, country'},
+   {type:'docpick', label:'Supporting Documents', hint:'Attach as many certificates or reports as needed — choose ones you’ve already uploaded, or add new files.'}
+  ]},
+ {t:'Material compliance', d:'Chemical and substance compliance declarations.', phase:'D', nav:'Compliance',
+  fields:[
+   {type:'select', label:'Material Compliance', req:true, options:V.materialCompliance||[]},
+   {type:'chips', label:'Does the material and/or inks contain mineral oils above allowable limits?', name:'minoil', req:true, options:['Yes','No']},
+   {type:'chips', label:'Does the material contain BPA above allowable limits?', name:'bpa', req:true, options:['Yes','No']},
+   {type:'chips', label:'Does the material contain PFAs?', name:'pfas', req:true, options:['Yes','No']},
+   {type:'select', label:'Is chlorine used in the manufacture of the material/component?', name:'chlorine', req:true, options:V.chlorine||[]}
+  ]}
+];
+const PHASES={B:{label:'Packaging setup',ids:[]},C:{label:'Materials & specs',ids:[]},D:{label:'Finalise',ids:[]}};
+const N=STEPS.length;
+STEPS.forEach((s,i)=>PHASES[s.phase].ids.push('sec'+i));
+let submitted=false;
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+/* Auto-generate a stable packaging ID from the name the user types. */
+function genPkgId(inp){
+  const el=document.getElementById('pkgGenId');
+  const hdr=document.getElementById('phPkgNameVal');
+  const v=inp.value.trim();
+  if(hdr) hdr.textContent = v || 'Untitled component';
+  if(!el) return;
+  if(!v){ el.textContent='—'; return; }
+  const slug=v.toUpperCase().replace(/[^A-Z0-9]+/g,'-').replace(/^-+|-+$/g,'').split('-').filter(Boolean).slice(0,2).join('-');
+  let n=0; for(let i=0;i<v.length;i++) n=(n*31+v.charCodeAt(i))>>>0;
+  el.textContent='PKG-'+(slug||'ITEM')+'-'+String(n%1000).padStart(3,'0');
+}
+
+function fieldHTML(f){
+  const req=f.req?'<span class="req">*</span>':'';
+  const hint=f.hint?`<div class="hint">${esc(f.hint)}</div>`:'';
+  if(f.type==='ro-grid'){
+    const rows=f.items.map(([k,v])=>`<div class="tf-field"><span class="lbl">${esc(k)}</span><input class="fi fi-ro" value="${esc(v)}" readonly></div>`).join('');
+    return `<div class="tf-field"><div class="grid2">${rows}</div></div>`;
+  }
+  if(f.type==='chips'){
+    const opts=f.options.map((o,oi)=>{const L=String.fromCharCode(65+oi),sel=(f.value===o)?' sel':'';
+      return `<button type="button" class="opt${sel}" data-k="${L}" data-val="${esc(o)}" role="radio" aria-checked="${f.value===o}" tabindex="${oi===0?0:-1}" onclick="selectOpt(this)"><span class="key">${L}</span><span class="olbl">${esc(o)}</span><span class="tick">✓</span></button>`;}).join('');
+    return `<div class="tf-field" data-req="${f.req?1:0}" data-kind="chips" data-name="${f.name||''}"><span class="lbl">${esc(f.label)}${req}</span><div class="opts" role="radiogroup">${opts}</div>${hint}</div>`;
+  }
+  if(f.type==='select'){
+    const ph=f.value?'':'<option value="" disabled selected>Select…</option>';
+    const opts=f.options.map(o=>`<option${o===f.value?' selected':''}>${esc(o)}</option>`).join('');
+    return `<div class="tf-field" data-req="${f.req?1:0}"><span class="lbl">${esc(f.label)}${req}</span><select class="fi">${ph}${opts}</select>${hint}</div>`;
+  }
+  if(f.type==='textarea'){
+    return `<div class="tf-field" data-req="${f.req?1:0}"><span class="lbl">${esc(f.label)}${req}</span><textarea class="fi" placeholder="${esc(f.ph||'')}"></textarea>${hint}</div>`;
+  }
+  if(f.type==='ai'){
+    return `<div class="tf-field" data-req="0"><span class="lbl">${esc(f.label)}<span class="ai-tag">AI</span></span><div class="fi-wrap ai-wrap"><input class="fi ai-input" data-ai="${esc(f.ai)}" autocomplete="off"><span class="ai-ghost"></span><span class="ai-badge">✦ AI</span></div>${hint}</div>`;
+  }
+  if(f.type==='nameid'){
+    return `<div class="tf-field" data-req="${f.req?1:0}" data-kind="nameid"><span class="lbl">${esc(f.label)}${req}</span>
+      <div class="nameid-row">
+        <input class="fi nameid-name" placeholder="${esc(f.ph||'')}" autocomplete="off" oninput="genPkgId(this)">
+        <div class="nameid-id" title="Auto-generated identifier"><span class="nameid-id-lbl">ID</span><span class="nameid-id-val" id="pkgGenId">—</span></div>
+      </div>${hint}</div>`;
+  }
+  if(f.type==='docpick'){
+    var menuOpts=WIZ_EXISTING_DOCS.map(function(n){
+      return `<div class="wdoc-opt" onclick="wizDocChoose('${esc(n)}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>${esc(n)}</div>`;
+    }).join('');
+    return `<div class="tf-field" data-req="0" data-kind="docpick"><span class="lbl">${esc(f.label)}</span>
+      <div class="wdoc-chips" id="wdocChips">${wizDocChipsHTML()}</div>
+      <div class="wdoc-actions">
+        <button type="button" class="wdoc-btn" id="wdocToggleBtn" onclick="wizDocToggle(event)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>Choose existing<svg class="wdoc-chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" style="margin-left:2px"><polyline points="6 9 12 15 18 9"/></svg></button>
+        <label class="wdoc-btn wdoc-upload"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Upload file<input type="file" hidden onchange="wizDocUpload(this)"></label>
+      </div>
+      <div class="wdoc-menu" id="wdocMenu">${menuOpts}</div>${hint}</div>`;
+  }
+  if(f.type==='materials'){
+    const dl=MAT_OPTIONS.map(o=>`<option value="${esc(o)}"></option>`).join('');
+    return `<div class="tf-field" data-req="${f.req?1:0}" data-kind="materials"><span class="lbl">${esc(f.label)}${req}</span>
+      <datalist id="matDatalist">${dl}</datalist>
+      <div class="mat-list" id="matList"></div>
+      <button type="button" class="mat-add" onclick="matAddRow()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M12 5v14M5 12h14"/></svg>Add material</button>
+      <div class="mat-summary"><span>Materials: <b id="matCount">0</b></span><span>Total: <b id="matTotal">0</b>%</span><span class="mat-warn" id="matWarn"></span></div>
+      <div class="hint">Add each material and its % by weight — the count and total update automatically and should reach 100%.</div></div>`;
+  }
+  const id=f.id?` id="${f.id}"`:'';
+  const val=f.value!=null?` value="${esc(f.value)}"`:'';
+  const type=f.type==='number'?'number':'text';
+  if(f.type==='number' && f.unit==='%'){
+    const v=f.value!=null?f.value:'';
+    return `<div class="tf-field" data-req="${f.req?1:0}"><span class="lbl">${esc(f.label)}${req}</span>
+      <div class="pct-field"><div class="fi-wrap"><input${id} type="number" min="0" max="100" class="fi fi-has-unit" placeholder="${esc(f.ph||'')}"${val} oninput="pctFromNum(this)"><span class="fi-unit">%</span></div>
+      <input type="range" min="0" max="100" step="1" value="${v||0}" class="pct-slider" oninput="pctFromRange(this)" aria-label="${esc(f.label)} slider"></div>${hint}</div>`;
+  }
+  const unit=f.unit?`<span class="fi-unit">${esc(f.unit)}</span>`:'';
+  const cls='fi'+(f.unit?' fi-has-unit':'');
+  return `<div class="tf-field" data-req="${f.req?1:0}"><span class="lbl">${esc(f.label)}${req}</span><div class="fi-wrap"><input${id} type="${type}" class="${cls}" placeholder="${esc(f.ph||'')}"${val}>${unit}</div>${hint}</div>`;
+}
+
+/* ── Supporting-document picker (Additional info): pick existing or upload ── */
+const WIZ_EXISTING_DOCS=['FSC_CoC_Certificate_2026.pdf','REACH_Compliance_Declaration_2026.pdf','GRS_Scope_Certificate.pdf','Migration_Test_Report.pdf','OEKO-TEX_Standard100.pdf'];
+var wizDocs=[];
+function wizDocChipsHTML(){
+  return wizDocs.map(function(n,i){
+    return `<span class="wdoc-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>${esc(n)}</span><button type="button" title="Remove" onclick="wizDocRemove(${i})">×</button></span>`;
+  }).join('');
+}
+function wizDocRender(){ var c=document.getElementById('wdocChips'); if(c) c.innerHTML=wizDocChipsHTML(); }
+function wizDocSetOpen(open){ var m=document.getElementById('wdocMenu'), b=document.getElementById('wdocToggleBtn'); if(m) m.classList.toggle('open',open); if(b) b.classList.toggle('on',open); }
+function wizDocToggle(e){ if(e&&e.stopPropagation)e.stopPropagation(); var m=document.getElementById('wdocMenu'); wizDocSetOpen(!(m&&m.classList.contains('open'))); }
+function wizDocChoose(n){ if(wizDocs.indexOf(n)<0) wizDocs.push(n); wizDocSetOpen(false); wizDocRender(); }
+function wizDocUpload(inp){ var f=inp.files&&inp.files[0]; if(f && wizDocs.indexOf(f.name)<0) wizDocs.push(f.name); inp.value=''; wizDocRender(); }
+function wizDocRemove(i){ wizDocs.splice(i,1); wizDocRender(); }
+document.addEventListener('click',function(e){ if(!e.target.closest('.wdoc-menu') && !e.target.closest('#wdocToggleBtn')) wizDocSetOpen(false); });
+
+/* ── Dynamic materials + percentage sliders ─────────────────────────────── */
+const MAT_OPTIONS=['LDPE film','HDPE','PP','PET','rPET','Paper','Kraft paper','Cardboard / board','Aluminium foil','Glass','Wood','Adhesive','Ink / coating','Other'];
+function matRowHTML(){
+  /* Combobox: type freely OR pick from the suggestion list (native <datalist>). */
+  return `<div class="mat-row" data-mat-row>
+    <div class="mat-namewrap"><input class="fi mat-name" list="matDatalist" autocomplete="off" placeholder="Type or pick a material…" oninput="matSync()" onchange="matSync()"><span class="mat-caret"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></span></div>
+    <div class="pct-field mat-pctwrap"><div class="fi-wrap"><input type="number" min="0" max="100" class="fi fi-has-unit mat-pct-num" placeholder="0" oninput="pctFromNum(this);matSync()"><span class="fi-unit">%</span></div>
+    <input type="range" min="0" max="100" step="1" value="0" class="pct-slider mat-pct-range" oninput="pctFromRange(this);matSync()" aria-label="Material percentage"></div>
+    <button type="button" class="mat-del" title="Remove material" onclick="matDelRow(this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>`;
+}
+function matList(){ return document.getElementById('matList'); }
+function matAddRow(focus){
+  const list=matList(); if(!list) return;
+  const tmp=document.createElement('div'); tmp.innerHTML=matRowHTML();
+  const row=tmp.firstElementChild; list.appendChild(row);
+  if(window.GSEnhanceNumbers) window.GSEnhanceNumbers(row);
+  matSync();
+  if(focus!==false){ const t=row.querySelector('.mat-name'); if(t){try{t.focus({preventScroll:true})}catch(_){t.focus()}} }
+  return row;
+}
+function matDelRow(btn){ const r=btn.closest('.mat-row'); if(r) r.remove(); matSync(); }
+/* Replace all material rows with the given [name, pct] pairs (used by prefill). */
+function matSetRows(pairs){
+  const list=matList(); if(!list) return;
+  list.innerHTML='';
+  pairs.forEach(p=>{
+    const row=matAddRow(false);
+    const nm=row.querySelector('.mat-name'); if(nm){ nm.value=p[0]; nm.dispatchEvent(new Event('input',{bubbles:true})); }
+    const num=row.querySelector('.mat-pct-num'); if(num){ num.value=p[1]; pctFromNum(num); }
+  });
+  matSync();
+}
+function matSync(){
+  const list=matList(); if(!list) return;
+  let count=0,total=0;
+  list.querySelectorAll('.mat-row').forEach(r=>{
+    const nm=r.querySelector('.mat-name'), pct=r.querySelector('.mat-pct-num');
+    const hasNm=nm&&nm.value, p=pct?parseFloat(pct.value)||0:0;
+    if(hasNm) count++; total+=p;
+  });
+  const c=document.getElementById('matCount'); if(c) c.textContent=count;
+  const tt=document.getElementById('matTotal'); if(tt) tt.textContent=Math.round(total*10)/10;
+  const w=document.getElementById('matWarn');
+  if(w){ w.textContent = (count && Math.round(total)!==100) ? '⚠ should total 100%' : ''; }
+  const sec=document.getElementById('sec3');
+  if(sec){ sec.dataset.touched='1'; const wc=sec.dataset.wc==='1', now=missingIn(3)===0; recompute(now&&!wc?sec.id:null); sec.dataset.wc=now?'1':'0'; }
+}
+/* Percentage number ⇄ slider two-way sync (shared by materials + PCR fields). */
+function pctFromNum(inp){ const w=inp.closest('.pct-field'); if(!w) return; const r=w.querySelector('.pct-slider'); if(r){ let v=parseFloat(inp.value); if(isNaN(v))v=0; r.value=Math.max(0,Math.min(100,v)); } }
+function pctFromRange(rng){ const w=rng.closest('.pct-field'); if(!w) return; const n=w.querySelector('input[type=number]'); if(n){ n.value=rng.value; n.dispatchEvent(new Event('input',{bubbles:true})); } }
+
+function build(){
+  document.getElementById('main').innerHTML=STEPS.map((s,i)=>{
+    const last=i===N-1;
+    const fields=s.fields.map(fieldHTML).join('');
+    const cta=last
+      ? `<div class="sec-cta"><button class="cta-btn" onclick="trySubmit()">Save <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg></button></div>`
+      : `<div class="sec-cta"><button class="cta-btn" onclick="continueFrom(${i})">Continue <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M12 5v14m0 0 6-6m-6 6-6-6"/></svg></button><span class="cta-hint">or press <b>Enter ↵</b></span></div>`;
+    return `<section class="sec" id="sec${i}" data-num="${i+1}">
+      <div class="sec-inner">
+        <div class="sec-head">
+          <div class="qnum">${i+1}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="m9 6 6 6-6 6"/></svg><span class="pill" data-pill="${i}"></span></div>
+          <h1 class="q">${esc(s.t)}</h1>
+          <p class="qdesc">${esc(s.d)}</p>
+        </div>
+        <div class="fields">${fields}</div>
+        <div class="err" id="err-${i}"></div>
+        ${cta}
+      </div>
+    </section>`;
+  }).join('');
+
+  let html='';
+  for(const [ph,obj] of Object.entries(PHASES)){
+    html+=`<div class="snav-phase" data-phase="${ph}"><div class="snav-phase-hdr"><span>${esc(obj.label)}</span><span class="pc" data-pc="${ph}">0/${obj.ids.length}</span></div>`;
+    obj.ids.forEach(id=>{const i=+id.slice(3);
+      html+=`<button class="snav-item" data-target="${id}"><span class="state" data-st="${id}"></span><span class="lbl">${esc(STEPS[i].nav)}</span><span class="snav-badge hide" data-bd="${id}"></span></button>`;});
+    html+='</div>';
+  }
+  document.getElementById('snavGroups').innerHTML=html;
+
+  const pTot=document.querySelector('.prog-top span'); if(pTot) pTot.textContent='of '+N+' sections complete';
+
+  document.querySelectorAll('.fi-ro').forEach(inp=>{inp.title='Click to edit';inp.addEventListener('mousedown',unlockRo);inp.addEventListener('focus',unlockRo);});
+  relabelChipKeys();
+}
+
+/* When a step has more than one single-choice (chips) question — e.g. Colour has
+   both Opacity and Decoration — giving every group A/B/C makes the letter
+   shortcut ambiguous. Re-letter the options consecutively across all groups in a
+   step (A,B,C then D,E,F…) so each key is unique yet the keys stay adjacent. */
+function relabelChipKeys(){
+  document.querySelectorAll('.sec').forEach(sec=>{
+    const groups=[...sec.querySelectorAll('.tf-field[data-kind="chips"] .opts')];
+    if(groups.length<2) return;                // single-group steps keep A/B/C
+    let n=0;
+    groups.forEach(grp=>{
+      grp.querySelectorAll('.opt').forEach(opt=>{
+        const L=String.fromCharCode(65+n); n++;
+        opt.dataset.k=L;
+        const key=opt.querySelector('.key'); if(key) key.textContent=L;
+      });
+    });
+  });
+}
+function unlockRo(e){const i=e.currentTarget;if(!i.readOnly)return;i.readOnly=false;i.classList.remove('fi-ro');i.classList.add('fi-unlocked');i.removeAttribute('title');i.focus();try{const l=i.value.length;i.setSelectionRange(l,l)}catch(_){}}
+
+function radioSel(sec,name){return sec.querySelector(`[data-name="${name}"] .opt.sel`)}
+function missingIn(i){
+  const sec=document.getElementById('sec'+i); let n=0;
+  sec.querySelectorAll('.tf-field').forEach(fld=>{
+    if(fld.dataset.req!=='1') return;
+    if(fld.dataset.kind==='chips'){ if(!fld.querySelector('.opt.sel')) n++; return; }
+    if(fld.dataset.kind==='materials'){
+      let ok=false;
+      fld.querySelectorAll('.mat-row').forEach(r=>{ const nm=r.querySelector('.mat-name'), p=r.querySelector('.mat-pct-num'); if(nm&&nm.value&&p&&parseFloat(p.value)>0) ok=true; });
+      if(!ok) n++; return;
+    }
+    const c=fld.querySelector('input.fi,select.fi,textarea.fi'); if(c && !String(c.value).trim()) n++;
+  });
+  if(i===4){ const rec=radioSel(sec,'recycled'); const pcr=document.getElementById('pcr'); if(rec&&rec.dataset.val==='Yes'&&pcr&&!pcr.value.trim()) n++; }
+  return n;
+}
+function firstBadIn(i){
+  const sec=document.getElementById('sec'+i); let bad=null;
+  sec.querySelectorAll('.tf-field').forEach(fld=>{ if(bad||fld.dataset.req!=='1')return;
+    if(fld.dataset.kind==='chips'){ if(!fld.querySelector('.opt.sel')) bad=fld.querySelector('.opt'); return; }
+    if(fld.dataset.kind==='materials'){
+      let ok=false;
+      fld.querySelectorAll('.mat-row').forEach(r=>{ const nm=r.querySelector('.mat-name'), p=r.querySelector('.mat-pct-num'); if(nm&&nm.value&&p&&parseFloat(p.value)>0) ok=true; });
+      if(!ok){ const r=fld.querySelector('.mat-row'); bad=(r&&(r.querySelector('.mat-name')))||fld.querySelector('.mat-add'); }
+      return;
+    }
+    const c=fld.querySelector('input.fi,select.fi,textarea.fi'); if(c&&!String(c.value).trim()) bad=c; });
+  if(!bad&&i===4){const rec=radioSel(sec,'recycled');const pcr=document.getElementById('pcr');if(rec&&rec.dataset.val==='Yes'&&pcr&&!pcr.value.trim())bad=pcr;}
+  return bad;
+}
+
+function recompute(popId){
+  let done=0,totalMissing=0;
+  for(let i=0;i<N;i++){
+    const sec=document.getElementById('sec'+i);
+    const miss=missingIn(i); totalMissing+=miss;
+    const touched=sec.dataset.touched==='1';
+    const complete=miss===0; if(complete)done++;
+    const pill=sec.querySelector('[data-pill="'+i+'"]');
+    if(complete){pill.textContent='Complete ✓';pill.className='pill done';}
+    else if(touched){pill.textContent=miss+' field'+(miss>1?'s':'')+' missing';pill.className='pill part';}
+    else{pill.textContent=miss+' required';pill.className='pill todo';}
+    const st=document.querySelector(`[data-st="sec${i}"]`), bd=document.querySelector(`[data-bd="sec${i}"]`);
+    if(complete){ if(!st.classList.contains('done')&&popId==='sec'+i)st.classList.add('pop');
+      st.className='state done'+(popId==='sec'+i?' pop':''); st.innerHTML='<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4"><path d="m4.5 12.5 5 5 10-11"/></svg>'; bd.classList.add('hide'); }
+    else{ st.className='state'+(touched?' part':''); st.innerHTML=''; bd.textContent=miss; bd.classList.remove('hide'); }
+  }
+  for(const [ph,obj] of Object.entries(PHASES)){
+    const d=obj.ids.filter(id=>missingIn(+id.slice(3))===0).length;
+    const el=document.querySelector(`[data-pc="${ph}"]`); el.textContent=d+'/'+obj.ids.length; el.classList.toggle('done',d===obj.ids.length);
+  }
+  document.getElementById('pDone').textContent=done;
+  document.getElementById('pFill').style.width=(done/N*100)+'%';
+  const rem=N-done;
+  document.getElementById('pEta').textContent = submitted?'Saved' : rem===0?'All sections complete — ready to save' : ('~'+Math.max(1,Math.round(rem*35/60))+' min of work remaining');
+  const btn=document.getElementById('submitBtn'),cnt=document.getElementById('submitCnt');
+  if(submitted){btn.className='submit ready';cnt.style.display='none';document.getElementById('submitLbl').textContent='Saved ✓';}
+  else if(rem===0){btn.className='submit ready';cnt.style.display='none';}
+  else{btn.className='submit locked';cnt.style.display='';cnt.textContent=rem+' left';}
+  document.getElementById('nextIncBtn').style.display=(rem===0||submitted)?'none':'';
+  return rem;
+}
+
+function scrollToSec(i){const sec=document.getElementById('sec'+i);if(sec)sec.scrollIntoView({behavior:'smooth',block:'start'});}
+function continueFrom(i){
+  const bad=firstBadIn(i);
+  if(bad){ shake(bad); showErr(i,'Please complete this before continuing.'); return; }
+  clearErr(i);
+  if(i<N-1){ scrollToSec(i+1); setTimeout(()=>focusFirst(i+1),480); }
+}
+function goNextIncomplete(){ for(let i=0;i<N;i++){ if(missingIn(i)>0){ scrollToSec(i); setTimeout(()=>{ const bad=firstBadIn(i); if(bad) shake(bad); else focusFirst(i); },520); return; } } }
+/* Focus the first empty editable control on a step. Handles the themed custom
+   selects (the real <select> is hidden and replaced by a .cs-trigger), which the
+   old query skipped — that's why the Additional-info step never auto-focused. */
+function focusFirst(i){
+  const sec=document.getElementById('sec'+i);
+  const el=[...sec.querySelectorAll('.opt, input.fi:not([readonly]), .cs-trigger, select.fi, textarea.fi')].find(e=>{
+    if(e.offsetParent===null)return false;
+    if(e.classList.contains('opt'))return true;
+    if(e.classList.contains('cs-trigger')){ const s=e.parentNode.querySelector('select'); return !s||!s.value; }
+    if(e.tagName==='SELECT')return !e.value;
+    return !e.value.trim();});
+  if(el){try{el.focus({preventScroll:true})}catch(_){el.focus()}}
+}
+function shake(el){if(!el)return;
+  /* A themed <select> is hidden behind a .cs-trigger — shake the trigger so the
+     red border/animation is actually visible. */
+  if(el.tagName==='SELECT' && el.offsetParent===null){ const w=el.closest('.cs-wrap'); const t=w&&w.querySelector('.cs-trigger'); if(t) el=t; }
+  el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake');try{el.focus({preventScroll:true})}catch(_){}setTimeout(()=>el.classList.remove('shake'),450);}
+function showErr(i,m){const e=document.getElementById('err-'+i);if(e){e.textContent=m;e.classList.add('show');}}
+function clearErr(i){const e=document.getElementById('err-'+i);if(e)e.classList.remove('show');}
+
+function selectOpt(btn){
+  const grp=btn.closest('.opts');
+  grp.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');o.setAttribute('aria-checked','false');o.tabIndex=-1;});
+  btn.classList.add('sel');btn.setAttribute('aria-checked','true');btn.tabIndex=0;
+  const sec=btn.closest('.sec'); sec.dataset.touched='1';
+  const i=+sec.id.slice(3);
+  const wasComplete=sec.dataset.wc==='1'; const nowComplete=missingIn(i)===0;
+  recompute(nowComplete&&!wasComplete?sec.id:null); sec.dataset.wc=nowComplete?'1':'0';
+  clearErr(i); autosave();
+  const step=STEPS[i];
+  if(step&&step.fields.length===1&&step.fields[0].type==='chips'&&nowComplete&&i<N-1){ setTimeout(()=>continueFrom(i),340); }
+}
+
+function initAIFields(){
+  document.querySelectorAll('.ai-input').forEach(inp=>{
+    const wrap=inp.closest('.ai-wrap'),ghost=wrap.querySelector('.ai-ghost'),badge=wrap.querySelector('.ai-badge'),sugg=inp.dataset.ai||'';
+    ghost.textContent=sugg; inp.classList.add('ai-on');
+    const update=()=>{const empty=!inp.value.trim(),foc=document.activeElement===inp;wrap.classList.toggle('show-ghost',empty);if(badge){badge.textContent=(empty&&foc)?'Tab ⇥':'✦ AI';badge.classList.toggle('badge-hint',empty&&foc);}};
+    inp.addEventListener('focus',update);inp.addEventListener('blur',update);inp.addEventListener('input',update);
+    inp.addEventListener('keydown',ev=>{ if(ev.key==='Tab'&&!ev.shiftKey&&sugg&&!inp.value.trim()){ inp.value=sugg;inp.classList.add('ai-accepted');setTimeout(()=>inp.classList.remove('ai-accepted'),750);inp.dispatchEvent(new Event('input',{bubbles:true}));inp.dispatchEvent(new Event('change',{bubbles:true}));update(); } });
+    update();
+  });
+}
+
+let saveT;
+function autosave(){const s=document.getElementById('savedTxt');s.textContent='Saving…';clearTimeout(saveT);saveT=setTimeout(()=>s.textContent='Draft saved',650);}
+document.addEventListener('input',onEdit,true);
+document.addEventListener('change',onEdit,true);
+function onEdit(e){
+  const sec=e.target.closest&&e.target.closest('.sec'); if(!sec)return;
+  sec.dataset.touched='1';
+  const i=+sec.id.slice(3);
+  const wasComplete=sec.dataset.wc==='1'; const nowComplete=missingIn(i)===0;
+  recompute(nowComplete&&!wasComplete?sec.id:null); sec.dataset.wc=nowComplete?'1':'0';
+  const s=document.getElementById('savedTxt'); s.textContent='Saving…'; clearTimeout(saveT); saveT=setTimeout(()=>s.textContent='Draft saved',650);
+  if(nowComplete&&!wasComplete&&e.type==='change'&&!submitted&&i<N-1){ setTimeout(()=>continueFrom(i),260); }
+}
+
+document.addEventListener('keydown',e=>{
+  const t=document.activeElement;
+  if(e.key==='Enter'){
+    const ta=t&&t.tagName==='TEXTAREA'; if(ta&&e.shiftKey)return;
+    const sec=t&&t.closest&&t.closest('.sec'); if(!sec)return;
+    e.preventDefault(); continueFrom(+sec.id.slice(3)); return;
+  }
+  const grp=(t&&t.classList&&t.classList.contains('opt'))?t.closest('.opts'):null;
+  if(grp){
+    const opts=[...grp.querySelectorAll('.opt')];let idx=opts.indexOf(t);
+    if(e.key==='ArrowDown'||e.key==='ArrowRight'){e.preventDefault();idx=Math.min(opts.length-1,idx+1);opts[idx].focus();selectOpt(opts[idx]);}
+    else if(e.key==='ArrowUp'||e.key==='ArrowLeft'){e.preventDefault();idx=Math.max(0,idx-1);opts[idx].focus();selectOpt(opts[idx]);}
+    else if(e.key===' '){e.preventDefault();selectOpt(t);}
+    else if(/^[a-zA-Z]$/.test(e.key)){let o=opts.find(x=>x.dataset.k===e.key.toUpperCase());if(!o){const s=t.closest('.sec');if(s)o=s.querySelector('.opt[data-k="'+e.key.toUpperCase()+'"]');}if(o){e.preventDefault();o.focus();selectOpt(o);}}
+    return;
+  }
+  /* Global letter shortcut: when NOT focused inside an option/field, a letter
+     selects the matching choice in the section the user is currently viewing.
+     With per-step unique keys (see relabelChipKeys) this is unambiguous even on
+     steps with several choice questions. */
+  if(/^[a-zA-Z]$/.test(e.key) && !e.metaKey && !e.ctrlKey && !e.altKey){
+    const tag=t&&t.tagName;
+    if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'||(t&&t.classList&&t.classList.contains('cs-trigger'))) return;
+    const sec=activeSection(); if(!sec) return;
+    const o=sec.querySelector('.opt[data-k="'+e.key.toUpperCase()+'"]');
+    if(o){ e.preventDefault(); o.focus(); selectOpt(o); }
+  }
+});
+/* The section currently filling most of the viewport (matches the snav highlight). */
+function activeSection(){
+  const a=document.querySelector('.snav-item.active');
+  if(a&&a.dataset.target){ const s=document.getElementById(a.dataset.target); if(s) return s; }
+  let best=null,bestR=0;
+  document.querySelectorAll('.sec').forEach(s=>{const r=s.getBoundingClientRect();const vis=Math.max(0,Math.min(r.bottom,innerHeight)-Math.max(r.top,0));if(vis>bestR){bestR=vis;best=s;}});
+  return best;
+}
+
+function initObserver(){
+  const io=new IntersectionObserver(entries=>{
+    entries.forEach(en=>{ if(en.isIntersecting) en.target.classList.add('in-view'); });
+    let best=null,bestR=0;
+    document.querySelectorAll('.sec').forEach(s=>{const r=s.getBoundingClientRect();const vh=innerHeight;const vis=Math.max(0,Math.min(r.bottom,vh)-Math.max(r.top,0));if(vis>bestR){bestR=vis;best=s.id;}});
+    if(best) document.querySelectorAll('.snav-item').forEach(b=>b.classList.toggle('active',b.dataset.target===best));
+  },{threshold:[0,.25,.5,.75]});
+  document.querySelectorAll('.sec').forEach(s=>io.observe(s));
+}
+
+function wireNav(){document.querySelectorAll('.snav-item').forEach(b=>b.addEventListener('click',()=>{const i=+b.dataset.target.slice(3);scrollToSec(i);setTimeout(()=>focusFirst(i),480);}));}
+
+function setVal(sel,v){const el=document.querySelector(sel);if(el){el.value=v;}}
+function pickChip(sec,name,val){const o=document.querySelector(`#sec${sec} [data-name="${name}"] .opt[data-val="${val}"]`);if(o)selectOpt(o);}
+function applyPrefill(){
+  const nameInp=document.querySelector('#sec0 .nameid-name'); if(nameInp){ nameInp.value='LDPE Mailer Bag'; genPkgId(nameInp); }
+  matSetRows([['LDPE film',90],['Paper',10]]);
+  pickChip(4,'recycled','Yes'); const pcr=document.getElementById('pcr'); if(pcr){ pcr.value='20'; pctFromNum(pcr); }
+  pickChip(5,'opacity','Transparent'); pickChip(5,'deco','1-colour print');
+  const w=[...document.querySelectorAll('#sec6 input.fi')]; if(w[0])w[0].value='9.8'; if(w[1])w[1].value='46'; if(w[2])w[2].value='55';
+  const dm=[...document.querySelectorAll('#sec7 input.fi:not(.ai-input)')]; if(dm[0])dm[0].value='380'; if(dm[1])dm[1].value='300';
+  const sel10=document.querySelector('#sec8 select.fi'); if(sel10)sel10.value='GRS';
+  const txt10=[...document.querySelectorAll('#sec8 input.fi:not(.ai-input)')]; if(txt10[1])txt10[1].value='FlexPack Converting Ltd'; if(txt10[2])txt10[2].value='12 Baoan District, Shenzhen, CN';
+  const std=document.querySelector('#sec9 select.fi'); if(std)std.value='EU PPWR / REACH';
+  ['minoil','bpa','pfas','chlorine'].forEach(n=>pickChip(9,n,'No'));
+  document.querySelectorAll('.sec').forEach(s=>{s.dataset.touched='1';});
+  document.getElementById('prefillBtn').classList.add('hide');
+  recompute(); document.querySelectorAll('.sec').forEach(s=>s.dataset.wc=missingIn(+s.id.slice(3))===0?'1':'0');
+  toast('Prefilled from PRK-002-JN-BLU — review the values, then submit','good');
+}
+
+function trySubmit(){
+  if(submitted)return;
+  let rem=0;for(let i=0;i<N;i++)if(missingIn(i)>0)rem++;
+  if(rem>0){toast(rem+' section'+(rem>1?'s':'')+' still need attention — jumping to the first','warn');goNextIncomplete();return;}
+  openReview();
+}
+/* Read every answered field straight from the DOM, grouped by section. */
+function reviewFieldLabel(lblEl){
+  if(!lblEl) return '';
+  var t = (lblEl.childNodes[0] && lblEl.childNodes[0].nodeType===3) ? lblEl.childNodes[0].textContent : lblEl.textContent;
+  return (t||'').replace(/\*+$/,'').trim();
+}
+function reviewItem(label,value){
+  var empty = !value || !String(value).trim();
+  return '<div class="rv-item"><div class="rv-lbl">'+esc(label)+'</div><div class="rv-val'+(empty?' empty':'')+'">'+(empty?'Not provided':esc(value))+'</div></div>';
+}
+function buildReview(){
+  var html='';
+  for(var i=0;i<N;i++){
+    var sec=document.getElementById('sec'+i);
+    var title=sec.querySelector('.q').textContent;
+    var rows='';
+    sec.querySelectorAll('.tf-field').forEach(function(fld){
+      var lblEl=fld.querySelector(':scope > .lbl');
+      if(fld.dataset.kind==='chips'){
+        var selOpt=fld.querySelector('.opt.sel .olbl');
+        rows+=reviewItem(reviewFieldLabel(lblEl), selOpt?selOpt.textContent:'');
+      } else if(lblEl){
+        var c=fld.querySelector('input.fi,select.fi,textarea.fi');
+        if(c) rows+=reviewItem(reviewFieldLabel(lblEl), c.value);
+      }
+    });
+    if(rows) html+='<div class="rv-sec"><div class="rv-sec-title">'+(i+1)+'. '+esc(title)+'</div><div class="rv-grid">'+rows+'</div></div>';
+  }
+  return html;
+}
+function openReview(){
+  document.getElementById('rvBody').innerHTML=buildReview();
+  var o=document.getElementById('reviewScreen');
+  o.classList.add('show'); o.setAttribute('aria-hidden','false');
+  o.scrollTop=0; document.body.style.overflow='hidden';
+}
+function closeReview(){
+  var o=document.getElementById('reviewScreen');
+  o.classList.remove('show'); o.setAttribute('aria-hidden','true');
+  document.body.style.overflow='';
+}
+function confirmSubmit(){
+  submitted=true; recompute();
+  var skuEl=document.getElementById('sku'); if(skuEl) skuEl.textContent='Saved ✓';
+  closeReview();
+  document.getElementById('successScreen').classList.add('show');
+  document.body.style.overflow='';
+  /* Show the "Saved" confirmation briefly, then return to the listing the wizard
+     was launched from (finishWizard flags the new component so the listing can
+     flash it). The success screen's button still works if the user clicks first. */
+  clearTimeout(confirmSubmit._t);
+  confirmSubmit._t=setTimeout(function(){ if(typeof finishWizard==='function') finishWizard(); }, 1400);
+}
+var WIZ_ORIGIN='products';
+function finishWizard(){
+  var nameEl=document.querySelector('#sec0 .nameid-name');
+  var idEl=document.getElementById('pkgGenId');
+  var nm=nameEl?nameEl.value.trim():''; var id=idEl?idEl.textContent.trim():'';
+  if(window.parent && window.parent!==window && typeof window.parent.gsWizardDone==='function'){ window.parent.gsWizardDone(WIZ_ORIGIN, nm, id); }
+  else if(window.parent && window.parent!==window && typeof window.parent.go==='function'){ window.parent.go('sp2'); }
+  else { document.getElementById('successScreen').classList.remove('show'); }
+}
+function wizBack(){
+  if(window.parent && window.parent!==window && typeof window.parent.go==='function'){
+    window.parent.go('sp2');
+    if(typeof window.parent.switchLandingTab==='function'){ window.parent.switchLandingTab(WIZ_ORIGIN==='packaging'?'packaging':'products'); }
+  }
+}
+
+let toastT;function toast(m,k){const el=document.getElementById('toast');el.textContent=m;el.className='toast show '+(k||'');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),3200);}
+
+build();
+matAddRow(false); matAddRow(false);   // seed two empty material rows
+initAIFields();
+initObserver();
+wireNav();
+['sec0','sec1'].forEach(id=>{var el=document.getElementById(id);if(el)el.dataset.touched='1';});
+document.querySelectorAll('.sec').forEach(s=>s.dataset.wc=missingIn(+s.id.slice(3))===0?'1':'0');
+document.getElementById('sec0').classList.add('in-view');
+recompute();
+/* Land the supplier straight on the first incomplete step, focus the first
+   missing field and give it a small shake so it's obvious what's needed. */
+setTimeout(function(){
+  for(var i=0;i<N;i++){
+    if(missingIn(i)>0){
+      scrollToSec(i);
+      (function(ii){ setTimeout(function(){ var bad=firstBadIn(ii); if(bad) shake(bad); }, 620); })(i);
+      return;
+    }
+  }
+}, 360);
+</script>
+
+<script>
+/* Split-build: this wizard is now a top-level page (no parent iframe).  Read the
+   launch context from sessionStorage, patch the header labels, and override the
+   wizard's finishWizard()/wizBack() to navigate the whole window. */
+(function(){
+  var w = {};
+  try { w = JSON.parse(sessionStorage.getItem('gs_wiz')) || {}; } catch(e){ w = {}; }
+  var origin = (w.origin === 'packaging') ? 'packaging' : 'products';
+  var name = w.name || '', code = w.code || '', pi = (w.pi == null ? null : w.pi);
+  var standalone = !name;
+  var backLabel = origin === 'packaging' ? 'Save and return to Packaging Components' : 'Save and return to product';
+  try { WIZ_ORIGIN = origin; } catch(e){}
+
+  var sku = document.getElementById('sku'); if(sku) sku.textContent = code;
+  var forProd = document.querySelector('.ph-forprod');
+  if(forProd){
+    if(standalone){ forProd.parentNode.removeChild(forProd); }
+    else { forProd.innerHTML = 'for <span class="ph-forprod-code">' + code + '</span> · ' + name; }
+  }
+  if(standalone){
+    var skuChip = document.querySelector('.ph-sku');
+    if(skuChip) skuChip.parentNode.removeChild(skuChip);
+  }
+  var backBtn = document.querySelector('.actbar-back');
+  if(backBtn) backBtn.innerHTML = backBtn.innerHTML.replace('Back to products', backLabel);
+  var sxBtn = document.querySelector('.sx-btn');
+  if(sxBtn) sxBtn.innerHTML = sxBtn.innerHTML.replace('Back to products', backLabel);
+
+  finishWizard = function(){
+    var nameEl = document.querySelector('#sec0 .nameid-name');
+    var idEl = document.getElementById('pkgGenId');
+    var nm = nameEl ? nameEl.value.trim() : '';
+    var id = idEl ? idEl.textContent.trim() : '';
+    sessionStorage.setItem('gs_flash', JSON.stringify({ origin: WIZ_ORIGIN, name: nm, id: id, pi: pi }));
+    window.location.href = WIZ_ORIGIN === 'packaging'
+      ? '04-greenstreets_supplier_portal_Packaging.html'
+      : '04-greenstreets_supplier_portal_Products.html';
+  };
+  wizBack = function(){
+    window.location.href = WIZ_ORIGIN === 'packaging'
+      ? '04-greenstreets_supplier_portal_Packaging.html'
+      : '04-greenstreets_supplier_portal_Products.html';
+  };
+})();
+</script>
+<script src="js/greenstreets-theme.js?v=30"></script>
+<script src="js/gs-appearance.js?v=7"></script>
+</body>
+</html>

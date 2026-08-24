@@ -160,6 +160,11 @@
   var docId = null;
   try { docId = sessionStorage.getItem('ra_di'); } catch (e) {}
   var DOC = RA_DOCS[docId] || RA_DOCS['doc-001'];
+  /* "sup-*" rows come from the Technical Document listing — a certificate or test report
+     that IS a piece of supporting evidence, not a DoC that evidence was reviewed for.
+     Showing a "review supporting evidence" section on its own detail page would just point
+     the document back at itself, so that section is only rendered for DoC records. */
+  var isEvidenceDoc = /^sup-/.test(docId || '');
   var justNotified = false; /* shows the "supplier has been notified" banner right after a Refuse */
 
   function toast(msg) {
@@ -210,20 +215,22 @@
       '<div style="font-size:11px">' + esc(DOC.kind) + ' · ' + esc(DOC.version) + ' · full-page preview (prototype placeholder)</div>' +
       '</div></div></div>';
 
-    /* Review Supporting Evidence */
-    html += '<div class="grp" id="doc-sec-evidence"><div class="grp-hdr">Review supporting evidence</div><div class="grp-body">' +
-      '<div style="display:flex;flex-direction:column;gap:6px">' +
-      DOC.evidence.map(function (ev) {
-        return '<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--bw);border-radius:8px">' +
-          '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--tw3)" stroke-width="2"><use href="#gsi-29"/></svg>' +
-          '<span class="tbl-name" style="flex:1">' + esc(ev.name) + '</span><span class="pill pill-grey" style="font-size:9px">' + esc(ev.type) + '</span>' +
-          '<button class="btn-g-sm" onclick="toastRaDoc(\'Opening ' + esc(ev.name) + '…\')">View</button>' +
-          '</div>';
-      }).join('') + '</div></div></div>';
+    /* Review Supporting Evidence — DoC records only (see isEvidenceDoc above) */
+    if (!isEvidenceDoc) {
+      html += '<div class="grp" id="doc-sec-evidence"><div class="grp-hdr">Review supporting evidence</div><div class="grp-body">' +
+        '<div style="display:flex;flex-direction:column;gap:6px">' +
+        DOC.evidence.map(function (ev) {
+          return '<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--bw);border-radius:8px">' +
+            '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--tw3)" stroke-width="2"><use href="#gsi-29"/></svg>' +
+            '<span class="tbl-name" style="flex:1">' + esc(ev.name) + '</span><span class="pill pill-grey" style="font-size:9px">' + esc(ev.type) + '</span>' +
+            '<button class="btn-g-sm" onclick="toastRaDoc(\'Opening ' + esc(ev.name) + '…\')">View</button>' +
+            '</div>';
+        }).join('') + '</div></div></div>';
+    }
 
     /* Generate DoC */
     html += '<div class="grp"><div class="grp-hdr">Admin actions</div><div class="grp-body">' +
-      '<div style="border:1px solid var(--bw);border-radius:8px;padding:12px"><div style="font-size:12px;font-weight:600;margin-bottom:4px">Generate DoC <span style="font-weight:400;color:var(--tw3)">(Admin only)</span></div><div style="font-size:11px;color:var(--tw3);margin-bottom:10px">Run the pre-generation checklist (PPWR Articles 6, 7, 9, 10, 11) and provide signatory details to produce the final PDF.</div><button class="btn-g" onclick="go(\'ra12\')">Open generation checklist</button></div>' +
+      '<div style="border:1px solid var(--bw);border-radius:8px;padding:12px"><div style="font-size:12px;font-weight:600;margin-bottom:4px">Generate DoC <span style="font-weight:400;color:var(--tw3)">(Admin only)</span></div><div style="font-size:11px;color:var(--tw3);margin-bottom:10px">Run the pre-generation checklist (PPWR Articles 6, 7, 9, 10, 11) and provide signatory details to produce the final PDF.</div><button class="btn-g" onclick="go(\'ra12\')">Generate DoC</button></div>' +
       '</div></div>';
 
     /* Version management */
