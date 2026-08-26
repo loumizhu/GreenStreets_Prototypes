@@ -2190,6 +2190,38 @@ function gsBuildPct(feat, input){
   if(typeof window.GSEnhanceNumbers==='function'){ try{ window.GSEnhanceNumbers(wrap); }catch(_){} }
 }
 
+/* Picklist field → EDITABLE combobox: the user can type a value or pick one from
+   the field's own option list (datalist). The real <select> is kept in sync so
+   anything reading the field's value still works. */
+var gsComboSelSeq = 0;
+function gsMakeSelectEditable(feat){
+  if(!feat || feat.classList.contains('gs-combo-sel')) return;
+  var sel = feat.querySelector('.pkg-detail-feat-select');
+  var input = feat.querySelector('.pkg-detail-feat-input');
+  if(!sel || !input) return;
+  var dl = document.createElement('datalist');
+  dl.id = 'gs-dl-sel-' + (++gsComboSelSeq);
+  Array.prototype.forEach.call(sel.options, function(o){
+    if(o.disabled || o.value === '' && !o.text.trim()) return;
+    if(/^select/i.test(o.text.trim())) return;
+    var op = document.createElement('option'); op.value = o.text.trim(); dl.appendChild(op);
+  });
+  document.body.appendChild(dl);
+  feat.classList.add('gs-combo-sel');
+  input.classList.add('editable-text', 'gs-combo');
+  input.setAttribute('list', dl.id);
+  input.setAttribute('autocomplete', 'off');
+  if(!input.placeholder) input.placeholder = 'Type or pick a value';
+  input.addEventListener('change', function(){
+    var v = input.value.trim();
+    if(v) gsSetSelectValue(sel, v);
+  });
+  sel.addEventListener('change', function(){
+    var o = sel.options[sel.selectedIndex];
+    if(o) input.value = o.text.trim();
+  });
+}
+
 /* Material-name free-text field → typeable combobox (datalist). */
 function gsEnsureMaterialDatalist(){
   if(document.getElementById('gs-mat-datalist')) return;
@@ -2775,6 +2807,12 @@ function pkgInitMaterialControls() {
       if (nameInp && !nameInp.getAttribute('oninput')) nameInp.setAttribute('oninput', "pkgSyncMatCount(this.closest('.pkg-detail-grid'))");
     });
     pkgWrapMaterialRows(grid);
+    /* Base Material is a long picklist — let the user type into it too. */
+    grid.querySelectorAll('.pkg-detail-feat').forEach(function(feat){
+      if (feat.hasAttribute('data-mr')) return;
+      var lbl = feat.querySelector('.pkg-detail-feat-lbl');
+      if (lbl && lbl.textContent.trim().toLowerCase().indexOf('base material') === 0) gsMakeSelectEditable(feat);
+    });
 
     /* find the "Total of all Materials" row to insert the Add button before it */
     var totalFeat = null;
@@ -2811,7 +2849,9 @@ document.addEventListener('click', function(e){
   if (section.classList.contains('pkg-sec-edit-mode')) return; /* already editing */
   pkgEnterSectionEdit(feat);
   /* Focus the primary control so the user can type/pick immediately. */
-  var ctrl = feat.querySelector('.pkg-detail-feat-select, .pkg-detail-feat-input');
+  var ctrl = feat.classList.contains('gs-combo-sel')
+    ? feat.querySelector('.pkg-detail-feat-input')
+    : feat.querySelector('.pkg-detail-feat-select, .pkg-detail-feat-input');
   if (ctrl) {
     try { ctrl.focus(); } catch(_) {}
     if (ctrl.tagName === 'INPUT' && ctrl.type !== 'checkbox') { try { ctrl.select(); } catch(_) {} }

@@ -210,8 +210,8 @@ html,body{height:100%;font-family:"Inter",sans-serif;color:var(--tw)}
 .pkg-detail-section{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:16px;margin-bottom:12px}
 .pkg-detail-section-hdr{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:700;color:#fff;margin-bottom:13px}
 .pkg-detail-section-num{width:21px;height:21px;border-radius:50%;background:rgba(78,187,129,.18);border:1px solid var(--gs);color:var(--gs);font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.pkg-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 20px}
-.pkg-detail-feat{display:flex;flex-direction:column;gap:3px}
+.pkg-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px 20px}
+.pkg-detail-feat{display:flex;flex-direction:column;gap:9px}
 .pkg-detail-feat-lbl{font-size:10px;color:var(--tw3);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
 .pkg-detail-feat-val{font-size:13px;color:#fff;font-weight:500;display:flex;align-items:center;gap:6px}
 .pkg-doc-download-btn{display:flex;align-items:center;gap:7px;height:36px;padding:0 16px;background:var(--gs);border:none;color:#04160e;border-radius:8px;cursor:pointer;font-family:"Inter",sans-serif;font-size:12px;font-weight:600;white-space:nowrap;flex-shrink:0}
@@ -338,6 +338,9 @@ html,body{height:100%;font-family:"Inter",sans-serif;color:var(--tw)}
    users can tell they're selectable before entering edit mode. */
 .pkg-detail-feat:has(.pkg-detail-feat-select) .pkg-detail-feat-input{cursor:pointer;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235b9cf6' stroke-width='2.5'><polyline points='6 9 12 15 18 9'/></svg>");background-repeat:no-repeat;background-position:right 6px center;padding-right:22px}
 .pkg-sec-edit-mode .pkg-detail-feat:has(.pkg-detail-feat-select) .pkg-detail-feat-input{background-image:none}
+/* Editable picklist (type or pick): the datalist input replaces the <select>. */
+.pkg-sec-edit-mode .gs-combo-sel .pkg-detail-feat-select{display:none}
+.pkg-sec-edit-mode .gs-combo-sel .pkg-detail-feat-input.editable-text{display:block}
 /* AI-review fields carry BOTH an editable text input and a single-option placeholder <select>; in edit
    mode that showed two stacked controls (the "doubled field"). The text input is the real editable control,
    so hide the placeholder select for .air-feat — leaves exactly one control per field. */
@@ -351,14 +354,16 @@ html,body{height:100%;font-family:"Inter",sans-serif;color:var(--tw)}
 /* Material Information grid: one field per line (Base Material, each Material N Name, each % Material N, totals) — materials read as a vertical list rather than a 2-up grid. */
 /* Material Information: one field (or one material) per line, all sharing the
    same 11px inner gutter so every label/input lines up down the section. */
-.pkg-detail-grid.pkg-mat-grid>.pkg-detail-feat{grid-column:1/-1;padding:0 11px}
+.pkg-detail-grid.pkg-mat-grid>.pkg-detail-feat{grid-column:1/-1;padding:0 12px}
+.pkg-detail-grid.pkg-mat-grid>.pkg-detail-feat>*{max-width:50%}
 .pkg-detail-grid.pkg-mat-grid>.pkg-mat-add-btn{margin:2px 0}
 /* One material = one card line: name (50%) + % + remove X flush right. */
 .pkg-mat-row{grid-column:1/-1;display:flex;align-items:flex-start;gap:12px;padding:9px 11px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);border-radius:7px}
 .pkg-mat-row>.pkg-detail-feat{min-width:0}
-.pkg-mat-row>.pkg-detail-feat[data-mt="name"]{flex:1 1 50%}
-.pkg-mat-row>.pkg-detail-feat[data-mt="pct"]{flex:0 0 calc(50% - 40px)}
-.pkg-mat-row>.pkg-mat-remove{flex:0 0 16px;margin-top:16px}
+.pkg-mat-row>.pkg-detail-feat[data-mt="name"]{flex:0 0 50%}
+.pkg-mat-row>.pkg-detail-feat[data-mt="pct"]{flex:0 0 calc(50% - 52px)}
+.pkg-mat-row>.pkg-mat-remove{flex:0 0 28px;width:28px;height:28px;border-radius:6px;margin-top:18px}
+.pkg-mat-row>.pkg-mat-remove svg{width:11px;height:11px}
 /* sit the %-slider control on the same line as the name input */
 .pkg-mat-row .gs-pct{margin-top:-3px}
 .pkg-mat-remove{display:none;align-items:center;justify-content:center;width:16px;height:16px;padding:0;flex-shrink:0;background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.35);color:#f87171;border-radius:4px;cursor:pointer;line-height:0}
@@ -1036,7 +1041,8 @@ select.pd-input option{background:#16294a;color:#fff}
 .gs-pct-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;background:#fff;border:2px solid var(--gs);box-shadow:0 1px 4px rgba(0,0,0,.4);cursor:pointer}
 .gs-pct-slider::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#fff;border:2px solid var(--gs);cursor:pointer}
 .gs-pct-numwrap{position:relative;flex-shrink:0}
-.gs-pct-num{width:78px;font-size:13px;color:#fff;font-weight:600;background:rgba(255,255,255,.07);border:1px solid rgba(91,156,246,.4);border-radius:6px;padding:5px 24px 5px 8px;font-family:"Inter",sans-serif}
+.gs-pct-numwrap .gs-num-steppers{right:4px;width:16px;height:22px}
+.gs-pct-num{width:104px;font-size:13px;color:#fff;font-weight:600;background:rgba(255,255,255,.07);border:1px solid rgba(91,156,246,.4);border-radius:6px;padding:5px 24px 5px 8px;font-family:"Inter",sans-serif}
 .gs-pct-num:focus{outline:none;border-color:var(--gs);background:rgba(78,187,129,.08)}
 .gs-pct-numwrap .fi-unit{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:12px;color:rgba(255,255,255,.5);pointer-events:none}
 .gs-has-pct .pkg-detail-feat-input.editable-text{display:block}
