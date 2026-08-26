@@ -661,7 +661,9 @@ function renderProductDetail(pi){
    Mirrors the multi-step wizard: one material to start, an "Add material" button
    for as many as needed, each with a name (type or pick) and a % (input+slider).
    The material count and total are derived, not asked. */
-var PD_MAT_OPTIONS=['LDPE film','HDPE','PP','PET','rPET','Paper','Kraft paper','Cardboard / board','Aluminium foil','Glass','Wood','Adhesive','Ink / coating','Other'];
+/* Material names come from the canonical vocab (gs-schema.js GS_VOCAB.materialName —
+   verbatim from the client's DropDowns_ sheet), NOT a local list. */
+var PD_MAT_OPTIONS=(window.GS_VOCAB&&window.GS_VOCAB.materialName)?window.GS_VOCAB.materialName.slice():[];
 function pdMats(pi,pk){
   var p=PRODUCTS.filter(function(x){return x.id===pi;})[0];
   if(!p||!p._pkgs||!p._pkgs[pk]) return [];
@@ -1577,10 +1579,9 @@ document.addEventListener('DOMContentLoaded', function(){
      • small selects (≤4 opts) → segmented "choice list"
      • an auto-save status chip that reacts to any edit
    ═══════════════════════════════════════════════════════════════════════════ */
-var GS_MATERIAL_NAMES = ['Paper','Paperboard','Cardboard','Kraft Paper','Corrugate',
-  'Plastic LDPE','Plastic HDPE','Plastic PP','Plastic PET','Plastic PVC','Plastic PS',
-  'Bioplastic PLA','Wood','Metal','Aluminium','Steel','Tinplate','Glass','Textile',
-  'Cotton','Jute','Cellulose','Adhesive','Ink','Other'];
+/* Canonical vocab (gs-schema.js GS_VOCAB.materialName — verbatim from the client's
+   DropDowns_ sheet); replaces a third hand-written list. */
+var GS_MATERIAL_NAMES = (window.GS_VOCAB&&window.GS_VOCAB.materialName)?window.GS_VOCAB.materialName.slice():[];
 
 function gsPkgId(key){
   var i = (typeof COMPONENT_LIBRARY_JS!=='undefined')

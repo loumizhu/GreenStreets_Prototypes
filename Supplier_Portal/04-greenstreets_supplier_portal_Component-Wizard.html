@@ -140,16 +140,25 @@ textarea.fi{height:auto;min-height:88px;padding:12px 15px;resize:vertical;line-h
 .pct-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:18px;height:18px;border-radius:50%;background:#fff;border:3px solid var(--gs);cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.35)}
 .pct-slider::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#fff;border:3px solid var(--gs);cursor:pointer}
 .pct-slider:focus-visible{box-shadow:0 0 0 3px rgba(59,130,246,.25)}
+/* Materials-row slider snap-to-100% marker — see matSliderSnap/matRemainingFor. */
+.mat-slider-track{position:relative}
+.mat-snap-marker{position:absolute;top:50%;left:0;transform:translate(-50%,-50%);width:3px;height:16px;border-radius:2px;background:var(--amb);opacity:0;pointer-events:none;transition:opacity .15s,background .15s,left .05s linear;z-index:2}
+.mat-snap-marker.show{opacity:.85}
+.mat-snap-marker.snapped{background:var(--gs);opacity:1}
+.pct-slider.mat-snapped::-webkit-slider-thumb{border-color:var(--gs);box-shadow:0 0 0 4px rgba(78,187,129,.28)}
+.pct-slider.mat-snapped::-moz-range-thumb{border-color:var(--gs)}
 
 /* Dynamic materials list */
 .mat-list{display:flex;flex-direction:column;gap:12px}
 .mat-row{display:grid;grid-template-columns:1fr 200px 34px;gap:12px;align-items:start}
 .mat-row .mat-name{height:50px}
-/* Material name is a native <datalist> combobox, so it gets no caret of its own — give it the
-   same chevron affordance as the themed .cs-trigger selects so it reads as a dropdown too. */
-.mat-namewrap{position:relative}
-.mat-namewrap .mat-name{padding-right:38px}
-.mat-caret{position:absolute;right:13px;top:50%;transform:translateY(-50%);display:flex;pointer-events:none;color:rgba(255,255,255,.62)}
+/* Themed typeable combobox wrapper (type freely OR pick from the cs-menu/cs-opt dropdown —
+   see gsCombo* below). Used by each Materials row's name field AND by any other field using
+   fieldHTML's 'combo' type (Base Material, Material Colour, Decoration, Certification,
+   Supporting evidence), so they all share one look. */
+.mat-namewrap,.gs-combo-wrap{position:relative}
+.mat-namewrap .mat-name,.gs-combo-wrap .gs-combo-input{padding-right:38px}
+.mat-caret,.gs-combo-wrap .mat-caret{position:absolute;right:13px;top:50%;transform:translateY(-50%);display:flex;pointer-events:none;color:rgba(255,255,255,.62)}
 .mat-name::-webkit-calendar-picker-indicator{display:none}
 .mat-row .mat-pctwrap{gap:7px}
 .mat-del{align-self:center;width:34px;height:34px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border-radius:9px;border:1px solid var(--brd2);background:rgba(255,255,255,.04);color:var(--tx3);cursor:pointer;transition:all .12s}
@@ -332,7 +341,7 @@ textarea.fi{height:auto;min-height:88px;padding:12px 15px;resize:vertical;line-h
   </div>
 </div>
 
-<script src="js/gs-schema.js?v=1"></script>
+<script src="js/gs-schema.js?v=2"></script>
 <script>
 /* Step model — Product details + palletisation steps removed; starts at level & format */
 /* Controlled vocabularies + neutral source-type labels come from the shared
@@ -357,7 +366,7 @@ const STEPS=[
   ]},
  {t:'Material information', d:'Composition by material and percentage weight (must total 100%).', phase:'C', nav:'Materials',
   fields:[
-   {type:'select', label:'Base Material', req:true, options:V.baseMaterial||[]},
+   {type:'combo', label:'Base Material', req:true, options:V.baseMaterial||[]},
    {type:'materials', label:'Materials', req:true}
   ]},
  {t:'Recycled content', d:'Post-consumer and post-industrial recycled-content declarations.', phase:'C', nav:'Recycled content',
@@ -365,14 +374,14 @@ const STEPS=[
    {type:'chips', label:'Recycled Content', name:'recycled', req:true, options:['Yes','No']},
    {type:'number', label:'Post-Consumer Recycled Content', unit:'%', id:'pcr', hint:'Required when recycled content = Yes'},
    {type:'number', label:'Post-Industrial Recycled Content', unit:'%'},
-   {type:'select', label:'Supporting evidence of recycled content', options:V.recycledEvidence||[]},
+   {type:'combo', label:'Supporting evidence of recycled content', options:V.recycledEvidence||[]},
    {type:'textarea', label:'Recycled Content Comments', ph:'Anything the compliance team should know'}
   ]},
  {t:'Colour & decoration', d:'Visual properties of this packaging component.', phase:'C', nav:'Colour',
   fields:[
-   {type:'select', label:'Material Colour', req:true, options:V.colour||[]},
+   {type:'combo', label:'Material Colour', req:true, options:V.colour||[]},
    {type:'select', label:'Opacity', name:'opacity', req:true, options:V.opacity||[]},
-   {type:'select', label:'Decoration', name:'deco', req:true, options:V.decoration||[]}
+   {type:'combo', label:'Decoration', req:true, options:V.decoration||[]}
   ]},
  {t:'Weight & grammage', d:'Physical weight properties of this component.', phase:'C', nav:'Weight',
   fields:[
@@ -388,7 +397,7 @@ const STEPS=[
   ]},
  {t:'Additional information', d:'Certifications, packaging supplier details and supporting documents.', phase:'D', nav:'Additional info',
   fields:[
-   {type:'select', label:'Certification', req:true, options:V.certification||[]},
+   {type:'combo', label:'Certification', req:true, options:V.certification||[]},
    {type:'text', label:'Other Certification Details', ph:'Only if “Other” selected'},
    {type:'text', label:'Packaging Supplier Name', req:true, ph:'Company name'},
    {type:'text', label:'Packaging Supplier Address', req:true, ph:'Street, city, country'},
@@ -440,6 +449,18 @@ function fieldHTML(f){
     const opts=f.options.map(o=>`<option${o===f.value?' selected':''}>${esc(o)}</option>`).join('');
     return `<div class="tf-field" data-req="${f.req?1:0}"><span class="lbl">${esc(f.label)}${req}</span><select class="fi">${ph}${opts}</select>${hint}</div>`;
   }
+  if(f.type==='combo'){
+    /* Typeable dropdown: type freely OR pick from the list — same cs-menu/cs-opt look as
+       the Materials row's material-name field (see gsCombo* below), not the plain
+       non-typeable themed <select>.
+       Used for every vocabulary that offers an "Other" choice (Base Material, Material
+       Name, Material Colour, Decoration, Certification, Supporting evidence of recycled
+       content), so picking "Other" isn't a dead end — the user just types what it is. */
+    const optsAttr=esc(JSON.stringify(f.options||[]));
+    const v=f.value!=null?f.value:'';
+    return `<div class="tf-field" data-req="${f.req?1:0}"><span class="lbl">${esc(f.label)}${req}</span>
+      <div class="gs-combo-wrap"><input class="fi gs-combo-input" autocomplete="off" placeholder="${esc(f.ph||'Type or pick…')}" value="${esc(v)}" data-combo-options="${optsAttr}" oninput="gsComboOpenMenu(this)" onfocus="gsComboOpenMenu(this)" onblur="gsComboScheduleClose()" onkeydown="gsComboKeydown(event)"><span class="mat-caret" onmousedown="event.preventDefault();gsComboToggle(this)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></span></div>${hint}</div>`;
+  }
   if(f.type==='textarea'){
     return `<div class="tf-field" data-req="${f.req?1:0}"><span class="lbl">${esc(f.label)}${req}</span><textarea class="fi" placeholder="${esc(f.ph||'')}"></textarea>${hint}</div>`;
   }
@@ -466,9 +487,7 @@ function fieldHTML(f){
       <div class="wdoc-menu" id="wdocMenu">${menuOpts}</div>${hint}</div>`;
   }
   if(f.type==='materials'){
-    const dl=MAT_OPTIONS.map(o=>`<option value="${esc(o)}"></option>`).join('');
     return `<div class="tf-field" data-req="${f.req?1:0}" data-kind="materials"><span class="lbl">${esc(f.label)}${req}</span>
-      <datalist id="matDatalist">${dl}</datalist>
       <div class="mat-list" id="matList"></div>
       <button type="button" class="mat-add" onclick="matAddRow()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M12 5v14M5 12h14"/></svg>Add material</button>
       <div class="mat-summary"><span>Materials: <b id="matCount">0</b></span><span>Total: <b id="matTotal">0</b>%</span><span class="mat-warn" id="matWarn"></span></div>
@@ -505,16 +524,145 @@ function wizDocRemove(i){ wizDocs.splice(i,1); wizDocRender(); }
 document.addEventListener('click',function(e){ if(!e.target.closest('.wdoc-menu') && !e.target.closest('#wdocToggleBtn')) wizDocSetOpen(false); });
 
 /* ── Dynamic materials + percentage sliders ─────────────────────────────── */
-const MAT_OPTIONS=['LDPE film','HDPE','PP','PET','rPET','Paper','Kraft paper','Cardboard / board','Aluminium foil','Glass','Wood','Adhesive','Ink / coating','Other'];
+/* Material names come from the canonical vocab (gs-schema.js GS_VOCAB.materialName,
+   verbatim from the client's DropDowns_ sheet), not a local list — this was a
+   hand-written 14-item array of informal names that matched neither the spreadsheet
+   nor AI Review's list for the same field. V is window.GS_VOCAB (see top of script). */
+const MAT_OPTIONS=(V.materialName||[]).slice();
 function matRowHTML(){
-  /* Combobox: type freely OR pick from the suggestion list (native <datalist>). */
+  /* Combobox: type freely OR pick from the suggestion list — the same generic gsCombo*
+     themed cs-menu/cs-opt dropdown used by the 'combo' field type (e.g. Base Material),
+     so every typeable dropdown in the wizard looks and behaves alike. data-combo-onpick
+     tells gsComboCommit to call matSync() (which does its own recompute) instead of the
+     default plain 'change' dispatch. */
+  const optsAttr=esc(JSON.stringify(MAT_OPTIONS));
   return `<div class="mat-row" data-mat-row>
-    <div class="mat-namewrap"><input class="fi mat-name" list="matDatalist" autocomplete="off" placeholder="Type or pick a material…" oninput="matSync()" onchange="matSync()"><span class="mat-caret"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></span></div>
+    <div class="mat-namewrap"><input class="fi mat-name" autocomplete="off" placeholder="Type or pick a material…" data-combo-options="${optsAttr}" data-combo-onpick="matSync" oninput="matSync();gsComboOpenMenu(this)" onfocus="gsComboOpenMenu(this)" onblur="gsComboScheduleClose()" onkeydown="gsComboKeydown(event)"><span class="mat-caret" onmousedown="event.preventDefault();gsComboToggle(this)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></span></div>
     <div class="pct-field mat-pctwrap"><div class="fi-wrap"><input type="number" min="0" max="100" class="fi fi-has-unit mat-pct-num" placeholder="0" oninput="pctFromNum(this);matSync()"><span class="fi-unit">%</span></div>
-    <input type="range" min="0" max="100" step="1" value="0" class="pct-slider mat-pct-range" oninput="pctFromRange(this);matSync()" aria-label="Material percentage"></div>
+    <div class="mat-slider-track"><input type="range" min="0" max="100" step="1" value="0" class="pct-slider mat-pct-range" oninput="matSliderSnap(this);pctFromRange(this);matSync()" onpointerdown="matSliderActivate(this)" onpointerup="matSliderDeactivate(this)" onblur="matSliderDeactivate(this)" aria-label="Material percentage"><div class="mat-snap-marker"></div></div></div>
     <button type="button" class="mat-del" title="Remove material" onclick="matDelRow(this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
   </div>`;
 }
+/* ── Materials sliders snap to "whatever brings the total to 100%" ──────────────────────────
+   While dragging a material's % slider, an amber marker appears on its track at the value
+   that would make all rows sum to exactly 100% (100 − every other row's current %). Getting
+   within MAT_SNAP_TOL of that value snaps the slider to it exactly and turns the marker +
+   thumb green, confirming the total is now spot-on. Scoped to the drag gesture (pointerdown→
+   pointerup/blur) — typing the % directly is unaffected. */
+const MAT_SNAP_TOL=2.5;
+function matRemainingFor(rangeEl){
+  const list=matList(); const mine=rangeEl.closest('.mat-row'); if(!list||!mine) return null;
+  let othersSum=0;
+  list.querySelectorAll('.mat-row').forEach(r=>{ if(r===mine) return; const p=r.querySelector('.mat-pct-num'); othersSum+=p?(parseFloat(p.value)||0):0; });
+  return Math.max(0,Math.min(100,100-othersSum));
+}
+function matSliderSnap(rangeEl){
+  const target=matRemainingFor(rangeEl); if(target==null) return;
+  const track=rangeEl.closest('.mat-slider-track'), marker=track&&track.querySelector('.mat-snap-marker');
+  if(marker) marker.style.left=target+'%';
+  const snapped = target>0 && Math.abs(parseFloat(rangeEl.value)-target)<=MAT_SNAP_TOL;
+  if(snapped) rangeEl.value=target;
+  rangeEl.classList.toggle('mat-snapped',snapped);
+  if(marker) marker.classList.toggle('snapped',snapped);
+}
+function matSliderActivate(rangeEl){
+  const track=rangeEl.closest('.mat-slider-track'); if(!track) return;
+  const marker=track.querySelector('.mat-snap-marker'); if(marker) marker.classList.add('show');
+  matSliderSnap(rangeEl);
+}
+function matSliderDeactivate(rangeEl){
+  const track=rangeEl.closest('.mat-slider-track'); if(!track) return;
+  const marker=track.querySelector('.mat-snap-marker'); if(marker) marker.classList.remove('show');
+}
+/* ── Generic themed typeable combobox ────────────────────────────────────────────────────
+   Type freely OR pick from a list — a position:fixed cs-menu/cs-opt portal (same classes
+   the themed <select> dropdown uses), but backed by a plain text input so, unlike a native
+   <select>, it stays typeable. Used by fieldHTML's 'combo' type (e.g. Base Material) and by
+   each Materials row's material-name field. Options come from the input's own
+   data-combo-options (JSON array); an optional data-combo-onpick names a global function to
+   call after a pick instead of the default 'change' event dispatch (Materials rows use this
+   to run matSync, which does its own recompute). */
+let gsComboActiveInput=null;   // which field's input currently owns the open .gs-combo-menu (if any)
+function gsComboCloseAll(){ document.querySelectorAll('.gs-combo-menu').forEach(m=>m.remove()); gsComboActiveInput=null; }
+/* Closing on blur is delayed so a mousedown pick/caret click on the menu (which calls
+   preventDefault, so it never actually blurs) still gets to run first. But if that delay
+   fires AFTER focus has already moved to a DIFFERENT combo field — e.g. the user clicked
+   straight from field A into field B's caret — closing everything here would rip out the
+   menu B just legitimately opened, ~120ms after the click, making B look like it "didn't
+   open". Back off whenever focus now sits on any combo input; that field owns its own
+   menu lifecycle. */
+function gsComboScheduleClose(){
+  setTimeout(()=>{
+    const a=document.activeElement;
+    if(a && a.classList && a.classList.contains('gs-combo-input')) return;
+    gsComboCloseAll();
+  },120);
+}
+function gsComboPositionMenu(input,menu){
+  const r=input.getBoundingClientRect();
+  menu.style.width=''; menu.style.minWidth=r.width+'px';
+  const mw=menu.offsetWidth;
+  menu.style.left=Math.max(8,Math.min(r.left,window.innerWidth-mw-8))+'px';
+  const mh=menu.offsetHeight, below=window.innerHeight-r.bottom;
+  menu.style.top = (below<mh+12 && r.top>below) ? Math.max(6,r.top-mh-6)+'px' : (r.bottom+6)+'px';
+}
+function gsComboCommit(input,value){
+  input.value=value; gsComboCloseAll();
+  const cb=input.dataset.comboOnpick;
+  if(cb && typeof window[cb]==='function') window[cb](); else input.dispatchEvent(new Event('change',{bubbles:true}));
+}
+function gsComboOpenMenu(input){
+  gsComboCloseAll();
+  let list=[]; try{ list=JSON.parse(input.dataset.comboOptions||'[]'); }catch(e){}
+  const term=(input.value||'').trim().toLowerCase();
+  list=list.filter(o=>!term||o.toLowerCase().includes(term));
+  if(!list.length) return;
+  const menu=document.createElement('div');
+  menu.className='cs-menu gs-combo-menu open'; menu.setAttribute('role','listbox');
+  list.forEach(o=>{
+    const d=document.createElement('div');
+    d.className='cs-opt'+(o.toLowerCase()===term?' sel':''); d.textContent=o; d.setAttribute('role','option');
+    d.addEventListener('mousedown',e=>{ e.preventDefault(); gsComboCommit(input,o); });
+    menu.appendChild(d);
+  });
+  document.body.appendChild(menu);
+  gsComboPositionMenu(input,menu);
+  input._comboHi=-1;
+  gsComboActiveInput=input;
+}
+function gsComboHighlight(input,dir){
+  const menu=document.querySelector('.gs-combo-menu'); if(!menu){ gsComboOpenMenu(input); return; }
+  const opts=[...menu.querySelectorAll('.cs-opt')]; if(!opts.length) return;
+  const hi=Math.max(0,Math.min(opts.length-1,(input._comboHi==null?-1:input._comboHi)+dir));
+  opts.forEach((o,i)=>o.classList.toggle('cs-hi',i===hi));
+  opts[hi].scrollIntoView({block:'nearest'});
+  input._comboHi=hi;
+}
+function gsComboKeydown(e){
+  const input=e.currentTarget;
+  if(e.key==='ArrowDown'||e.key==='ArrowUp'){ e.preventDefault(); gsComboHighlight(input,e.key==='ArrowDown'?1:-1); return; }
+  if(e.key==='Enter'){
+    const menu=document.querySelector('.gs-combo-menu');
+    if(menu && input._comboHi>=0){
+      const opt=menu.querySelectorAll('.cs-opt')[input._comboHi];
+      if(opt){ e.preventDefault(); e.stopPropagation(); gsComboCommit(input,opt.textContent); }
+    }
+    return;
+  }
+  if(e.key==='Escape'){ gsComboCloseAll(); }
+}
+function gsComboToggle(caretEl){
+  /* Bug this fixes: the old check was "is ANY combo menu open" rather than "is THIS
+     field's own menu open" — so clicking a caret while a different field's dropdown was
+     still open (e.g. its blur-close hadn't fired yet) just closed that other one and
+     returned, without ever opening its own. Reported as "click the arrow, it doesn't
+     open the dropdown". */
+  const input=caretEl.previousElementSibling; if(!input) return;
+  if(gsComboActiveInput===input){ gsComboCloseAll(); return; }
+  input.focus(); gsComboOpenMenu(input);
+}
+window.addEventListener('scroll',e=>{ if(e.target&&e.target.closest&&e.target.closest('.gs-combo-menu'))return; gsComboCloseAll(); },true);
+window.addEventListener('resize',gsComboCloseAll);
 function matList(){ return document.getElementById('matList'); }
 function matAddRow(focus){
   const list=matList(); if(!list) return;
@@ -795,7 +943,9 @@ function setVal(sel,v){const el=document.querySelector(sel);if(el){el.value=v;}}
 function pickChip(sec,name,val){const o=document.querySelector(`#sec${sec} [data-name="${name}"] .opt[data-val="${val}"]`);if(o)selectOpt(o);}
 function applyPrefill(){
   const nameInp=document.querySelector('#sec0 .nameid-name'); if(nameInp){ nameInp.value='LDPE Mailer Bag'; genPkgId(nameInp); }
-  matSetRows([['LDPE film',90],['Paper',10]]);
+  /* Prefill uses real GS_VOCAB.materialName values so the demo produces a component
+     that would actually validate against the client's spreadsheet. */
+  matSetRows([['Plastic LDPE (Low Density Polyethylene)',90],['Paper Kraft',10]]);
   pickChip(4,'recycled','Yes'); const pcr=document.getElementById('pcr'); if(pcr){ pcr.value='20'; pctFromNum(pcr); }
   pickChip(5,'opacity','Transparent'); pickChip(5,'deco','1-colour print');
   const w=[...document.querySelectorAll('#sec6 input.fi')]; if(w[0])w[0].value='9.8'; if(w[1])w[1].value='46'; if(w[2])w[2].value='55';

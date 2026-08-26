@@ -456,6 +456,7 @@ body.lt .pkg-edit-toggle-btn:hover{background:#d3e2fb}
 body.lt .pkg-edit-toggle-btn.pkg-edit-toggle-active{background:#4ebb81;border-color:#4ebb81;color:#fff}
 body.lt .pkg-mat-add-btn{background:#eaf7ee;border-color:#bfe6cf;color:#157043}
 body.lt .pkg-mat-add-btn:hover{background:#dcf1e5}
+body.lt .pkg-mat-row{background:#f6f8fa;border-color:#dfe5ec}
 body.lt .pkg-mat-remove{background:#fdeceb;border-color:#f6cfcc;color:#cf5751}
 body.lt .pkg-mat-remove:hover{background:#fadedc}
 body.lt .gs-pkg-name-input{color:var(--lt-ink)}

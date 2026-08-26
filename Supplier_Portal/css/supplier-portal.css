@@ -348,6 +348,19 @@ html,body{height:100%;font-family:"Inter",sans-serif;color:var(--tw)}
 .pkg-mat-add-btn{display:flex;grid-column:1/-1;align-items:center;justify-content:center;gap:6px;margin-top:4px;padding:8px;background:rgba(78,187,129,.1);border:1px dashed rgba(78,187,129,.45);color:var(--gs);border-radius:6px;font-family:"Inter",sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:background .12s}
 .pkg-mat-add-btn:hover{background:rgba(78,187,129,.18)}
 .pkg-detail-feat-lbl-row{display:flex;align-items:center;justify-content:space-between;gap:6px}
+/* Material Information grid: one field per line (Base Material, each Material N Name, each % Material N, totals) — materials read as a vertical list rather than a 2-up grid. */
+/* Material Information: one field (or one material) per line, all sharing the
+   same 11px inner gutter so every label/input lines up down the section. */
+.pkg-detail-grid.pkg-mat-grid>.pkg-detail-feat{grid-column:1/-1;padding:0 11px}
+.pkg-detail-grid.pkg-mat-grid>.pkg-mat-add-btn{margin:2px 0}
+/* One material = one card line: name (50%) + % + remove X flush right. */
+.pkg-mat-row{grid-column:1/-1;display:flex;align-items:flex-start;gap:12px;padding:9px 11px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);border-radius:7px}
+.pkg-mat-row>.pkg-detail-feat{min-width:0}
+.pkg-mat-row>.pkg-detail-feat[data-mt="name"]{flex:1 1 50%}
+.pkg-mat-row>.pkg-detail-feat[data-mt="pct"]{flex:0 0 calc(50% - 40px)}
+.pkg-mat-row>.pkg-mat-remove{flex:0 0 16px;margin-top:16px}
+/* sit the %-slider control on the same line as the name input */
+.pkg-mat-row .gs-pct{margin-top:-3px}
 .pkg-mat-remove{display:none;align-items:center;justify-content:center;width:16px;height:16px;padding:0;flex-shrink:0;background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.35);color:#f87171;border-radius:4px;cursor:pointer;line-height:0}
 .pkg-mat-remove:hover{background:rgba(248,113,113,.22)}
 .pkg-sec-edit-mode .pkg-mat-remove{display:inline-flex}

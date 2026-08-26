@@ -17,8 +17,13 @@
                               rendered dynamically from GS_RETAILER.
      • GS_COMPONENT_SCHEMA  — the canonical section/field model (retailer-neutral
                               keys; controlled vocab pulled from GS_VOCAB).
-     • GS_EXPORT_COLUMNS    — spreadsheet export mapping (columns J–AU) for the
+     • GS_EXPORT_COLUMNS    — spreadsheet export mapping (columns G–AU) for the
                               current retailer.
+
+   GS_VOCAB + GS_EXPORT_COLUMNS were verified item-by-item against the client
+   workbooks (DropDowns_ sheet, and the "Updated Data Template 26" header row 10).
+   See the notes above each for the two deliberate divergences and the five
+   orphaned dropdowns that are intentionally not modelled.
 
    Nothing retailer-specific ("Primark", "Primark Stores Ltd", "…-nominated") is
    hard-coded in the shared UI — it all resolves through GS_RETAILER so a future
@@ -42,14 +47,19 @@
       retailerNominated: 'Primark Nominated'
     },
     /* Specific "{Retailer} Nominated (…)" variants from the current spreadsheet
-       dropdown. A different retailer supplies its own list (or none). */
+       dropdown. A different retailer supplies its own list (or none).
+       VERBATIM from DropDowns_!O2:O12 — including the client's stray space before
+       the ')' on Babywear and Footwear. Do NOT "tidy" those: Excel validates the
+       cell against the literal list string, so a cleaned-up label is rejected on
+       import. slug() normalises them for the internal value, so the neutral
+       values are unaffected by the spaces. */
     nominatedVariants: [
       'Plastic Hangers - Apparel',
       'Plastic Hangers - Footwear',
-      'Cardboard Hangers - Babywear',
+      'Cardboard Hangers - Babywear ',
       'Cardboard Hangers - Lingerie',
       'Cardboard Hanger - Swimwear',
-      'Cardboard Hangers - Footwear',
+      'Cardboard Hangers - Footwear ',
       'Cardboard Boxes - Lingerie Briefs',
       'Polybags - Kids Briefs',
       'Polybags - Baby Bodysuit'
@@ -73,30 +83,49 @@
      retailer_nominated[:variant]); displayed with the active retailer's name. */
   function slug(s) { return String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''); }
 
+  function nominatedLabel() {
+    var L = GS_RETAILER.sourceTypeLabels || {};
+    return L.retailerNominated || (GS_RETAILER.retailerName + ' Nominated');
+  }
   function sourceTypeOptions() {
     var L = GS_RETAILER.sourceTypeLabels;
+    var variants = GS_RETAILER.nominatedVariants || [];
     var out = [
       { value: 'local', label: L.local || 'Local' },
-      { value: 'retailer_preferred', label: L.retailerPreferred || (GS_RETAILER.retailerName + ' Preferred') },
-      { value: 'retailer_nominated', label: L.retailerNominated || (GS_RETAILER.retailerName + ' Nominated') }
+      { value: 'retailer_preferred', label: L.retailerPreferred || (GS_RETAILER.retailerName + ' Preferred') }
     ];
-    (GS_RETAILER.nominatedVariants || []).forEach(function (v) {
+    /* The bare "{Retailer} Nominated" (no variant) is NOT a selectable option when
+       the retailer defines variants: the spreadsheet's Packaging Supplier Type list
+       (DropDowns_!O) has 11 entries — Local, Preferred, and the 9 parenthesised
+       variants — with no unqualified "Nominated", and no row in any supplied data
+       file uses one. Offering it produced a 12th option that Excel would reject on
+       import. It stays a resolvable VALUE (see sourceTypeLabel) so legacy records
+       and sourceTypeValue()'s fallback still render, and it is still offered to a
+       retailer that supplies no variants at all. */
+    if (!variants.length) out.push({ value: 'retailer_nominated', label: nominatedLabel() });
+    variants.forEach(function (v) {
       out.push({
         value: 'retailer_nominated:' + slug(v),
-        label: (L.retailerNominated || (GS_RETAILER.retailerName + ' Nominated')) + ' (' + v + ')'
+        label: nominatedLabel() + ' (' + v + ')'
       });
     });
     return out;
   }
   function sourceTypeLabel(value) {
     var found = sourceTypeOptions().filter(function (o) { return o.value === value; })[0];
-    return found ? found.label : (value || '');
+    if (found) return found.label;
+    /* Not a selectable option but still a valid stored value (see above). */
+    if (value === 'retailer_nominated') return nominatedLabel();
+    return value || '';
   }
   /* Map a raw display string (e.g. from legacy data / spreadsheet) to a neutral value. */
   function sourceTypeValue(display) {
     if (!display) return 'local';
+    /* Compare whitespace-insensitively: the spreadsheet labels carry stray spaces
+       (e.g. "… - Babywear )") that legacy records and hand-typed data won't have. */
+    function norm(s) { return String(s).toLowerCase().replace(/\s+/g, ' ').replace(/\s*\)/g, ')').trim(); }
     var opts = sourceTypeOptions();
-    var hit = opts.filter(function (o) { return o.label.toLowerCase() === String(display).toLowerCase(); })[0];
+    var hit = opts.filter(function (o) { return norm(o.label) === norm(display); })[0];
     if (hit) return hit.value;
     var d = String(display).toLowerCase();
     if (d.indexOf('nominated') > -1) return 'retailer_nominated';
@@ -104,12 +133,33 @@
     return 'local';
   }
 
-  /* ── CONTROLLED VOCABULARIES (retailer-configured; current = spreadsheet) ── */
+  /* ── CONTROLLED VOCABULARIES (retailer-configured; current = spreadsheet) ────
+     Every list below is VERBATIM from the client workbook's DropDowns_ sheet —
+     diffed item-by-item and in order, including trailing periods and double
+     spaces. Excel validates each cell against the literal list string, so a
+     "tidied" value is rejected on import: never reformat these to look nicer.
+
+     Two deliberate divergences from DropDowns_, both verified against the real
+     data rows in the supplied workbooks:
+       • packingMethod is the UNION of DropDowns_!A (GOH / Placed on Hanger in Box /
+         Folded & Boxed / Boxed / Shrink Wrapped) and the three values the client's
+         own data actually uses in column G but which the dropdown list omits
+         (Flat / Flat / Hanging / Hanging — 451 rows across the supplied files).
+         DropDowns_!A is stale; column G is the authority.
+       • recycledContent uses yesNo (Yes/No), matching what column Y actually
+         contains. DropDowns_!F's "Yes_RC"/"No_RC" are internal formula tokens and
+         appear in no data row.
+
+     Five DropDowns_ columns are intentionally NOT modelled — Disposal / End Of
+     Life, Biodegradable, Sustainably Sourced, "Is the product electrical or
+     battery operated", "Are batteries included?". They are orphaned: no column in
+     any of the three data templates references them. Don't add fields for them
+     without a template column to export to. */
   var GS_VOCAB = {
     packagingLevel: ['Primary', 'Secondary', 'Tertiary'],
     packagingType: ["Attacher/Tie (Barb)", "Attacher/Tie (Cable tie)", "Attacher/Tie (Elastic thread)", "Attacher/Tie (Paper twisted)", "Attacher/Tie (Shuttlelock)", "Attacher/Tie (Thread)", "Attacher/Tie (Twine)", "Bag (Poly + Adhesive)", "Bag (Poly Zip lock)", "Bag (Poly)", "Bag + Hook (Poly)", "Band", "Blister pack", "Bottle (Beverage)", "Bottle (Non-Beverage)", "Box/Carton", "Box/Carton + Hook", "Box/Carton with plastic window", "Bucket", "Cable ties", "Can (Aerosol)", "Can/Box (Tin Plated Steel)", "Cap", "Cap + Brush", "Card (Display eg. jewellry)", "Card (Over-rider)", "Cascade + Hook (Waterfall)", "Cascade (Waterfall)", "Clip", "Collar", "Cup", "Display Unit CDU (Counter top)", "Display Unit FSDU (Floor Standing)", "Display Unit SRP (Shelf Ready Packaging)", "Dropper", "Edge Protector", "Envelope", "Envelope + Hook", "Filling (Dunnage)", "Void Filler / Cushioning", "Film", "Film (Lidding)", "Foil", "Godet", "Handle", "Hanger (Cardboard Hanger)", "Hanger (Clip Hanger)", "Hanger (Plastic Hanger)", "Hanger (Plastic Hanger with Metal Hook)", "Hook", "Insert (Backing)", "Insert (Butterfly top button)", "Insert (Collar)", "Insert (Cuff)", "Insert (Divider)", "Insert (Header)", "Jar", "Label (Booklet)", "Leaflet (Instruction)", "Lid", "Lipstick", "Net/Netting", "Pallet (reusable e.g. CHEP)", "Pallet Corner (edge post)", "Pallet Cover", "Pallet Label", "Pallet Layer Pad", "Pallette + Hinge top (Make-up)", "Paper Sheet", "Pencil", "Pencil (twist lip/eye)", "Plug", "Pot", "Pouch", "Pump", "Ribbon", "Sachet", "Seal", "Self Adhesive Label (Peel & Read)", "Self Adhesive Label (Single)", "Shipper", "Shrink Wrap", "Skewer", "Sleeve", "Spring", "Strapping", "Stretch Wrap", "Swing Tag", "Tape", "Tray", "Trigger", "Tub", "Tube", "Vac Pac Bag", "Wrap band"],
     baseMaterial: ["Cardboard_CartonBoard", "Cardboard_CartonBoard_Laminated", "Cardboard_CartonBoard_VarnishedUV", "Cardboard_CartonBoard_VarnishedWaterBased", "Composite", "Composite_Paper_Metal", "Composite_Paper_Plastic", "Corrugate", "Corrugate_Microflute", "Glass", "Metal", "Other", "Paper", "Paper_Laminated", "Paper_VarnishedUV", "Paper_VarnishedWaterBased", "Plastic_Multilayer_Composite", "Plastic_Single_MonoLayer", "Wood"],
-    materialName: ["Cotton", "Elastic", "Foam", "Glass", "Jute", "Metal Aluminium", "Metal Steel", "Metal Tin", "Other", "Paper  SBB - Solid Bleached Board", "Paper AZ - Cast Coated SBB (Solid Bleached Board)", "Paper FBB - Folding Box Board", "Paper GC1 - Coated FBB, white back (Folding Box Board)", "Paper GC2 - Coated FBB, cream back (Folding Box Board)", "Paper GD1 - Coated WLC, grey back (While Lined Chip)", "Paper GD2 - Coated WLC, grey back (White Lined Chip)", "Paper GD3 - Coated WLC, grey back (White Lined Chip)", "Paper GN - Coated SUB, white or brown back (Solid Unbleached Board)", "Paper GT - Coated WLC, cream or white back (White Lined Chip)", "Paper GZ - Coated SBB (Solid Bleached Board)", "Paper Kraft", "Paper SUB - Solid Unbleached Board", "Paper UC1 - Uncoated FBB, white back (Folding Box Board)", "Paper UC2 - Uncoated FBB, cream back (Folding Box Board)", "Paper UD - Uncoated WLC, grey back", "Paper UT - Uncoated WLC, cream or white back", "Paper UZ - Uncoated SBB (Solid Bleached Board)", "Paper WLC - White Lined Chipboard", "Plastic ABS (Acrylonitrile Butadiene Styrene)", "Plastic EVOH (Ethylene Vinyl Alcohol)", "Plastic HDPE (High Density Polyethylene)", "Plastic LDPE (Low Density Polyethylene)", "Plastic PA (Polyacrylate) Nylon", "Plastic PC (Polycarbonate)", "Plastic PET/PETE (Polyethylene Terephthalate)", "Plastic PETG (Polyethylene Terephthalate Glycol)", "Plastic PMMA (Polymethyl Methacrylate)", "Plastic PP (Polypropylene)", "Plastic PS (Polystyrene) eg. Styrofoam", "Plastic PU (Polyurethane)", "Plastic PVC (Polyvinyl Chloride) eg. Vinyl", "Plastic PVDC (Polyvinylidene Chloride)", "Plastic PVOH (Polyvinyl Alcohol)", "Plastic SAN (Styrene Acrylonitrile)", "Textiles", "Twine", "Wood"],
+    materialName: ["Cotton", "Elastic", "Foam", "Glass", "Jute", "Metal Aluminium", "Metal Steel", "Metal Tin", "Other", "Paper  SBB - Solid Bleached Board", "Paper AZ - Cast Coated SBB (Solid Bleached Board)", "Paper FBB - Folding Box Board", "Paper GC1 - Coated FBB, white back (Folding Box Board)", "Paper GC2 - Coated FBB, cream back (Folding Box Board)", "Paper GD1 - Coated WLC, grey back (spec.volume <1.45 cm³/g) (While Lined Chip)", "Paper GD2 - Coated WLC, grey back (spec.volume 1.3 to 1.45 cm³/g) (White Lined Chip)", "Paper GD3 - Coated WLC, grey back (spec.volume <1.3 cm³/g) (White Lined Chip)", "Paper GN - Coated SUB, white or brown back  (Solid Unbleached Board)", "Paper GT - Coated WLC, cream or white back (White Lined Chip)", "Paper GZ - Coated SBB (Solid Bleached Board)", "Paper Kraft", "Paper SUB - Solid Unbleached Board", "Paper UC1 - Uncoated FBB, white back (Folding Box Board)", "Paper UC2 - Uncoated FBB, cream back (Folding Box Board)", "Paper UD - Uncoated WLC, grey back", "Paper UT - Uncoated WLC, cream or white back", "Paper UZ - Uncoated SBB (Solid Bleached Board)", "Paper WLC - White Lined Chipboard", "Plastic ABS (Acrylonitrile Butadiene Styrene)", "Plastic EVOH (Ethylene Vinyl Alcohol)", "Plastic HDPE (High Density Polyethylene)", "Plastic LDPE (Low Density Polyethylene)", "Plastic PA (Polyacrylate) Nylon", "Plastic PC (Polycarbonate)", "Plastic PET/PETE (Polyethylene Terephthalate)", "Plastic PETG (Polyethylene Terephthalate Glycol)", "Plastic PMMA (Polymethyl Methacrylate)", "Plastic PP (Polypropylene)", "Plastic PS (Polystyrene) eg. Styrofoam", "Plastic PU (Polyurethane)", "Plastic PVC (Polyvinyl Chloride) eg. Vinyl", "Plastic PVDC (Polyvinylidene Chloride)", "Plastic PVOH (Polyvinyl Alcohol)", "Plastic SAN (Styrene Acrylonitrile)", "Textiles", "Twine", "Wood"],
     yesNo: ['Yes', 'No'],
     recycledEvidence: ['Product specification', 'Contracts', 'Production certificates and certificates of conformity', 'Business accounting systems', 'Accreditations and international standards', 'Quality assurance audits', 'Sales and purchase invoices', 'Environmental Agency etc. accreditation and equivalent approvals from other bodies', 'Other (Please state)'],
     colour: ['Clear', 'Natural', 'Black', 'Blue', 'White', 'Brown', 'Green', 'Red', 'Orange', 'Yellow', 'Multi', 'Other'],
@@ -117,7 +167,7 @@
     decoration: ['None', 'Other', 'Printed - Flexo', 'Printed - Offset Litho', 'Printed - Gravure', 'Hot foil', 'Cold foil', 'Metalised', 'Fluorescent'],
     certification: ['None', 'N/A', 'PEFC', 'FSC', 'FSC Mixed', 'FSC Recycled', 'RCS', 'GRS', 'OEKOTEX', 'Other'],
     materialCompliance: ['No', 'TPCH/PROP65 only', 'REACH/EU directive 94/62/EC only', 'TPCH/PROP65/REACH/EU directive 94/62/EC'],
-    chlorine: ['None', 'EC (Elemental Chlorine)', 'ECF (Elemental Chlorine Free)', 'PCF (Processed Chlorine Free)', 'TCF Total Chlorine Free'],
+    chlorine: ["None", "EC (Elemental Chlorine)", "ECF (Elemental Chlorine Free)", "PCF (Processed Chlorine Free)", "TCF Total Chlorine Free."],
     /* Product-level (kept separate from the component library). */
     packingMethod: ['Flat', 'Flat / Hanging', 'GOH (Placed on hanger on a rail)', 'Placed on Hanger in Box', 'Folded & Boxed', 'Boxed', 'Shrink Wrapped', 'Hanging']
   };
@@ -184,10 +234,20 @@
     ] }
   ];
 
-  /* ── SPREADSHEET EXPORT MAPPING (columns J–AU) for the active retailer ──────
-     Materials 1–4 map to P–W. Beyond four materials the portal keeps every row
-     in the data model and surfaces an export warning (see gsMaterialExportNote). */
+  /* ── SPREADSHEET EXPORT MAPPING (columns G–AU) for the active retailer ──────
+     Verified against "Updated Data Template 26" header row 10 in the supplied
+     client workbooks. Materials 1–4 map to P–W. Beyond four materials the portal
+     keeps every row in the data model and surfaces an export warning (see
+     gsMaterialExportNote).
+
+     Supporting Documents is deliberately ABSENT: no column in any of the client's
+     three data templates holds it (it is a portal-only concept). It previously
+     mapped to 'AB' — the same column as recycledEvidence — so an export would
+     silently overwrite the supplier's recycled-content evidence with a list of
+     file names, and fail AB's dropdown validation. Do not give it a column
+     without one existing in the template. */
   var GS_EXPORT_COLUMNS = {
+    packingMethod: 'G',
     packagingLevel: 'J', packagingType: 'K', otherTypeDesc: 'L',
     sourceType: 'M', baseMaterial: 'N', materialCount: 'O',
     material1Name: 'P', material1Pct: 'Q', material2Name: 'R', material2Pct: 'S',
@@ -198,10 +258,7 @@
     weight: 'AG', grammage: 'AH', gauge: 'AI',
     length: 'AJ', width: 'AK', height: 'AL',
     certification: 'AM', otherCertDetails: 'AN', supplierName: 'AO', supplierAddress: 'AP',
-    materialCompliance: 'AQ', mineralOils: 'AR', bpa: 'AS', pfas: 'AT', chlorine: 'AU',
-    /* Supporting documents export into the recycled supporting-evidence field as a
-       semicolon-separated list of names/references (retailer export mapping). */
-    documents: 'AB'
+    materialCompliance: 'AQ', mineralOils: 'AR', bpa: 'AS', pfas: 'AT', chlorine: 'AU'
   };
   var MATERIAL_EXPORT_LIMIT = 4;
   function materialExportNote(materials) {

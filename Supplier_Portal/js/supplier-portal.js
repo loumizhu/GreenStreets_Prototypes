@@ -890,7 +890,11 @@ function renderProductDetail(pi){
    Mirrors the multi-step wizard: one material to start, an "Add material" button
    for as many as needed, each with a name (type or pick) and a % (input+slider).
    The material count and total are derived, not asked. */
-var PD_MAT_OPTIONS=['LDPE film','HDPE','PP','PET','rPET','Paper','Kraft paper','Cardboard / board','Aluminium foil','Glass','Wood','Adhesive','Ink / coating','Other'];
+/* Material names come from the canonical vocab (gs-schema.js GS_VOCAB.materialName —
+   verbatim from the client's DropDowns_ sheet), NOT a local list. This used to be a
+   hand-written 14-item array of informal names ('LDPE film', 'PP', …) that matched
+   neither the spreadsheet nor the other two component experiences. */
+var PD_MAT_OPTIONS=(window.GS_VOCAB&&window.GS_VOCAB.materialName)?window.GS_VOCAB.materialName.slice():[];
 function pdMats(pi,pk){
   var p=PRODUCTS.filter(function(x){return x.id===pi;})[0];
   if(!p||!p._pkgs||!p._pkgs[pk]) return [];
@@ -2029,10 +2033,10 @@ document.addEventListener('DOMContentLoaded', function(){
      • small selects (≤4 opts) → segmented "choice list"
      • an auto-save status chip that reacts to any edit
    ═══════════════════════════════════════════════════════════════════════════ */
-var GS_MATERIAL_NAMES = ['Paper','Paperboard','Cardboard','Kraft Paper','Corrugate',
-  'Plastic LDPE','Plastic HDPE','Plastic PP','Plastic PET','Plastic PVC','Plastic PS',
-  'Bioplastic PLA','Wood','Metal','Aluminium','Steel','Tinplate','Glass','Textile',
-  'Cotton','Jute','Cellulose','Adhesive','Ink','Other'];
+/* Canonical vocab (gs-schema.js GS_VOCAB.materialName — verbatim from the client's
+   DropDowns_ sheet). This was a third hand-written list that disagreed with both the
+   spreadsheet and the wizard's own array; all material-name pickers now share one source. */
+var GS_MATERIAL_NAMES = (window.GS_VOCAB&&window.GS_VOCAB.materialName)?window.GS_VOCAB.materialName.slice():[];
 
 function gsPkgId(key){
   var i = (typeof COMPONENT_LIBRARY_JS!=='undefined')
@@ -2607,19 +2611,8 @@ function pkgMatBuildFeat(n, type) {
   feat.setAttribute('data-mr', n);
   feat.setAttribute('data-mt', type);
   var lbl = document.createElement('div');
-  lbl.className = 'pkg-detail-feat-lbl pkg-detail-feat-lbl-row';
-  var lblText = document.createElement('span');
-  lblText.textContent = (type === 'pct' ? '% Material ' + n : 'Material ' + n + ' Name');
-  lbl.appendChild(lblText);
-  if (type === 'name') {
-    var rm = document.createElement('button');
-    rm.type = 'button';
-    rm.className = 'pkg-mat-remove';
-    rm.title = 'Remove this material';
-    rm.setAttribute('onclick', 'pkgRemoveMaterial(this)');
-    rm.innerHTML = '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
-    lbl.appendChild(rm);
-  }
+  lbl.className = 'pkg-detail-feat-lbl';
+  lbl.textContent = (type === 'pct' ? '% Material ' + n : 'Material ' + n + ' Name');
   var inp = document.createElement('input');
   inp.className = 'pkg-detail-feat-input editable-text';
   inp.value = '';
@@ -2629,6 +2622,43 @@ function pkgMatBuildFeat(n, type) {
   feat.appendChild(lbl);
   feat.appendChild(inp);
   return feat;
+}
+
+/* One material = one horizontal card row: [Material N Name] [% Material N] [X].
+   Name + % live side by side; each material stacks on its own line. */
+function pkgMatRemoveBtn() {
+  var rm = document.createElement('button');
+  rm.type = 'button';
+  rm.className = 'pkg-mat-remove';
+  rm.title = 'Remove this material';
+  rm.setAttribute('onclick', 'pkgRemoveMaterial(this)');
+  rm.innerHTML = '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+  return rm;
+}
+
+/* Group every Material N name/% pair into a .pkg-mat-row card. Idempotent, so it
+   can be re-run after add/remove/renumber (and after markup is injected). */
+function pkgWrapMaterialRows(grid) {
+  if (!grid) return;
+  var order = [];
+  grid.querySelectorAll('[data-mr]').forEach(function(el){
+    var mr = el.getAttribute('data-mr');
+    if (order.indexOf(mr) === -1) order.push(mr);
+  });
+  order.forEach(function(mr){
+    var feats = grid.querySelectorAll('.pkg-detail-feat[data-mr="' + mr + '"]');
+    if (!feats.length) return;
+    var row = feats[0].parentElement;
+    if (!row || !row.classList.contains('pkg-mat-row')) {
+      row = document.createElement('div');
+      row.className = 'pkg-mat-row';
+      feats[0].parentElement.insertBefore(row, feats[0]);
+      feats.forEach(function(ft){ row.appendChild(ft); });
+    }
+    row.setAttribute('data-mrow', mr);
+    if (!row.querySelector('.pkg-mat-remove')) row.appendChild(pkgMatRemoveBtn());
+    else row.appendChild(row.querySelector('.pkg-mat-remove')); /* keep it last / right-aligned */
+  });
 }
 
 function pkgEnterSectionEdit(el) {
@@ -2655,17 +2685,24 @@ function pkgAddMaterial(btn) {
   var pctFeat = pkgMatBuildFeat(n, 'pct');
   grid.insertBefore(nameFeat, btn);
   grid.insertBefore(pctFeat, btn);
+  pkgWrapMaterialRows(grid);
+  /* give the new pair the same combobox / % slider treatment the shipped rows get */
+  if (typeof gsEnhanceFeat === 'function') { try { gsEnhanceFeat(nameFeat); gsEnhanceFeat(pctFeat); } catch(_) {} }
   pkgSyncMatCount(grid);
   var inp = nameFeat.querySelector('input');
   if (inp) inp.focus();
 }
 
 function pkgRemoveMaterial(btn) {
-  var feat = btn.closest('[data-mr]');
+  var row = btn.closest('.pkg-mat-row');
+  var feat = row || btn.closest('[data-mr]');
   if (!feat) return;
   var grid = feat.closest('.pkg-detail-grid');
-  var mr = feat.getAttribute('data-mr');
-  grid.querySelectorAll('[data-mr="' + mr + '"]').forEach(function(el){ el.remove(); });
+  if (row) { row.remove(); }
+  else {
+    var mr = feat.getAttribute('data-mr');
+    grid.querySelectorAll('[data-mr="' + mr + '"]').forEach(function(el){ el.remove(); });
+  }
   pkgRenumberMaterials(grid);
   pkgSyncMatCount(grid);
 }
@@ -2692,6 +2729,8 @@ function pkgRenumberMaterials(grid) {
   /* strip the temp prefix */
   grid.querySelectorAll('[data-mr^="r"]').forEach(function(el){
     el.setAttribute('data-mr', el.getAttribute('data-mr').slice(1));
+    var row = el.closest('.pkg-mat-row');
+    if (row) row.setAttribute('data-mrow', el.getAttribute('data-mr'));
   });
 }
 
@@ -2728,27 +2767,14 @@ function pkgInitMaterialControls() {
     var grid = section.querySelector('.pkg-detail-grid');
     if (!grid || !grid.querySelector('[data-mr]')) return;
     if (grid.querySelector('.pkg-mat-add-btn')) return; /* already initialised */
+    grid.classList.add('pkg-mat-grid'); /* one material field per line */
 
-    /* add a remove control to each existing material name row */
+    /* keep the materials-used counter live, then group each pair into a row card */
     grid.querySelectorAll('[data-mr][data-mt="name"]').forEach(function(feat){
       var nameInp = feat.querySelector('.pkg-detail-feat-input');
       if (nameInp && !nameInp.getAttribute('oninput')) nameInp.setAttribute('oninput', "pkgSyncMatCount(this.closest('.pkg-detail-grid'))");
-      var lbl = feat.querySelector('.pkg-detail-feat-lbl');
-      if (!lbl || lbl.querySelector('.pkg-mat-remove')) return;
-      lbl.classList.add('pkg-detail-feat-lbl-row');
-      var txt = lbl.textContent;
-      lbl.innerHTML = '';
-      var span = document.createElement('span');
-      span.textContent = txt;
-      var rm = document.createElement('button');
-      rm.type = 'button';
-      rm.className = 'pkg-mat-remove';
-      rm.title = 'Remove this material';
-      rm.setAttribute('onclick', 'pkgRemoveMaterial(this)');
-      rm.innerHTML = '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
-      lbl.appendChild(span);
-      lbl.appendChild(rm);
     });
+    pkgWrapMaterialRows(grid);
 
     /* find the "Total of all Materials" row to insert the Add button before it */
     var totalFeat = null;
