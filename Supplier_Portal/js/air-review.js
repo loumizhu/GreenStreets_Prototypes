@@ -75,7 +75,7 @@
   var COMPONENTS = [
     makeComp('Swing Tag', {
       packagingLevel: ['Primary', 'high'], packagingType: ['Swing Tag', 'high'], otherTypeDesc: ['', 'missing'],
-      sourceType: ['Local', 'high'], baseMaterial: ['Paper_Cardboard', 'high'],
+      sourceType: ['Local', 'high'], baseMaterial: ['Cardboard_CartonBoard', 'high'],
       materials: [{ name: 'Paper Kraft', pct: 100 }],
       recycledContent: ['Yes', 'med'], pcr: ['30', 'med'], pir: ['0', 'high'], recycledEvidence: ['Product specification', 'med'], recycledComments: ['', 'missing'],
       colour: ['Multi', 'high'], opacity: ['Coloured - opaque and sortable', 'high'], decoration: ['Printed - Flexo', 'high'],
@@ -148,11 +148,17 @@
     return '<input class="fi" type="text" value="' + esc(v) + '" placeholder="Enter value" oninput="airSet(this,\'' + f.key + '\')">';
   }
 
+  /* The required marker follows isRequired(), so a `reqIf` field shows its `*`
+     as soon as its condition is met — it used to read `f.req` only, so a
+     conditionally-mandatory field (PCR/PIR once Recycled Content = Yes) looked
+     optional right up until Accept rejected it. */
+  function reqStar(f) { return isRequired(f, COMPONENTS[cur]) ? '<span class="req-star">*</span>' : ''; }
+
   function fieldHtml(f) {
     var c = COMPONENTS[cur];
     var cell = c.vals[f.key] || { v: '', conf: 'missing' };
     var conf = cell.conf;
-    var req = f.req ? '<span class="req-star">*</span>' : '';
+    var req = reqStar(f);
     var lblCls = 'air-field-lbl' + (conf === 'missing' ? ' lbl-missing' : '');
     return '<div class="air-field" data-k="' + f.key + '">' +
       '<div class="' + lblCls + '">' + esc(f.label) + req + '</div>' +
@@ -175,18 +181,31 @@
         (canRemove ? '<button class="air-mat-del" title="Remove material" onclick="airMatDel(' + i + ')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>' : '<span class="air-mat-del-spacer"></span>') +
         '</div>';
     }).join('');
-    var used = c.materials.filter(function (m) { return (m.name || '').trim(); }).length;
-    var total = c.materials.reduce(function (s, m) { return s + (parseFloat(m.pct) || 0); }, 0);
-    total = Math.round(total * 100) / 100;
-    var ok = total === 100;
     return '<div class="air-materials" data-k="materials">' +
       '<div class="air-mat-head"><span>Material name</span><span>% by weight</span><span></span></div>' +
       rows +
       '<button class="air-mat-add" onclick="airMatAdd()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M12 5v14M5 12h14"/></svg>Add material</button>' +
-      '<div class="air-mat-sum' + (ok ? ' ok' : ' warn') + '"><span>Materials used: <b>' + used + '</b></span>' +
-      '<span>Total by weight: <b>' + total + '%</b></span>' +
-      (ok ? '<span class="air-mat-ok">✓ Totals 100%</span>' : '<span class="air-mat-bad">Must total 100% (currently ' + total + '%)</span>') + '</div>' +
+      matSumHtml() +
       '</div>';
+  }
+  /* The running totals line. Kept separate from materialsHtml() so a % keystroke
+     can patch just this node — re-rendering the whole block on every `input`
+     destroyed the field being typed in, so it lost focus after one character. */
+  function matSumHtml() {
+    var c = COMPONENTS[cur];
+    var used = c.materials.filter(function (m) { return (m.name || '').trim(); }).length;
+    var total = c.materials.reduce(function (s, m) { return s + (parseFloat(m.pct) || 0); }, 0);
+    total = Math.round(total * 100) / 100;
+    var ok = total === 100;
+    return '<div class="air-mat-sum' + (ok ? ' ok' : ' warn') + '"><span>Materials used: <b>' + used + '</b></span>' +
+      '<span>Total by weight: <b>' + total + '%</b></span>' +
+      (ok ? '<span class="air-mat-ok">✓ Totals 100%</span>' : '<span class="air-mat-bad">Must total 100% (currently ' + total + '%)</span>') + '</div>';
+  }
+  function refreshMatSummary() {
+    var host = document.querySelector('.air-field[data-k="materials"] .air-materials'); if (!host) return;
+    var sum = host.querySelector('.air-mat-sum'); if (!sum) return;
+    var tmp = document.createElement('div'); tmp.innerHTML = matSumHtml();
+    sum.replaceWith(tmp.firstChild);
   }
 
   /* ---- Supporting Documents (unlimited) ---- */
@@ -209,8 +228,13 @@
       '</div>';
   }
 
+  /* Label text is the schema's, verbatim: the saved Packaging Component pages
+     hydrate their static fields by matching this string, so a friendlier wording
+     here would silently break that round-trip. */
+  function matLblHtml() { var f = findField('materials') || { label: 'Materials' }; return '<div class="air-field-lbl">' + esc(f.label) + reqStar(f) + '</div>'; }
+
   function sectionFieldHtml(f) {
-    if (f.control === 'materials') return '<div class="air-field air-field-wide" data-k="materials"><div class="air-field-lbl">Material composition<span class="req-star">*</span></div>' + materialsHtml() + '</div>';
+    if (f.control === 'materials') return '<div class="air-field air-field-wide" data-k="materials">' + matLblHtml() + materialsHtml() + '</div>';
     if (f.control === 'docs') return '<div class="air-field air-field-wide" data-k="documents"><div class="air-field-lbl">' + esc(f.label) + '</div>' + docsHtml() + '</div>';
     return fieldHtml(f);
   }
@@ -223,20 +247,43 @@
     var lbl = field.querySelector('.air-field-lbl'); if (lbl) lbl.classList.remove('lbl-missing');
     var slot = field.querySelector('.air-badge-slot'); if (slot) slot.innerHTML = badge('user');
   }
-  window.airSet = function (el, key) { var c = COMPONENTS[cur]; if (!c) return; c.vals[key] = { v: el.value, conf: 'user' }; markEdited(el); };
+  /* A `reqIf` condition can flip on any edit (Recycled Content = Yes makes
+     PCR/PIR mandatory), so re-sync the dependants' `*` in place — re-rendering
+     the section would blow away the control being edited. */
+  function refreshDependentReq(changedKey) {
+    SCHEMA.forEach(function (sec) { sec.fields.forEach(function (f) {
+      if (!f.reqIf || f.reqIf.field !== changedKey) return;
+      var fld = document.querySelector('.air-field[data-k="' + f.key + '"]'); if (!fld) return;
+      var lbl = fld.querySelector('.air-field-lbl'); if (!lbl) return;
+      var star = lbl.querySelector('.req-star');
+      var want = isRequired(f, COMPONENTS[cur]);
+      if (want && !star) lbl.insertAdjacentHTML('beforeend', '<span class="req-star">*</span>');
+      else if (!want && star) star.remove();
+      if (!want) fld.classList.remove('air-invalid');
+    }); });
+  }
+  window.airSet = function (el, key) { var c = COMPONENTS[cur]; if (!c) return; c.vals[key] = { v: el.value, conf: 'user' }; markEdited(el); refreshDependentReq(key); };
   window.airBool = function (btn, key, val) {
     var c = COMPONENTS[cur]; if (!c) return;
     c.vals[key] = { v: val, conf: 'user' };
     var btns = btn.parentNode.querySelectorAll('button');
     btns[0].className = (val === 'Yes' ? 'on-yes' : ''); btns[1].className = (val === 'No' ? 'on-no' : '');
     markEdited(btn);
+    refreshDependentReq(key);
   };
-  window.airMat = function (i, key, val) { var c = COMPONENTS[cur]; if (!c || !c.materials[i]) return; c.materials[i][key] = val; refreshMaterials(); };
+  window.airMat = function (i, key, val) {
+    var c = COMPONENTS[cur]; if (!c || !c.materials[i]) return;
+    c.materials[i][key] = val;
+    /* Typing a % must NOT rebuild the rows (that would blur the live input) —
+       only the totals line depends on it. Picking a name re-renders, which is
+       fine: the custom-select has already closed by then. */
+    if (key === 'pct') refreshMatSummary(); else refreshMaterials();
+  };
   window.airMatAdd = function () { var c = COMPONENTS[cur]; if (!c) return; c.materials.push({ name: '', pct: '' }); refreshMaterials(); };
   window.airMatDel = function (i) { var c = COMPONENTS[cur]; if (!c || i <= 0) return; c.materials.splice(i, 1); refreshMaterials(); };
   function refreshMaterials() {
     var host = document.querySelector('.air-field[data-k="materials"]'); if (!host) return;
-    host.innerHTML = '<div class="air-field-lbl">Material composition<span class="req-star">*</span></div>' + materialsHtml();
+    host.innerHTML = matLblHtml() + materialsHtml();
     if (typeof window.GSEnhanceSelects === 'function') { try { window.GSEnhanceSelects(host); } catch (e) {} }
   }
   window.airDocPick = function (sel) { var c = COMPONENTS[cur]; if (!c || !sel.value) return; if (c.documents.indexOf(sel.value) === -1) c.documents.push(sel.value); refreshDocs(); };
@@ -248,7 +295,8 @@
   window.airDocDel = function (i) { var c = COMPONENTS[cur]; if (!c) return; c.documents.splice(i, 1); refreshDocs(); };
   function refreshDocs() {
     var host = document.querySelector('.air-field[data-k="documents"]'); if (!host) return;
-    host.innerHTML = '<div class="air-field-lbl">Supporting Documents</div>' + docsHtml();
+    var df = findField('documents') || { label: 'Supporting Documents' };
+    host.innerHTML = '<div class="air-field-lbl">' + esc(df.label) + '</div>' + docsHtml();
     if (typeof window.GSEnhanceSelects === 'function') { try { window.GSEnhanceSelects(host); } catch (e) {} }
   }
 

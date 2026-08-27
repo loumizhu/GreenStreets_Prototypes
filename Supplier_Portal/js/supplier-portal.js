@@ -214,13 +214,22 @@ function gsFadeInRows(container, sel){
   window.addEventListener('scroll', function(){ if(tip) tip.classList.remove('on'); }, true);
 })();
 
+/* Page-level "Edit" = every section's own Edit button pressed at once.
+   It deliberately does NOT apply its own edit styling: it fans out to
+   toggleSectionEdit() so the fields turn into exactly the same controls
+   (real selects, editable free-text, toggles/segments/% steppers, the
+   material add/remove buttons) you get from a single section's Edit. */
 function togglePkgEditMode(key) {
   var body = document.getElementById('pkgdetail-body-' + key);
   if(!body) return;
   var btn = document.getElementById('pkg-edit-toggle');
-  var inputs = body.querySelectorAll('.pkg-detail-feat-input');
-  var nowEditing = body.classList.toggle('pkg-edit-mode');
-  inputs.forEach(function(inp){ inp.readOnly = !nowEditing; });
+  var sections = body.querySelectorAll('.pkg-detail-section');
+  var nowEditing = !(btn && btn.classList.contains('pkg-edit-toggle-active'));
+  sections.forEach(function(sec){
+    var sb = sec.querySelector('.sec-edit-btn');
+    if(!sb) return;
+    if(sec.classList.contains('pkg-sec-edit-mode') !== nowEditing) toggleSectionEdit(sec, sb);
+  });
   if(btn){
     btn.innerHTML = nowEditing
       ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Save changes'
@@ -2191,35 +2200,135 @@ function gsBuildPct(feat, input){
 }
 
 /* Picklist field → EDITABLE combobox: the user can type a value or pick one from
-   the field's own option list (datalist). The real <select> is kept in sync so
-   anything reading the field's value still works. */
-var gsComboSelSeq = 0;
+   the field's own list. A native <datalist> was tried first but Chrome filters its
+   popup by whatever is already in the field, so an already-filled field showed a
+   one-item list (it read as a broken dropdown) — this uses the portal's own themed
+   .cs-menu panel instead. The real <select> is kept in sync so anything reading
+   the field's value still works. */
 function gsMakeSelectEditable(feat){
-  if(!feat || feat.classList.contains('gs-combo-sel')) return;
+  if(!feat) return;
   var sel = feat.querySelector('.pkg-detail-feat-select');
   var input = feat.querySelector('.pkg-detail-feat-input');
   if(!sel || !input) return;
-  var dl = document.createElement('datalist');
-  dl.id = 'gs-dl-sel-' + (++gsComboSelSeq);
-  Array.prototype.forEach.call(sel.options, function(o){
-    if(o.disabled || o.value === '' && !o.text.trim()) return;
-    if(/^select/i.test(o.text.trim())) return;
-    var op = document.createElement('option'); op.value = o.text.trim(); dl.appendChild(op);
-  });
-  document.body.appendChild(dl);
+  var values = Array.prototype.filter.call(sel.options, function(o){
+    var t = o.text.trim();
+    return !o.disabled && t && !/^select/i.test(t);
+  }).map(function(o){ return o.text.trim(); });
+  if(!values.length) return;
   feat.classList.add('gs-combo-sel');
-  input.classList.add('editable-text', 'gs-combo');
-  input.setAttribute('list', dl.id);
-  input.setAttribute('autocomplete', 'off');
+  gsAttachCombo(input, values, sel);
+}
+
+/* The combobox itself: a text input + caret that opens the themed .cs-menu list,
+   filtered as you type. `sel` is optional — when given, it holds the value. */
+function gsAttachCombo(input, values, sel){
+  if(!input || input.dataset.gsCombo || !values || !values.length) return;
+  input.dataset.gsCombo = '1';
+  input.classList.add('editable-text');
+  input.setAttribute('autocomplete','off');
+  input.removeAttribute('list');
   if(!input.placeholder) input.placeholder = 'Type or pick a value';
-  input.addEventListener('change', function(){
-    var v = input.value.trim();
-    if(v) gsSetSelectValue(sel, v);
+
+  var wrap = document.createElement('div');
+  wrap.className = 'gs-ecombo';
+  input.parentNode.insertBefore(wrap, input);
+  wrap.appendChild(input);
+  var caret = document.createElement('button');
+  caret.type = 'button'; caret.className = 'gs-ecombo-caret'; caret.tabIndex = -1;
+  caret.setAttribute('aria-label','Show options');
+  caret.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="6 9 12 15 18 9"/></svg>';
+  wrap.appendChild(caret);
+
+  var menu = document.createElement('div');
+  menu.className = 'cs-menu gs-ecombo-menu';
+  document.body.appendChild(menu);
+  var open = false, hi = -1, shown = [];
+
+  function render(term){
+    term = (term||'').trim().toLowerCase();
+    shown = values.filter(function(v){ return !term || v.toLowerCase().indexOf(term) > -1; });
+    if(!shown.length) shown = values.slice();   /* never show an empty list */
+    menu.innerHTML = '';
+    shown.forEach(function(v, i){
+      var o = document.createElement('div');
+      o.className = 'cs-opt' + (v === input.value.trim() ? ' sel' : '') + (i === hi ? ' cs-hi' : '');
+      o.textContent = v;
+      o.addEventListener('mousedown', function(e){ e.preventDefault(); pick(v); });
+      menu.appendChild(o);
+    });
+  }
+  function position(){
+    var r = input.getBoundingClientRect();
+    menu.style.minWidth = Math.round(r.width) + 'px';
+    menu.style.left = Math.round(r.left) + 'px';
+    var below = window.innerHeight - r.bottom;
+    if(below < 180 && r.top > below){
+      menu.style.top = '';
+      menu.style.bottom = Math.round(window.innerHeight - r.top + 5) + 'px';
+    } else {
+      menu.style.bottom = '';
+      menu.style.top = Math.round(r.bottom + 5) + 'px';
+    }
+  }
+  function openMenu(term){
+    hi = -1; render(term); position();
+    menu.classList.add('open'); wrap.classList.add('open'); open = true;
+  }
+  function closeMenu(){ menu.classList.remove('open'); wrap.classList.remove('open'); open = false; hi = -1; }
+  function pick(v){
+    input.value = v;
+    if(sel) gsSetSelectValue(sel, v);
+    closeMenu();
+    input.dispatchEvent(new Event('change',{bubbles:true}));
+    if(sel) sel.dispatchEvent(new Event('change',{bubbles:true}));
+  }
+  function moveHi(d){
+    if(!open){ openMenu(''); return; }
+    hi = (hi + d + shown.length) % shown.length;
+    var kids = menu.children;
+    for(var i=0;i<kids.length;i++) kids[i].classList.toggle('cs-hi', i === hi);
+    if(kids[hi]) kids[hi].scrollIntoView({block:'nearest'});
+  }
+
+  caret.addEventListener('mousedown', function(e){ e.preventDefault(); });
+  caret.addEventListener('click', function(e){
+    e.preventDefault(); e.stopPropagation();
+    if(open) { closeMenu(); return; }
+    input.focus(); openMenu('');   /* caret always shows the FULL list */
   });
-  sel.addEventListener('change', function(){
-    var o = sel.options[sel.selectedIndex];
-    if(o) input.value = o.text.trim();
+  input.addEventListener('focus', function(){ if(!open) openMenu(''); });
+  input.addEventListener('click', function(){ if(!open) openMenu(input.value); });
+  input.addEventListener('input', function(){ openMenu(input.value); });
+  input.addEventListener('keydown', function(e){
+    if(e.key === 'ArrowDown'){ e.preventDefault(); moveHi(1); }
+    else if(e.key === 'ArrowUp'){ e.preventDefault(); moveHi(-1); }
+    else if(e.key === 'Enter'){ if(open && hi > -1){ e.preventDefault(); pick(shown[hi]); } else closeMenu(); }
+    else if(e.key === 'Escape'){ if(open){ e.stopPropagation(); closeMenu(); } }
+    else if(e.key === 'Tab'){ closeMenu(); }
   });
+  input.addEventListener('blur', function(){
+    setTimeout(function(){
+      if(!open) return;
+      closeMenu();
+      var v = input.value.trim();
+      if(v && sel) gsSetSelectValue(sel, v);   /* free text is allowed — keep the select in step */
+    }, 120);
+  });
+  if(sel){
+    input.addEventListener('change', function(){
+      var v = input.value.trim();
+      if(v) gsSetSelectValue(sel, v);
+    });
+    sel.addEventListener('change', function(){
+      var o = sel.options[sel.selectedIndex];
+      if(o && o.text.trim() !== input.value.trim()) input.value = o.text.trim();
+    });
+  }
+  document.addEventListener('click', function(e){
+    if(open && !wrap.contains(e.target) && !menu.contains(e.target)) closeMenu();
+  });
+  window.addEventListener('scroll', function(){ if(open) position(); }, true);
+  window.addEventListener('resize', function(){ if(open) position(); });
 }
 
 /* Material-name free-text field → typeable combobox (datalist). */
@@ -2231,12 +2340,10 @@ function gsEnsureMaterialDatalist(){
   document.body.appendChild(dl);
 }
 function gsBuildCombobox(input){
-  if(input.getAttribute('list')) return;
-  gsEnsureMaterialDatalist();
-  input.setAttribute('list','gs-mat-datalist');
-  input.setAttribute('autocomplete','off');
-  input.classList.add('gs-combo');
+  /* Was a native <datalist>; Chrome filters that popup by the field's current
+     value, so a filled field showed a one-item list. Use the themed combo. */
   if(!input.placeholder) input.placeholder='Type or pick a material';
+  gsAttachCombo(input, GS_MATERIAL_NAMES, null);
 }
 
 function gsSetSelectValue(sel, val){

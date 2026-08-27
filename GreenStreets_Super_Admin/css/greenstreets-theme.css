@@ -412,7 +412,9 @@ select.fi option{background-color:#0f2038;color:var(--tw)}
 .sidebar.sb-collapsed .sb-notif-label{display:none}
 .sidebar.sb-collapsed .sb-user{justify-content:center;padding-left:0;padding-right:0}
 .sidebar.sb-collapsed .sb-user-info,.sidebar.sb-collapsed .sb-logout{display:none}
-.sidebar.sb-collapsed .sb-logo{display:none}
+/* collapsed rail keeps the logo, just shrunk to fit the 64px width (it used to be hidden) */
+.sidebar.sb-collapsed .sb-logo-zone{padding:var(--sp-3) 6px}
+.sidebar.sb-collapsed .sb-logo{height:auto;width:100%;max-height:34px}
 .sidebar.sb-collapsed .sb-collapse-btn{position:static;margin:0 auto;transform:none}
 .sidebar.sb-collapsed .sb-collapse-btn svg{transform:rotate(180deg)}
 

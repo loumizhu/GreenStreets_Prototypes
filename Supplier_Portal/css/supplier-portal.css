@@ -338,9 +338,18 @@ html,body{height:100%;font-family:"Inter",sans-serif;color:var(--tw)}
    users can tell they're selectable before entering edit mode. */
 .pkg-detail-feat:has(.pkg-detail-feat-select) .pkg-detail-feat-input{cursor:pointer;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235b9cf6' stroke-width='2.5'><polyline points='6 9 12 15 18 9'/></svg>");background-repeat:no-repeat;background-position:right 6px center;padding-right:22px}
 .pkg-sec-edit-mode .pkg-detail-feat:has(.pkg-detail-feat-select) .pkg-detail-feat-input{background-image:none}
-/* Editable picklist (type or pick): the datalist input replaces the <select>. */
-.pkg-sec-edit-mode .gs-combo-sel .pkg-detail-feat-select{display:none}
+/* Editable picklist (type or pick from the themed list): the input + .gs-ecombo
+   caret replace the native <select>, which stays hidden purely to hold the value. */
+.gs-combo-sel .pkg-detail-feat-select{display:none!important}
 .pkg-sec-edit-mode .gs-combo-sel .pkg-detail-feat-input.editable-text{display:block}
+.gs-ecombo{position:relative;width:100%}
+.gs-ecombo .pkg-detail-feat-input{padding-right:26px}
+.gs-ecombo-caret{position:absolute;right:6px;top:50%;transform:translateY(-50%);display:flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;background:none;border:none;color:var(--tw3);cursor:pointer;transition:color .12s,transform .18s}
+.gs-ecombo-caret svg{width:13px;height:13px}
+.gs-ecombo-caret:hover{color:var(--gs)}
+.gs-ecombo.open .gs-ecombo-caret{transform:translateY(-50%) rotate(180deg);color:var(--gs)}
+.gs-ecombo.open{z-index:1000}
+.gs-ecombo-menu{max-height:260px}
 /* AI-review fields carry BOTH an editable text input and a single-option placeholder <select>; in edit
    mode that showed two stacked controls (the "doubled field"). The text input is the real editable control,
    so hide the placeholder select for .air-feat — leaves exactly one control per field. */
