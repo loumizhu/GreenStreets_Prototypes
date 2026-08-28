@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Greenstreets — Retailer Admin · Compliance dashboard (v02)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/greenstreets-theme.css?v=45">
+<link rel="stylesheet" href="css/retailer-admin.css?v=30">
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   DASHBOARD 02 — page-specific components.
+   Design rules held to on this page (see DASHBOARD-02-RESEARCH.md):
+     · every colour is a token — no literal status hex, so the -Light twin works
+     · no text below 11px; secondary text sits on --tw2, never --tw3 under 12px
+     · every status carries a glyph + a word, never colour alone
+     · three breakpoints: 1180 / 900 / 680
+   ══════════════════════════════════════════════════════════════════════════ */
+#d2 .main>*{animation:none!important}          /* our own entrance owns the timing */
+html.gs-anim-armed #d2 .d2-anim{opacity:0}     /* pre-hide before the engine arms */
+@media (prefers-reduced-motion:reduce){ html.gs-anim-armed #d2 .d2-anim{opacity:1} }
+
+/* every figure on the page aligns on its digits */
+#d2 .d2-kpi-val,#d2 .tbl td,#d2 .d2-dl-day,#d2 .wk-day,#d2 .d2-fn-val,#d2 .d2-clock-n{font-variant-numeric:tabular-nums}
+#d2 h1,#d2 h2,#d2 h3{font:inherit;letter-spacing:inherit;text-transform:inherit;color:inherit}
+#d2 h1.pg-title{font-size:24px;font-weight:700;letter-spacing:-.015em}
+#d2 .grp-hdr h2{font-size:13px;font-weight:600}
+
+/* ── header meta strip: scope + freshness + export ─────────────────────── */
+.d2-meta{display:flex;align-items:center;gap:var(--sp-3);flex-wrap:wrap;font-size:11.5px;color:var(--tw2);
+  padding:8px 12px;border:1px solid var(--line);border-radius:var(--rs);background:rgba(255,255,255,.03);margin-bottom:12px}
+.d2-meta .d2-sep{width:1px;height:14px;background:var(--line-2)}
+.d2-meta b{color:var(--tw);font-weight:600}
+.d2-fresh{display:inline-flex;align-items:center;gap:6px}
+.d2-fresh-dot{width:7px;height:7px;border-radius:50%;background:var(--status-ok-strong);box-shadow:0 0 0 3px rgba(var(--gs-rgb),.18);flex-shrink:0}
+.d2-scope{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 11px;border-radius:8px;font-size:11.5px;font-weight:600;
+  border:1px solid var(--line-2);background:rgba(255,255,255,.04);color:var(--tw);cursor:pointer;transition:background .14s,border-color .14s}
+.d2-scope:hover{background:rgba(255,255,255,.09);border-color:var(--status-info)}
+
+/* ── the verdict: the one thing the page exists to say ─────────────────── */
+.d2-verdict{position:relative;display:flex;align-items:center;gap:var(--sp-5);flex-wrap:wrap;
+  padding:16px 20px 16px 22px;margin-bottom:12px;border-radius:var(--rl);
+  border:1px solid rgba(224,96,90,.34);background:linear-gradient(100deg,rgba(224,96,90,.13),rgba(224,96,90,.035) 62%,rgba(255,255,255,.02));
+  box-shadow:var(--sh-1)}
+.d2-verdict::before{content:"";position:absolute;left:0;top:12px;bottom:12px;width:3px;border-radius:0 3px 3px 0;background:var(--status-danger)}
+.d2-vd-main{flex:1;min-width:280px}
+.d2-vd-kicker{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--status-danger)}
+.d2-vd-h{font-size:21px;font-weight:700;letter-spacing:-.015em;color:var(--tw);margin:5px 0 6px;line-height:1.2}
+.d2-vd-sub{font-size:13px;color:var(--tw2);line-height:1.55;max-width:64ch}
+.d2-vd-sub b{color:var(--tw);font-weight:600}
+.d2-vd-acts{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.d2-clock{flex-shrink:0;text-align:center;padding:12px 18px;border-radius:var(--rm);border:1px solid var(--line-2);background:rgba(255,255,255,.04);min-width:120px}
+.d2-clock-n{font-size:30px;font-weight:700;line-height:1;color:var(--status-warn);letter-spacing:-.02em}
+.d2-clock-l{font-size:11px;color:var(--tw2);margin-top:5px;font-weight:600}
+.d2-clock-d{font-size:11px;color:var(--tw2);margin-top:2px;opacity:.8}
+
+/* ── KPI tiles: value + denominator + target + delta + trend ───────────── */
+.d2-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
+.d2-kpi{display:block;width:100%;text-align:left;padding:13px 15px 12px;border-radius:var(--rm);cursor:pointer;
+  background:linear-gradient(165deg,rgba(255,255,255,.055),rgba(255,255,255,.015));
+  border:1px solid var(--line);box-shadow:var(--sh-1),inset 0 1px 0 rgba(255,255,255,.05);
+  transition:transform .18s,box-shadow .18s,border-color .18s}
+.d2-kpi:hover{transform:translateY(-2px);box-shadow:var(--sh-2);border-color:var(--line-2)}
+.d2-kpi-lbl{font-size:11px;font-weight:600;color:var(--tw2);text-transform:uppercase;letter-spacing:.05em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.d2-kpi-row{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-top:7px}
+.d2-kpi-val{font-size:26px;font-weight:700;line-height:1;letter-spacing:-.02em;color:var(--tw)}
+.d2-kpi-val small{font-size:14px;font-weight:400;color:var(--tw2)}
+.d2-spark{width:62px;height:20px;flex-shrink:0;overflow:visible}
+.d2-spark polyline{fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+/* target track: the bar is what answers "is that good?" */
+.d2-track{position:relative;height:5px;border-radius:3px;background:rgba(255,255,255,.10);margin-top:10px;overflow:hidden}
+.d2-track-f{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--gs),var(--teal))}
+.d2-track-f.f-warn{background:linear-gradient(90deg,var(--amber),#ffcd7a)}
+.d2-track-f.f-bad{background:linear-gradient(90deg,var(--red),#ff9c96)}
+.d2-kpi-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:7px;font-size:11px}
+.d2-kpi-tgt{color:var(--tw2)}
+.d2-delta{display:inline-flex;align-items:center;gap:3px;font-weight:600;white-space:nowrap}
+.d2-delta.up{color:var(--status-ok)}
+.d2-delta.flat{color:var(--tw2)}
+.d2-delta.down{color:var(--status-danger)}
+
+/* ── status chip: glyph + word, never colour alone (WCAG 1.4.1) ────────── */
+.d2-st{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 9px 3px 6px;border-radius:20px;white-space:nowrap;border:1px solid}
+.d2-st i{font-style:normal;font-size:10px/* a glyph inside a 14px disc, not reading text */;line-height:1;width:14px;height:14px;border-radius:50%;display:inline-flex;
+  align-items:center;justify-content:center;flex-shrink:0;font-weight:700}
+.d2-st-ok{background:rgba(78,187,129,.13);color:var(--gs-l);border-color:rgba(78,187,129,.32)}
+.d2-st-ok i{background:rgba(78,187,129,.28)}
+.d2-st-warn{background:rgba(245,166,35,.13);color:#ffcd7a;border-color:rgba(245,166,35,.34)}
+.d2-st-warn i{background:rgba(245,166,35,.3)}
+.d2-st-bad{background:rgba(224,96,90,.14);color:#ff9c96;border-color:rgba(224,96,90,.36)}
+.d2-st-bad i{background:rgba(224,96,90,.3)}
+.d2-st-info{background:rgba(91,156,246,.13);color:var(--bl-l);border-color:rgba(91,156,246,.32)}
+.d2-st-info i{background:rgba(91,156,246,.3)}
+
+/* ── "act now" queue: the work, ranked ─────────────────────────────────── */
+.d2-tabs{display:flex;gap:5px;margin-left:auto;flex-wrap:wrap}
+.d2-tab{font-size:11px;font-weight:600;height:28px;padding:0 11px;border-radius:7px;cursor:pointer;
+  border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--tw2);transition:all .14s}
+.d2-tab:hover{background:rgba(255,255,255,.08);color:var(--tw)}
+.d2-tab.on{background:rgba(var(--gs-rgb),.16);border-color:rgba(var(--gs-rgb),.42);color:var(--gs-l)}
+.d2-act{display:flex;align-items:center;gap:12px;padding:11px 15px;border-bottom:1px solid var(--line);cursor:pointer;transition:background .14s}
+.d2-act:hover{background:rgba(255,255,255,.035)}
+.d2-act.d2-last{border-bottom:none}
+.d2-act.d2-hidden{display:none}
+/* a handled row stays readable under "All" but reads as settled */
+.d2-act.d2-resolved{opacity:.6}
+.d2-act.d2-resolved .d2-act-t{text-decoration:line-through;text-decoration-color:var(--tw3)}
+.d2-act.d2-resolved .d2-act-bar{background:var(--status-ok-strong)}
+.d2-rank{flex-shrink:0;width:22px;height:22px;border-radius:7px;display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;color:var(--tw2);background:rgba(255,255,255,.06);border:1px solid var(--line)}
+.d2-act-bar{flex-shrink:0;width:3px;align-self:stretch;min-height:34px;border-radius:2px;background:var(--tw3)}
+.d2-act.sev-bad .d2-act-bar{background:var(--status-danger)}
+.d2-act.sev-warn .d2-act-bar{background:var(--status-warn)}
+.d2-act.sev-info .d2-act-bar{background:var(--status-info-strong)}
+.d2-act-body{flex:1;min-width:0}
+.d2-act-t{font-size:12.5px;font-weight:600;color:var(--tw);display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.d2-act-why{font-size:11.5px;color:var(--tw2);margin-top:3px;line-height:1.45}
+.d2-act-why b{color:var(--tw);font-weight:600}
+.d2-act-cta{flex-shrink:0;display:flex;align-items:center;gap:6px}
+.d2-done{font-size:11px;font-weight:600;color:var(--status-ok);display:inline-flex;align-items:center;gap:5px}
+.d2-empty{padding:34px 20px;text-align:center;display:none}
+.d2-empty.on{display:block}
+.d2-empty-i{width:42px;height:42px;margin:0 auto 12px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+  background:rgba(var(--gs-rgb),.14);color:var(--gs-l);border:1px solid rgba(var(--gs-rgb),.3)}
+.d2-empty-t{font-size:13.5px;font-weight:600;color:var(--tw)}
+.d2-empty-s{font-size:11.5px;color:var(--tw2);margin-top:5px}
+
+/* ── deadlines rail ───────────────────────────────────────────────────── */
+.d2-dl{display:flex;align-items:center;gap:12px;padding:11px 15px;border-bottom:1px solid var(--line);cursor:pointer;transition:background .14s}
+.d2-dl:hover{background:rgba(255,255,255,.035)}
+.d2-dl.d2-last{border-bottom:none}
+.d2-dl-date{flex-shrink:0;width:46px;text-align:center;padding:5px 0;border-radius:9px;border:1px solid var(--line);background:rgba(255,255,255,.04)}
+.d2-dl-day{font-size:15px;font-weight:700;line-height:1;color:var(--tw)}
+.d2-dl-mon{font-size:11px;font-weight:600;color:var(--tw2);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.d2-dl-body{flex:1;min-width:0}
+.d2-dl-t{font-size:12.5px;font-weight:600;color:var(--tw);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.d2-dl-s{font-size:11px;color:var(--tw2);margin-top:3px}
+
+/* ── supplier funnel band ─────────────────────────────────────────────── */
+.d2-funnel{display:flex;align-items:stretch;flex-wrap:wrap}
+.d2-fn{flex:1;min-width:150px;padding:13px 16px;border-right:1px solid var(--line);cursor:pointer;transition:background .14s;position:relative}
+.d2-fn:last-child{border-right:none}
+.d2-fn:hover{background:rgba(255,255,255,.045)}
+.d2-fn-lbl{font-size:11px;font-weight:600;color:var(--tw2);text-transform:uppercase;letter-spacing:.05em}
+.d2-fn-val{font-size:22px;font-weight:700;color:var(--tw);line-height:1;margin-top:6px;letter-spacing:-.02em}
+.d2-fn-val small{font-size:12px;font-weight:500;color:var(--tw2);margin-left:5px}
+.d2-fn-bar{height:4px;border-radius:2px;margin-top:9px;background:rgba(255,255,255,.09);overflow:hidden}
+.d2-fn-bar span{display:block;height:100%;border-radius:2px;background:linear-gradient(90deg,var(--bl-d),var(--bl))}
+.d2-fn-note{font-size:11px;color:var(--tw2);margin-top:7px}
+.d2-fn.is-you{background:rgba(245,166,35,.055)}
+.d2-fn.is-you .d2-fn-bar span{background:linear-gradient(90deg,var(--amber),#ffcd7a)}
+.d2-fn-tag{position:absolute;top:12px;right:15px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--status-warn)}
+
+/* ── weekly chart (tokenised, so the light twin inherits it) ───────────── */
+.wk-chart{display:flex;gap:8px}
+.wk-yaxis{display:flex;flex-direction:column;justify-content:space-between;height:150px;font-size:11px;color:var(--tw2);
+  font-variant-numeric:tabular-nums;text-align:right;min-width:18px;padding-bottom:1px}
+.wk-plotcol{flex:1;display:flex;flex-direction:column;gap:7px;min-width:0}
+.wk-plot{position:relative;height:150px}
+.wk-hline{position:absolute;left:0;right:0;height:0;border-top:1px dashed var(--line-2)}
+.wk-hline2{position:absolute;left:0;right:0;height:0;border-top:1px dotted var(--line)}
+.wk-vline{position:absolute;top:0;bottom:0;width:0;border-left:1px dotted var(--line)}
+.wk-target{position:absolute;left:0;right:0;height:0;border-top:1.5px dashed rgba(245,166,35,.8);z-index:2}
+.wk-target span{position:absolute;right:0;top:-17px;font-size:11px;font-weight:700;color:var(--status-warn)}
+.wk-bars-row{position:absolute;inset:0;display:flex;align-items:flex-end;gap:3px;z-index:1}
+.wk-col{flex:1;display:flex;align-items:flex-end;justify-content:center;gap:3px;height:100%}
+.wk-bar{width:34%;min-height:3px;border-radius:4px 4px 1px 1px;transition:filter .12s;cursor:pointer}
+.wk-bar:hover{filter:brightness(1.18)}
+.wk-submitted{background:var(--status-info-strong)}
+.wk-approved{background:var(--status-ok)}
+.wk-days{display:flex;gap:3px}
+.wk-day{flex:1;text-align:center;font-size:11px;font-weight:600;color:var(--tw2)}
+.wk-day span{display:block;font-size:11px;font-weight:400;color:var(--tw2);opacity:.85}
+.wk-legend{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;margin-top:12px}
+.wk-key{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--tw2);background:none;border:1px solid transparent;
+  cursor:pointer;padding:6px 10px;border-radius:7px;transition:all .12s}
+.wk-key:hover{background:rgba(255,255,255,.06);color:var(--tw)}
+.wk-key.off{opacity:.45}
+.wk-key .wk-sw{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.wk-key.off .wk-sw{filter:grayscale(.85)}
+/* the takeaway sentence — the chart's real job is this line, not the bars */
+.d2-takeaway{display:flex;align-items:flex-start;gap:9px;margin-top:13px;padding:11px 13px;border-radius:var(--rs);
+  border:1px solid rgba(245,166,35,.3);background:rgba(245,166,35,.075);font-size:12px;color:var(--tw2);line-height:1.5}
+.d2-takeaway b{color:var(--tw);font-weight:600}
+.d2-takeaway svg{flex-shrink:0;margin-top:1px;color:var(--status-warn)}
+
+/* ── expiring documents ───────────────────────────────────────────────── */
+.exp-row{display:flex;align-items:center;gap:10px;padding:10px 15px;border-bottom:1px solid var(--line);cursor:pointer;transition:background .14s}
+.exp-row:hover{background:rgba(255,255,255,.035)}
+.exp-remind{flex-shrink:0;height:30px;padding:0 11px;font-size:11px;font-weight:600;display:inline-flex;align-items:center;gap:5px;
+  border-radius:8px;border:1px solid rgba(91,156,246,.4);background:rgba(91,156,246,.12);color:var(--status-info);cursor:pointer;transition:all .12s}
+.exp-remind:hover{background:rgba(91,156,246,.22);border-color:rgba(91,156,246,.62)}
+.exp-remind.exp-remind-sent{background:rgba(78,187,129,.15);border-color:rgba(78,187,129,.35);color:var(--status-ok);cursor:default}
+.exp-remind.exp-remind-sent:hover{background:rgba(78,187,129,.15);border-color:rgba(78,187,129,.35)}
+
+/* ── conformity table ─────────────────────────────────────────────────── */
+.d2-chips{display:flex;gap:6px;flex-wrap:wrap}
+.d2-chip{font-size:11px;font-weight:600;height:28px;padding:0 11px;border-radius:20px;cursor:pointer;
+  border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--tw2);transition:all .14s;white-space:nowrap}
+.d2-chip:hover{background:rgba(255,255,255,.08);color:var(--tw)}
+.d2-chip.on{background:rgba(var(--gs-rgb),.16);border-color:rgba(var(--gs-rgb),.42);color:var(--gs-l)}
+#d2 .tbl th{font-size:11px;color:var(--tw2)}   /* shared sheet: 10px on --tw3, both under this page's floor */
+#d2 .tbl td{font-size:12px}
+#d2 .tbl-footer{font-size:11.5px;color:var(--tw2)}
+#d2 .tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.d2-hidden{display:none!important}
+
+/* ── reviewer aid: the design-question drawer (NOT product UI) ─────────── */
+.d2-rat-tab{position:fixed;right:0;bottom:26px;z-index:600;display:inline-flex;align-items:center;gap:7px;
+  height:40px;padding:0 16px;border-radius:10px 0 0 10px;cursor:pointer;font-size:11.5px;font-weight:700;letter-spacing:.03em;
+  background:linear-gradient(135deg,var(--gs),var(--teal));color:#04160e;border:none;box-shadow:0 12px 30px -10px rgba(0,0,0,.6)}
+.d2-rat-tab:hover{filter:brightness(1.07)}
+.d2-rat{position:fixed;top:0;right:0;bottom:0;width:min(470px,94vw);z-index:601;transform:translateX(102%);
+  transition:transform .32s cubic-bezier(.22,1,.36,1);display:flex;flex-direction:column;
+  background:linear-gradient(170deg,#0f2340,#0b1830);border-left:1px solid var(--line-2);box-shadow:-24px 0 60px -20px rgba(0,0,0,.7)}
+.d2-rat.open{transform:translateX(0)}
+.d2-rat-hd{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;align-items:flex-start;gap:12px}
+.d2-rat-hd h2{font-size:15px;font-weight:700;color:var(--tw)}
+.d2-rat-hd p{font-size:11.5px;color:var(--tw2);margin-top:4px;line-height:1.5}
+.d2-rat-x{flex-shrink:0;width:32px;height:32px;border-radius:8px;border:1px solid var(--line-2);background:rgba(255,255,255,.04);
+  color:var(--tw2);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.d2-rat-x:hover{background:rgba(255,255,255,.1);color:var(--tw)}
+.d2-rat-body{flex:1;overflow:auto;padding:6px 18px 26px}
+.d2-rat-sec{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--gs-l);margin:20px 0 8px}
+.d2-rq{padding:11px 0;border-bottom:1px solid var(--line)}
+.d2-rq-q{font-size:12.5px;font-weight:600;color:var(--tw);line-height:1.45;display:flex;gap:8px}
+.d2-rq-q>span{flex-shrink:0;color:var(--tw2);font-variant-numeric:tabular-nums}
+.d2-rq-a{font-size:11.5px;color:var(--tw2);line-height:1.55;margin:5px 0 0 21px}
+.d2-rq-a b{color:var(--gs-l);font-weight:600}
+
+/* ── responsive: 4→2→1, tables scroll, touch targets grow ─────────────── */
+@media (max-width:1180px){
+  .d2-kpis{grid-template-columns:repeat(2,1fr)}
+  .d2-split{grid-template-columns:1fr!important}
+  .d2-verdict{padding:14px 16px 14px 18px}
+  .d2-vd-h{font-size:19px}
+}
+@media (max-width:900px){
+  #d2 .app-body{flex-direction:column}
+  #d2 .sidebar{width:100%;flex-direction:row;overflow-x:auto}
+  .d2-clock{min-width:100%;display:flex;align-items:center;justify-content:center;gap:10px}
+  .d2-clock-n{font-size:24px}
+  .d2-clock-l,.d2-clock-d{margin-top:0}
+  #d2 .tbl{min-width:660px}
+  .d2-fn{min-width:50%;border-bottom:1px solid var(--line)}
+}
+@media (max-width:680px){
+  .d2-kpis{grid-template-columns:1fr}
+  .d2-act,.d2-dl,.exp-row{flex-wrap:wrap}
+  .d2-act-cta,.exp-remind{width:100%;justify-content:center;margin-top:4px}
+  .d2-fn{min-width:100%}
+  .d2-vd-h{font-size:18px}
+  #d2 .btn-p,#d2 .btn-g,.exp-remind,.d2-tab,.d2-chip,#d2 .act-mini{min-height:40px}
+}
+</style>
+</head>
+<body>
+<script>document.documentElement.classList.add('gs-anim-armed');</script>
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true"><defs><symbol id="gsi-0" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol><symbol id="gsi-1" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></symbol><symbol id="gsi-2" viewBox="0 0 24 24"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/></symbol><symbol id="gsi-3" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></symbol><symbol id="gsi-4" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></symbol><symbol id="gsi-5" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></symbol><symbol id="gsi-6" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol><symbol id="gsi-7" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></symbol><symbol id="gsi-8" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414A1 1 0 0 1 19 9.414V19a2 2 0 0 1-2 2z"/></symbol><symbol id="gsi-9" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></symbol><symbol id="gsi-10" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol><symbol id="gsi-11" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></symbol><symbol id="gsi-12" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol><symbol id="gsi-13" viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></symbol><symbol id="gsi-14" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></symbol><symbol id="gsi-15" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol><symbol id="gsi-16" viewBox="0 0 24 24"><path d='M12 5v14M5 12h14'/></symbol><symbol id="gsi-17" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></symbol><symbol id="gsi-18" viewBox="0 0 24 24"><path d='M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9'/></symbol><symbol id="gsi-19" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></symbol><symbol id="gsi-20" viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></symbol><symbol id="gsi-21" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/></symbol><symbol id="gsi-22" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></symbol><symbol id="gsi-23" viewBox="0 0 24 24"><path d="M20.38 18.57L12 13 3.62 18.57A2 2 0 0 0 5 22h14a2 2 0 0 0 1.38-3.43zM12 2a2 2 0 0 1 2 2c0 1.5-2 3-2 3s-2-1.5-2-3a2 2 0 0 1 2-2z"/></symbol><symbol id="gsi-24" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></symbol><symbol id="gsi-25" viewBox="0 0 24 24"><path d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'/><polyline points='17 8 12 3 7 8'/></symbol><symbol id="gsi-26" viewBox="0 0 24 24"><path d='M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z'/></symbol><symbol id="gsi-27" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></symbol><symbol id="gsi-28" viewBox="0 0 24 24"><path d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/><polyline points='14 2 14 8 20 8'/></symbol><symbol id="gsi-29" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></symbol><symbol id="gsi-30" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol><symbol id="gsi-31" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol><symbol id="gsi-32" viewBox="0 0 50 50"><path d="M14.03125 0C13.71875 0.0546875 13.453125 0.253906 13.308594 0.539063C13.167969 0.820313 13.167969 1.15625 13.3125 1.4375L15.5 5.84375C15.652344 6.175781 15.976563 6.402344 16.34375 6.425781C16.707031 6.449219 17.058594 6.269531 17.253906 5.960938C17.449219 5.648438 17.460938 5.257813 17.28125 4.9375L15.09375 0.5625C14.90625 0.160156 14.472656 -0.0703125 14.03125 0 Z M 35.65625 0C35.328125 0.0507813 35.046875 0.261719 34.90625 0.5625L32.71875 4.9375C32.539063 5.257813 32.550781 5.648438 32.746094 5.960938C32.941406 6.269531 33.292969 6.449219 33.65625 6.425781C34.023438 6.402344 34.347656 6.175781 34.5 5.84375L36.6875 1.4375C36.851563 1.105469 36.820313 0.710938 36.605469 0.40625C36.390625 0.105469 36.023438 -0.0507813 35.65625 0 Z M 21 10.90625C17.003906 10.90625 13.691406 13.875 13.125 17.84375C13.113281 17.855469 13.105469 17.863281 13.09375 17.875L10.03125 41L7 41C6.96875 41 6.9375 41 6.90625 41C6.390625 41.046875 5.996094 41.480469 6 42L6 49C6 49.550781 6.449219 50 7 50L43 50C43.550781 50 44 49.550781 44 49L44 42C44 41.449219 43.550781 41 43 41L39.78125 41L36.6875 17.875C36.6875 17.863281 36.6875 17.855469 36.6875 17.84375C36.117188 13.855469 32.671875 11.019531 28.625 10.90625C28.613281 10.90625 28.605469 10.90625 28.59375 10.90625 Z M 49.0625 10.9375C48.976563 10.949219 48.894531 10.96875 48.8125 11C48.726563 11.019531 48.640625 11.050781 48.5625 11.09375L44.15625 13.3125C43.824219 13.464844 43.597656 13.789063 43.574219 14.15625C43.550781 14.519531 43.730469 14.871094 44.039063 15.066406C44.351563 15.261719 44.742188 15.273438 45.0625 15.09375L49.4375 12.90625C49.960938 12.78125 50.292969 12.269531 50.191406 11.742188C50.089844 11.214844 49.59375 10.859375 49.0625 10.9375 Z M 0.78125 11C0.34375 11.074219 0.0078125 11.429688 -0.0429688 11.871094C-0.0898438 12.3125 0.152344 12.734375 0.5625 12.90625L4.9375 15.09375C5.257813 15.273438 5.648438 15.261719 5.960938 15.066406C6.269531 14.871094 6.449219 14.519531 6.425781 14.15625C6.402344 13.789063 6.175781 13.464844 5.84375 13.3125L1.4375 11.09375C1.261719 11.007813 1.066406 10.976563 0.875 11C0.84375 11 0.8125 11 0.78125 11 Z M 21 12.90625L28.59375 12.90625C31.722656 13.007813 34.277344 15.140625 34.71875 18.125L34.71875 18.15625L37.75 41L12.0625 41L15.09375 18.15625L15.09375 18.125C15.539063 15.109375 18.003906 12.90625 21 12.90625 Z M 44.46875 26.375C44.4375 26.382813 44.40625 26.394531 44.375 26.40625C43.960938 26.5 43.648438 26.84375 43.601563 27.265625C43.550781 27.6875 43.773438 28.09375 44.15625 28.28125L48.5625 30.5C48.886719 30.710938 49.304688 30.71875 49.632813 30.519531C49.964844 30.316406 50.148438 29.941406 50.105469 29.554688C50.0625 29.171875 49.804688 28.84375 49.4375 28.71875L45.0625 26.5C44.882813 26.398438 44.675781 26.355469 44.46875 26.375 Z M 5.21875 26.40625C5.121094 26.421875 5.027344 26.453125 4.9375 26.5L0.5625 28.71875C0.195313 28.84375 -0.0625 29.171875 -0.105469 29.554688C-0.148438 29.941406 0.0351563 30.316406 0.367188 30.519531C0.695313 30.71875 1.113281 30.710938 1.4375 30.5L5.84375 28.28125C6.28125 28.054688 6.488281 27.542969 6.335938 27.074219C6.179688 26.609375 5.703125 26.324219 5.21875 26.40625 Z M 8 43L42 43L42 48L8 48Z" fill="currentColor"/></symbol></defs></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true"><defs>
+<symbol id="d2i-alert" viewBox="0 0 24 24"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
+<symbol id="d2i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 16 14"/></symbol>
+<symbol id="d2i-cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/></symbol>
+<symbol id="d2i-dl" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="3" x2="12" y2="15"/></symbol>
+<symbol id="d2i-trend" viewBox="0 0 24 24"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="15 7 21 7 21 13"/></symbol>
+<symbol id="d2i-chev" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></symbol>
+<symbol id="d2i-refresh" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3.2-6.9"/><polyline points="21 3 21 9 15 9"/></symbol>
+<symbol id="d2i-x" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+<symbol id="d2i-q" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.2a2.6 2.6 0 0 1 5 .9c0 1.7-2.5 2.1-2.5 3.6"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
+<symbol id="d2i-inbox" viewBox="0 0 24 24"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></symbol>
+</defs></svg>
+<div class="screen on" id="d2">
+  <div class="app-body">
+    <div class="sidebar">
+  <div class="sb-logo-zone"><img class="gs-logo-img sb-logo" src="" alt="Greenstreets"></div>
+  <div class="sb-section">Retailer Admin</div>
+  <a class="nav-item active" onclick="go('ra1_v2')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#gsi-0"/></svg>Dashboard</a>
+<a class="nav-item" onclick="go('ra7')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#gsi-6"/></svg>Users</a>
+<a class="nav-item" onclick="go('ra4')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#gsi-1"/></svg>Suppliers</a>
+<a class="nav-item" onclick="go('ra6')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#gsi-2"/></svg>Products</a>
+<a class="nav-item" onclick="go('ra5')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#gsi-3"/></svg>Packagings</a>
+
+<a class="nav-item" onclick="go('ra13')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#gsi-4"/></svg>Documents</a>
+
+  <div class="sb-divider"></div>
+  <a class="nav-item" onclick="go('ra_config')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#gsi-7"/></svg> Settings</a>
+  <a class="nav-item" onclick="go('ra15')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#gsi-8"/></svg> Audit log</a>
+  <div class="sb-notif-row" onclick="go('ra16')">
+    <div class="sb-bell-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#gsi-9"/></svg><span class="bell-badge">4</span></div>
+    <span class="sb-notif-label">Notifications</span>
+  </div>
+  <div class="sb-user" onclick="go('ra_config')" style="cursor:pointer" title="Account settings">
+    <div class="sb-avatar" style="background:var(--status-info-strong)">KO</div>
+    <div class="sb-user-info">
+      <div class="sb-user-name">Keith O'Sullivan</div>
+      <div class="sb-user-role">Retailer Admin · <span style="color:var(--gs)">Primark</span></div>
+    </div>
+    <button class="sb-logout" onclick="event.stopPropagation()" title="Log out"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#gsi-10"/></svg></button>
+  </div>
+</div>
+    <div class="main">
+
+      <!-- ══ HEADER ══════════════════════════════════════════════════════
+           Q: what is this, whose is it, how fresh is it, and can I take it away?
+           ═════════════════════════════════════════════════════════════ -->
+      <div class="pg-hdr-bar d2-anim" style="margin-bottom:10px">
+        <div>
+          <h1 class="pg-title">Compliance dashboard</h1>
+          <div class="pg-sub">Primark Stores Ltd · Retailer / Importer · Q3 FY26 filing period</div>
+        </div>
+        <div class="pg-actions" style="display:flex;gap:8px;align-items:center">
+          <button class="btn-g" onclick="go('ra_welcome')" style="height:32px;padding:0 12px;font-size:11px;display:inline-flex;align-items:center;gap:5px">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-7"/></svg>
+            Getting started
+          </button>
+          <div style="position:relative">
+            <button class="btn-g" onclick="raToggleNotif(event)" title="Notifications" aria-label="Notifications" style="height:32px;padding:0 11px;display:inline-flex;align-items:center;position:relative">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><use href="#gsi-9"/></svg>
+              <span class="bell-badge" style="position:absolute;top:-5px;right:-3px">4</span>
+            </button>
+            <div class="ra-notif-menu" id="ra-notif-menu">
+              <div class="ra-notif-hd">Notifications <span style="font-weight:400;color:var(--tw2);font-size:11px">4 new</span></div>
+              <button class="ra-notif-item" onclick="go('ra11')"><span class="ra-notif-dot" style="background:var(--status-danger)"></span><div><div class="ra-notif-txt"><b>PRK-003-RED</b> — 3 mandatory fields missing, supplier incomplete</div><div class="ra-notif-time">2 hours ago</div></div></button>
+              <button class="ra-notif-item" onclick="go('ra9')"><span class="ra-notif-dot" style="background:var(--status-warn)"></span><div><div class="ra-notif-txt"><b>Luntai Packaging Co.</b> is overdue — invitation opened, not submitted</div><div class="ra-notif-time">Today, 09:14</div></div></button>
+              <button class="ra-notif-item" onclick="go('ra11')"><span class="ra-notif-dot" style="background:var(--status-ok-strong)"></span><div><div class="ra-notif-txt"><b>Nordic Materials AB</b> submitted packaging data — ready to review</div><div class="ra-notif-time">Yesterday</div></div></button>
+              <div class="ra-notif-foot"><a class="bc-link" style="font-size:11px;cursor:pointer" onclick="go('ra16')">View all notifications →</a></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scope + freshness + export. A dashboard that can't say what it is
+           looking at, or how old the data is, can't be trusted or acted on. -->
+      <div class="d2-meta d2-anim">
+        <button class="d2-scope" onclick="go('ra6')" title="Change the filing period">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#d2i-cal"/></svg>
+          Q3 FY26 · Jul–Sep
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><use href="#gsi-15"/></svg>
+        </button>
+        <button class="d2-scope" onclick="go('ra6')" title="Change the market scope">
+          IE + UK
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><use href="#gsi-15"/></svg>
+        </button>
+        <span class="d2-sep"></span>
+        <span><b>64</b> products · <b>380</b> suppliers</span>
+        <span class="d2-sep"></span>
+        <span class="d2-fresh"><span class="d2-fresh-dot"></span>Updated <b>09:12</b> · 4 min ago</span>
+        <button class="d2-scope" style="margin-left:auto" onclick="go('ra1')" title="Open the v1 dashboard for comparison" data-nolight-note="reviewer aid">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#d2i-refresh"/></svg>
+          Compare with v1
+        </button>
+        <button class="d2-scope" onclick="d2Toast(this,'Export queued')" title="Download this view as CSV">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#d2i-dl"/></svg>
+          Export CSV
+        </button>
+      </div>
+
+      <!-- ══ THE VERDICT ═════════════════════════════════════════════════
+           Q: what must a reader understand in five seconds?
+           Not "here are the numbers" — "here is where you stand, and what to do."
+           ═════════════════════════════════════════════════════════════ -->
+      <section class="d2-verdict d2-anim" aria-labelledby="d2-vd-h">
+        <div class="d2-vd-main">
+          <div class="d2-vd-kicker">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#d2i-alert"/></svg>
+            Not ready to file
+          </div>
+          <h2 class="d2-vd-h" id="d2-vd-h">182 supplier submissions are waiting on your review</h2>
+          <p class="d2-vd-sub">
+            They carry the packaging data for <b>41 of the 64 products</b> in this filing, and <b>5 products</b>
+            are non-conformant regardless. The Repak Ireland Q3 return needs all 64 Declarations of Conformity —
+            at your current rate of <b>61 approvals a week</b> the queue clears on <b>18 Sep</b>, nine days late.
+          </p>
+          <div class="d2-vd-acts">
+            <button class="btn-p" onclick="go('ra11')" style="height:34px;padding:0 14px;font-size:12px">
+              <img class="btn-sw" src="" alt="" data-sw><span class="btn-c">Review 182 submissions</span>
+            </button>
+            <button class="btn-g" onclick="goFilter('ra6',{selectValue:'Incomplete'})" style="height:34px;padding:0 13px;font-size:12px">Fix the 5 blockers</button>
+            <a class="bc-link" style="font-size:11.5px;cursor:pointer;margin-left:2px" onclick="d2OpenRat()">How was this dashboard designed?</a>
+          </div>
+        </div>
+        <div class="d2-clock" role="group" aria-label="Time to next filing deadline">
+          <div class="d2-clock-n">12</div>
+          <div class="d2-clock-l">days left</div>
+          <div class="d2-clock-d">Repak IE · 09 Sep 2026</div>
+        </div>
+      </section>
+
+      <!-- ══ FOUR KPIs ═══════════════════════════════════════════════════
+           Q: for each number — is that good? compared with what? moving which way?
+           Every tile: value / denominator · progress to target · target date and
+           the gap · week-on-week delta · 8-week sparkline. Same shape on all four,
+           so they are comparable at a glance.
+           ═════════════════════════════════════════════════════════════ -->
+      <div class="d2-kpis" id="d2-kpis">
+
+        <button class="d2-kpi d2-anim" onclick="go('ra13')" title="Declarations of Conformity — open Documents">
+          <div class="d2-kpi-lbl">DoC ready to file</div>
+          <div class="d2-kpi-row">
+            <div class="d2-kpi-val">48<small>/64</small></div>
+            <svg class="d2-spark" viewBox="0 0 60 18" preserveAspectRatio="none" aria-hidden="true">
+              <polyline points="0,16 8.6,13.7 17.1,12.1 25.7,9.8 34.3,8.2 42.9,6.7 51.4,5.1 60,2" stroke="var(--amber)"/>
+            </svg>
+          </div>
+          <div class="d2-track"><div class="d2-track-f f-warn" style="width:75%"></div></div>
+          <div class="d2-kpi-foot">
+            <span class="d2-kpi-tgt">75% · target 64 by 30 Sep · <b style="color:var(--tw)">16 to go</b></span>
+            <span class="d2-delta up">▲ +6 wk</span>
+          </div>
+        </button>
+
+        <button class="d2-kpi d2-anim" onclick="goFilter('ra6',{selectValue:'Incomplete'})" title="PFAS / REACH substance checks — open Products">
+          <div class="d2-kpi-lbl">Substance checks cleared</div>
+          <div class="d2-kpi-row">
+            <div class="d2-kpi-val">58<small>/64</small></div>
+            <svg class="d2-spark" viewBox="0 0 60 18" preserveAspectRatio="none" aria-hidden="true">
+              <polyline points="0,16 8.6,12.9 17.1,11.3 25.7,8.2 34.3,6.7 42.9,5.1 51.4,3.6 60,2" stroke="var(--gs-l)"/>
+            </svg>
+          </div>
+          <div class="d2-track"><div class="d2-track-f" style="width:91%"></div></div>
+          <div class="d2-kpi-foot">
+            <span class="d2-kpi-tgt">91% · target 64 by 30 Sep · <b style="color:var(--tw)">6 to go</b></span>
+            <span class="d2-delta up">▲ +3 wk</span>
+          </div>
+        </button>
+
+        <button class="d2-kpi d2-anim" onclick="go('ra13')" title="Technical documentation — open Documents">
+          <div class="d2-kpi-lbl">Technical documentation</div>
+          <div class="d2-kpi-row">
+            <div class="d2-kpi-val">45<small>/64</small></div>
+            <svg class="d2-spark" viewBox="0 0 60 18" preserveAspectRatio="none" aria-hidden="true">
+              <polyline points="0,16 8.6,13.8 17.1,12.3 25.7,10.8 34.3,8.6 42.9,7.2 51.4,7.2 60,2" stroke="var(--amber)"/>
+            </svg>
+          </div>
+          <div class="d2-track"><div class="d2-track-f f-warn" style="width:70%"></div></div>
+          <div class="d2-kpi-foot">
+            <span class="d2-kpi-tgt">70% · target 64 by 30 Sep · <b style="color:var(--tw)">19 to go</b></span>
+            <span class="d2-delta up">▲ +7 wk</span>
+          </div>
+        </button>
+
+        <button class="d2-kpi d2-anim" onclick="go('ra9')" title="Supplier data collection — open Tracker">
+          <div class="d2-kpi-lbl">Supplier data returned</div>
+          <div class="d2-kpi-row">
+            <div class="d2-kpi-val">259<small>/380</small></div>
+            <svg class="d2-spark" viewBox="0 0 60 18" preserveAspectRatio="none" aria-hidden="true">
+              <polyline points="0,16 8.6,13.7 17.1,11.3 25.7,9.6 34.3,7.8 42.9,6.1 51.4,4.9 60,2" stroke="var(--amber)"/>
+            </svg>
+          </div>
+          <div class="d2-track"><div class="d2-track-f f-warn" style="width:68%"></div></div>
+          <div class="d2-kpi-foot">
+            <span class="d2-kpi-tgt">68% · target 380 by 14 Sep · <b style="color:var(--tw)">121 to go</b></span>
+            <span class="d2-delta up">▲ +22 wk</span>
+          </div>
+        </button>
+      </div>
+
+      <!-- ══ ACT NOW + DEADLINES ═════════════════════════════════════════
+           Q: what does this reader do next, and can they do it here?
+           The queue is ranked by (severity × days to the deadline it threatens),
+           each row states WHY it matters, and carries the action inline.
+           ═════════════════════════════════════════════════════════════ -->
+      <div class="d2-split" style="display:grid;grid-template-columns:1.5fr 1fr;gap:12px;margin-bottom:12px">
+
+        <div class="grp d2-anim" style="margin-bottom:0">
+          <div class="grp-hdr">
+            <h2>Act now</h2>
+            <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--tw2);font-size:11px">Ranked by risk × deadline</span>
+            <div class="d2-tabs" role="tablist" aria-label="Filter the queue">
+              <button class="d2-tab on" role="tab" aria-selected="true" data-cat="all" onclick="d2Filter(this)">All 7</button>
+              <button class="d2-tab" role="tab" aria-selected="false" data-cat="products" onclick="d2Filter(this)">Products 3</button>
+              <button class="d2-tab" role="tab" aria-selected="false" data-cat="documents" onclick="d2Filter(this)">Documents 2</button>
+              <button class="d2-tab" role="tab" aria-selected="false" data-cat="suppliers" onclick="d2Filter(this)">Suppliers 2</button>
+            </div>
+          </div>
+          <div class="grp-body" style="padding:0" id="d2-queue">
+
+            <div class="d2-act sev-warn" data-cat="suppliers" onclick="go('ra11')">
+              <span class="d2-rank">1</span><span class="d2-act-bar"></span>
+              <div class="d2-act-body">
+                <div class="d2-act-t">182 submissions awaiting your approval <span class="d2-st d2-st-warn"><i>!</i>Your queue</span></div>
+                <div class="d2-act-why">Blocks <b>41 of 64</b> Declarations. Oldest has waited <b>11 days</b>. At 61 approvals a week the queue clears <b>18 Sep</b> — nine days after the Repak return.</div>
+              </div>
+              <div class="d2-act-cta" onclick="event.stopPropagation()">
+                <button class="btn-p" onclick="go('ra11')" style="height:30px;padding:0 11px;font-size:11px"><img class="btn-sw" src="" alt="" data-sw><span class="btn-c">Open queue</span></button>
+              </div>
+            </div>
+
+            <div class="d2-act sev-bad" data-cat="products" onclick="openProductRA('PRK-003-RED')">
+              <span class="d2-rank">2</span><span class="d2-act-bar"></span>
+              <div class="d2-act-body">
+                <div class="d2-act-t">PRK-003-RED · Red Midi Dress <span class="d2-st d2-st-bad"><i>✕</i>Blocker</span></div>
+                <div class="d2-act-why"><b>3 mandatory fields missing</b> — Luntai Packaging has not completed the polybag component. Hard blocker for the <b>09 Sep</b> return.</div>
+              </div>
+              <div class="d2-act-cta" onclick="event.stopPropagation()">
+                <button class="act-mini act-view" onclick="openProductRA('PRK-003-RED')">View</button>
+                <button class="btn-reminder btn-reminder-urgent" onclick="d2Handled(this,'Reminder sent')">Chase Luntai</button>
+              </div>
+            </div>
+
+            <div class="d2-act sev-bad" data-cat="products" onclick="openProductRA('PRK-004-KHA')">
+              <span class="d2-rank">3</span><span class="d2-act-bar"></span>
+              <div class="d2-act-body">
+                <div class="d2-act-t">PRK-004-KHA · Khaki Utility Jacket <span class="d2-st d2-st-bad"><i>✕</i>Blocker</span></div>
+                <div class="d2-act-why">Hanger component <b>never submitted</b>. Supplier opened the invitation 21 days ago and has not returned since.</div>
+              </div>
+              <div class="d2-act-cta" onclick="event.stopPropagation()">
+                <button class="act-mini act-view" onclick="openProductRA('PRK-004-KHA')">View</button>
+                <button class="btn-reminder btn-reminder-urgent" onclick="d2Handled(this,'Reminder sent')">Send reminder</button>
+              </div>
+            </div>
+
+            <div class="d2-act sev-bad" data-cat="documents" onclick="openDocumentRA('doc-022')">
+              <span class="d2-rank">4</span><span class="d2-act-bar"></span>
+              <div class="d2-act-body">
+                <div class="d2-act-t">DoC_PRK-022_v3.pdf expired 5 days ago <span class="d2-st d2-st-bad"><i>✕</i>Expired</span></div>
+                <div class="d2-act-why">A <b>filed</b> Declaration is now invalid — the product still reads as conformant in reports but would fail an audit today.</div>
+              </div>
+              <div class="d2-act-cta" onclick="event.stopPropagation()">
+                <button class="btn-reminder btn-reminder-urgent" onclick="d2Handled(this,'Re-issue requested')">Request re-issue</button>
+              </div>
+            </div>
+
+            <div class="d2-act sev-warn" data-cat="suppliers" onclick="goFilter('ra9',{search:'Overdue'})">
+              <span class="d2-rank">5</span><span class="d2-act-bar"></span>
+              <div class="d2-act-body">
+                <div class="d2-act-t">12 suppliers overdue <span class="d2-st d2-st-warn"><i>!</i>At risk</span></div>
+                <div class="d2-act-why">Between them they hold packaging data for <b>19 products</b>. Five have already had two reminders — those need escalation, not another email.</div>
+              </div>
+              <div class="d2-act-cta" onclick="event.stopPropagation()">
+                <button class="btn-g" onclick="goFilter('ra9',{search:'Overdue'})" style="height:30px;padding:0 11px;font-size:11px">Open tracker</button>
+              </div>
+            </div>
+
+            <div class="d2-act sev-warn" data-cat="products" onclick="openProductRA('PRK-002-BLU')">
+              <span class="d2-rank">6</span><span class="d2-act-bar"></span>
+              <div class="d2-act-body">
+                <div class="d2-act-t">PRK-002-BLU · PCR content 0% vs 30% target <span class="d2-st d2-st-warn"><i>!</i>At risk</span></div>
+                <div class="d2-act-why">Not a blocker for 09 Sep. Becomes one on <b>14 Oct</b> when the PPWR Art. 7 evidence pack is due — 3 products are in the same position.</div>
+              </div>
+              <div class="d2-act-cta" onclick="event.stopPropagation()">
+                <button class="act-mini act-view" onclick="openProductRA('PRK-002-BLU')">View</button>
+              </div>
+            </div>
+
+            <div class="d2-act sev-info d2-last" data-cat="documents" onclick="openDocumentRA('sup-reach')">
+              <span class="d2-rank">7</span><span class="d2-act-bar"></span>
+              <div class="d2-act-body">
+                <div class="d2-act-t">REACH_EcoPack.pdf expires in 14 days <span class="d2-st d2-st-info"><i>i</i>Plan ahead</span></div>
+                <div class="d2-act-why">Covers <b>6 products</b>. A re-test takes about 10 working days, so this has to start this week to avoid a gap.</div>
+              </div>
+              <div class="d2-act-cta" onclick="event.stopPropagation()">
+                <button class="exp-remind" onclick="d2Handled(this,'Re-test requested')">Request re-test</button>
+              </div>
+            </div>
+
+            <!-- Empty state: what this card looks like on a good day -->
+            <div class="d2-empty" id="d2-empty">
+              <div class="d2-empty-i"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><use href="#gsi-19"/></svg></div>
+              <div class="d2-empty-t">Nothing here needs you</div>
+              <div class="d2-empty-s">Everything in this category is handled or not yet due. Switch to <b>All</b> to see the whole queue.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grp d2-anim" style="margin-bottom:0">
+          <div class="grp-hdr">
+            <h2>Filing deadlines</h2>
+            <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--tw2);font-size:11px">Next 60 days</span>
+          </div>
+          <div class="grp-body" style="padding:0">
+            <div class="d2-dl" onclick="go('ra13')">
+              <div class="d2-dl-date"><div class="d2-dl-day">09</div><div class="d2-dl-mon">Sep</div></div>
+              <div class="d2-dl-body">
+                <div class="d2-dl-t">Repak Ireland · Q3 return</div>
+                <div class="d2-dl-s">Needs 64 of 64 DoCs · 16 outstanding</div>
+              </div>
+              <span class="d2-st d2-st-bad"><i>!</i>12 days</span>
+            </div>
+            <div class="d2-dl" onclick="go('ra13')">
+              <div class="d2-dl-date"><div class="d2-dl-day">30</div><div class="d2-dl-mon">Sep</div></div>
+              <div class="d2-dl-body">
+                <div class="d2-dl-t">UK EPR · Q3 packaging data</div>
+                <div class="d2-dl-s">Needs tonnage for 64 products · 19 outstanding</div>
+              </div>
+              <span class="d2-st d2-st-warn"><i>!</i>33 days</span>
+            </div>
+            <div class="d2-dl" onclick="go('ra5')">
+              <div class="d2-dl-date"><div class="d2-dl-day">14</div><div class="d2-dl-mon">Oct</div></div>
+              <div class="d2-dl-body">
+                <div class="d2-dl-t">PPWR Art. 7 · PCR evidence pack</div>
+                <div class="d2-dl-s">3 products below the 30% target</div>
+              </div>
+              <span class="d2-st d2-st-ok"><i>✓</i>47 days</span>
+            </div>
+            <div class="d2-dl d2-last" onclick="go('ra13')">
+              <div class="d2-dl-date"><div class="d2-dl-day">22</div><div class="d2-dl-mon">Oct</div></div>
+              <div class="d2-dl-body">
+                <div class="d2-dl-t">REACH SVHC re-test · EcoPack</div>
+                <div class="d2-dl-s">Covers 6 products · re-test not started</div>
+              </div>
+              <span class="d2-st d2-st-ok"><i>✓</i>55 days</span>
+            </div>
+            <div style="padding:9px 15px;border-top:1px solid var(--line);text-align:right">
+              <a class="bc-link" style="font-size:11.5px;cursor:pointer" onclick="go('ra13')">View the full obligations calendar →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ WHERE THE WORK IS STUCK ═════════════════════════════════════
+           Q: is the bottleneck outside the building or inside it?
+           The funnel answers that in one line — and the answer is "inside".
+           ═════════════════════════════════════════════════════════════ -->
+      <div class="grp d2-anim" style="margin-bottom:12px">
+        <div class="grp-hdr">
+          <h2>Where the 380 supplier invitations stand</h2>
+          <a onclick="go('ra9')" class="bc-link" style="margin-left:auto;font-size:11.5px;cursor:pointer">Open tracker →</a>
+        </div>
+        <div class="grp-body" style="padding:0">
+          <div class="d2-funnel">
+            <div class="d2-fn" onclick="go('ra9')">
+              <div class="d2-fn-lbl">Invited</div>
+              <div class="d2-fn-val">380<small>100%</small></div>
+              <div class="d2-fn-bar"><span style="width:100%"></span></div>
+              <div class="d2-fn-note">12 now overdue</div>
+            </div>
+            <div class="d2-fn" onclick="goFilter('ra9',{search:'Not opened'})">
+              <div class="d2-fn-lbl">Opened</div>
+              <div class="d2-fn-val">333<small>88%</small></div>
+              <div class="d2-fn-bar"><span style="width:88%"></span></div>
+              <div class="d2-fn-note">47 never opened the invitation</div>
+            </div>
+            <div class="d2-fn" onclick="go('ra9')">
+              <div class="d2-fn-lbl">Submitted</div>
+              <div class="d2-fn-val">259<small>68%</small></div>
+              <div class="d2-fn-bar"><span style="width:68%"></span></div>
+              <div class="d2-fn-note">Suppliers have done their part</div>
+            </div>
+            <div class="d2-fn is-you" onclick="go('ra11')">
+              <div class="d2-fn-tag">Bottleneck</div>
+              <div class="d2-fn-lbl">Approved by you</div>
+              <div class="d2-fn-val">77<small>20%</small></div>
+              <div class="d2-fn-bar"><span style="width:20%"></span></div>
+              <div class="d2-fn-note"><b style="color:var(--tw)">182 waiting on your review</b></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ TREND + EXPIRING ════════════════════════════════════════════
+           Q: does this chart change a decision — and does it say so in words?
+           Two series only (in vs out), a target line, and a written takeaway.
+           ═════════════════════════════════════════════════════════════ -->
+      <div class="d2-split" style="display:grid;grid-template-columns:1.35fr 1fr;gap:12px;margin-bottom:12px">
+
+        <div class="grp d2-anim" style="margin-bottom:0">
+          <div class="grp-hdr">
+            <h2>Submitted vs approved · last 7 days</h2>
+            <span style="margin-left:auto;font-weight:400;text-transform:none;letter-spacing:0;color:var(--tw2);font-size:11px">Packaging records per day</span>
+          </div>
+          <div class="grp-body">
+            <div class="wk-chart">
+              <div class="wk-yaxis"><span>30</span><span>20</span><span>10</span><span>0</span></div>
+              <div class="wk-plotcol">
+                <div class="wk-plot">
+                  <div class="wk-hline" style="bottom:100%"></div>
+                  <div class="wk-hline" style="bottom:66.7%"></div>
+                  <div class="wk-hline" style="bottom:33.3%"></div>
+                  <div class="wk-hline" style="bottom:0"></div>
+                  <div class="wk-hline2" style="bottom:16.65%"></div>
+                  <div class="wk-hline2" style="bottom:50%"></div>
+                  <div class="wk-hline2" style="bottom:83.35%"></div>
+                  <div class="wk-vline" style="left:14.28%"></div>
+                  <div class="wk-vline" style="left:28.57%"></div>
+                  <div class="wk-vline" style="left:42.86%"></div>
+                  <div class="wk-vline" style="left:57.14%"></div>
+                  <div class="wk-vline" style="left:71.43%"></div>
+                  <div class="wk-vline" style="left:85.71%"></div>
+                  <!-- the rate you must approve at to clear the queue by 09 Sep -->
+                  <div class="wk-target" style="bottom:43.7%" title="13 approvals a day clears the 182-item queue before the Repak return"><span>Needed: 13/day</span></div>
+                  <div class="wk-bars-row">
+                    <div class="wk-col"><div class="wk-bar wk-submitted" data-series="submitted" style="height:90%" title="Fri 22 · submitted 27"></div><div class="wk-bar wk-approved" data-series="approved" style="height:47%" title="Fri 22 · approved 14"></div></div>
+                    <div class="wk-col"><div class="wk-bar wk-submitted" data-series="submitted" style="height:50%" title="Sat 23 · submitted 15"></div><div class="wk-bar wk-approved" data-series="approved" style="height:13%" title="Sat 23 · approved 4"></div></div>
+                    <div class="wk-col"><div class="wk-bar wk-submitted" data-series="submitted" style="height:47%" title="Sun 24 · submitted 14"></div><div class="wk-bar wk-approved" data-series="approved" style="height:13%" title="Sun 24 · approved 4"></div></div>
+                    <div class="wk-col"><div class="wk-bar wk-submitted" data-series="submitted" style="height:60%" title="Mon 25 · submitted 18"></div><div class="wk-bar wk-approved" data-series="approved" style="height:30%" title="Mon 25 · approved 9"></div></div>
+                    <div class="wk-col"><div class="wk-bar wk-submitted" data-series="submitted" style="height:80%" title="Tue 26 · submitted 24"></div><div class="wk-bar wk-approved" data-series="approved" style="height:37%" title="Tue 26 · approved 11"></div></div>
+                    <div class="wk-col"><div class="wk-bar wk-submitted" data-series="submitted" style="height:53%" title="Wed 27 · submitted 16"></div><div class="wk-bar wk-approved" data-series="approved" style="height:23%" title="Wed 27 · approved 7"></div></div>
+                    <div class="wk-col"><div class="wk-bar wk-submitted" data-series="submitted" style="height:97%" title="Thu 28 · submitted 29"></div><div class="wk-bar wk-approved" data-series="approved" style="height:40%" title="Thu 28 · approved 12"></div></div>
+                  </div>
+                </div>
+                <div class="wk-days">
+                  <div class="wk-day">Fri<span>22</span></div>
+                  <div class="wk-day">Sat<span>23</span></div>
+                  <div class="wk-day">Sun<span>24</span></div>
+                  <div class="wk-day">Mon<span>25</span></div>
+                  <div class="wk-day">Tue<span>26</span></div>
+                  <div class="wk-day">Wed<span>27</span></div>
+                  <div class="wk-day">Thu<span>28</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="wk-legend">
+              <button class="wk-key" data-series="submitted" onclick="wkToggle(this)"><span class="wk-sw wk-submitted"></span>Submitted by suppliers · 143</button>
+              <button class="wk-key" data-series="approved" onclick="wkToggle(this)"><span class="wk-sw wk-approved"></span>Approved by you · 61</button>
+            </div>
+            <p class="d2-takeaway">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#d2i-trend"/></svg>
+              <span>Suppliers submitted <b>143</b> records this week; you approved <b>61</b>. The review queue grew by <b>82</b> — the third week running.
+              Approving <b>13 a day</b> instead of 9 clears it before the Repak return on 09 Sep.</span>
+            </p>
+          </div>
+        </div>
+
+        <div class="grp d2-anim" style="margin-bottom:0">
+          <div class="grp-hdr">
+            <h2>Documents expiring soon</h2>
+            <span style="margin-left:auto;display:inline-flex;align-items:center;gap:6px"><span class="d2-st d2-st-bad"><i>!</i>4 in 60 days</span></span>
+          </div>
+          <div class="grp-body" style="padding:0">
+            <div class="exp-row" onclick="raPreviewDoc(event,this)" data-doc-id="doc-022">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke-width="2" style="flex-shrink:0;stroke:var(--status-danger)"><use href="#gsi-29"/></svg>
+              <div style="flex:1;min-width:0"><div class="tbl-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">DoC_PRK-022_v3.pdf</div><div style="font-size:11px;color:var(--tw2)">DoC · EcoPack · 1 product</div></div>
+              <span class="d2-st d2-st-bad"><i>✕</i>Expired 5 days ago</span>
+              <button class="exp-remind" onclick="raRemindDoc(event,this)" title="Send reminder to supplier"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-18"/></svg>Remind</button>
+            </div>
+            <div class="exp-row" onclick="raPreviewDoc(event,this)" data-doc-id="doc-030">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke-width="2" style="flex-shrink:0;stroke:var(--status-danger)"><use href="#gsi-29"/></svg>
+              <div style="flex:1;min-width:0"><div class="tbl-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">DoC_PRK-030_v2.pdf</div><div style="font-size:11px;color:var(--tw2)">DoC · Luntai · 1 product</div></div>
+              <span class="d2-st d2-st-bad"><i>!</i>9 days left</span>
+              <button class="exp-remind" onclick="raRemindDoc(event,this)" title="Send reminder to supplier"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-18"/></svg>Remind</button>
+            </div>
+            <div class="exp-row" onclick="raPreviewDoc(event,this)" data-doc-id="sup-reach">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke-width="2" style="flex-shrink:0;stroke:var(--status-warn)"><use href="#gsi-29"/></svg>
+              <div style="flex:1;min-width:0"><div class="tbl-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">REACH_EcoPack.pdf</div><div style="font-size:11px;color:var(--tw2)">Test report · EcoPack · 6 products</div></div>
+              <span class="d2-st d2-st-warn"><i>!</i>14 days left</span>
+              <button class="exp-remind" onclick="raRemindDoc(event,this)" title="Send reminder to supplier"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-18"/></svg>Remind</button>
+            </div>
+            <div class="exp-row" onclick="raPreviewDoc(event,this)" data-doc-id="sup-fsc2">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke-width="2" style="flex-shrink:0;stroke:var(--tw2)"><use href="#gsi-29"/></svg>
+              <div style="flex:1;min-width:0"><div class="tbl-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">FSC_CoC_Nordic.pdf</div><div style="font-size:11px;color:var(--tw2)">Certificate · Nordic Packaging · 4 products</div></div>
+              <span class="d2-st d2-st-ok"><i>✓</i>45 days left</span>
+              <button class="exp-remind" onclick="raRemindDoc(event,this)" title="Send reminder to supplier"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-18"/></svg>Remind</button>
+            </div>
+            <div id="d2-exp-footer" style="padding:9px 15px;border-top:1px solid var(--line);text-align:right">
+              <a class="bc-link" style="font-size:11.5px;cursor:pointer" onclick="event.stopPropagation();go('ra13')">View all documents →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ THE DETAIL LAYER ════════════════════════════════════════════
+           Q: when the summary is not enough, where does the reader go?
+           One table, the same 64-product denominator as everything above,
+           status as glyph + word, and the exceptions listed first.
+           ═════════════════════════════════════════════════════════════ -->
+      <div class="grp d2-anim">
+        <div class="grp-hdr">
+          <h2>Product conformity · exceptions first</h2>
+          <div class="d2-chips" style="margin-left:auto">
+            <button class="d2-chip on" data-f="all" onclick="d2Chip(this)">All 64</button>
+            <button class="d2-chip" data-f="bad" onclick="d2Chip(this)">Non-conformant 5</button>
+            <button class="d2-chip" data-f="warn" onclick="d2Chip(this)">At risk 8</button>
+            <button class="d2-chip" data-f="ok" onclick="d2Chip(this)">Conformant 51</button>
+          </div>
+        </div>
+        <div class="grp-body" style="padding:0">
+          <div class="tbl-scroll">
+            <table class="tbl" data-nosort>
+              <colgroup><col width="15%"><col width="22%"><col width="14%"><col width="26%"><col width="23%"></colgroup>
+              <thead><tr><th scope="col">Product</th><th scope="col">Description</th><th scope="col">Status</th><th scope="col">What is failing</th><th scope="col">Next step</th></tr></thead>
+              <tbody id="d2-conf-body">
+                <tr data-st="bad" onclick="openProductRA('PRK-003-RED')" title="Open product detail">
+                  <td class="tbl-name gs-id-cell">PRK-003-RED</td>
+                  <td class="tbl-muted" style="color:var(--tw2)">Red Midi Dress</td>
+                  <td><span class="d2-st d2-st-bad"><i>✕</i>Non-conformant</span></td>
+                  <td style="color:var(--tw2)">3 mandatory fields missing — supplier incomplete</td>
+                  <td style="padding:7px 12px" onclick="event.stopPropagation()">
+                    <div style="display:flex;align-items:center;gap:6px">
+                      <button class="act-mini act-view" onclick="openProductRA('PRK-003-RED')">View</button>
+                      <button class="btn-reminder btn-reminder-urgent" onclick="d2Handled(this,'Reminder sent')">Chase supplier</button>
+                    </div>
+                  </td>
+                </tr>
+                <tr data-st="bad" onclick="openProductRA('PRK-004-KHA')" title="Open product detail">
+                  <td class="tbl-name gs-id-cell">PRK-004-KHA</td>
+                  <td class="tbl-muted" style="color:var(--tw2)">Khaki Utility Jacket</td>
+                  <td><span class="d2-st d2-st-bad"><i>✕</i>Non-conformant</span></td>
+                  <td style="color:var(--tw2)">Hanger component never submitted</td>
+                  <td style="padding:7px 12px" onclick="event.stopPropagation()">
+                    <div style="display:flex;align-items:center;gap:6px">
+                      <button class="act-mini act-view" onclick="openProductRA('PRK-004-KHA')">View</button>
+                      <button class="btn-reminder btn-reminder-urgent" onclick="d2Handled(this,'Reminder sent')">Chase supplier</button>
+                    </div>
+                  </td>
+                </tr>
+                <tr data-st="warn" onclick="openProductRA('PRK-002-BLU')" title="Open product detail">
+                  <td class="tbl-name gs-id-cell">PRK-002-BLU</td>
+                  <td class="tbl-muted" style="color:var(--tw2)">Blue Slim Fit Jeans</td>
+                  <td><span class="d2-st d2-st-warn"><i>!</i>At risk</span></td>
+                  <td style="color:var(--tw2)">PCR 0% — below the Art. 7 target of 30%</td>
+                  <td style="padding:7px 12px" onclick="event.stopPropagation()">
+                    <div style="display:flex;align-items:center;gap:6px">
+                      <button class="act-mini act-view" onclick="openProductRA('PRK-002-BLU')">View</button>
+                      <button class="btn-reminder" onclick="d2Handled(this,'Reminder sent')">Request PCR</button>
+                    </div>
+                  </td>
+                </tr>
+                <tr data-st="ok" onclick="openProductRA('PRK-001-BLA')" title="Open product detail">
+                  <td class="tbl-name gs-id-cell">PRK-001-BLA</td>
+                  <td class="tbl-muted" style="color:var(--tw2)">Black Crew Neck Sweatshirt</td>
+                  <td><span class="d2-st d2-st-ok"><i>✓</i>Conformant</span></td>
+                  <td style="color:var(--tw2)">Nothing — all 11 checks passed</td>
+                  <td style="padding:7px 12px" onclick="event.stopPropagation()">
+                    <div style="display:flex;align-items:center;gap:6px">
+                      <button class="act-mini act-view" onclick="openProductRA('PRK-001-BLA')">View</button>
+                      <button class="btn-p" onclick="go('ra12')" style="height:28px;padding:0 11px;font-size:11px"><img class="btn-sw" src="" alt="" data-sw><span class="btn-c">Generate DoC</span></button>
+                    </div>
+                  </td>
+                </tr>
+                <tr data-st="ok" onclick="openProductRA('PRK-005-WHI')" title="Open product detail">
+                  <td class="tbl-name gs-id-cell">PRK-005-WHI</td>
+                  <td class="tbl-muted" style="color:var(--tw2)">White Essential T-Shirt</td>
+                  <td><span class="d2-st d2-st-ok"><i>✓</i>Conformant</span></td>
+                  <td style="color:var(--tw2)">Nothing — all 11 checks passed</td>
+                  <td style="padding:7px 12px" onclick="event.stopPropagation()">
+                    <div style="display:flex;align-items:center;gap:6px">
+                      <button class="act-mini act-view" onclick="openProductRA('PRK-005-WHI')">View</button>
+                      <button class="btn-p" onclick="go('ra12')" style="height:28px;padding:0 11px;font-size:11px"><img class="btn-sw" src="" alt="" data-sw><span class="btn-c">Generate DoC</span></button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="tbl-footer" style="padding:9px 15px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">
+            <span id="d2-conf-count">Showing 5 of 64 products · 5 non-conformant · 8 at risk · 51 conformant</span>
+            <a class="bc-link" style="font-size:11.5px;cursor:pointer" onclick="go('ra6')">Open the full catalogue →</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══ Expiring-document quick preview ═════════════════════════════════ -->
+<div class="modal-overlay" id="d2-doc-preview-modal" onclick="d2ClosePreviewOverlay(event)">
+  <div class="modal-box" style="max-width:640px;width:92vw;height:92vh;display:flex;flex-direction:column;position:relative;padding:22px">
+    <button onclick="d2ClosePreview()" title="Close" aria-label="Close preview" class="d2-rat-x" style="position:absolute;top:14px;right:14px">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#d2i-x"/></svg>
+    </button>
+    <div style="display:flex;align-items:flex-start;gap:11px;margin-bottom:14px;padding-right:44px;flex-shrink:0">
+      <div style="width:38px;height:38px;border-radius:9px;background:rgba(224,96,90,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--status-danger)" stroke-width="2"><use href="#gsi-29"/></svg>
+      </div>
+      <div style="min-width:0">
+        <div style="font-size:14px;font-weight:600" id="d2-prev-name">Document.pdf</div>
+        <div style="font-size:11.5px;color:var(--tw2);margin-top:2px" id="d2-prev-meta">Type · Supplier</div>
+      </div>
+    </div>
+    <div style="flex:1;min-height:0;border:1px dashed var(--line-2);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(255,255,255,.02);margin-bottom:14px">
+      <svg width="66" height="66" viewBox="0 0 24 24" fill="none" stroke="var(--tw2)" stroke-width="1.4" style="margin-bottom:14px;opacity:.6"><use href="#gsi-29"/></svg>
+      <div style="font-size:13.5px;color:var(--tw2)">Document preview</div>
+      <div style="margin-top:10px" id="d2-prev-expiry"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-shrink:0">
+      <div style="display:flex;gap:8px">
+        <button class="exp-remind" id="d2-prev-remind-btn" onclick="d2RemindFromPreview()" title="Send reminder to supplier"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-18"/></svg>Remind</button>
+        <button class="btn-g" onclick="d2ClosePreview()">Close</button>
+      </div>
+      <button class="btn-p" onclick="d2OpenInDocuments()"><img class="btn-sw" src="" alt="" data-sw><span class="btn-c">Open in Documents</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ REVIEWER AID — the design questions behind this layout ══════════
+     Not part of the product UI. It is here so a reviewer can read the
+     rationale next to the thing it produced. Delete this block and the
+     .d2-rat-* CSS to ship the page.
+     ════════════════════════════════════════════════════════════════════ -->
+<button class="d2-rat-tab" onclick="d2OpenRat()" aria-controls="d2-rat" aria-expanded="false" id="d2-rat-tab">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#d2i-q"/></svg>
+  17 design questions
+</button>
+<aside class="d2-rat" id="d2-rat" aria-hidden="true" aria-label="Design rationale">
+  <div class="d2-rat-hd">
+    <div>
+      <h2>The 17 questions behind this screen</h2>
+      <p>Industry best practice, phrased as the questions a designer should be able to answer <em>before</em> drawing a dashboard — each one with the answer this page commits to. Reviewer aid, not product UI.</p>
+    </div>
+    <button class="d2-rat-x" onclick="d2CloseRat()" aria-label="Close rationale"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#d2i-x"/></svg></button>
+  </div>
+  <div class="d2-rat-body">
+
+    <div class="d2-rat-sec">A · Purpose — who, what decision, how fast</div>
+    <div class="d2-rq"><div class="d2-rq-q"><span>1</span>Who is the one person this screen is for, and what is their actual job?</div>
+      <div class="d2-rq-a">A retailer compliance admin. Their job is not analysis, it is <b>chasing evidence before a filing date</b>. Multi-audience dashboards fail — the finance view and the supplier view are separate screens, not extra widgets here.</div></div>
+    <div class="d2-rq"><div class="d2-rq-q"><span>2</span>What decision does it drive, and how often is that decision made?</div>
+      <div class="d2-rq-a">“Who do I chase today so the return files on time?” — <b>daily</b>. Daily cadence means an <b>operational</b> dashboard: ranked work and live status, not free-form exploration.</div></div>
+    <div class="d2-rq"><div class="d2-rq-q"><span>3</span>What must a reader understand in the first five seconds?</div>
+      <div class="d2-rq-a">Three things: <b>not ready to file · 182 items sit with you · 12 days left</b>. The verdict block exists only to say that; everything below it is the explanation.</div></div>
+
+    <div class="d2-rat-sec">B · Every number — is it good, is it moving, is it real</div>
+    <div class="d2-rq"><div class="d2-rq-q"><span>4</span>For each metric: is that good? Compared with what?</div>
+      <div class="d2-rq-a">No bare numbers. Every tile carries a <b>target, a target date, the remaining gap and a progress track</b> — “48/64 · 75% · target 64 by 30 Sep · 16 to go”.</div></div>
+    <div class="d2-rq"><div class="d2-rq-q"><span>5</span>Which way is it moving, and fast enough to make the date?</div>
+      <div class="d2-rq-a">A week-on-week delta and an 8-week sparkline on every tile — and the chart converts the <em>rate</em> into a <b>date</b>: 61 approvals a week clears the queue on 18 Sep, nine days after the deadline.</div></div>
+    <div class="d2-rq"><div class="d2-rq-q"><span>6</span>Would anyone behave differently if this number changed? If not, cut it.</div>
+      <div class="d2-rq-a">The old three-series “in progress” bars changed no decision. Replaced with <b>submitted vs approved</b>, which is the one comparison that reveals the bottleneck is internal.</div></div>
+    <div class="d2-rq"><div class="d2-rq-q"><span>7</span>Is every number on the same denominator — and does it agree with the page it drills into?</div>
+      <div class="d2-rq-a">All product figures are <b>/64</b> (the catalogue's real total) and supplier figures <b>/380</b>. The previous version mixed “/20” tiles with a “380 products” footer over a 64-product catalogue.</div></div>
+
+    <div class="d2-rat-sec">C · Structure — where the eye lands</div>
+    <div class="d2-rq"><div class="d2-rq-q"><span>8</span>Does the single most important thing occupy the top-left?</div>
+      <div class="d2-rq-a">Readers scan F/Z and spend most of their attention on the top and the left. The verdict runs across the top, the four comparable KPIs sit second, the tables sit last.</div></div>
+    <div class="d2-rq"><div class="d2-rq-q"><span>9</span>Can the decision be made without scrolling?</div>
+      <div class="d2-rq-a">Verdict + KPI row + the top of the queue fit one viewport — the <b>decision layer</b>. Trend, funnel and tables are deliberately below the fold as the <b>explain layer</b>.</div></div>
+    <div class="d2-rq"><div class="d2-rq-q"><span>10</span>Is each display medium the right one — and is any variety meaningful?</div>
+      <div class="d2-rq-a">One bar chart (two series over time), four identical sparklines, one funnel. No second chart type doing the same job, and no 38px donut encoding three shares.</div></div>
+
+    <div class="d2-rat-sec">D · Action — can they do anything about it</div>
+    <div class="d2-rq"><div class="d2-rq-q"><span>11</span>Can the reader act here, or only look?</div>
+      <div class="d2-rq-a">Every queue row, deadline and document carries its action <b>inline</b> — chase, remind, request, open the queue. Nothing is a dead end and nothing needs a second screen to start.</div></div>
+    <div class="d2-rq"><div class="d2-rq-q"><span>12</span>Does each item say why it matters, in plain language?</div>
+      <div class="d2-rq-a">Each row states the <b>consequence and the date it bites</b> — “blocks 41 of 64 Declarations”, “becomes a blocker on 14 Oct” — not just the fault code.</div></div>
+    <div class="d2-rq"><div class="d2-rq-q"><span>13</span>What does this screen look like on a good day?</div>
+      <div class="d2-rq-a">The empty state is designed, not left to chance. Filter the queue to a category with nothing outstanding to see it.</div></div>
+
+    <div class="d2-rat-sec">E · Trust — would you bet a filing on it</div>
+    <div class="d2-rq"><div class="d2-rq-q"><span>14</span>How old is this data, and what scope am I looking at?</div>
+      <div class="d2-rq-a">A freshness stamp and explicit scope chips (period, markets, counts in scope) sit above the verdict. An undated dashboard cannot be acted on.</div></div>
+    <div class="d2-rq"><div class="d2-rq-q"><span>15</span>Does it survive being read with no colour?</div>
+      <div class="d2-rq-a">Every status is a <b>glyph + a word</b> (✓ Conformant · ! At risk · ✕ Non-conformant). The old coloured dots carried the meaning in hue alone — WCAG 1.4.1.</div></div>
+    <div class="d2-rq"><div class="d2-rq-q"><span>16</span>Does it survive small text, a tablet, and a screen reader?</div>
+      <div class="d2-rq-a">Nothing below <b>11px</b>, secondary text on the 74% ink not the 62%, breakpoints at 1180/900/680 with tables that scroll and 40px touch targets, a real h1/h2 outline, and reduced-motion honoured.</div></div>
+    <div class="d2-rq"><div class="d2-rq-q"><span>17</span>Can the reader take the data away?</div>
+      <div class="d2-rq-a">“Export view (CSV)” exports what is on screen, filters and all. Data etiquette: never trap the numbers in the picture.</div></div>
+
+  </div>
+</aside>
+
+<script src="js/retailer-admin.js?v=34"></script>
+<script src="js/greenstreets-theme.js?v=27"></script>
+<script src="js/gs-appearance.js?v=9"></script>
+<script>
+/* Register this alternative dashboard with the shared router without touching
+   the shared file — the -Light glue resolves the twin from GS_PAGES at call time. */
+if (window.GS_PAGES) window.GS_PAGES['ra1_v2'] = '02-Greenstreets_retailer_admin_Dashboard-02.html';
+
+/* ── header notification menu ───────────────────────────────────────── */
+function raToggleNotif(e){ if(e){e.stopPropagation();} var m=document.getElementById('ra-notif-menu'); if(m) m.classList.toggle('open'); }
+document.addEventListener('click', function(e){
+  var m=document.getElementById('ra-notif-menu');
+  if(m && m.classList.contains('open') && !e.target.closest('#ra-notif-menu') && !e.target.closest('[onclick*="raToggleNotif"]')) m.classList.remove('open');
+});
+
+/* ── "act now" category filter ──────────────────────────────────────────
+   A category tab shows OUTSTANDING work only. Handled rows stay readable
+   under "All" (dimmed, with a done chip) but drop out of the category
+   counts — which is how the designed empty state becomes reachable:
+   handle both document items, then switch to Documents. */
+function d2Rows(){ return Array.prototype.slice.call(document.querySelectorAll('#d2-queue .d2-act')); }
+function d2ActiveCat(){
+  var on = document.querySelector('.d2-tab.on');
+  return on ? on.getAttribute('data-cat') : 'all';
+}
+function d2Counts(){
+  var n = {all:0, products:0, documents:0, suppliers:0};
+  d2Rows().forEach(function(r){
+    if(r.dataset.done) return;                 // handled work is not outstanding
+    n.all++; n[r.getAttribute('data-cat')]++;
+  });
+  document.querySelectorAll('.d2-tab').forEach(function(b){
+    var c = b.getAttribute('data-cat');
+    b.textContent = ({all:'All', products:'Products', documents:'Documents', suppliers:'Suppliers'})[c] + ' ' + n[c];
+  });
+  return n;
+}
+function d2Render(){
+  var cat = d2ActiveCat(), rows = d2Rows(), shown = 0;
+  rows.forEach(function(r){
+    var hit = (cat === 'all') ? true : (r.getAttribute('data-cat') === cat && !r.dataset.done);
+    r.classList.toggle('d2-hidden', !hit);
+    if(hit) shown++;
+  });
+  /* keep the last visible row flush — no dangling divider */
+  rows.forEach(function(r){ r.classList.remove('d2-last'); });
+  var vis = rows.filter(function(r){ return !r.classList.contains('d2-hidden'); });
+  if(vis.length) vis[vis.length - 1].classList.add('d2-last');
+  document.getElementById('d2-empty').classList.toggle('on', shown === 0);
+  d2Counts();
+}
+function d2Filter(btn){
+  document.querySelectorAll('.d2-tab').forEach(function(b){
+    var on = b === btn; b.classList.toggle('on', on); b.setAttribute('aria-selected', on ? 'true' : 'false');
+  });
+  d2Render();
+}
+
+/* ── conformity status chips ─────────────────────────────────────────── */
+function d2Chip(btn){
+  var f = btn.getAttribute('data-f');
+  document.querySelectorAll('.d2-chip').forEach(function(b){ b.classList.toggle('on', b === btn); });
+  var rows = Array.prototype.slice.call(document.querySelectorAll('#d2-conf-body tr'));
+  var shown = 0;
+  rows.forEach(function(r){
+    var hit = (f === 'all') || (r.getAttribute('data-st') === f);
+    r.classList.toggle('d2-hidden', !hit);
+    if(hit) shown++;
+  });
+  var total = {all:64, bad:5, warn:8, ok:51}[f];
+  var label = {all:'products', bad:'non-conformant products', warn:'products at risk', ok:'conformant products'}[f];
+  document.getElementById('d2-conf-count').textContent =
+    'Showing ' + shown + ' of ' + total + ' ' + label +
+    (f === 'all' ? ' · 5 non-conformant · 8 at risk · 51 conformant' : '');
+}
+
+/* ── inline action feedback: the row says it was handled, in place ─────
+   The action's outcome replaces the button (never a toast that vanishes
+   before it is read), and a queue row drops out of its category count. */
+function d2Handled(btn, label){
+  if(!btn || btn.dataset.done) return;
+  btn.dataset.done = '1';
+  var span = document.createElement('span');
+  span.className = 'd2-done';
+  span.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><use href="#gsi-19"/></svg>' + label;
+  btn.replaceWith(span);
+  var row = span.closest('.d2-act');
+  if(row){ row.dataset.done = '1'; row.classList.add('d2-resolved'); d2Render(); }
+}
+function d2Toast(btn, label){
+  var old = btn.innerHTML;
+  btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><use href="#gsi-19"/></svg>' + label;
+  setTimeout(function(){ btn.innerHTML = old; }, 1900);
+}
+
+/* ── weekly chart: isolate a series; click a bar to drill in ─────────── */
+function wkToggle(btn){
+  var s = btn.getAttribute('data-series');
+  btn.classList.toggle('off');
+  var hide = btn.classList.contains('off');
+  document.querySelectorAll('.wk-bar[data-series="'+s+'"]').forEach(function(b){ b.style.display = hide ? 'none' : ''; });
+}
+document.addEventListener('click', function(e){
+  var bar = e.target.closest && e.target.closest('.wk-bar');
+  if(!bar) return;
+  if(bar.getAttribute('data-series') === 'approved') go('ra11');
+  else if(typeof goFilter === 'function') goFilter('ra6', {selectValue:'Incomplete'});
+});
+
+/* ── expiring documents: remind in place, then sink the handled row ──── */
+function d2RemindDoc(ev, btn){
+  if(ev){ ev.stopPropagation(); }
+  if(!btn || btn.dataset.sent) return;
+  btn.dataset.sent = '1';
+  btn.disabled = true;
+  btn.classList.add('exp-remind-sent');
+  btn.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><use href="#gsi-19"/></svg>Reminder sent';
+  var row = btn.closest('.exp-row');
+  if(!row) return;
+  var list = row.parentNode, footer = document.getElementById('d2-exp-footer');
+  row.style.transition = 'opacity .25s ease, transform .25s ease';
+  row.style.opacity = '0'; row.style.transform = 'translateY(-6px)';
+  setTimeout(function(){
+    if(footer && footer.parentNode === list) list.insertBefore(row, footer); else list.appendChild(row);
+    row.style.transform = 'translateY(6px)';
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){
+      row.style.opacity = '1'; row.style.transform = 'translateY(0)';
+    }); });
+  }, 260);
+}
+/* the old page's handler name, kept so the markup reads the same */
+var raRemindDoc = d2RemindDoc;
+
+var d2PreviewRow = null;
+function raPreviewDoc(ev, row){
+  if(ev){ ev.stopPropagation(); }
+  d2PreviewRow = row;
+  var nameEl = row.querySelector('.tbl-name');
+  var metaEl = nameEl && nameEl.nextElementSibling;
+  var stEl   = row.querySelector('.d2-st');
+  document.getElementById('d2-prev-name').textContent = nameEl ? nameEl.textContent : '';
+  document.getElementById('d2-prev-meta').textContent = metaEl ? metaEl.textContent : '';
+  document.getElementById('d2-prev-expiry').innerHTML = stEl ? stEl.outerHTML : '';
+  var rowBtn = row.querySelector('.exp-remind'), pvBtn = document.getElementById('d2-prev-remind-btn');
+  if(rowBtn && rowBtn.dataset.sent){
+    pvBtn.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><use href="#gsi-19"/></svg>Reminder sent';
+    pvBtn.disabled = true; pvBtn.classList.add('exp-remind-sent');
+  } else {
+    pvBtn.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-18"/></svg>Remind';
+    pvBtn.disabled = false; pvBtn.classList.remove('exp-remind-sent');
+  }
+  document.getElementById('d2-doc-preview-modal').classList.add('open');
+}
+function d2ClosePreview(){ document.getElementById('d2-doc-preview-modal').classList.remove('open'); d2PreviewRow = null; }
+function d2ClosePreviewOverlay(ev){ if(ev.target.id === 'd2-doc-preview-modal') d2ClosePreview(); }
+function d2OpenInDocuments(){
+  var id = d2PreviewRow && d2PreviewRow.getAttribute('data-doc-id');
+  d2ClosePreview();
+  if(id && typeof openDocumentRA === 'function') openDocumentRA(id); else go('ra13');
+}
+function d2RemindFromPreview(){
+  if(!d2PreviewRow) return;
+  d2RemindDoc(null, d2PreviewRow.querySelector('.exp-remind'));
+  var pvBtn = document.getElementById('d2-prev-remind-btn');
+  pvBtn.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><use href="#gsi-19"/></svg>Reminder sent';
+  pvBtn.disabled = true; pvBtn.classList.add('exp-remind-sent');
+}
+
+/* initial pass: counts + last-row divider + empty-state state */
+d2Render();
+
+/* ── reviewer-aid drawer ────────────────────────────────────────────── */
+function d2OpenRat(){
+  document.getElementById('d2-rat').classList.add('open');
+  document.getElementById('d2-rat').setAttribute('aria-hidden','false');
+  document.getElementById('d2-rat-tab').setAttribute('aria-expanded','true');
+}
+function d2CloseRat(){
+  document.getElementById('d2-rat').classList.remove('open');
+  document.getElementById('d2-rat').setAttribute('aria-hidden','true');
+  document.getElementById('d2-rat-tab').setAttribute('aria-expanded','false');
+}
+document.addEventListener('keydown', function(e){
+  if(e.key !== 'Escape') return;
+  d2CloseRat();
+  var m = document.getElementById('d2-doc-preview-modal');
+  if(m && m.classList.contains('open')) d2ClosePreview();
+});
+</script>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     ENTRANCE — decision layer first, explain layer after.
+     The order is the argument: verdict → KPIs → queue → the rest.
+
+     Three things the v1 engine got wrong and this one does not:
+       1. prefers-reduced-motion is honoured — jump straight to the end state.
+       2. A hidden/background tab freezes rAF and WAAPI, so the pre-hidden
+          content stayed at opacity:0 forever. Hidden tabs skip the animation
+          and play it on first reveal instead.
+       3. A safety timer force-clears every inline hidden state after the
+          timeline should have finished, so a stalled animation can never
+          leave the dashboard blank.
+     ══════════════════════════════════════════════════════════════════ -->
+<script>
+(function(){
+  'use strict';
+  var REDUCE = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var $$ = function(s){ return Array.prototype.slice.call(document.querySelectorAll(s)); };
+  var EASE = 'cubic-bezier(.22,1,.36,1)';
+  var TOTAL = 2600;               // ms — longest possible timeline, incl. bar stagger
+  var timers = [];
+  var at = function(ms, fn){ timers.push(setTimeout(fn, ms)); };
+
+  var blocks = $$('#d2 .d2-anim');
+  var sidebar = document.querySelector('#d2 .sidebar');
+  var vals = $$('#d2 .d2-kpi-val, #d2 .d2-fn-val, #d2 .d2-clock-n');
+  var tracks = $$('#d2 .d2-track-f, #d2 .d2-fn-bar span');
+  var bars = $$('#d2 .wk-bar');
+
+  function finish(){
+    document.documentElement.classList.remove('gs-anim-armed');
+    blocks.forEach(function(b){ b.style.opacity=''; b.style.transform=''; });
+    if(sidebar){ sidebar.style.opacity=''; sidebar.style.transform=''; }
+    bars.forEach(function(b){ b.style.opacity=''; b.style.transform=''; });
+    tracks.forEach(function(t){ if(t._w!=null) t.style.width=t._w; });
+    vals.forEach(function(v){ if(v._node) v._node.nodeValue = v._t + v._sfx; });
+  }
+
+  /* capture the authored end states before anything is touched */
+  tracks.forEach(function(t){ t._w = t.style.width || '0%'; });
+  vals.forEach(function(v){
+    var n = v.childNodes[0];
+    if(n && n.nodeType === 3){
+      var m = String(n.nodeValue).match(/^\s*([\d]+)(.*)$/);
+      if(m){ v._node = n; v._t = parseInt(m[1],10); v._sfx = m[2] || ''; }
+    }
+  });
+
+  /* Reduced motion, or a tab that is not compositing yet: show the end state.
+     A hidden tab gets the animation on its first reveal instead of never. */
+  if(REDUCE){ finish(); return; }
+  if(document.visibilityState === 'hidden'){
+    finish();
+    document.addEventListener('visibilitychange', function once(){
+      if(document.visibilityState !== 'visible') return;
+      document.removeEventListener('visibilitychange', once);
+      play();
+    });
+    return;
+  }
+  play();
+
+  function rise(el, dur, dist, delay){
+    if(!el) return;
+    el.animate([{opacity:0, transform:'translateY('+dist+'px)'},{opacity:1, transform:'translateY(0)'}],
+      {duration:dur, delay:delay||0, easing:EASE, fill:'both'})
+      .finished.then(function(){ el.style.opacity=''; el.style.transform=''; }).catch(function(){});
+  }
+  function countUp(v, dur){
+    if(!v || !v._node) return;
+    var start = null;
+    function frame(ts){
+      if(start === null) start = ts;
+      var p = Math.min(1, (ts - start) / dur), e = 1 - Math.pow(1 - p, 3);
+      v._node.nodeValue = Math.round(v._t * e) + v._sfx;
+      if(p < 1) requestAnimationFrame(frame); else v._node.nodeValue = v._t + v._sfx;
+    }
+    requestAnimationFrame(frame);
+  }
+
+  function play(){
+    timers.forEach(clearTimeout); timers = [];
+
+    /* arm — hide at the start state */
+    blocks.forEach(function(b){ b.style.opacity = '0'; });
+    if(sidebar){ sidebar.style.opacity = '0'; sidebar.style.transform = 'translateX(-40%)'; }
+    tracks.forEach(function(t){ t.style.width = '0%'; });
+    vals.forEach(function(v){ if(v._node) v._node.nodeValue = '0' + v._sfx; });
+    bars.forEach(function(b){ b.style.opacity = '0'; b.style.transform = 'scaleY(0)'; b.style.transformOrigin = 'bottom'; });
+    document.documentElement.classList.remove('gs-anim-armed');
+
+    /* play */
+    if(sidebar){
+      sidebar.animate([{opacity:0, transform:'translateX(-40%)'},{opacity:1, transform:'translateX(0)'}],
+        {duration:420, easing:EASE, fill:'both'})
+        .finished.then(function(){ sidebar.style.opacity=''; sidebar.style.transform=''; }).catch(function(){});
+    }
+    blocks.forEach(function(b,i){ rise(b, 380, 16, 150 + i * 70); });
+
+    at(330, function(){ vals.forEach(function(v,i){ at(i * 55, function(){ countUp(v, 480); }); }); });
+    at(430, function(){ tracks.forEach(function(t,i){
+      t.animate([{width:'0%'},{width:t._w}], {duration:620, delay:i*55, easing:EASE, fill:'both'})
+        .finished.then(function(){ t.style.width = t._w; }).catch(function(){});
+    }); });
+    at(900, function(){ bars.forEach(function(b,i){ at(i * 38, function(){
+      b.animate([{opacity:0, transform:'scaleY(0)'},{opacity:1, transform:'scaleY(1)'}],
+        {duration:320, easing:'cubic-bezier(.2,.8,.25,1)', fill:'both'})
+        .finished.then(function(){ b.style.opacity=''; b.style.transform=''; }).catch(function(){});
+    }); }); });
+
+    /* safety net — no stalled animation may leave the dashboard blank */
+    at(TOTAL, finish);
+  }
+
+  window.GSDash02Replay = play;
+})();
+</script>
+</body>
+</html>

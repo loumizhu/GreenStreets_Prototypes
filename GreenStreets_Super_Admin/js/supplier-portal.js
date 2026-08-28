@@ -1783,6 +1783,54 @@ function gsEnhanceFeat(feat){
   }
 }
 
+/* == Schema alignment for the saved packaging-detail pages ==================
+   These pages ship hand-written <select> option lists, so editing gs-schema.js
+   does not reach them (see CLAUDE.md - "that third row is the trap"). This pass
+   rebuilds every controlled dropdown from GSSchema.fieldOptions() at load,
+   matching on the visible label exactly as gsHydrateAcceptedDetail does, so a
+   list can never drift from the source of truth again.
+   The selected value is preserved - remapped to its canonical spelling when an
+   unambiguous equivalent exists (collapsed whitespace, a missing trailing
+   period, a nominated-variant label); anything else is kept as a prepended
+   legacy option so no data is silently dropped. */
+function gsAlignPkgDetailToSchema(body){
+  if(!body || !window.GS_COMPONENT_SCHEMA || !window.GSSchema) return;
+  var byLabel = {};
+  window.GS_COMPONENT_SCHEMA.forEach(function(sec){ sec.fields.forEach(function(f){ byLabel[f.label] = f; }); });
+  /* whitespace- and trailing-punctuation-insensitive comparison: the client's
+     vocab carries stray spaces before ')' and a trailing '.' that hand-typed
+     markup drops. */
+  function norm(s){ return String(s).toLowerCase().replace(/\s+/g,' ').replace(/\s*\)/g,')').replace(/[.\s]+$/,'').trim(); }
+  function escText(s){ var d = document.createElement('span'); d.textContent = s; return d.innerHTML; }
+  body.querySelectorAll('.pkg-detail-feat').forEach(function(feat){
+    if(feat.classList.contains('air-feat')) return;   /* AI-review fields own their UI */
+    var lblEl = feat.querySelector('.pkg-detail-feat-lbl'); if(!lblEl) return;
+    var f = byLabel[lblEl.textContent.trim()]; if(!f) return;
+    if(f.control!=='select' && f.control!=='source' && f.control!=='yesno') return;
+    var sel = feat.querySelector('.pkg-detail-feat-select'); if(!sel) return;
+    var want = window.GSSchema.fieldOptions(f);
+    var cur = (sel.selectedIndex>=0 && sel.options[sel.selectedIndex].value!=='') ? sel.options[sel.selectedIndex].text : '';
+    if(!cur){ var inp0 = feat.querySelector('.pkg-detail-feat-input'); cur = inp0 ? inp0.value : ''; }
+    if(cur==='—') cur = '';
+    var val = cur;
+    if(cur && want.indexOf(cur)<0){
+      var hit = want.filter(function(o){ return norm(o)===norm(cur); })[0];
+      if(!hit && f.control==='source'){
+        var canon = window.GSSchema.sourceTypeLabel(window.GSSchema.sourceTypeValue(cur));
+        hit = want.filter(function(o){ return o===canon; })[0];
+      }
+      if(hit) val = hit;
+    }
+    var list = want.slice();
+    if(val && list.indexOf(val)<0) list.unshift(val);
+    sel.innerHTML = '<option value="" disabled>Select…</option>' +
+      list.map(function(o){ return '<option>' + escText(o) + '</option>'; }).join('');
+    Array.prototype.forEach.call(sel.options, function(o){ o.selected = (o.value!=='' && o.text===val); });
+    var mirror = feat.querySelector('.pkg-detail-feat-input');
+    if(mirror && val && mirror.value!==val) mirror.value = val;
+  });
+}
+
 function gsEnhancePkgDetail(){
   var body = document.querySelector('.pkg-detail-body');
   if(!body || body._gsEnhanced) return;
@@ -1790,6 +1838,7 @@ function gsEnhancePkgDetail(){
   var key = (body.id||'').replace('pkgdetail-body-','');
   gsBuildAutoSaveChip(body);
   gsPkgDetailName(body, key);
+  gsAlignPkgDetailToSchema(body);       /* rebuild every dropdown from gs-schema.js */
   gsHydrateAcceptedDetail(body, key);   /* apply an AI-accepted record if one exists */
   body.querySelectorAll('.pkg-detail-feat').forEach(gsEnhanceFeat);
   if(typeof gsBuildBreadcrumb==='function') gsBuildBreadcrumb();

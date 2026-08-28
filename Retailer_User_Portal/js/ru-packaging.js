@@ -1,12 +1,17 @@
 /* ==========================================================================
    ru-packaging.js — Retailer User packaging detail (READ-ONLY).
-   Renders into #ru-pkg-root the SAME numbered sections + field labels as the
-   Super Admin (supplier-portal engine) and Retailer Admin packaging details,
-   so all three portals show identical packaging information. The Retailer User
-   is a read-only persona, so there is no Edit toggle — values are display-only.
-   Reads the clicked row from sessionStorage('ru_pkg'); a canonical dataset per
-   packaging type fills the full compliance record (Swing Tag mirrors the
-   Super Admin Packaging-Swing-Tag page exactly).
+   Renders into #ru-pkg-root.
+
+   SOURCE OF TRUTH: js/gs-schema.js (a byte-identical copy of
+   Supplier_Portal/js/gs-schema.js). The nine sections, their numbers/titles and
+   every field label come from GS_COMPONENT_SCHEMA at render time — nothing is
+   hand-typed — so this view shows exactly the same information as the Super
+   Admin, Supplier and Retailer Admin packaging details. The record is keyed by
+   the schema's canonical field keys.
+
+   The Retailer User is a read-only persona, so every value is display-only and
+   there is no Edit toggle. Reads the clicked row from sessionStorage('ru_pkg');
+   a canonical dataset per packaging type fills the full compliance record.
    ========================================================================== */
 (function () {
   'use strict';
@@ -14,82 +19,51 @@
 
   function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 
-  /* ---- section schema (numbers + labels mirror the super-admin detail) ---- */
-  var SECTIONS = [
-    { n: 1, title: 'Packaging Level & Format', fields: [
-      { label: 'Packaging Level', key: 'level' },
-      { label: 'Packaging Type (name)', key: 'type' },
-      { label: 'Other Packaging Type Description', key: 'typeOther' }
-    ]},
-    { n: 2, title: 'Packaging Source Type', fields: [
-      { label: 'Packaging Source Type', key: 'source' }
-    ]},
-    { n: 3, title: 'Material Information', fields: [
-      { label: 'Base Material', key: 'baseMat' },
-      { label: 'Material 1 Name', key: 'mat1' },
-      { label: '% Material 1', key: 'mat1pct' },
-      { label: 'Total of all the materials', key: 'matTotal' }
-    ]},
-    { n: 4, title: 'Post-Consumer & Post-Industrial Recycled Content', fields: [
-      { label: 'Recycled Content', key: 'recycled' },
-      { label: 'Post-Consumer Recycled Content (%)', key: 'pcr' },
-      { label: 'Post-Industrial Recycled Content (%)', key: 'pir' },
-      { label: 'Supporting evidence of recycled content', key: 'evidence' },
-      { label: 'Recycled Content Comments', key: 'recComments' }
-    ]},
-    { n: 5, title: 'Colour & Decoration', fields: [
-      { label: 'Material Colour', key: 'colour' },
-      { label: 'Opacity', key: 'opacity' },
-      { label: 'Decoration', key: 'decoration' }
-    ]},
-    { n: 6, title: 'Weight & Grammage', fields: [
-      { label: 'Weight (g)', key: 'weight' },
-      { label: 'Grammage (gsm)', key: 'grammage' },
-      { label: 'Gauge in Micron (um)', key: 'gauge' }
-    ]},
-    { n: 7, title: 'Material Dimensions', fields: [
-      { label: 'Length (mm) (or diameter if applicable)', key: 'length' },
-      { label: 'Width (mm)', key: 'width' },
-      { label: 'Height or Depth (mm)', key: 'height' }
-    ]},
-    { n: 8, title: 'Additional Packaging Information', fields: [
-      { label: 'Certification', key: 'cert' },
-      { label: 'Other Certification Details', key: 'certOther' },
-      { label: 'Packaging Supplier Name', key: 'pkgSupplier' },
-      { label: 'Packaging Supplier Address', key: 'pkgSupplierAddr' }
-    ]},
-    { n: 9, title: 'Material Compliance', fields: [
-      { label: 'Material Compliance', key: 'matCompliance' },
-      { label: 'Does the material and/or inks contain mineral oils above allowable limits?', key: 'mineralOils' },
-      { label: 'Does the material contain BPA above allowable limits?', key: 'bpa' },
-      { label: 'Does the material contain PFAs?', key: 'pfas' },
-      { label: 'Is chlorine used in the manufacture of the material/component?', key: 'chlorine' }
-    ]}
-  ];
+  /* ---- canonical schema ---------------------------------------------------- */
+  var SCHEMA = window.GS_COMPONENT_SCHEMA;
+  if (!SCHEMA || !window.GSSchema) {
+    document.getElementById('ru-pkg-root').innerHTML =
+      '<div style="padding:16px;font-size:12.5px;color:var(--tw3)">Packaging schema unavailable — <code>js/gs-schema.js</code> did not load.</div>';
+    return;
+  }
+  var DOCS_LABEL = 'Supporting Documents';
+  var SECTIONS = SCHEMA.map(function (sec) {
+    var out = { n: sec.num, title: sec.title, fields: [] };
+    sec.fields.forEach(function (f) {
+      if (f.control === 'materials') { out.mat = true; return; }
+      if (f.control === 'docs') { out.docs = true; DOCS_LABEL = f.label; return; }
+      out.fields.push({ label: f.label, key: f.key, unit: f.unit || '' });
+    });
+    return out;
+  });
 
-  /* ---- canonical compliance records (identical to the Super Admin pages) ---- */
+  /* ---- canonical compliance record (identical to the Super Admin / Retailer
+     Admin detail pages). Every value is a member of its GS_VOCAB list. ------- */
   var CANONICAL = {
     'Swing Tag': {
-      level: 'Primary', type: 'Swing Tag', typeOther: '—', source: 'Local',
-      baseMat: 'Paper_Cardboard', mat1: '—', mat1pct: '—', matTotal: '—',
-      recycled: 'No', pcr: '—', pir: '—', evidence: '', recComments: '—',
-      colour: '', opacity: 'Coloured - opaque and sortable', decoration: 'Printed - Flexo',
-      weight: '1.72', grammage: '300', gauge: '—',
+      packagingLevel: 'Primary', packagingType: 'Swing Tag', otherTypeDesc: '', sourceType: 'Local',
+      baseMaterial: 'Cardboard_CartonBoard',
+      materials: [{ name: 'Paper FBB - Folding Box Board', pct: '100%' }],
+      recycledContent: 'No', pcr: '', pir: '', recycledEvidence: '', recycledComments: '',
+      colour: 'White', opacity: 'Coloured - opaque and sortable', decoration: 'Printed - Flexo',
+      weight: '1.72', grammage: '300', gauge: '',
       length: '139', width: '40', height: '0.036',
-      cert: 'OEKOTEX', certOther: '—', pkgSupplier: 'Misma', pkgSupplierAddr: 'Motijheel, Dhaka',
-      matCompliance: 'No', mineralOils: 'No', bpa: 'No', pfas: 'No', chlorine: 'None'
+      certification: 'OEKOTEX', otherCertDetails: '', supplierName: 'Misma', supplierAddress: 'Motijheel, Dhaka',
+      materialCompliance: 'No', mineralOils: 'No', bpa: 'No', pfas: 'No', chlorine: 'None',
+      documents: []
     }
   };
 
-  /* normalise the listing "Type" label to a canonical packaging type name */
+  /* listing "Type" label → GS_VOCAB.packagingType */
   var TYPE_MAP = {
     'swing tag': 'Swing Tag', 'polybag': 'Bag (Poly)', 'poly bag': 'Bag (Poly)',
     'carton': 'Box/Carton', 'box / carton': 'Box/Carton', 'box/carton': 'Box/Carton',
     'hanger': 'Hanger (Plastic Hanger)', 'shipping box': 'Shipper', 'shoe box': 'Box/Carton',
     'tissue wrap': 'Paper Sheet', 'belly band': 'Band', 'care-label sachet': 'Sachet'
   };
+  /* listing material shorthand → GS_VOCAB.baseMaterial */
   var BASEMAT_MAP = {
-    'paper / card': 'Paper_Cardboard', 'paper/card': 'Paper_Cardboard', 'paper': 'Paper_Cardboard',
+    'paper / card': 'Cardboard_CartonBoard', 'paper/card': 'Cardboard_CartonBoard', 'paper': 'Paper',
     'ldpe': 'Plastic_Single_MonoLayer', 'pet': 'Plastic_Single_MonoLayer', 'pp': 'Plastic_Single_MonoLayer',
     'metal': 'Metal'
   };
@@ -105,19 +79,22 @@
     var canonName = TYPE_MAP[(row.type || '').toLowerCase()] || row.type || '';
     var base = CANONICAL[canonName] ? JSON.parse(JSON.stringify(CANONICAL[canonName])) : {};
     var m = {
-      level: row.level || base.level || 'Primary',
-      type: canonName || base.type || row.type || '',
-      typeOther: base.typeOther || '—',
-      source: base.source || 'Local',
-      baseMat: base.baseMat || BASEMAT_MAP[(row.material || '').toLowerCase()] || '',
-      mat1: base.mat1 || '—', mat1pct: base.mat1pct || '—', matTotal: base.matTotal || '—',
-      recycled: base.recycled || 'No', pcr: base.pcr || '—', pir: base.pir || '—',
-      evidence: base.evidence || '', recComments: base.recComments || '—',
+      packagingLevel: row.level || base.packagingLevel || 'Primary',
+      packagingType: canonName || base.packagingType || row.type || '',
+      otherTypeDesc: base.otherTypeDesc || '',
+      sourceType: base.sourceType || 'Local',
+      baseMaterial: base.baseMaterial || BASEMAT_MAP[(row.material || '').toLowerCase()] || '',
+      materials: base.materials || [{ name: '', pct: '' }],
+      recycledContent: base.recycledContent || 'No', pcr: base.pcr || '', pir: base.pir || '',
+      recycledEvidence: base.recycledEvidence || '', recycledComments: base.recycledComments || '',
       colour: base.colour || '', opacity: base.opacity || '', decoration: base.decoration || '',
-      weight: base.weight || (row.weight || '').replace(/\s*g$/, '') || '—', grammage: base.grammage || '—', gauge: base.gauge || '—',
-      length: base.length || '—', width: base.width || '—', height: base.height || '—',
-      cert: base.cert || '', certOther: base.certOther || '—', pkgSupplier: base.pkgSupplier || '—', pkgSupplierAddr: base.pkgSupplierAddr || '—',
-      matCompliance: base.matCompliance || 'No', mineralOils: base.mineralOils || 'No', bpa: base.bpa || 'No', pfas: base.pfas || 'No', chlorine: base.chlorine || 'None'
+      weight: base.weight || (row.weight || '').replace(/\s*g$/, '') || '', grammage: base.grammage || '', gauge: base.gauge || '',
+      length: base.length || '', width: base.width || '', height: base.height || '',
+      certification: base.certification || '', otherCertDetails: base.otherCertDetails || '',
+      supplierName: base.supplierName || '', supplierAddress: base.supplierAddress || '',
+      materialCompliance: base.materialCompliance || 'No', mineralOils: base.mineralOils || 'No',
+      bpa: base.bpa || 'No', pfas: base.pfas || 'No', chlorine: base.chlorine || 'None',
+      documents: base.documents || []
     };
     return m;
   }
@@ -139,20 +116,62 @@
       '.rpk-f.rpk-wide{grid-column:1/-1}' +
       '.rpk-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.05em;font-weight:600;color:var(--tw3)}' +
       '.rpk-in{padding:7px 10px;font-size:12.5px;width:100%;box-sizing:border-box;background:rgba(255,255,255,.02);border:1px solid var(--bw,rgba(255,255,255,.09));border-radius:8px;color:var(--tw2,rgba(255,255,255,.82));font-family:inherit}' +
-      '.rpk-in[data-empty="1"]{color:var(--tw3,rgba(255,255,255,.45))}';
+      '.rpk-in[data-empty="1"]{color:var(--tw3,rgba(255,255,255,.45))}' +
+      '.rpk-matrow{display:grid;grid-template-columns:1fr 1fr;gap:13px 20px}' +
+      '@media(max-width:720px){.rpk-matrow{grid-template-columns:1fr}}' +
+      '.rpk-matcol{display:flex;flex-direction:column;gap:5px;min-width:0}' +
+      /* derived materials summary — count + total are computed, never stored */
+      '.rpk-mat-sum{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;font-size:11px;color:var(--tw3);margin-top:2px}' +
+      '.rpk-mat-sum b{color:var(--tw,#fff);font-weight:700}' +
+      '.rpk-mat-warn{color:var(--amber,#f5a623);font-weight:600}' +
+      '.rpk-mat-note{grid-column:1/-1;font-size:11px;line-height:1.5;color:var(--amber,#f5a623);background:rgba(245,166,35,.09);border:1px solid rgba(245,166,35,.28);border-radius:8px;padding:8px 11px}' +
+      '.rpk-docs{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0}' +
+      '.rpk-doc-chip{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;font-size:11px;background:rgba(255,255,255,.05);border:1px solid var(--line-2,rgba(148,180,230,.26));border-radius:7px;color:var(--tw2,rgba(255,255,255,.82))}';
     document.head.appendChild(st);
   }
 
-  function field(f, PKG) {
-    var v = PKG[f.key];
+  function ro(v) {
     var disp = (v === '' || v == null) ? '—' : v;
-    var wide = (f.key === 'pkgSupplierAddr' || f.key === 'recComments' || f.label.length > 48);
-    return '<div class="rpk-f' + (wide ? ' rpk-wide' : '') + '"><div class="rpk-lbl">' + esc(f.label) + '</div>' +
-      '<input class="rpk-in" value="' + esc(disp) + '"' + (disp === '—' ? ' data-empty="1"' : '') + ' readonly></div>';
+    return '<input class="rpk-in" value="' + esc(disp) + '"' + (disp === '—' ? ' data-empty="1"' : '') + ' readonly>';
+  }
+  function field(f, PKG) {
+    var wide = (f.key === 'supplierAddress' || f.key === 'recycledComments' || f.label.length > 48);
+    return '<div class="rpk-f' + (wide ? ' rpk-wide' : '') + '"><div class="rpk-lbl">' + esc(f.label) + '</div>' + ro(PKG[f.key]) + '</div>';
+  }
+  /* dynamic materials: one row per material, count + total derived */
+  function matPct(m) { var n = parseFloat(String(m.pct == null ? '' : m.pct).replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; }
+  function materialsHtml(PKG) {
+    var mats = PKG.materials && PKG.materials.length ? PKG.materials : [{ name: '', pct: '' }];
+    var rows = mats.map(function (m, i) {
+      return '<div class="rpk-f rpk-wide"><div class="rpk-matrow">' +
+        '<div class="rpk-matcol"><div class="rpk-lbl">Material ' + (i + 1) + ' Name</div>' + ro(m.name) + '</div>' +
+        '<div class="rpk-matcol"><div class="rpk-lbl">% Material ' + (i + 1) + '</div>' + ro(m.pct) + '</div>' +
+        '</div></div>';
+    }).join('');
+    var named = mats.filter(function (m) { return String(m.name || '').trim(); });
+    var total = Math.round(mats.reduce(function (s, m) { return s + matPct(m); }, 0) * 100) / 100;
+    var warn = (named.length && Math.round(total) !== 100) ? '<span class="rpk-mat-warn">⚠ should total 100%</span>' : '';
+    var note = window.GSSchema.materialExportNote(mats);
+    return rows +
+      '<div class="rpk-mat-sum"><span>Materials: <b>' + named.length + '</b></span>' +
+      '<span>Total of all the materials: <b>' + total + '%</b></span>' + warn + '</div>' +
+      (note ? '<div class="rpk-mat-note">' + esc(note) + '</div>' : '');
+  }
+  function docsHtml(PKG) {
+    var docs = PKG.documents || [];
+    var chips = docs.map(function (d) {
+      return '<span class="rpk-doc-chip"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' + esc(d) + '</span>';
+    }).join('');
+    var empty = docs.length ? '' : '<span class="rpk-lbl" style="text-transform:none;letter-spacing:0">No documents attached.</span>';
+    return '<div class="rpk-f rpk-wide"><div class="rpk-lbl">' + esc(DOCS_LABEL) + '</div>' +
+      '<div class="rpk-docs">' + chips + empty + '</div></div>';
   }
   function section(s, PKG) {
+    var inner = s.fields.map(function (f) { return field(f, PKG); }).join('');
+    if (s.mat) inner += materialsHtml(PKG);
+    if (s.docs) inner += docsHtml(PKG);
     return '<div class="rpk-sec"><div class="rpk-sec-hdr"><span class="rpk-sec-num">' + s.n + '</span>' + esc(s.title) + '</div>' +
-      '<div class="rpk-grid">' + s.fields.map(function (f) { return field(f, PKG); }).join('') + '</div></div>';
+      '<div class="rpk-grid">' + inner + '</div></div>';
   }
 
   function statusMeta(status) {
@@ -168,14 +187,15 @@
     var row = readRow();
     var PKG = buildModel(row);
     var root = document.getElementById('ru-pkg-root');
-    var crumb = document.getElementById('ru-pkg-crumb'); if (crumb) crumb.textContent = PKG.type || row.type || 'Packaging';
+    var crumb = document.getElementById('ru-pkg-crumb'); if (crumb) crumb.textContent = PKG.packagingType || row.type || 'Packaging';
 
-    var levelPill = '<span class="pill ' + (PKG.level === 'Primary' ? 'pill-blue' : (PKG.level === 'Secondary' ? 'pill-green' : 'pill-grey')) + '">' + esc(PKG.level || 'Primary') + '</span>';
+    var lvl = PKG.packagingLevel;
+    var levelPill = '<span class="pill ' + (lvl === 'Primary' ? 'pill-blue' : (lvl === 'Secondary' ? 'pill-green' : 'pill-grey')) + '">' + esc(lvl || 'Primary') + '</span>';
     var statusPill = '<span class="pill ' + statusMeta(row.status) + '">' + esc(row.status || 'Pending') + '</span>';
 
     var head =
       '<div class="rpk-head"><div>' +
-        '<div class="pg-title">' + esc(PKG.type || row.type) + '</div>' +
+        '<div class="pg-title">' + esc(PKG.packagingType || row.type) + '</div>' +
         '<div class="pg-sub">' + esc(row.sku || '') + ' · ' + esc(row.product || '') + '</div>' +
         '<div style="display:flex;gap:8px;margin-top:8px">' + levelPill + statusPill + '</div>' +
       '</div><div class="rpk-head-actions">' +
