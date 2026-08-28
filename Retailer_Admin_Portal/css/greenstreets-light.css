@@ -228,8 +228,9 @@ body.lt .pkg-dash{color:var(--lt-ink-3)}
 /* ── row action buttons / arrows ───────────────────────────────────────────── */
 body.lt .act-mini{background:#fff;border-color:var(--lt-line-2);color:var(--lt-ink-2)}
 body.lt .act-mini:hover{background:rgba(78,187,129,.12);border-color:#8fd0b6;color:#2f9c62}
-body.lt .act-mini.act-view{color:#2f9c62;background:#eaf7ee;border-color:#bfe6cf}
-body.lt .act-mini.act-view:hover{background:#dcf1e5;border-color:#8fd0b6;color:#1f7a49}
+/* standard "View" button — neutral in light too (see retailer-admin.css) */
+body.lt .act-mini.act-view{color:var(--lt-ink);background:#fff;border-color:var(--lt-line-2)}
+body.lt .act-mini.act-view:hover{background:rgba(78,187,129,.12);border-color:#8fd0b6;color:#2f9c62}
 body.lt .act-arrow{background:var(--lt-accent-ink);color:#fff;box-shadow:0 2px 8px color-mix(in srgb,var(--lt-accent) 45%,transparent)}
 body.lt .act-arrow:hover{box-shadow:0 4px 12px color-mix(in srgb,var(--lt-accent) 55%,transparent)}
 body.lt .chev-btn{background:#fff;border:1px solid var(--lt-line-2);color:var(--lt-ink-2)}

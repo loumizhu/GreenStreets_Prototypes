@@ -14,8 +14,8 @@
 
 <div class="screen on" id="ra_product"><div class="app-body"><div class="sidebar" data-active="s11"></div><div class="main"><div id="ra-prod-root"></div></div></div></div>
 <script src="js/gs-schema.js?v=2"></script>
-<script src="../Retailer_Admin_Portal/js/retailer-admin.js?v=18"></script>
-<script src="../Retailer_Admin_Portal/js/ra-product.js?v=16"></script>
+<script src="../Retailer_Admin_Portal/js/retailer-admin.js?v=33"></script>
+<script src="../Retailer_Admin_Portal/js/ra-product.js?v=17"></script>
 <script src="js/gs-tour.js?v=10"></script>
 <script src="js/greenstreets-theme.js?v=38"></script>
 <script src="js/gs-appearance.js?v=7"></script>
@@ -27,13 +27,18 @@
   /* Ensure the engine has a product to render (Products row-click can override gs_pi first). */
   try{ if(sessionStorage.getItem('gs_pi')==null) sessionStorage.setItem('gs_pi','0'); }catch(e){}
   try{ if(sessionStorage.getItem('ra_pi')==null) sessionStorage.setItem('ra_pi','PRK-000'); }catch(e){}
-  var SA_MAP={'s1':'01-greenstreets_super_admin_Login.html','s2':'01-greenstreets_super_admin_Retailers.html','s3':'01-greenstreets_super_admin_Suppliers.html','s14':'01-greenstreets_super_admin_Add-Supplier.html','s4':'01-greenstreets_super_admin_Retailer-Detail.html','p1':'01-greenstreets_super_admin_Add-Retailer-1.html','p2':'01-greenstreets_super_admin_Add-Retailer-2.html','p3':'01-greenstreets_super_admin_Add-Retailer-3.html','p4':'01-greenstreets_super_admin_Add-Retailer-4.html','s5':'01-greenstreets_super_admin_Configure.html','s6':'01-greenstreets_super_admin_Impersonate.html','s7':'01-greenstreets_super_admin_Users.html','s11':'01-greenstreets_super_admin_Products.html','s12':'01-greenstreets_super_admin_Product-Detail.html','s8':'01-greenstreets_super_admin_Packagings.html','s9':'01-greenstreets_super_admin_Documents.html','s10':'01-greenstreets_super_admin_Supplier-Detail.html','s15':'01-greenstreets_super_admin_Audit-Log.html','s16':'01-greenstreets_super_admin_Notifications.html','s13':'01-greenstreets_super_admin_Settings.html','suedit':'01-greenstreets_super_admin_User-Edit.html'};
-  function back(){ window.location.href='01-greenstreets_super_admin_Products.html'; }
+  var SA_MAP={'s1':'01-greenstreets_super_admin_Login.html','s2':'01-greenstreets_super_admin_Retailers.html','s3':'01-greenstreets_super_admin_Suppliers.html','s14':'01-greenstreets_super_admin_Add-Supplier.html','s4':'01-greenstreets_super_admin_Retailer-Detail.html','p1':'01-greenstreets_super_admin_Add-Retailer-1.html','p2':'01-greenstreets_super_admin_Add-Retailer-2.html','p3':'01-greenstreets_super_admin_Add-Retailer-3.html','p4':'01-greenstreets_super_admin_Add-Retailer-4.html','s5':'01-greenstreets_super_admin_Configure.html','s6':'01-greenstreets_super_admin_Impersonate.html','s7':'01-greenstreets_super_admin_Users.html','s11':'01-greenstreets_super_admin_Products.html','s12':'01-greenstreets_super_admin_Product-Detail.html','s8':'01-greenstreets_super_admin_Packagings.html','s9':'01-greenstreets_super_admin_Documents.html','s10':'01-greenstreets_super_admin_Supplier-Detail.html','s15':'01-greenstreets_super_admin_Audit-Log.html','s16':'01-greenstreets_super_admin_Notifications.html','s13':'01-greenstreets_super_admin_Settings.html','suedit':'01-greenstreets_super_admin_User-Edit.html','ra12':'01-greenstreets_super_admin_Generate-DoC.html'};
+  try{ if(window.GS_PAGES) window.GS_PAGES['ra12']='01-greenstreets_super_admin_Generate-DoC.html'; }catch(e){}
+  /* This page's bridge re-wraps window.go on 'load', i.e. after greenstreets-light.js has
+     wrapped it — so the bridge, not the light layer, decides the target file. Keep the
+     current theme by resolving to the -Light twin ourselves when the page is light. */
+  function saPage(f){ try{ if(document.body.classList.contains('lt')) return f.replace(/\.html$/,'-Light.html'); }catch(e){} return f; }
+  function back(){ window.location.href=saPage('01-greenstreets_super_admin_Products.html'); }
   function bridgeGo(){
     window.gsGoLanding=function(){ back(); };
     var _orig=window.go;
     window.go=function(id){
-      if(SA_MAP[id]){ window.location.href=SA_MAP[id]; return; }
+      if(SA_MAP[id]){ window.location.href=saPage(SA_MAP[id]); return; }
       if(id === 'ra_packaging') {
         var pid = sessionStorage.getItem('ra_pkg');
         var nm = '';
@@ -45,7 +50,7 @@
         else if(nm.indexOf('Hanger')!==-1) page = '01-greenstreets_super_admin_Packaging-Hanger.html';
         else if(nm.indexOf('Poly')!==-1) page = '01-greenstreets_super_admin_Packaging-Poly-Bag.html';
         else if(nm.indexOf('Shipping')!==-1) page = '01-greenstreets_super_admin_Packaging-Shipping-Carton.html';
-        window.location.href = page;
+        window.location.href = saPage(page);
         return;
       }
       if(id === 'ra6') { back(); return; }

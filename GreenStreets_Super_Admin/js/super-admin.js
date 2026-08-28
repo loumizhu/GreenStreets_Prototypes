@@ -22,7 +22,8 @@ var GS_PAGES={
   's15':'01-greenstreets_super_admin_Audit-Log.html',
   's16':'01-greenstreets_super_admin_Notifications.html',
   's13':'01-greenstreets_super_admin_Settings.html',
-  'suedit':'01-greenstreets_super_admin_User-Edit.html'
+  'suedit':'01-greenstreets_super_admin_User-Edit.html',
+  'sa_gendoc':'01-greenstreets_super_admin_Generate-DoC.html'
 };
 function go(id){
   if(GS_PAGES[id]){ window.location.href=GS_PAGES[id]; return; }
@@ -350,7 +351,7 @@ function saProdEnsureBar() {
     '<button type="button" class="saprod-bb-btn" onclick="saProdBulkExport()">' +
       '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export CSV</button>' +
     '<button type="button" class="saprod-bb-btn" onclick="saProdBulkDownloadDoc()">' +
-      '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>Download DoC</button>' +
+      '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>Generate DoC</button>' +
     '<button type="button" class="saprod-bb-btn saprod-bb-clear" onclick="saProdClearSel()" aria-label="Clear selection">Clear</button>';
   document.body.appendChild(bar);
   return bar;
@@ -389,13 +390,18 @@ function saProdBulkExport() {
   saProdMiniToast('Exporting ' + n + ' product' + (n>1?'s':'') + '...');
 }
 
+/* DoC actions never "download" in the prototype — they open the Generate DoC page,
+   stashing the sku so that page can pick it up later. */
 function saProdBulkDownloadDoc() {
-  var n = saProdSel.size;
-  saProdMiniToast('Downloading DoC for ' + n + ' product' + (n>1?'s':'') + '...');
+  var rows = saProdSelectedRows();
+  if (!rows.length) return;
+  try { sessionStorage.setItem('sa_doc_sku', rows[0].sku); } catch (e) {}
+  go('sa_gendoc');
 }
 
 function saDownloadDoc(sku) {
-  saProdMiniToast('Downloading DoC for ' + sku + '...');
+  try { sessionStorage.setItem('sa_doc_sku', sku); } catch (e) {}
+  go('sa_gendoc');
 }
 function saApproveProduct(sku, btn) {
   var rec = (window.PRODUCTS_S11 || []).filter(function(r){ return r.sku === sku; })[0];
@@ -418,7 +424,7 @@ ptInit('s11',PRODUCTS_S11,{
     var cbCell = '<td class="saprod-cb-cell" onclick="event.stopPropagation()" style="vertical-align:middle;text-align:center"><input type="checkbox" class="saprod-cb" aria-label="Select '+r.sku+'"'+checked+' onclick="event.stopPropagation();saProdToggleRow(this,\''+r.sku+'\')"></td>';
 
     var docBtn = isComplete
-      ? '<button class="btn-p" title="Download Declaration of Conformity" onclick="event.stopPropagation();saDownloadDoc(\''+r.sku+'\')" style="height:24px;display:inline-flex;align-items:center;vertical-align:middle;box-sizing:border-box;font-size:11px;padding:0 10px;margin-right:6px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="margin-right:4px;position:relative;top:-1px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>DoC</button>'
+      ? '<button class="btn-p" title="Generate Declaration of Conformity" onclick="event.stopPropagation();saDownloadDoc(\''+r.sku+'\')" style="height:24px;display:inline-flex;align-items:center;vertical-align:middle;box-sizing:border-box;font-size:11px;padding:0 10px;margin-right:6px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="margin-right:4px;position:relative;top:-1px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>DoC</button>'
       : '';
     /* Pending approval → prominent primary Approve; Incomplete → plain Approve */
     var approveBtn = r.status === 'Pending approval'

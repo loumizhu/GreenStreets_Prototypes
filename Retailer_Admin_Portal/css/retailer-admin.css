@@ -486,6 +486,13 @@ html,body{height:100%;font-family:'Inter',sans-serif;color:var(--tw);background:
   box-shadow:0 2px 8px rgba(78,187,129,.35);transition:transform .14s,box-shadow .14s;margin-left:2px}
 .act-arrow:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(78,187,129,.5)}
 .act-arrow svg{width:16px;height:16px}
-/* "View" chip = primary action: tinted green so it stands out from the drill-in chips */
-.act-mini.act-view{color:var(--gs-l);background:rgba(143,227,182,.12);border-color:rgba(143,227,182,.38)}
-.act-mini.act-view:hover{background:rgba(143,227,182,.22);border-color:rgba(143,227,182,.6);color:#eafff4}
+/* ── The standard "View" button ────────────────────────────────────────────
+   ONE look for every row-level "View" action across the portal: a neutral
+   dark pill with a hairline border and bright label (see the reference
+   screenshot). It is deliberately NOT tinted green — green is reserved for
+   the *primary* action chips (.act-primary), and a table full of green
+   "View" buttons drowned them out. Use `class="act-mini act-view"` for any
+   "open this record" affordance; don't invent a per-page variant. */
+.act-mini.act-view{color:var(--tw);background:rgba(255,255,255,.07);border-color:var(--line-2);
+  padding:5px 11px;border-radius:8px;font-size:11px}
+.act-mini.act-view:hover{background:rgba(143,227,182,.16);border-color:rgba(143,227,182,.45);color:var(--gs-l)}

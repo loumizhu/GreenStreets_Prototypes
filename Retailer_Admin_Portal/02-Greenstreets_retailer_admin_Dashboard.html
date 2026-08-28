@@ -6,7 +6,7 @@
 <title>Greenstreets — Retailer Admin · Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/greenstreets-theme.css?v=45">
-<link rel="stylesheet" href="css/retailer-admin.css?v=28">
+<link rel="stylesheet" href="css/retailer-admin.css?v=30">
 <style>
 /* Dashboard weekly-chart: grouped pixel bars over a dashed grid */
 .wk-chart{display:flex;gap:7px}
@@ -243,19 +243,19 @@ html.gs-anim-armed #ra1 .grp{opacity:0}
             <thead><tr><th>Product</th><th>Description</th><th>Status</th><th>Failing check</th><th></th></tr></thead>
             <tbody>
               <tr onclick="openProductRA('PRK-001-BLA')" style="cursor:pointer" title="Open product detail"><td class="tbl-name gs-id-cell">PRK-001-BLA</td><td class="tbl-muted">Black Crew Neck Sweatshirt</td><td><span role="img" aria-label="Compliant" title="Compliant — all checks passed" style="color:var(--status-ok-strong);font-size:16px">●</span></td><td class="tbl-muted">All checks passed</td>
-                <td style="display:flex;align-items:center;gap:6px;padding:7px 11px" onclick="event.stopPropagation()"><a class="bc-link" onclick="event.stopPropagation();openProductRA('PRK-001-BLA')" style="font-size:11px">View →</a><button class="btn-p" onclick="go('ra12')" style="height:26px;padding:0 10px;font-size:10px"><img class="btn-sw" src="" alt="" data-sw><span class="btn-c">Generate DoC</span></button></td>
+                <td style="display:flex;align-items:center;gap:6px;padding:7px 11px" onclick="event.stopPropagation()"><button class="act-mini act-view" title="Open detail" onclick="event.stopPropagation();openProductRA('PRK-001-BLA')">View</button><button class="btn-p" onclick="go('ra12')" style="height:26px;padding:0 10px;font-size:10px"><img class="btn-sw" src="" alt="" data-sw><span class="btn-c">Generate DoC</span></button></td>
               </tr>
               <tr onclick="openProductRA('PRK-002-BLU')" style="cursor:pointer" title="Open product detail"><td class="tbl-name gs-id-cell">PRK-002-BLU</td><td class="tbl-muted">Blue Slim Fit Jeans</td><td><span role="img" aria-label="At risk" title="At risk — action recommended" style="color:var(--status-warn);font-size:16px">●</span></td><td style="font-size:11px;color:var(--status-warn)">PCR% 0% — below Art. 7 target of 30%</td>
-                <td style="display:flex;align-items:center;gap:6px;padding:7px 11px" onclick="event.stopPropagation()"><a class="bc-link" onclick="event.stopPropagation();openProductRA('PRK-002-BLU')" style="font-size:11px">View →</a><div class="reminder-btn-wrap"><button class="btn-reminder" onclick="toggleDropdown(this)">Send reminder <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:3px;vertical-align:middle"><use href="#gsi-15"/></svg></button><div class="reminder-dropdown"><button onclick="sendReminder(this);toggleDropdown(this.parentElement.previousElementSibling)">Send reminder now</button><button onclick="go('ra_custom_invite')">Customize invitation</button></div></div></td>
+                <td style="display:flex;align-items:center;gap:6px;padding:7px 11px" onclick="event.stopPropagation()"><button class="act-mini act-view" title="Open detail" onclick="event.stopPropagation();openProductRA('PRK-002-BLU')">View</button><div class="reminder-btn-wrap"><button class="btn-reminder" onclick="toggleDropdown(this)">Send reminder <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:3px;vertical-align:middle"><use href="#gsi-15"/></svg></button><div class="reminder-dropdown"><button onclick="sendReminder(this);toggleDropdown(this.parentElement.previousElementSibling)">Send reminder now</button><button onclick="go('ra_custom_invite')">Customize invitation</button></div></div></td>
               </tr>
               <tr onclick="openProductRA('PRK-003-RED')" style="cursor:pointer" title="Open product detail"><td class="tbl-name gs-id-cell">PRK-003-RED</td><td class="tbl-muted">Red Midi Dress</td><td><span role="img" aria-label="Non-compliant" title="Non-compliant — action required" style="color:var(--status-danger);font-size:16px">●</span></td><td style="font-size:11px;color:var(--status-danger)">3 mandatory fields missing — supplier incomplete</td>
-                <td style="display:flex;align-items:center;gap:6px;padding:7px 11px" onclick="event.stopPropagation()"><a class="bc-link" onclick="event.stopPropagation();openProductRA('PRK-003-RED')" style="font-size:11px">View →</a><div class="reminder-btn-wrap"><button class="btn-reminder" onclick="toggleDropdown(this)">Send reminder <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:3px;vertical-align:middle"><use href="#gsi-15"/></svg></button><div class="reminder-dropdown"><button onclick="sendReminder(this.parentElement.previousElementSibling);toggleDropdown(this.parentElement.previousElementSibling)">Send reminder now</button><button onclick="go('ra_custom_invite')">Customize invitation</button></div></div></td>
+                <td style="display:flex;align-items:center;gap:6px;padding:7px 11px" onclick="event.stopPropagation()"><button class="act-mini act-view" title="Open detail" onclick="event.stopPropagation();openProductRA('PRK-003-RED')">View</button><div class="reminder-btn-wrap"><button class="btn-reminder" onclick="toggleDropdown(this)">Send reminder <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:3px;vertical-align:middle"><use href="#gsi-15"/></svg></button><div class="reminder-dropdown"><button onclick="sendReminder(this.parentElement.previousElementSibling);toggleDropdown(this.parentElement.previousElementSibling)">Send reminder now</button><button onclick="go('ra_custom_invite')">Customize invitation</button></div></div></td>
               </tr>
               <tr onclick="openProductRA('PRK-004-KHA')" style="cursor:pointer" title="Open product detail"><td class="tbl-name gs-id-cell">PRK-004-KHA</td><td class="tbl-muted">Khaki Utility Jacket</td><td><span role="img" aria-label="Non-compliant" title="Non-compliant — action required" style="color:var(--status-danger);font-size:16px">●</span></td><td style="font-size:11px;color:var(--status-danger)">Supplier data not submitted — hanger outstanding</td>
-                <td style="display:flex;align-items:center;gap:6px;padding:7px 11px" onclick="event.stopPropagation()"><a class="bc-link" onclick="event.stopPropagation();openProductRA('PRK-004-KHA')" style="font-size:11px">View →</a><div class="reminder-btn-wrap"><button class="btn-reminder" onclick="toggleDropdown(this)">Send reminder <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:3px;vertical-align:middle"><use href="#gsi-15"/></svg></button><div class="reminder-dropdown"><button onclick="sendReminder(this.parentElement.previousElementSibling);toggleDropdown(this.parentElement.previousElementSibling)">Send reminder now</button><button onclick="go('ra_custom_invite')">Customize invitation</button></div></div></td>
+                <td style="display:flex;align-items:center;gap:6px;padding:7px 11px" onclick="event.stopPropagation()"><button class="act-mini act-view" title="Open detail" onclick="event.stopPropagation();openProductRA('PRK-004-KHA')">View</button><div class="reminder-btn-wrap"><button class="btn-reminder" onclick="toggleDropdown(this)">Send reminder <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:3px;vertical-align:middle"><use href="#gsi-15"/></svg></button><div class="reminder-dropdown"><button onclick="sendReminder(this.parentElement.previousElementSibling);toggleDropdown(this.parentElement.previousElementSibling)">Send reminder now</button><button onclick="go('ra_custom_invite')">Customize invitation</button></div></div></td>
               </tr>
               <tr onclick="openProductRA('PRK-005-WHI')" style="cursor:pointer" title="Open product detail"><td class="tbl-name gs-id-cell">PRK-005-WHI</td><td class="tbl-muted">White Essential T-Shirt</td><td><span role="img" aria-label="Compliant" title="Compliant — all checks passed" style="color:var(--status-ok-strong);font-size:16px">●</span></td><td class="tbl-muted">All checks passed</td>
-                <td style="display:flex;align-items:center;gap:6px;padding:7px 11px" onclick="event.stopPropagation()"><a class="bc-link" onclick="event.stopPropagation();openProductRA('PRK-005-WHI')" style="font-size:11px">View →</a><button class="btn-p" onclick="go('ra12')" style="height:26px;padding:0 10px;font-size:10px"><img class="btn-sw" src="" alt="" data-sw><span class="btn-c">Generate DoC</span></button></td>
+                <td style="display:flex;align-items:center;gap:6px;padding:7px 11px" onclick="event.stopPropagation()"><button class="act-mini act-view" title="Open detail" onclick="event.stopPropagation();openProductRA('PRK-005-WHI')">View</button><button class="btn-p" onclick="go('ra12')" style="height:26px;padding:0 10px;font-size:10px"><img class="btn-sw" src="" alt="" data-sw><span class="btn-c">Generate DoC</span></button></td>
               </tr>
             </tbody></table>
             <div class="tbl-footer" style="padding:7px 14px">Showing 5 of 380 products · <span style="color:var(--status-danger)">5 red</span> · <span style="color:var(--status-warn)">8 amber</span> · <span style="color:var(--status-ok-strong)">367 green</span></div>
@@ -284,7 +284,7 @@ html.gs-anim-armed #ra1 .grp{opacity:0}
                 <td style="font-size:11px;color:var(--tw2)">3 sessions</td>
                 <td><span class="pill pill-green">Approved</span></td>
                 <td class="tbl-muted">2 hrs ago</td>
-                <td style="padding:6px 11px"><a class="bc-link" style="font-size:11px" onclick="go('ra4')">View →</a></td>
+                <td style="padding:6px 11px"><button class="act-mini act-view" title="Open detail" onclick="go('ra4')">View</button></td>
               </tr>
               <tr>
                 <td><div class="tbl-name">EcoPack GmbH</div><div class="tbl-sub">ops@ecopack.de</div></td>
@@ -293,7 +293,7 @@ html.gs-anim-armed #ra1 .grp{opacity:0}
                 <td style="font-size:11px;color:var(--tw2)">2 sessions · uploading</td>
                 <td><span class="pill pill-blue">In Progress</span></td>
                 <td class="tbl-muted">3 hrs ago</td>
-                <td style="padding:6px 11px"><a class="bc-link" style="font-size:11px" onclick="go('ra4')">View →</a></td>
+                <td style="padding:6px 11px"><button class="act-mini act-view" title="Open detail" onclick="go('ra4')">View</button></td>
               </tr>
               <tr style="background:rgba(78,187,129,.04)">
                 <td><div class="tbl-name">Nordic Materials AB</div><div class="tbl-sub">nordic@materials.se</div></td>
@@ -406,7 +406,7 @@ html.gs-anim-armed #ra1 .grp{opacity:0}
     </div>
   </div>
 </div>
-<script src="js/retailer-admin.js?v=32"></script>
+<script src="js/retailer-admin.js?v=34"></script>
 <script src="js/greenstreets-theme.js?v=27"></script>
 <script src="js/ra-tour.js?v=11"></script>
 <script src="js/gs-appearance.js?v=9"></script>

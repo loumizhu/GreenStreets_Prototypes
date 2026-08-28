@@ -354,7 +354,7 @@
     var actions =
         '<button class="btn-g" onclick="rapSendToSupplier()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>Send to supplier</button>' +
         (APPROVED
-          ? '<button class="rap-doc-btn" onclick="rapDownloadDoC()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download DoC</button>' +
+          ? '<button class="rap-doc-btn" onclick="rapGenerateDoC()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Generate DoC</button>' +
             '<button class="btn-g" onclick="rapReopen()">Re-open</button>'
           : '<button class="btn-p" ' + (canApprove ? '' : 'disabled style="opacity:.45;cursor:not-allowed"') + ' onclick="rapApprove()"><span class="btn-c"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" style="vertical-align:-2px;margin-right:5px"><polyline points="20 6 9 17 4 12"/></svg>Approve product</span></button>');
 
@@ -667,7 +667,11 @@
     if (awaitingCount() > 0) { toast('All components must be provided by the supplier first'); return; }
     APPROVED = true; render(); toast('Product approved ✅');
   };
-  window.rapDownloadDoC = function () { toast('Declaration of Conformity downloaded'); };
+  /* Opens the Generate DoC page (ra12) rather than faking a download. */
+  window.rapGenerateDoC = function () {
+    try { sessionStorage.setItem('ra_doc_sku', PROD.sku); } catch (e) {}
+    go('ra12');
+  };
   window.rapReopen = function () { APPROVED = false; render(); toast('Product re-opened for editing'); };
   window.rapSendToSupplier = function () {
     APPROVED = false;

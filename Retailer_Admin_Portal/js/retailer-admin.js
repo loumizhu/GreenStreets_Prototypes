@@ -350,10 +350,10 @@ ptInit('ra', PRODUCTS_RA, {
   rowHtml: function(r){
     var isComplete = r.status === 'Complete';
     var checked = raProdSel.has(r.sku) ? ' checked' : '';
-    var cbCell = '<td class="raprod-cb-cell" onclick="event.stopPropagation()" style="vertical-align:middle;text-align:center">'+
+    var cbCell = '<td class="raprod-cb-cell gs-check-col" onclick="event.stopPropagation()" style="vertical-align:middle;text-align:center">'+
       '<input type="checkbox" class="raprod-cb" aria-label="Select '+r.sku+'"'+checked+' onclick="event.stopPropagation();raProdToggleRow(this,\''+r.sku+'\')"></td>';
     var docBtn = isComplete
-      ? '<button class="btn-p" title="Download Declaration of Conformity" onclick="event.stopPropagation();raDownloadDoc(\''+r.sku+'\')" style="height:24px;display:inline-flex;align-items:center;vertical-align:middle;box-sizing:border-box;font-size:11px;padding:0 10px;margin-right:6px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="margin-right:4px;position:relative;top:-1px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>DoC</button>'
+      ? '<button class="btn-p" title="Generate Declaration of Conformity" onclick="event.stopPropagation();raDownloadDoc(\''+r.sku+'\')" style="height:24px;display:inline-flex;align-items:center;vertical-align:middle;box-sizing:border-box;font-size:11px;padding:0 10px;margin-right:6px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="margin-right:4px;position:relative;top:-1px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>DoC</button>'
       : '';
     var approveBtn = r.status === 'Incomplete'
       ? '<button class="act-mini" title="Approve product" onclick="event.stopPropagation();raApproveProduct(\''+r.sku+'\',this)" tabindex="-1" data-approved="false" style="height:24px;display:inline-flex;align-items:center;vertical-align:middle;box-sizing:border-box">Approve</button>'
@@ -441,7 +441,7 @@ function raProdInjectCss() {
   if (document.getElementById('raprod-css')) return;
   var st = document.createElement('style'); st.id = 'raprod-css';
   st.textContent =
-    '.raprod-cb,#raprod-selectall{width:15px;height:15px;accent-color:var(--gs);cursor:pointer;vertical-align:middle;margin:0}' +
+    '.raprod-cb,#raprod-selectall{cursor:pointer;vertical-align:middle;margin:0}' +
     '#pt-table-ra tr.raprod-row-sel td{background:rgba(78,187,129,.09)}' +
     '#pt-table-ra tr.raprod-row-sel td:first-child{box-shadow:inset 3px 0 0 var(--gs)}' +
     '#raprod-bulkbar{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(24px);display:flex;align-items:center;gap:10px;padding:9px 12px;background:#0f2338;border:1px solid var(--line-2,rgba(148,180,230,.28));border-radius:12px;box-shadow:0 16px 40px -10px rgba(0,0,0,.6);z-index:9997;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}' +
@@ -475,7 +475,7 @@ function raProdEnsureBar() {
     '<button type="button" class="raprod-bb-btn" onclick="raProdBulkExport()">' +
       '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export CSV</button>' +
     '<button type="button" class="raprod-bb-btn" onclick="raProdBulkDownloadDoc()">' +
-      '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>Download DoC</button>' +
+      '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>Generate DoC</button>' +
     '<button type="button" class="raprod-bb-btn raprod-bb-clear" onclick="raProdClearSel()" aria-label="Clear selection">Clear</button>';
   document.body.appendChild(bar);
   return bar;
@@ -528,16 +528,15 @@ function raProdBulkExport() {
 function raProdBulkDownloadDoc() {
   var rows = raProdSelectedRows();
   if (!rows.length) return;
-  raProdMiniToast('Downloading DoC for ' + rows.length + ' product' + (rows.length>1?'s':'') + '...');
+  try { sessionStorage.setItem('ra_doc_sku', rows[0].sku); } catch (e) {}
+  go('ra12');
 }
 
+/* DoC actions never "download" in the prototype — they open the Generate DoC page (ra12),
+   stashing the sku the way openProductRA does so that page can pick it up later. */
 function raDownloadDoc(sku) {
-  var t = document.getElementById('ra-toast');
-  if (!t) { t = document.createElement('div'); t.id = 'ra-toast'; document.body.appendChild(t); }
-  t.textContent = 'Declaration of Conformity for ' + sku + ' downloaded';
-  t.className = 'show';
-  clearTimeout(raDownloadDoc._t);
-  raDownloadDoc._t = setTimeout(function(){ t.className=''; }, 2600);
+  try { sessionStorage.setItem('ra_doc_sku', sku); } catch (e) {}
+  go('ra12');
 }
 function raApproveProduct(sku, btn) {
   var t = document.getElementById('ra-toast');
