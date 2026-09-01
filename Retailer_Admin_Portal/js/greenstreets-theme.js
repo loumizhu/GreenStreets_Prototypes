@@ -222,7 +222,11 @@
      Every .tbl header becomes click-to-sort (skipping empty action columns, tables that opt out with
      data-nosort, and the paginated product tables that own their own sort engine). The arrow shows the
      active column + direction; sorting is numeric when the cell looks numeric, else alphabetical. */
-  function gsCellText(r,idx){ var c=r.cells[idx]; return c?c.textContent.trim():''; }
+  /* A cell may declare its own sort value with data-sort-val — needed whenever the
+     displayed text does not sort the way a human means it to ("21 days ago" vs
+     "2 hrs ago" sorts as 21 < 2 by text). gsCmp already compares numerics numerically. */
+  function gsCellText(r,idx){ var c=r.cells[idx]; if(!c) return '';
+    var v=c.getAttribute('data-sort-val'); return v!=null?v:c.textContent.trim(); }
   function gsCmp(a,b){
     var an=parseFloat(a.replace(/[^0-9.\-]/g,'')), bn=parseFloat(b.replace(/[^0-9.\-]/g,''));
     if(!isNaN(an)&&!isNaN(bn)&&/\d/.test(a)&&/\d/.test(b)) return an-bn;

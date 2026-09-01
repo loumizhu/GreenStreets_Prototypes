@@ -339,6 +339,7 @@ body.lt .pkg-back-btn{background:#fff;border:1px solid var(--lt-line-2);color:va
 body.lt .pkg-back-btn:hover{background:rgba(78,187,129,.12);border-color:#8fd0b6;color:#2f9c62}
 body.lt .pkg-mat-add-btn{background:rgba(78,187,129,.08);border-color:#a6d9bf;color:#2f9c62}
 body.lt .pkg-mat-add-btn:hover{background:rgba(78,187,129,.14)}
+body.lt .pkg-mat-row{background:#f6f8fa;border-color:#dfe5ec}
 /* Duplicate button — softer readable purple on light */
 body.lt .pkg-duplicate-btn{background:#f2ecfd;border:1px solid #dcccf7;color:#7c5cd6}
 body.lt .pkg-duplicate-btn:hover{background:#e9defb}

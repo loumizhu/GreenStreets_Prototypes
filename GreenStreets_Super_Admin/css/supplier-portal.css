@@ -345,8 +345,34 @@ html,body{height:100%;font-family:"Inter",sans-serif;color:var(--tw)}
 .air-feat[data-conf="user"]{background:transparent!important;border-left:none!important}
 /* Add / remove material controls — Add stays visible so the option is
    discoverable; using it drops the section into edit mode. Remove is edit-only. */
+/* Editable picklist (type or pick from the themed list): the input + .gs-ecombo
+   caret replace the native <select>, which stays hidden purely to hold the value. */
+.gs-combo-sel .pkg-detail-feat-select{display:none!important}
+.pkg-sec-edit-mode .gs-combo-sel .pkg-detail-feat-input.editable-text{display:block}
+.gs-ecombo{position:relative;width:100%}
+.gs-ecombo .pkg-detail-feat-input{padding-right:26px}
+.gs-ecombo-caret{position:absolute;right:6px;top:50%;transform:translateY(-50%);display:flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;background:none;border:none;color:var(--tw3);cursor:pointer;transition:color .12s,transform .18s}
+.gs-ecombo-caret svg{width:13px;height:13px}
+.gs-ecombo-caret:hover{color:var(--gs)}
+.gs-ecombo.open .gs-ecombo-caret{transform:translateY(-50%) rotate(180deg);color:var(--gs)}
+.gs-ecombo.open{z-index:1000}
+.gs-ecombo-menu{max-height:260px}
 .pkg-mat-add-btn{display:flex;grid-column:1/-1;align-items:center;justify-content:center;gap:6px;margin-top:4px;padding:8px;background:rgba(78,187,129,.1);border:1px dashed rgba(78,187,129,.45);color:var(--gs);border-radius:6px;font-family:"Inter",sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:background .12s}
 .pkg-mat-add-btn:hover{background:rgba(78,187,129,.18)}
+/* Material Information: one field (or one material) per line, all sharing the
+   same inner gutter so every label/input lines up down the section. */
+.pkg-detail-grid.pkg-mat-grid>.pkg-detail-feat{grid-column:1/-1;padding:0 12px}
+.pkg-detail-grid.pkg-mat-grid>.pkg-detail-feat>*{max-width:50%}
+.pkg-detail-grid.pkg-mat-grid>.pkg-mat-add-btn{margin:2px 0}
+/* One material = one card line: name (50%) + % + remove X flush right. */
+.pkg-mat-row{grid-column:1/-1;display:flex;align-items:flex-start;gap:12px;padding:9px 11px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);border-radius:7px}
+.pkg-mat-row>.pkg-detail-feat{min-width:0}
+.pkg-mat-row>.pkg-detail-feat[data-mt="name"]{flex:0 0 50%}
+.pkg-mat-row>.pkg-detail-feat[data-mt="pct"]{flex:0 0 calc(50% - 52px)}
+.pkg-mat-row>.pkg-mat-remove{flex:0 0 28px;width:28px;height:28px;border-radius:6px;margin-top:18px}
+.pkg-mat-row>.pkg-mat-remove svg{width:11px;height:11px}
+/* sit the %-slider control on the same line as the name input */
+.pkg-mat-row .gs-pct{margin-top:-3px}
 .pkg-detail-feat-lbl-row{display:flex;align-items:center;justify-content:space-between;gap:6px}
 .pkg-mat-remove{display:none;align-items:center;justify-content:center;width:16px;height:16px;padding:0;flex-shrink:0;background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.35);color:#f87171;border-radius:4px;cursor:pointer;line-height:0}
 .pkg-mat-remove:hover{background:rgba(248,113,113,.22)}

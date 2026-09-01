@@ -364,7 +364,7 @@ const STEPS=[
   fields:[
    {type:'select', label:'Packaging Source Type', name:'source', req:true, options:SRC}
   ]},
- {t:'Material information', d:'Composition by material and percentage weight (must total 100%).', phase:'C', nav:'Materials',
+ {t:'Material information', d:'Composition by material and percentage weight.', phase:'C', nav:'Materials',
   fields:[
    {type:'combo', label:'Base Material', req:true, options:V.baseMaterial||[]},
    {type:'materials', label:'Materials', req:true}
@@ -372,15 +372,15 @@ const STEPS=[
  {t:'Recycled content', d:'Post-consumer and post-industrial recycled-content declarations.', phase:'C', nav:'Recycled content',
   fields:[
    {type:'chips', label:'Recycled Content', name:'recycled', req:true, options:['Yes','No']},
-   {type:'number', label:'Post-Consumer Recycled Content', unit:'%', id:'pcr', hint:'Required when recycled content = Yes'},
-   {type:'number', label:'Post-Industrial Recycled Content', unit:'%'},
+   {type:'number', label:'Post-Consumer Recycled Content (%)', unit:'%', id:'pcr', hint:'Required when recycled content = Yes'},
+   {type:'number', label:'Post-Industrial Recycled Content (%)', unit:'%'},
    {type:'combo', label:'Supporting evidence of recycled content', options:V.recycledEvidence||[]},
    {type:'textarea', label:'Recycled Content Comments', ph:'Anything the compliance team should know'}
   ]},
  {t:'Colour & decoration', d:'Visual properties of this packaging component.', phase:'C', nav:'Colour',
   fields:[
    {type:'combo', label:'Material Colour', req:true, options:V.colour||[]},
-   {type:'select', label:'Opacity', name:'opacity', req:true, options:V.opacity||[]},
+   {type:'chips', label:'Opacity', name:'opacity', req:true, options:V.opacity||[]},
    {type:'combo', label:'Decoration', req:true, options:V.decoration||[]}
   ]},
  {t:'Weight & grammage', d:'Physical weight properties of this component.', phase:'C', nav:'Weight',
@@ -405,7 +405,7 @@ const STEPS=[
   ]},
  {t:'Material compliance', d:'Chemical and substance compliance declarations.', phase:'D', nav:'Compliance',
   fields:[
-   {type:'select', label:'Material Compliance', req:true, options:V.materialCompliance||[]},
+   {type:'chips', label:'Material Compliance', name:'compliance', req:true, options:V.materialCompliance||[]},
    {type:'chips', label:'Does the material and/or inks contain mineral oils above allowable limits?', name:'minoil', req:true, options:['Yes','No']},
    {type:'chips', label:'Does the material contain BPA above allowable limits?', name:'bpa', req:true, options:['Yes','No']},
    {type:'chips', label:'Does the material contain PFAs?', name:'pfas', req:true, options:['Yes','No']},
@@ -490,8 +490,8 @@ function fieldHTML(f){
     return `<div class="tf-field" data-req="${f.req?1:0}" data-kind="materials"><span class="lbl">${esc(f.label)}${req}</span>
       <div class="mat-list" id="matList"></div>
       <button type="button" class="mat-add" onclick="matAddRow()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M12 5v14M5 12h14"/></svg>Add material</button>
-      <div class="mat-summary"><span>Materials: <b id="matCount">0</b></span><span>Total: <b id="matTotal">0</b>%</span><span class="mat-warn" id="matWarn"></span></div>
-      <div class="hint">Add each material and its % by weight — the count and total update automatically and should reach 100%.</div></div>`;
+      <div class="mat-summary"><span>Materials: <b id="matCount">0</b></span></div>
+      <div class="hint">Add each material and its % by weight.</div></div>`;
   }
   const id=f.id?` id="${f.id}"`:'';
   const val=f.value!=null?` value="${esc(f.value)}"`:'';
@@ -694,9 +694,8 @@ function matSync(){
     if(hasNm) count++; total+=p;
   });
   const c=document.getElementById('matCount'); if(c) c.textContent=count;
-  const tt=document.getElementById('matTotal'); if(tt) tt.textContent=Math.round(total*10)/10;
-  const w=document.getElementById('matWarn');
-  if(w){ w.textContent = (count && Math.round(total)!==100) ? '⚠ should total 100%' : ''; }
+  /* No total: the base material carries no percentage and the total is not a field
+     on the packaging record (matches the saved packaging detail pages). */
   const sec=document.getElementById('sec3');
   if(sec){ sec.dataset.touched='1'; const wc=sec.dataset.wc==='1', now=missingIn(3)===0; recompute(now&&!wc?sec.id:null); sec.dataset.wc=now?'1':'0'; }
 }
@@ -941,19 +940,42 @@ function wireNav(){document.querySelectorAll('.snav-item').forEach(b=>b.addEvent
 
 function setVal(sel,v){const el=document.querySelector(sel);if(el){el.value=v;}}
 function pickChip(sec,name,val){const o=document.querySelector(`#sec${sec} [data-name="${name}"] .opt[data-val="${val}"]`);if(o)selectOpt(o);}
+/* Set the Nth combo (type-or-pick) field in a section — prefill only ever seeds
+   values that exist in the field's GS_VOCAB list. */
+function setComboVal(sec,idx,val){const c=document.querySelectorAll(`#sec${sec} .gs-combo-input`)[idx];if(c){c.value=val;c.dispatchEvent(new Event('change',{bubbles:true}));}}
+/* Set a field by its LABEL rather than its position — the index-based prefill
+   silently shifted when a field changed control type (it put the supplier address
+   into "Packaging Supplier Name" and left the address blank). */
+function setFieldByLabel(sec,label,val){
+  const flds=document.querySelectorAll(`#sec${sec} .tf-field`);
+  for(const f of flds){
+    const l=f.querySelector(':scope > .lbl'); if(!l) continue;
+    if((l.childNodes[0].textContent||'').trim()!==label) continue;
+    const c=f.querySelector('input.fi,select.fi,textarea.fi'); if(!c) return;
+    c.value=val; c.dispatchEvent(new Event('input',{bubbles:true})); c.dispatchEvent(new Event('change',{bubbles:true})); return;
+  }
+}
 function applyPrefill(){
   const nameInp=document.querySelector('#sec0 .nameid-name'); if(nameInp){ nameInp.value='LDPE Mailer Bag'; genPkgId(nameInp); }
+  /* Every seeded value below is a member of its GS_VOCAB list, so the prefilled
+     component would actually validate — and prefill now fills EVERY required
+     field, so "review the values, then submit" is true. */
+  pickChip(1,'level','Primary'); setFieldByLabel(1,'Packaging Type (name)','Bag (Poly)');
+  setFieldByLabel(2,'Packaging Source Type',SRC[0]);
+  setComboVal(3,0,'Plastic_Single_MonoLayer');
   /* Prefill uses real GS_VOCAB.materialName values so the demo produces a component
      that would actually validate against the client's spreadsheet. */
   matSetRows([['Plastic LDPE (Low Density Polyethylene)',90],['Paper Kraft',10]]);
   pickChip(4,'recycled','Yes'); const pcr=document.getElementById('pcr'); if(pcr){ pcr.value='20'; pctFromNum(pcr); }
-  pickChip(5,'opacity','Transparent'); pickChip(5,'deco','1-colour print');
-  const w=[...document.querySelectorAll('#sec6 input.fi')]; if(w[0])w[0].value='9.8'; if(w[1])w[1].value='46'; if(w[2])w[2].value='55';
-  const dm=[...document.querySelectorAll('#sec7 input.fi:not(.ai-input)')]; if(dm[0])dm[0].value='380'; if(dm[1])dm[1].value='300';
-  const sel10=document.querySelector('#sec8 select.fi'); if(sel10)sel10.value='GRS';
-  const txt10=[...document.querySelectorAll('#sec8 input.fi:not(.ai-input)')]; if(txt10[1])txt10[1].value='FlexPack Converting Ltd'; if(txt10[2])txt10[2].value='12 Baoan District, Shenzhen, CN';
-  const std=document.querySelector('#sec9 select.fi'); if(std)std.value='EU PPWR / REACH';
-  ['minoil','bpa','pfas','chlorine'].forEach(n=>pickChip(9,n,'No'));
+  setComboVal(5,0,'Clear'); pickChip(5,'opacity','Coloured - translucent'); setComboVal(5,1,'Printed - Flexo');
+  setFieldByLabel(6,'Weight (g)','9.8'); setFieldByLabel(6,'Grammage (gsm)','46'); setFieldByLabel(6,'Gauge in Micron (um)','55');
+  setFieldByLabel(7,'Length (mm) (or diameter if applicable)','380'); setFieldByLabel(7,'Width (mm)','300');
+  setComboVal(8,0,'GRS');
+  setFieldByLabel(8,'Packaging Supplier Name','FlexPack Converting Ltd');
+  setFieldByLabel(8,'Packaging Supplier Address','12 Baoan District, Shenzhen, CN');
+  pickChip(9,'compliance','REACH/EU directive 94/62/EC only');
+  const chl=document.querySelector('#sec9 select.fi'); if(chl)chl.value='ECF (Elemental Chlorine Free)';
+  ['minoil','bpa','pfas'].forEach(n=>pickChip(9,n,'No'));
   document.querySelectorAll('.sec').forEach(s=>{s.dataset.touched='1';});
   document.getElementById('prefillBtn').classList.add('hide');
   recompute(); document.querySelectorAll('.sec').forEach(s=>s.dataset.wc=missingIn(+s.id.slice(3))===0?'1':'0');

@@ -197,8 +197,9 @@ not sending their packaging data.
 Four things on the page and nothing else:
 
 1. **Header** — title, "Updated 09:12", a bell, and one "More detail" link to v02.
-2. **The verdict** — two sentences and two buttons that scroll to the two lists, plus the 12-day
-   countdown to the Repak Ireland return.
+2. **Two headline cards** — one per problem, each a donut chart of the whole population with the
+   headline count in the hole, a three-line legend, and a click-through into its own pre-filtered
+   listing.
 3. **Products that do not meet PPWR** — all 13, with the article, the measured value against the
    required value, a Fails/At-risk chip, and one action per row.
 4. **Suppliers who have not sent their packaging data** — the 12 overdue, worst first, with what is
@@ -214,17 +215,69 @@ Four things on the page and nothing else:
 | Filing-deadlines rail (4 rows) | Only the nearest deadline changes today's behaviour — it is the countdown in the verdict. |
 | Documents-expiring card + preview modal | A different job (document hygiene), not PPWR conformity or supplier chasing. |
 | Notification dropdown, scope chips, Export chip | Chrome. The bell still links to the Notifications page. |
+| The deadline countdown, the card header strip, the explanatory sentence | Dropped in a later pass — the two cards say it. |
 | The "Act now" ranked queue | v03's two lists *are* the queue, sorted by severity and by lateness. |
 | The 17-question reviewer drawer | Reviewer aid; it belongs on v02. |
 
-Result: **8 content blocks → 3**, and the file is roughly half v02's size (53 KB vs 99 KB).
+### The two headline cards
+
+The verdict went through three shapes. It started as a red tinted full-width banner, became one card
+holding three figures, and is now **two standalone cards side by side** — one per problem. The
+intermediate version had a header strip ("Filing status · Repak Ireland Q3 return") and a third
+figure for the deadline countdown; both were dropped as noise, along with the explanatory sentence
+and the two footer buttons that duplicated the cards.
+
+What each card now does:
+
+- **A donut of the whole population**, not just the bad count — `r=15.9155` makes the circumference
+  exactly 100, so every `stroke-dasharray` in the markup is a literal percentage and `dashoffset:25`
+  starts the first slice at twelve o'clock. The headline count sits in the hole.
+- **Products:** 5 non-conformant · 8 at risk · 51 pass every check = 64. Hole reads `13 / of 64`.
+- **Suppliers:** 12 overdue · 109 not sent but still in window · 259 received = 380. Hole reads
+  `12 / overdue`.
+- **The whole card is a button** into a pre-filtered listing (see below).
+- Severity is a 3px rule along the card's top edge; equal heights and a bottom-pinned call to action
+  keep the pair aligned whatever the copy does.
+- **Slice and swatch colours are classes, never inline styles.** An inline `style="stroke:var(…)"`
+  would beat the Light twin's reassertion block, and the dark palette's pale mint (`#8fe3b6`) is
+  unreadable on a white card — the Light twin swaps it for `#3fae7c`. Worth remembering: because
+  `--status-ok` is declared as `var(--gs-l)` on `:root`, it resolves there and does **not** pick up
+  the Light theme's remapped `--gs-l`, so status tokens always need an explicit light override.
+
+### Where the cards go — and the shared-JS work it needed
+
+| Card | Destination | Intent |
+|---|---|---|
+| Products | Products (`ra6`) with the status filter applied **and** the Status column sorted | `goFilter('ra6',{selectValue:'Incomplete',ptSort:{scope:'ra',col:'status',dir:'asc'}})` |
+| Suppliers | Suppliers (`ra4`) sorted by **Last activity descending**, least-recently-active first | `goFilter('ra4',{sortHeader:{text:'Last activity',dir:'desc'}})` |
+
+`applyRaFilter()` in `js/retailer-admin.js` only understood `search` and `selectValue`, so two intents
+were added:
+
+- **`ptSort:{scope,col,dir}`** for the paginated `pt-table` engine. `ptSort()` only toggles, so it is
+  called twice when the first click lands on the wrong direction.
+- **`sortHeader:{text,dir}`** for data-grid listings. `gsSortTable()` is tri-state
+  (asc → desc → cleared) and stamps `data-sort` on the `th`, so it can be driven to a known direction.
+
+One more fix was needed for the supplier sort to mean anything: **"21 days ago" sorts before "2 hrs
+ago" by text**, so a descending sort would not have surfaced the inactive suppliers at all.
+`gsCellText()` in `js/greenstreets-theme.js` now honours a **`data-sort-val`** attribute on a cell,
+and the Suppliers pages carry hours-since-activity on their Last-activity cells (`2`, `3`, `504`).
+`gsCmp()` already compares numerics numerically, so descending now puts the stalest supplier first.
+
+Both shared files were edited, so `retailer-admin.js?v=34 → 35` and `greenstreets-theme.js?v=27 → 28`
+were bumped across all 77 HTML files in the portal.
+
+**Known limit:** the Products page's status vocabulary is `Complete / Incomplete / Pending` — there is
+no PPWR pass/fail state to filter on, so `Incomplete` is the nearest available match for "does not
+meet PPWR". A real build wants a conformity status on the product record.
 
 ### Two decisions worth challenging
 
 - **Both lists are complete — 13 rows and 12 rows, not "top 5 + view all".** Truncating a
   25-item problem list does not reduce the work, it just moves it to another page, which is more
-  clicks and more overwhelm, not less. The page is ~2.9 screens tall as a result; the verdict and the
-  head of the first list are above the fold, so the *answer* is still immediate. If you would rather
+  clicks and more overwhelm, not less. The page is ~2.3 screens tall as a result; both cards sit
+  inside the first 350px, so the *answer* is still immediate. If you would rather
   cap each list at 5 rows with a "show the other N" disclosure, that is a one-line change.
 - **The one filter kept is "which PPWR article".** Chips for Art. 5 · 2, Art. 7 · 6, Art. 9 · 3,
   Art. 10 · 2 — because "which requirement is biting us" is the second question every reader asks
@@ -253,7 +306,9 @@ dashboards follow.
   Same split as v02.
 - By article: 2 + 6 + 3 + 2 = 13.
 - 12 of 380 suppliers are overdue; between them they block **21 products**
-  (4+3+2+3+2+1+1+1+1+1+1+1). 109 have not submitted, so 97 are still inside their window.
+  (4+3+2+3+2+1+1+1+1+1+1+1). **121** have not sent data at all (380 − 259 received), of which 12 are
+  overdue and the other 109 are still inside their window. An earlier draft said "109 / 97" — that was
+  wrong and is fixed in the card legend and the supplier-table footer.
 - The verdict keeps the two failure modes distinct: 13 products **fail a check**, while another 21
   **cannot be checked at all** because the data has not arrived.
 

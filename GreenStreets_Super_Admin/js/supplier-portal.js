@@ -1736,6 +1736,132 @@ function gsBuildPct(feat, input){
 }
 
 /* Material-name free-text field → typeable combobox (datalist). */
+function gsMakeSelectEditable(feat){
+  if(!feat) return;
+  var sel = feat.querySelector('.pkg-detail-feat-select');
+  var input = feat.querySelector('.pkg-detail-feat-input');
+  if(!sel || !input) return;
+  var values = Array.prototype.filter.call(sel.options, function(o){
+    var t = o.text.trim();
+    return !o.disabled && t && !/^select/i.test(t);
+  }).map(function(o){ return o.text.trim(); });
+  if(!values.length) return;
+  feat.classList.add('gs-combo-sel');
+  gsAttachCombo(input, values, sel);
+}
+
+/* The combobox itself: a text input + caret that opens the themed .cs-menu list,
+   filtered as you type. `sel` is optional — when given, it holds the value. */
+function gsAttachCombo(input, values, sel){
+  if(!input || input.dataset.gsCombo || !values || !values.length) return;
+  input.dataset.gsCombo = '1';
+  input.classList.add('editable-text');
+  input.setAttribute('autocomplete','off');
+  input.removeAttribute('list');
+  if(!input.placeholder) input.placeholder = 'Type or pick a value';
+
+  var wrap = document.createElement('div');
+  wrap.className = 'gs-ecombo';
+  input.parentNode.insertBefore(wrap, input);
+  wrap.appendChild(input);
+  var caret = document.createElement('button');
+  caret.type = 'button'; caret.className = 'gs-ecombo-caret'; caret.tabIndex = -1;
+  caret.setAttribute('aria-label','Show options');
+  caret.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="6 9 12 15 18 9"/></svg>';
+  wrap.appendChild(caret);
+
+  var menu = document.createElement('div');
+  menu.className = 'cs-menu gs-ecombo-menu';
+  document.body.appendChild(menu);
+  var open = false, hi = -1, shown = [];
+
+  function render(term){
+    term = (term||'').trim().toLowerCase();
+    shown = values.filter(function(v){ return !term || v.toLowerCase().indexOf(term) > -1; });
+    if(!shown.length) shown = values.slice();   /* never show an empty list */
+    menu.innerHTML = '';
+    shown.forEach(function(v, i){
+      var o = document.createElement('div');
+      o.className = 'cs-opt' + (v === input.value.trim() ? ' sel' : '') + (i === hi ? ' cs-hi' : '');
+      o.textContent = v;
+      o.addEventListener('mousedown', function(e){ e.preventDefault(); pick(v); });
+      menu.appendChild(o);
+    });
+  }
+  function position(){
+    var r = input.getBoundingClientRect();
+    menu.style.minWidth = Math.round(r.width) + 'px';
+    menu.style.left = Math.round(r.left) + 'px';
+    var below = window.innerHeight - r.bottom;
+    if(below < 180 && r.top > below){
+      menu.style.top = '';
+      menu.style.bottom = Math.round(window.innerHeight - r.top + 5) + 'px';
+    } else {
+      menu.style.bottom = '';
+      menu.style.top = Math.round(r.bottom + 5) + 'px';
+    }
+  }
+  function openMenu(term){
+    hi = -1; render(term); position();
+    menu.classList.add('open'); wrap.classList.add('open'); open = true;
+  }
+  function closeMenu(){ menu.classList.remove('open'); wrap.classList.remove('open'); open = false; hi = -1; }
+  function pick(v){
+    input.value = v;
+    if(sel) gsSetSelectValue(sel, v);
+    closeMenu();
+    input.dispatchEvent(new Event('change',{bubbles:true}));
+    if(sel) sel.dispatchEvent(new Event('change',{bubbles:true}));
+  }
+  function moveHi(d){
+    if(!open){ openMenu(''); return; }
+    hi = (hi + d + shown.length) % shown.length;
+    var kids = menu.children;
+    for(var i=0;i<kids.length;i++) kids[i].classList.toggle('cs-hi', i === hi);
+    if(kids[hi]) kids[hi].scrollIntoView({block:'nearest'});
+  }
+
+  caret.addEventListener('mousedown', function(e){ e.preventDefault(); });
+  caret.addEventListener('click', function(e){
+    e.preventDefault(); e.stopPropagation();
+    if(open) { closeMenu(); return; }
+    input.focus(); openMenu('');   /* caret always shows the FULL list */
+  });
+  input.addEventListener('focus', function(){ if(!open) openMenu(''); });
+  input.addEventListener('click', function(){ if(!open) openMenu(input.value); });
+  input.addEventListener('input', function(){ openMenu(input.value); });
+  input.addEventListener('keydown', function(e){
+    if(e.key === 'ArrowDown'){ e.preventDefault(); moveHi(1); }
+    else if(e.key === 'ArrowUp'){ e.preventDefault(); moveHi(-1); }
+    else if(e.key === 'Enter'){ if(open && hi > -1){ e.preventDefault(); pick(shown[hi]); } else closeMenu(); }
+    else if(e.key === 'Escape'){ if(open){ e.stopPropagation(); closeMenu(); } }
+    else if(e.key === 'Tab'){ closeMenu(); }
+  });
+  input.addEventListener('blur', function(){
+    setTimeout(function(){
+      if(!open) return;
+      closeMenu();
+      var v = input.value.trim();
+      if(v && sel) gsSetSelectValue(sel, v);   /* free text is allowed — keep the select in step */
+    }, 120);
+  });
+  if(sel){
+    input.addEventListener('change', function(){
+      var v = input.value.trim();
+      if(v) gsSetSelectValue(sel, v);
+    });
+    sel.addEventListener('change', function(){
+      var o = sel.options[sel.selectedIndex];
+      if(o && o.text.trim() !== input.value.trim()) input.value = o.text.trim();
+    });
+  }
+  document.addEventListener('click', function(e){
+    if(open && !wrap.contains(e.target) && !menu.contains(e.target)) closeMenu();
+  });
+  window.addEventListener('scroll', function(){ if(open) position(); }, true);
+  window.addEventListener('resize', function(){ if(open) position(); });
+}
+
 function gsEnsureMaterialDatalist(){
   if(document.getElementById('gs-mat-datalist')) return;
   var dl = document.createElement('datalist');
@@ -1744,12 +1870,10 @@ function gsEnsureMaterialDatalist(){
   document.body.appendChild(dl);
 }
 function gsBuildCombobox(input){
-  if(input.getAttribute('list')) return;
-  gsEnsureMaterialDatalist();
-  input.setAttribute('list','gs-mat-datalist');
-  input.setAttribute('autocomplete','off');
-  input.classList.add('gs-combo');
+  /* Was a native <datalist>; Chrome filters that popup by the field's current
+     value, so a filled field showed a one-item list. Use the themed combo. */
   if(!input.placeholder) input.placeholder='Type or pick a material';
+  gsAttachCombo(input, GS_MATERIAL_NAMES, null);
 }
 
 function gsSetSelectValue(sel, val){
@@ -1899,6 +2023,9 @@ function gsHydrateAcceptedDetail(body, key){
           else { grid.appendChild(n); grid.appendChild(p); }
         });
         if(totalFeat){ var ti=totalFeat.querySelector('input'); if(ti) ti.value=(Math.round(totalPct*100)/100)+'%'; }
+        /* re-pair name/% into their one-line row cards, dropping any now-empty shells */
+        grid.querySelectorAll('.pkg-mat-row').forEach(function(r){ if(!r.querySelector('[data-mr]')) r.remove(); });
+        if(typeof pkgWrapMaterialRows==='function') pkgWrapMaterialRows(grid);
       }
     }
     /* supporting documents → chips in Additional Info */
@@ -2205,19 +2332,8 @@ function pkgMatBuildFeat(n, type) {
   feat.setAttribute('data-mr', n);
   feat.setAttribute('data-mt', type);
   var lbl = document.createElement('div');
-  lbl.className = 'pkg-detail-feat-lbl pkg-detail-feat-lbl-row';
-  var lblText = document.createElement('span');
-  lblText.textContent = (type === 'pct' ? '% Material ' + n : 'Material ' + n + ' Name');
-  lbl.appendChild(lblText);
-  if (type === 'name') {
-    var rm = document.createElement('button');
-    rm.type = 'button';
-    rm.className = 'pkg-mat-remove';
-    rm.title = 'Remove this material';
-    rm.setAttribute('onclick', 'pkgRemoveMaterial(this)');
-    rm.innerHTML = '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
-    lbl.appendChild(rm);
-  }
+  lbl.className = 'pkg-detail-feat-lbl';
+  lbl.textContent = (type === 'pct' ? '% Material ' + n : 'Material ' + n + ' Name');
   var inp = document.createElement('input');
   inp.className = 'pkg-detail-feat-input editable-text';
   inp.value = '';
@@ -2227,6 +2343,43 @@ function pkgMatBuildFeat(n, type) {
   feat.appendChild(lbl);
   feat.appendChild(inp);
   return feat;
+}
+
+/* One material = one horizontal card row: [Material N Name] [% Material N] [X].
+   Name + % live side by side; each material stacks on its own line. */
+function pkgMatRemoveBtn() {
+  var rm = document.createElement('button');
+  rm.type = 'button';
+  rm.className = 'pkg-mat-remove';
+  rm.title = 'Remove this material';
+  rm.setAttribute('onclick', 'pkgRemoveMaterial(this)');
+  rm.innerHTML = '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+  return rm;
+}
+
+/* Group every Material N name/% pair into a .pkg-mat-row card. Idempotent, so it
+   can be re-run after add/remove/renumber (and after markup is injected). */
+function pkgWrapMaterialRows(grid) {
+  if (!grid) return;
+  var order = [];
+  grid.querySelectorAll('[data-mr]').forEach(function(el){
+    var mr = el.getAttribute('data-mr');
+    if (order.indexOf(mr) === -1) order.push(mr);
+  });
+  order.forEach(function(mr){
+    var feats = grid.querySelectorAll('.pkg-detail-feat[data-mr="' + mr + '"]');
+    if (!feats.length) return;
+    var row = feats[0].parentElement;
+    if (!row || !row.classList.contains('pkg-mat-row')) {
+      row = document.createElement('div');
+      row.className = 'pkg-mat-row';
+      feats[0].parentElement.insertBefore(row, feats[0]);
+      feats.forEach(function(ft){ row.appendChild(ft); });
+    }
+    row.setAttribute('data-mrow', mr);
+    if (!row.querySelector('.pkg-mat-remove')) row.appendChild(pkgMatRemoveBtn());
+    else row.appendChild(row.querySelector('.pkg-mat-remove')); /* keep it last / right-aligned */
+  });
 }
 
 function pkgEnterSectionEdit(el) {
@@ -2253,17 +2406,24 @@ function pkgAddMaterial(btn) {
   var pctFeat = pkgMatBuildFeat(n, 'pct');
   grid.insertBefore(nameFeat, btn);
   grid.insertBefore(pctFeat, btn);
+  pkgWrapMaterialRows(grid);
+  /* give the new pair the same % slider treatment the shipped rows get */
+  if (typeof gsEnhanceFeat === 'function') { try { gsEnhanceFeat(nameFeat); gsEnhanceFeat(pctFeat); } catch(_) {} }
   pkgSyncMatCount(grid);
   var inp = nameFeat.querySelector('input');
   if (inp) inp.focus();
 }
 
 function pkgRemoveMaterial(btn) {
-  var feat = btn.closest('[data-mr]');
+  var row = btn.closest('.pkg-mat-row');
+  var feat = row || btn.closest('[data-mr]');
   if (!feat) return;
   var grid = feat.closest('.pkg-detail-grid');
-  var mr = feat.getAttribute('data-mr');
-  grid.querySelectorAll('[data-mr="' + mr + '"]').forEach(function(el){ el.remove(); });
+  if (row) { row.remove(); }
+  else {
+    var mr = feat.getAttribute('data-mr');
+    grid.querySelectorAll('[data-mr="' + mr + '"]').forEach(function(el){ el.remove(); });
+  }
   pkgRenumberMaterials(grid);
   pkgSyncMatCount(grid);
 }
@@ -2290,6 +2450,8 @@ function pkgRenumberMaterials(grid) {
   /* strip the temp prefix */
   grid.querySelectorAll('[data-mr^="r"]').forEach(function(el){
     el.setAttribute('data-mr', el.getAttribute('data-mr').slice(1));
+    var row = el.closest('.pkg-mat-row');
+    if (row) row.setAttribute('data-mrow', el.getAttribute('data-mr'));
   });
 }
 
@@ -2326,26 +2488,19 @@ function pkgInitMaterialControls() {
     var grid = section.querySelector('.pkg-detail-grid');
     if (!grid || !grid.querySelector('[data-mr]')) return;
     if (grid.querySelector('.pkg-mat-add-btn')) return; /* already initialised */
+    grid.classList.add('pkg-mat-grid'); /* one material per line */
 
-    /* add a remove control to each existing material name row */
+    /* keep the materials-used counter live, then group each pair into a row card */
     grid.querySelectorAll('[data-mr][data-mt="name"]').forEach(function(feat){
       var nameInp = feat.querySelector('.pkg-detail-feat-input');
       if (nameInp && !nameInp.getAttribute('oninput')) nameInp.setAttribute('oninput', "pkgSyncMatCount(this.closest('.pkg-detail-grid'))");
+    });
+    pkgWrapMaterialRows(grid);
+    /* Base Material is a long picklist — let the user type into it too. */
+    grid.querySelectorAll('.pkg-detail-feat').forEach(function(feat){
+      if (feat.hasAttribute('data-mr')) return;
       var lbl = feat.querySelector('.pkg-detail-feat-lbl');
-      if (!lbl || lbl.querySelector('.pkg-mat-remove')) return;
-      lbl.classList.add('pkg-detail-feat-lbl-row');
-      var txt = lbl.textContent;
-      lbl.innerHTML = '';
-      var span = document.createElement('span');
-      span.textContent = txt;
-      var rm = document.createElement('button');
-      rm.type = 'button';
-      rm.className = 'pkg-mat-remove';
-      rm.title = 'Remove this material';
-      rm.setAttribute('onclick', 'pkgRemoveMaterial(this)');
-      rm.innerHTML = '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
-      lbl.appendChild(span);
-      lbl.appendChild(rm);
+      if (lbl && lbl.textContent.trim().toLowerCase().indexOf('base material') === 0) gsMakeSelectEditable(feat);
     });
 
     /* find the "Total of all Materials" row to insert the Add button before it */

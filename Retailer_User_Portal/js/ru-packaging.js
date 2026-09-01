@@ -32,7 +32,9 @@
     sec.fields.forEach(function (f) {
       if (f.control === 'materials') { out.mat = true; return; }
       if (f.control === 'docs') { out.docs = true; DOCS_LABEL = f.label; return; }
-      out.fields.push({ label: f.label, key: f.key, unit: f.unit || '' });
+      /* keep the whole schema field — control + vocab drive which model control
+         this renders as (toggle / segmented / slider / combobox). */
+      out.fields.push(f);
     });
     return out;
   });
@@ -99,7 +101,13 @@
     return m;
   }
 
-  /* ---- styles (mirror the Retailer Admin .rpk-* look) ---- */
+  /* ---- markup: identical to the model, Supplier_Portal packaging detail ----
+     The page emits the model's own .pkg-detail-section / .pkg-detail-feat
+     structure and then hands it to GSPkgControls (a verbatim port of the
+     model's control builders), so every field renders as the same control:
+     Yes/No → toggle, short picklist → segmented choice list, % → slider +
+     stepper, long picklist / material name → combobox, and each material's
+     name + % share one .pkg-mat-row card. Read-only for this persona. */
   function injectCss() {
     if (document.getElementById('ru-pkg-css')) return;
     var st = document.createElement('style'); st.id = 'ru-pkg-css';
@@ -107,71 +115,66 @@
       '.rpk-wrap{max-width:760px}' +
       '.rpk-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:14px}' +
       '.rpk-head-actions{display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap}' +
-      '.rpk-sec{border:1px solid var(--bw,rgba(255,255,255,.09));border-radius:12px;margin-bottom:12px;overflow:hidden;background:rgba(255,255,255,.02)}' +
-      '.rpk-sec-hdr{display:flex;align-items:center;gap:10px;padding:12px 15px;font-size:13px;font-weight:650;color:var(--tw);background:rgba(255,255,255,.03);border-bottom:1px solid var(--bw,rgba(255,255,255,.08))}' +
-      '.rpk-sec-num{width:22px;height:22px;flex-shrink:0;border-radius:50%;background:var(--gs);color:#04130c;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}' +
-      '.rpk-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px 20px;padding:15px}' +
-      '@media(max-width:720px){.rpk-grid{grid-template-columns:1fr}}' +
-      '.rpk-f{display:flex;flex-direction:column;gap:5px;min-width:0}' +
-      '.rpk-f.rpk-wide{grid-column:1/-1}' +
-      '.rpk-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.05em;font-weight:600;color:var(--tw3)}' +
-      '.rpk-in{padding:7px 10px;font-size:12.5px;width:100%;box-sizing:border-box;background:rgba(255,255,255,.02);border:1px solid var(--bw,rgba(255,255,255,.09));border-radius:8px;color:var(--tw2,rgba(255,255,255,.82));font-family:inherit}' +
-      '.rpk-in[data-empty="1"]{color:var(--tw3,rgba(255,255,255,.45))}' +
-      '.rpk-matrow{display:grid;grid-template-columns:1fr 1fr;gap:13px 20px}' +
-      '@media(max-width:720px){.rpk-matrow{grid-template-columns:1fr}}' +
-      '.rpk-matcol{display:flex;flex-direction:column;gap:5px;min-width:0}' +
-      /* derived materials summary — count + total are computed, never stored */
-      '.rpk-mat-sum{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;font-size:11px;color:var(--tw3);margin-top:2px}' +
-      '.rpk-mat-sum b{color:var(--tw,#fff);font-weight:700}' +
-      '.rpk-mat-warn{color:var(--amber,#f5a623);font-weight:600}' +
-      '.rpk-mat-note{grid-column:1/-1;font-size:11px;line-height:1.5;color:var(--amber,#f5a623);background:rgba(245,166,35,.09);border:1px solid rgba(245,166,35,.28);border-radius:8px;padding:8px 11px}' +
-      '.rpk-docs{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0}' +
-      '.rpk-doc-chip{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;font-size:11px;background:rgba(255,255,255,.05);border:1px solid var(--line-2,rgba(148,180,230,.26));border-radius:7px;color:var(--tw2,rgba(255,255,255,.82))}';
+      '.rpk-mat-note{grid-column:1/-1;font-size:11px;line-height:1.5;color:var(--amber,#f5a623);background:rgba(245,166,35,.09);border:1px solid rgba(245,166,35,.28);border-radius:8px;padding:8px 11px}';
     document.head.appendChild(st);
   }
 
-  function ro(v) {
-    var disp = (v === '' || v == null) ? '—' : v;
-    return '<input class="rpk-in" value="' + esc(disp) + '"' + (disp === '—' ? ' data-empty="1"' : '') + ' readonly>';
-  }
+  function disp(v) { return (v === '' || v == null) ? '—' : v; }
+
+  /* one field → the model's markup: a display input, plus the real <select>
+     holding the value whenever the schema gives the field an option list. */
   function field(f, PKG) {
-    var wide = (f.key === 'supplierAddress' || f.key === 'recycledComments' || f.label.length > 48);
-    return '<div class="rpk-f' + (wide ? ' rpk-wide' : '') + '"><div class="rpk-lbl">' + esc(f.label) + '</div>' + ro(PKG[f.key]) + '</div>';
+    var val = disp(PKG[f.key]);
+    var opts = window.GSSchema.fieldOptions(f) || [];
+    var h = '<div class="pkg-detail-feat"><div class="pkg-detail-feat-lbl">' + esc(f.label) + '</div>';
+    if (opts.length) {
+      h += '<input class="pkg-detail-feat-input" value="' + esc(val) + '" readonly>';
+      h += '<select class="pkg-detail-feat-select"><option value="" disabled>Select…</option>' +
+        opts.map(function (o) {
+          return '<option' + (o === val ? ' selected' : '') + '>' + esc(o) + '</option>';
+        }).join('') + '</select>';
+    } else {
+      h += '<input class="pkg-detail-feat-input editable-text" value="' + esc(val) + '" readonly>';
+    }
+    return h + '</div>';
   }
-  /* dynamic materials: one row per material, count + total derived */
-  function matPct(m) { var n = parseFloat(String(m.pct == null ? '' : m.pct).replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; }
+
+  /* materials: one .pkg-detail-feat pair per material, tagged data-mr/data-mt
+     exactly as the model does, so pkgWrapMaterialRows() groups them into a row. */
   function materialsHtml(PKG) {
     var mats = PKG.materials && PKG.materials.length ? PKG.materials : [{ name: '', pct: '' }];
     var rows = mats.map(function (m, i) {
-      return '<div class="rpk-f rpk-wide"><div class="rpk-matrow">' +
-        '<div class="rpk-matcol"><div class="rpk-lbl">Material ' + (i + 1) + ' Name</div>' + ro(m.name) + '</div>' +
-        '<div class="rpk-matcol"><div class="rpk-lbl">% Material ' + (i + 1) + '</div>' + ro(m.pct) + '</div>' +
-        '</div></div>';
+      var n = i + 1;
+      return '<div class="pkg-detail-feat" data-mr="' + n + '" data-mt="name"><div class="pkg-detail-feat-lbl">Material ' + n + ' Name</div>' +
+          '<input class="pkg-detail-feat-input editable-text" value="' + esc(disp(m.name)) + '" readonly></div>' +
+        '<div class="pkg-detail-feat" data-mr="' + n + '" data-mt="pct"><div class="pkg-detail-feat-lbl">% Material ' + n + '</div>' +
+          '<input class="pkg-detail-feat-input editable-text" value="' + esc(disp(m.pct)) + '" readonly></div>';
     }).join('');
-    var named = mats.filter(function (m) { return String(m.name || '').trim(); });
-    var total = Math.round(mats.reduce(function (s, m) { return s + matPct(m); }, 0) * 100) / 100;
-    var warn = (named.length && Math.round(total) !== 100) ? '<span class="rpk-mat-warn">⚠ should total 100%</span>' : '';
+    /* No "Total of all the materials" — the base material carries no percentage
+       and the total is not a field on the packaging record. */
     var note = window.GSSchema.materialExportNote(mats);
-    return rows +
-      '<div class="rpk-mat-sum"><span>Materials: <b>' + named.length + '</b></span>' +
-      '<span>Total of all the materials: <b>' + total + '%</b></span>' + warn + '</div>' +
-      (note ? '<div class="rpk-mat-note">' + esc(note) + '</div>' : '');
+    return rows + (note ? '<div class="rpk-mat-note">' + esc(note) + '</div>' : '');
   }
+
   function docsHtml(PKG) {
     var docs = PKG.documents || [];
     var chips = docs.map(function (d) {
-      return '<span class="rpk-doc-chip"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' + esc(d) + '</span>';
+      return '<span class="doc-chip"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>' + esc(d) + '</span></span>';
     }).join('');
-    var empty = docs.length ? '' : '<span class="rpk-lbl" style="text-transform:none;letter-spacing:0">No documents attached.</span>';
-    return '<div class="rpk-f rpk-wide"><div class="rpk-lbl">' + esc(DOCS_LABEL) + '</div>' +
-      '<div class="rpk-docs">' + chips + empty + '</div></div>';
+    var empty = docs.length ? '' : '<span class="pkg-detail-feat-lbl" style="text-transform:none;letter-spacing:0">No documents attached.</span>';
+    return '<div class="pkg-detail-feat"><div class="pkg-detail-feat-lbl">' + esc(DOCS_LABEL) + '</div>' +
+      '<div class="doc-chips">' + chips + empty + '</div></div>';
   }
+
   function section(s, PKG) {
     var inner = s.fields.map(function (f) { return field(f, PKG); }).join('');
     if (s.mat) inner += materialsHtml(PKG);
     if (s.docs) inner += docsHtml(PKG);
-    return '<div class="rpk-sec"><div class="rpk-sec-hdr"><span class="rpk-sec-num">' + s.n + '</span>' + esc(s.title) + '</div>' +
-      '<div class="rpk-grid">' + inner + '</div></div>';
+    /* .pkg-sec-edit-mode is what makes the model's rich controls visible; the
+       read-only lock in css/pkg-detail.css keeps them look-but-don't-touch. */
+    return '<div class="pkg-detail-section pkg-sec-edit-mode"><div class="pkg-detail-section-hdr">' +
+      '<span class="pkg-detail-section-num">' + s.n + '</span>' + esc(s.title) + '</div>' +
+      '<div class="pkg-detail-grid">' + inner + '</div></div>';
   }
 
   function statusMeta(status) {
@@ -210,6 +213,10 @@
     var footer = '<div style="margin-top:14px"><button class="btn-g" onclick="go(\'ru10\')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5m0 0 6 6m-6-6 6-6"/></svg>Back to packaging portfolio</button></div>';
 
     root.innerHTML = '<div class="rpk-wrap">' + head + note + body + footer + '</div>';
+    /* upgrade every field to the model's control (read-only for this persona) */
+    if (typeof window.GSPkgControls === 'function') {
+      try { window.GSPkgControls(root, { readOnly: true }); } catch (e) {}
+    }
   }
 
   window.ruPkgDownloadDoC = function () { if (window.ruToast) ruToast('Declaration of Conformity downloaded'); };

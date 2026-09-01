@@ -90,6 +90,32 @@ function applyRaFilter(f){
     });
     if(target){ target.dispatchEvent(new Event('change', {bubbles:true})); }
   }
+  /* ptSort:{scope,col,dir} — land on a paginated pt-table with a chosen sort already
+     applied. ptSort() only toggles, so it is called twice when the first click lands
+     on the wrong direction. */
+  if(f.ptSort && typeof ptSort === 'function' && typeof __pt !== 'undefined'){
+    var st = __pt[f.ptSort.scope];
+    if(st){
+      var want = f.ptSort.dir === 'desc' ? -1 : 1;
+      ptSort(f.ptSort.scope, f.ptSort.col);
+      if(st.sortDir !== want) ptSort(f.ptSort.scope, f.ptSort.col);
+    }
+  }
+  /* sortHeader:{text,dir} — land on a data-grid listing sorted by the column whose
+     header starts with `text`. gsSortTable is tri-state (asc -> desc -> cleared) and
+     stamps data-sort on the th, so it can be driven to a known direction. */
+  if(f.sortHeader && typeof gsSortTable === 'function'){
+    var wantDir = f.sortHeader.dir === 'desc' ? 'desc' : 'asc';
+    var label = String(f.sortHeader.text || '').toLowerCase();
+    var th = null;
+    document.querySelectorAll('table.tbl thead th').forEach(function(h){
+      if(th || !label) return;
+      if((h.textContent || '').trim().toLowerCase().indexOf(label) === 0) th = h;
+    });
+    if(th){
+      for(var n = 0; n < 3 && th.getAttribute('data-sort') !== wantDir; n++) gsSortTable(th);
+    }
+  }
 }
 (function(){
   function run(){

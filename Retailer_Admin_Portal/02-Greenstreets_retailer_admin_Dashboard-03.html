@@ -31,7 +31,7 @@ html.gs-anim-armed #d3 .d3-anim{opacity:0}
 #d3 h1,#d3 h2{font:inherit;letter-spacing:inherit;text-transform:inherit;color:inherit}
 #d3 h1.pg-title{font-size:24px;font-weight:700;letter-spacing:-.015em}
 #d3 .grp-hdr h2{font-size:13px;font-weight:600}
-#d3 .tbl td,#d3 .d3-big,#d3 .d3-days-n,#d3 .d3-val{font-variant-numeric:tabular-nums}
+#d3 .tbl td,#d3 .d3-fs-n,#d3 .d3-val,#d3 .d3-late{font-variant-numeric:tabular-nums}
 /* this page breathes — more air than the dense v01/v02 listings */
 #d3 .main{padding:20px 26px}
 #d3 .grp-body{padding:0}
@@ -40,25 +40,57 @@ html.gs-anim-armed #d3 .d3-anim{opacity:0}
 .d3-sub{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:12px;color:var(--tw2);margin-top:5px}
 .d3-dot{width:6px;height:6px;border-radius:50%;background:var(--status-ok-strong);flex-shrink:0}
 
-/* ── the verdict — the whole point of the screen ───────────────────────── */
-.d3-verdict{position:relative;display:flex;align-items:center;gap:26px;flex-wrap:wrap;
-  padding:20px 24px 20px 26px;margin-bottom:16px;border-radius:var(--rl);
-  border:1px solid rgba(224,96,90,.34);
-  background:linear-gradient(100deg,rgba(224,96,90,.13),rgba(224,96,90,.035) 62%,rgba(255,255,255,.02));
-  box-shadow:var(--sh-1)}
-.d3-verdict::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:3px;border-radius:0 3px 3px 0;background:var(--status-danger)}
-.d3-vd-main{flex:1;min-width:300px}
-.d3-kicker{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;font-weight:700;letter-spacing:.07em;
-  text-transform:uppercase;color:var(--status-danger)}
-.d3-vd-h{font-size:22px;font-weight:700;letter-spacing:-.015em;color:var(--tw);margin:7px 0 7px;line-height:1.25}
-.d3-vd-h b{color:var(--status-danger)}
-.d3-vd-p{font-size:13.5px;color:var(--tw2);line-height:1.55;max-width:60ch}
-.d3-vd-acts{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:15px}
-.d3-days{flex-shrink:0;text-align:center;padding:14px 20px;border-radius:var(--rm);
-  border:1px solid var(--line-2);background:rgba(255,255,255,.04);min-width:130px}
-.d3-days-n{font-size:32px;font-weight:700;line-height:1;color:var(--status-warn);letter-spacing:-.02em}
-.d3-days-l{font-size:11.5px;color:var(--tw2);margin-top:6px;font-weight:600}
-.d3-days-d{font-size:11.5px;color:var(--tw2);margin-top:3px;opacity:.82}
+/* ── the two headline cards ──────────────────────────────────────────────
+   Two standalone .grp cards side by side, each one a button that opens its
+   own filtered listing. No outer wrapper card and no header strip — a card
+   inside a card reads as two boxes doing one job. The alarm is a 3px
+   severity rule along the top edge. */
+.d3-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+/* height:100% + a column body keep the pair the same height and land both
+   call-to-actions on the same baseline whatever the copy does */
+.d3-card{position:relative;display:block;width:100%;height:100%;text-align:left;cursor:pointer;overflow:hidden;
+  transition:transform .18s,box-shadow .18s,border-color .18s}
+.d3-card:hover{transform:translateY(-2px);box-shadow:var(--sh-2)}
+.d3-card::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;z-index:2;pointer-events:none}
+.d3-card.sev-bad::before{background:linear-gradient(90deg,var(--status-danger),rgba(224,96,90,.22))}
+.d3-card.sev-warn::before{background:linear-gradient(90deg,var(--status-warn),rgba(245,166,35,.22))}
+.d3-card.sev-bad:hover{border-color:rgba(224,96,90,.4)}
+.d3-card.sev-warn:hover{border-color:rgba(245,166,35,.4)}
+.d3-card-body{padding:18px 20px;display:flex;flex-direction:column;height:100%}
+.d3-fs-top{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.d3-fs-ico{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.d3-fs-ico.i-bad{background:rgba(224,96,90,.18);color:#ff9c96;box-shadow:inset 0 0 0 1px rgba(224,96,90,.3)}
+.d3-fs-ico.i-warn{background:rgba(245,166,35,.18);color:#ffcd7a;box-shadow:inset 0 0 0 1px rgba(245,166,35,.3)}
+.d3-fs-lbl{font-size:11.5px;font-weight:600;color:var(--tw2);text-transform:uppercase;letter-spacing:.05em}
+
+/* ── the pie: a donut whose hole carries the headline count ──────────────
+   r=15.9155 makes the circumference exactly 100, so every stroke-dasharray
+   below is a literal percentage and dashoffset 25 starts the first slice at
+   twelve o'clock. */
+.d3-pie-row{display:flex;align-items:center;gap:20px}
+.d3-pie-wrap{position:relative;width:114px;height:114px;flex-shrink:0}
+.d3-pie{width:114px;height:114px;display:block}
+.d3-pie circle{fill:none;stroke-width:5}
+.d3-pie-bg{stroke:rgba(255,255,255,.09)}
+/* slice + legend-swatch colours live in classes, NOT inline styles: an inline
+   style would beat the Light twin's reassertion block, and the dark palette's
+   pale mint is unreadable on a white card. */
+.d3-pie-seg.s-bad{stroke:var(--status-danger)}
+.d3-pie-seg.s-warn{stroke:var(--status-warn)}
+.d3-pie-seg.s-ok{stroke:var(--status-ok)}
+.d3-pie-mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
+.d3-fs-n{font-size:30px;font-weight:700;line-height:1;letter-spacing:-.025em;color:var(--tw)}
+.d3-pie-den{font-size:11.5px;color:var(--tw2);margin-top:4px}
+.d3-fs-legend{flex:1;min-width:0;display:flex;flex-direction:column;gap:9px}
+.d3-lg{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--tw2);line-height:1.3}
+.d3-lg-sw{width:9px;height:9px;border-radius:3px;flex-shrink:0}
+.d3-lg-sw.s-bad{background:var(--status-danger)}
+.d3-lg-sw.s-warn{background:var(--status-warn)}
+.d3-lg-sw.s-ok{background:var(--status-ok)}
+.d3-lg-n{font-weight:700;color:var(--tw);min-width:28px;text-align:right;font-variant-numeric:tabular-nums}
+.d3-card-go{display:inline-flex;align-items:center;gap:6px;margin-top:auto;padding-top:16px;
+  font-size:12px;font-weight:600;color:var(--status-info);align-self:flex-start}
+.d3-card:hover .d3-card-go{text-decoration:underline}
 
 /* ── status chip: glyph + word, never colour alone ─────────────────────── */
 .d3-st{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;
@@ -121,20 +153,22 @@ html.gs-anim-armed #d3 .d3-anim{opacity:0}
 /* ── responsive: the tables scroll, the targets grow ───────────────────── */
 #d3 .tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
 @media (max-width:1100px){
-  .d3-vd-h{font-size:20px}
+  .d3-pie-row{gap:14px}
+  .d3-pie-wrap,.d3-pie{width:100px;height:100px}
   #d3 .tbl{min-width:720px}
 }
 @media (max-width:900px){
   #d3 .app-body{flex-direction:column}
   #d3 .sidebar{width:100%;flex-direction:row;overflow-x:auto}
   #d3 .main{padding:16px}
-  .d3-days{min-width:100%;display:flex;align-items:center;justify-content:center;gap:11px}
-  .d3-days-n{font-size:25px}
-  .d3-days-l,.d3-days-d{margin-top:0}
+  .d3-cards{grid-template-columns:1fr}
 }
 @media (max-width:680px){
-  .d3-vd-h{font-size:18px}
-  .d3-verdict{padding:16px 16px 16px 18px;gap:16px}
+  .d3-card-body{padding:15px 16px}
+  .d3-pie-row{gap:12px}
+  .d3-pie-wrap,.d3-pie{width:92px;height:92px}
+  .d3-fs-n{font-size:25px}
+  .d3-lg{font-size:11.5px}
   #d3 .btn-p,#d3 .btn-g,.d3-act,.d3-chip{min-height:40px}
 }
 </style>
@@ -146,6 +180,7 @@ html.gs-anim-armed #d3 .d3-anim{opacity:0}
 <symbol id="d3i-alert" viewBox="0 0 24 24"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
 <symbol id="d3i-box" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></symbol>
 <symbol id="d3i-truck" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></symbol>
+<symbol id="d3i-chev" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></symbol>
 </defs></svg>
 <div class="screen on" id="d3">
   <div class="app-body">
@@ -200,36 +235,93 @@ html.gs-anim-armed #d3 .d3-anim{opacity:0}
         </div>
       </div>
 
-      <!-- ══ 2 · THE VERDICT — two sentences, two buttons ═══════════════
-           It names exactly the two problems this screen is about, and keeps
-           the distinction between them: 13 products FAIL a check, while
-           another 21 cannot be checked at all because the data is missing.
+      <!-- ══ 2 · THE TWO HEADLINE CARDS ═════════════════════════════════
+           One card per problem, each a donut of the whole population so the
+           share is readable, not just the count, and each one a link into
+           its own pre-filtered listing:
+             · products  -> Products, status filter applied + sorted by status
+             · suppliers -> Suppliers, sorted by Last activity descending, so
+                            the least-recently-active sit at the top
+           The sort intents are handled by applyRaFilter() in retailer-admin.js.
            ═════════════════════════════════════════════════════════════ -->
-      <section class="d3-verdict d3-anim" aria-labelledby="d3-vd-h">
-        <div class="d3-vd-main">
-          <div class="d3-kicker">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#d3i-alert"/></svg>
-            Not ready to file
+      <div class="d3-cards">
+
+        <!-- 5 non-conformant + 8 at risk + 51 passing = 64 products -->
+        <button class="grp d3-card sev-bad d3-anim"
+                onclick="goFilter('ra6',{selectValue:'Incomplete',ptSort:{scope:'ra',col:'status',dir:'asc'}})"
+                title="Open Products, filtered to the failing status and sorted by status">
+          <div class="d3-card-body">
+            <div class="d3-fs-top">
+              <span class="d3-fs-ico i-bad"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><use href="#d3i-box"/></svg></span>
+              <span class="d3-fs-lbl">Products that do not meet PPWR</span>
+            </div>
+            <div class="d3-pie-row">
+              <div class="d3-pie-wrap">
+                <svg class="d3-pie" viewBox="0 0 42 42" role="img"
+                     aria-label="Of 64 products: 5 non-conformant, 8 at risk, 51 pass every check">
+                  <circle class="d3-pie-bg" cx="21" cy="21" r="15.9155"/>
+                  <circle class="d3-pie-seg s-bad" cx="21" cy="21" r="15.9155"
+                          stroke-dasharray="7.81 92.19" stroke-dashoffset="25"/>
+                  <circle class="d3-pie-seg s-warn" cx="21" cy="21" r="15.9155"
+                          stroke-dasharray="12.5 87.5" stroke-dashoffset="17.19"/>
+                  <circle class="d3-pie-seg s-ok" cx="21" cy="21" r="15.9155"
+                          stroke-dasharray="79.69 20.31" stroke-dashoffset="4.69"/>
+                </svg>
+                <div class="d3-pie-mid">
+                  <div class="d3-fs-n">13</div>
+                  <div class="d3-pie-den">of 64</div>
+                </div>
+              </div>
+              <div class="d3-fs-legend">
+                <div class="d3-lg"><span class="d3-lg-sw s-bad"></span><span class="d3-lg-n">5</span><span>Non-conformant</span></div>
+                <div class="d3-lg"><span class="d3-lg-sw s-warn"></span><span class="d3-lg-n">8</span><span>At risk</span></div>
+                <div class="d3-lg"><span class="d3-lg-sw s-ok"></span><span class="d3-lg-n">51</span><span>Pass every check</span></div>
+              </div>
+            </div>
+            <span class="d3-card-go">Open the filtered product list
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><use href="#d3i-chev"/></svg>
+            </span>
           </div>
-          <h2 class="d3-vd-h" id="d3-vd-h"><b>13 products</b> do not meet PPWR. <b>12 suppliers</b> still owe you data.</h2>
-          <p class="d3-vd-p">
-            5 products are non-conformant today and 8 more are at risk. The 12 overdue suppliers hold
-            packaging data for another <b>21 products</b> that cannot be checked at all yet.
-            Nothing else needs you — the Repak Ireland Q3 return is due 09 Sep 2026.
-          </p>
-          <div class="d3-vd-acts">
-            <button class="btn-p" onclick="d3Jump('d3-ppwr')" style="height:36px;padding:0 15px;font-size:12.5px">
-              <img class="btn-sw" src="" alt="" data-sw><span class="btn-c">Show the 13 products</span>
-            </button>
-            <button class="btn-g" onclick="d3Jump('d3-sup')" style="height:36px;padding:0 14px;font-size:12.5px">Show the 12 suppliers</button>
+        </button>
+
+        <!-- 12 overdue + 109 still in window + 259 submitted = 380 suppliers -->
+        <button class="grp d3-card sev-warn d3-anim"
+                onclick="goFilter('ra4',{sortHeader:{text:'Last activity',dir:'desc'}})"
+                title="Open Suppliers, sorted by Last activity descending — the least active first">
+          <div class="d3-card-body">
+            <div class="d3-fs-top">
+              <span class="d3-fs-ico i-warn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><use href="#d3i-truck"/></svg></span>
+              <span class="d3-fs-lbl">Suppliers not sending their data</span>
+            </div>
+            <div class="d3-pie-row">
+              <div class="d3-pie-wrap">
+                <svg class="d3-pie" viewBox="0 0 42 42" role="img"
+                     aria-label="Of 380 suppliers: 12 overdue, 109 still inside their window, 259 have submitted">
+                  <circle class="d3-pie-bg" cx="21" cy="21" r="15.9155"/>
+                  <circle class="d3-pie-seg s-bad" cx="21" cy="21" r="15.9155"
+                          stroke-dasharray="3.16 96.84" stroke-dashoffset="25"/>
+                  <circle class="d3-pie-seg s-warn" cx="21" cy="21" r="15.9155"
+                          stroke-dasharray="28.68 71.32" stroke-dashoffset="21.84"/>
+                  <circle class="d3-pie-seg s-ok" cx="21" cy="21" r="15.9155"
+                          stroke-dasharray="68.16 31.84" stroke-dashoffset="93.16"/>
+                </svg>
+                <div class="d3-pie-mid">
+                  <div class="d3-fs-n">12</div>
+                  <div class="d3-pie-den">overdue</div>
+                </div>
+              </div>
+              <div class="d3-fs-legend">
+                <div class="d3-lg"><span class="d3-lg-sw s-bad"></span><span class="d3-lg-n">12</span><span>Overdue — blocking 21 products</span></div>
+                <div class="d3-lg"><span class="d3-lg-sw s-warn"></span><span class="d3-lg-n">109</span><span>Not sent, still in window</span></div>
+                <div class="d3-lg"><span class="d3-lg-sw s-ok"></span><span class="d3-lg-n">259</span><span>Data received</span></div>
+              </div>
+            </div>
+            <span class="d3-card-go">Open Suppliers by last activity
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><use href="#d3i-chev"/></svg>
+            </span>
           </div>
-        </div>
-        <div class="d3-days" role="group" aria-label="Time to the next filing deadline">
-          <div class="d3-days-n">12</div>
-          <div class="d3-days-l">days left</div>
-          <div class="d3-days-d">Repak IE · 09 Sep</div>
-        </div>
-      </section>
+        </button>
+      </div>
 
       <!-- ══ 3 · PRODUCTS THAT DO NOT MEET PPWR ════════════════════════
            All 13 are listed — a truncated list would just send the reader
@@ -497,7 +589,7 @@ html.gs-anim-armed #d3 .d3-anim{opacity:0}
             </table>
           </div>
           <div class="d3-foot">
-            <span><b>12</b> of 380 suppliers are overdue · between them they hold data for <b>21 products</b> · 109 have not submitted yet, 97 of those are still inside their window</span>
+            <span><b>12</b> of 380 suppliers are overdue · between them they hold data for <b>21 products</b> · <b>121</b> have not sent data at all, the other 109 of those are still inside their window</span>
             <span class="d3-hdr-link" style="margin-left:0" onclick="go('ra8')">Send a bulk reminder →</span>
           </div>
         </div>
@@ -507,8 +599,8 @@ html.gs-anim-armed #d3 .d3-anim{opacity:0}
   </div>
 </div>
 
-<script src="js/retailer-admin.js?v=34"></script>
-<script src="js/greenstreets-theme.js?v=27"></script>
+<script src="js/retailer-admin.js?v=35"></script>
+<script src="js/greenstreets-theme.js?v=28"></script>
 <script src="js/gs-appearance.js?v=9"></script>
 <script>
 /* Register this essentials dashboard with the shared router without touching
@@ -545,14 +637,6 @@ function d3Art(btn){
   }
 }
 
-/* ── the verdict's two buttons scroll to the block they name ──────────── */
-function d3Jump(id){
-  var el = document.getElementById(id);
-  if(!el) return;
-  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  el.scrollIntoView({behavior: reduce ? 'auto' : 'smooth', block:'start'});
-}
-
 /* ── inline action feedback: the outcome replaces the button, in place ─── */
 function d3Handled(btn, label){
   if(!btn || btn.dataset.done) return;
@@ -577,19 +661,30 @@ function d3Handled(btn, label){
   'use strict';
   var REDUCE = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var EASE = 'cubic-bezier(.22,1,.36,1)';
-  var TOTAL = 1400;
+  var TOTAL = 1700;
   var timers = [];
 
   var blocks = Array.prototype.slice.call(document.querySelectorAll('#d3 .d3-anim'));
   var sidebar = document.querySelector('#d3 .sidebar');
-  var days = document.querySelector('#d3 .d3-days-n');
-  var dayTarget = days ? parseInt(days.textContent, 10) : null;
+  /* the headline count inside each donut: capture the authored value, count up to it */
+  var figs = Array.prototype.slice.call(document.querySelectorAll('#d3 .d3-fs-n')).map(function(el){
+    var node = el.childNodes[0];
+    if(!node || node.nodeType !== 3) return null;
+    var m = String(node.nodeValue).match(/^\s*(\d+)(.*)$/);
+    return m ? {node:node, target:parseInt(m[1],10), suffix:m[2] || ''} : null;
+  }).filter(Boolean);
+
+  /* donut slices: remember the authored stroke-dasharray so the draw can be
+     replayed and, more importantly, restored by the safety net */
+  var segs = Array.prototype.slice.call(document.querySelectorAll('#d3 .d3-pie-seg'));
+  segs.forEach(function(sg){ sg._da = sg.getAttribute('stroke-dasharray'); });
 
   function finish(){
     document.documentElement.classList.remove('gs-anim-armed');
     blocks.forEach(function(b){ b.style.opacity = ''; b.style.transform = ''; });
     if(sidebar){ sidebar.style.opacity = ''; sidebar.style.transform = ''; }
-    if(days && dayTarget != null) days.textContent = dayTarget;
+    figs.forEach(function(f){ f.node.nodeValue = f.target + f.suffix; });
+    segs.forEach(function(sg){ if(sg._da) sg.setAttribute('stroke-dasharray', sg._da); });
   }
 
   if(REDUCE){ finish(); return; }
@@ -609,7 +704,8 @@ function d3Handled(btn, label){
 
     blocks.forEach(function(b){ b.style.opacity = '0'; });
     if(sidebar){ sidebar.style.opacity = '0'; sidebar.style.transform = 'translateX(-40%)'; }
-    if(days && dayTarget != null) days.textContent = '0';
+    figs.forEach(function(f){ f.node.nodeValue = '0' + f.suffix; });
+    segs.forEach(function(sg){ sg.setAttribute('stroke-dasharray', '0 100'); });
     document.documentElement.classList.remove('gs-anim-armed');
 
     if(sidebar){
@@ -623,17 +719,34 @@ function d3Handled(btn, label){
         .finished.then(function(){ b.style.opacity=''; b.style.transform=''; }).catch(function(){});
     });
 
-    if(days && dayTarget != null){
+    figs.forEach(function(f, i){
       timers.push(setTimeout(function(){
         var start = null;
         requestAnimationFrame(function frame(ts){
           if(start === null) start = ts;
           var p = Math.min(1, (ts - start) / 460), e = 1 - Math.pow(1 - p, 3);
-          days.textContent = Math.round(dayTarget * e);
-          if(p < 1) requestAnimationFrame(frame); else days.textContent = dayTarget;
+          f.node.nodeValue = Math.round(f.target * e) + f.suffix;
+          if(p < 1) requestAnimationFrame(frame); else f.node.nodeValue = f.target + f.suffix;
         });
-      }, 300));
-    }
+      }, 300 + i * 70));
+    });
+
+    /* each slice sweeps out to its authored share. Written straight to the
+       attribute rather than via WAAPI — stroke-dasharray interpolation is not
+       reliable across engines and this is three elements per card. */
+    segs.forEach(function(sg, i){
+      var auth = parseFloat((sg._da || '0 100').split(/\s+/)[0]) || 0;
+      timers.push(setTimeout(function(){
+        var start = null;
+        requestAnimationFrame(function frame(ts){
+          if(start === null) start = ts;
+          var p = Math.min(1, (ts - start) / 560), e = 1 - Math.pow(1 - p, 3), v = auth * e;
+          sg.setAttribute('stroke-dasharray', v.toFixed(2) + ' ' + (100 - v).toFixed(2));
+          if(p < 1) requestAnimationFrame(frame);
+          else sg.setAttribute('stroke-dasharray', sg._da);
+        });
+      }, 300 + i * 60));
+    });
 
     /* safety net — a stalled animation may never leave the page blank */
     timers.push(setTimeout(finish, TOTAL));
