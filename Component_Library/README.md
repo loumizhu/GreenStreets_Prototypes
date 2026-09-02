@@ -4,7 +4,7 @@ A single page cataloguing **every UI component used across the four GreenStreets
 the developers porting these prototypes to Next.js. Open
 [components.html](components.html) directly in a browser (double-click works — no server needed).
 
-**113 components in 26 categories — 61 base, 52 composed.**
+**113 components in 26 categories — 66 base, 47 composed.**
 
 ## Reading order
 
@@ -16,6 +16,100 @@ The catalogue opens with the same primitive set (and in the same order) as the c
 
 Headings come first because everything else is typography plus a box. Design tokens moved to the back:
 they are the layer to port first, but they are reference material, not something to look at first.
+
+## Next.js / Tailwind cards (in progress)
+
+A section marked `data-tsx` in `components.html` renders the **three-column card**
+a developer asked for, instead of the CSS panel:
+
+| Column | Contents |
+|---|---|
+| **1 — Live preview** | The component, centred and interactive (hover included) — and *nothing else*. No class names, no annotations, no copy chrome. The class list moves to the card footer. |
+| **2 — Component code (TSX)** | A reusable typed React component using Tailwind utilities inline, no CSS file. Syntax-highlighted, with a **Copy** button top-right. |
+| **3 — Usage** | `import { Button } from '@/components/Button'` plus an example JSX line with real props. **Copy** button too. |
+
+The card header carries the component name, a one-line statement of its purpose, its
+`<Component />` tag, the Base/Composed chip and the *Used in* links. The design notes stay
+behind the `i` tooltip.
+
+Below the three columns, a converted card carries a **docs strip** of three more panels,
+all expanded:
+
+| Panel | Contents |
+|---|---|
+| **Props** | Every prop, its TypeScript type, its default (folded into the type cell) and what it does. Required props are starred; the name and the type are each click-to-copy. |
+| **States** | Default, hover, focus, active, disabled, loading, error — the trigger and the visual effect for each. |
+| **Responsive** | What the prototypes measurably do at each width, then what is *recommended* for the port, then a "watch out" callout where there is a real problem. |
+
+Three rules the data in `tsx_overrides.py` follows, and the UI depends on:
+
+- **A state a component does not have is recorded as `None` with the reason**, and renders
+  muted and italic as *not applicable*. A button has no error state — validation error belongs
+  to the field or the form summary — so `Error` says that rather than inventing one. The panel
+  header counts how many actually apply ("6 of 7 apply"). Never fill an absent state in to make
+  the table look complete; a developer will build whatever is written there.
+- **`rs.now` is measured, `rs.rec` is a recommendation, and the UI labels the second one.**
+  This matters because the prototypes are **desktop-only**: the four portals carry 13 media
+  queries between them (`640px`, `820px`, `1000px`, plus `prefers-reduced-motion`) and *not one*
+  touches a button, input, table or card. There is no mobile or tablet design to document. So
+  the amber `RECOMMENDATION` badge is load-bearing — without it the strip would launder a guess
+  into a spec.
+- **States are an ordered *list*, not an object.** `build-tsx.py` dumps the index with
+  `sort_keys=True`, which recurses into nested dicts and silently alphabetised the states into
+  "Active, Default, Disabled, Error, Focus, Hover, Loading". A list survives the round trip.
+
+The docs strip lays out three-across at ≥1341px, two-across with Props full-width down to
+1081px, and one column below that — Props reads far better wide than narrow, so it takes the
+full width as soon as three tracks stop fitting. Each panel body caps at 360px and scrolls, so
+one long panel cannot stretch the card. That layout is what keeps a fully documented card near
+1000px instead of the 1349px it hit when Props stacked above the other two.
+
+**Only the six Buttons components carry this content.** It is hand-authored per component in
+`tools/tsx_overrides.py`, deliberately: a generated states section would say "hover → `hover:bg-white/[0.08]`"
+and a generated responsive section would say "no change at any breakpoint" for nearly everything,
+which is true and useless. When you convert the next section, write its docs the same way. If
+that ever needs to scale, the honest automatic version is to derive `st` from the state rules
+`tsx_css.tw_for()` already extracts — real CSS, not filler — and leave `rs` hand-written.
+
+**One card per component, not per family.** The Buttons section is six cards — `PrimaryButton`,
+`SecondaryButton`, `DangerButton`, `IconButton`, `ButtonGroup`, `ReminderButton` — each with a
+single button in its preview and its own component file. Size, icon, disabled and loading are
+*props*, shown in each card's Usage column, because a small primary is the same style as a large
+one. The three coloured buttons differ only in their colour block and each says so, so collapsing
+them into one `variant` prop is a one-minute edit if that is preferred.
+
+**Converted so far: Buttons** (6 of 113 specimens). Everything else still shows the CSS
+panel and has no props/states/responsive strip yet. Roll a section forward by adding
+`data-tsx` to its `<section>`, checking the generated TSX is worth shipping (hand-author an
+override where it is not — see below), and writing its `pr`/`st`/`rs` docs.
+
+### How the code is generated
+
+`tools/build-tsx.py` → `js/tsx-index.js`, run by `regenerate.sh`:
+
+- **`tools/tsx_css.py`** translates a component's *real* declarations (from `js/css-index.js`)
+  into Tailwind utilities, resolving every `var(--token)` to its literal so a snippet pastes
+  into any Tailwind project with **no config and no CSS file**. Anything with no Tailwind
+  utility falls back to arbitrary-property syntax (`[mask-composite:exclude]`) rather than
+  being dropped, so a rule is never silently lost.
+- **`tools/tsx_skeletons.py`** supplies the JSX per component *kind* (button, input, select,
+  badge, alert, card, table, dialog, …) with a real prop contract. It is deliberately **not**
+  a transliteration of the prototype's demo markup: a developer needs a component with props,
+  not a snapshot of a demo row.
+- **`tools/tsx_overrides.py`** is hand-authored TSX that wins over the generator. Use it when
+  the mechanical output would mislead: the specimen name is a catalogue label ("Button
+  variants") but the component is `Button`; the generator cannot know `.btn-g` is the
+  *secondary* of `.btn-p`; or the CSS bakes colour and geometry into one class while React
+  wants `variant` and `size` apart. All four Buttons components are overrides.
+
+Two quoting rules the generated code depends on, both of which have already bitten:
+
+- A generated class string may contain a **single** quote (`content-['']` is the only spelling
+  Tailwind has) but never a **double** one, because every skeleton hosts it in a double-quoted
+  JS string.
+- Any value going into an HTML attribute goes through `escAttr()`, not `esc()`. `esc()` leaves
+  `"` alone, which silently truncated a `data-copy` at the first double quote in the TSX it
+  carried.
 
 ## One specimen per style
 
@@ -50,7 +144,7 @@ heading & body** as base elements first, and the confirmation dialog after them,
 | | |
 |---|---|
 | **Live render** (left) | The component rendered by the *actual* portal stylesheets, not a re-creation. |
-| **CSS panel** (right) | Its real declarations, always open. See below. |
+| **CSS panel** (right) | Its real declarations, always open. See below. Sections converted to the Next.js cards show TSX + usage here instead, plus a props/states/responsive strip beneath. |
 | **Base / Composed chip** | Which of the two it is; hover it for what that means for the port. |
 | **Tooltip** (the `i` beside the name) | What the component is for, the rules that govern it, and the reasoning behind anything non-obvious. |
 | **Class list** | The exact class names to port, in the header line. |
@@ -127,7 +221,7 @@ exposes its *parsed* DOM, so reading it back re-serialises the markup (`readonly
 pagers, focus rings. A script block keeps the authored text byte-exact, so the copy button always
 hands over the source, never the enhanced DOM.
 
-**Load order is deliberate:** `gs-schema.js` → `css-index.js` → `components-page.js` → `greenstreets-theme.js`.
+**Load order is deliberate:** `gs-schema.js` → `css-index.js` → `tsx-index.js` → `components-page.js` → `greenstreets-theme.js`.
 `components-page.js` hydrates every specimen synchronously at parse time, so the theme JS then finds
 real markup to upgrade and the specimens behave exactly as they do in a portal — themed selects,
 number steppers, the data-grid toolkit, the animated focus ring, the click ripple, keyboard
@@ -157,6 +251,7 @@ Component_Library/
 │   ├── gs-schema.js             the packaging source of truth (copy)
 │   ├── greenstreets-theme.js    the shared behaviour layer (copy)
 │   ├── css-index.js             GENERATED — the declarations the CSS panel shows
+│   ├── tsx-index.js             GENERATED — the Next.js/Tailwind code + usage
 │   └── components-page.js       this page's engine
 └── img/                         logos, login background, swoosh texture
 ```

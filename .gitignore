@@ -10,3 +10,7 @@ CLAUDE.md
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Python bytecode from Component_Library/tools/*.py
+__pycache__/
+*.pyc

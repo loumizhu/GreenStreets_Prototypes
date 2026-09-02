@@ -15,7 +15,7 @@
 <link rel="stylesheet" href="css/greenstreets-light.css?v=1">
 <link rel="stylesheet" href="css/portal-extras-light.css?v=1">
 <!-- ...and the gallery chrome (everything prefixed cx-) -->
-<link rel="stylesheet" href="css/components-page.css?v=10">
+<link rel="stylesheet" href="css/components-page.css?v=16">
 </head>
 <body class="cx-body">
 
@@ -192,74 +192,76 @@
     <section class="cx-sec" id="sec-buttons" data-title="Buttons" data-tsx>
       <div class="cx-sec-hdr">
         <h2><span class="cx-sec-n"></span>Buttons</h2>
-        <p>Three variants, three sizes. Everything else in the codebase that looks like a fourth button is
-          <code>.btn-g</code> renamed &mdash; the tooltips name the duplicates so the port can collapse them.</p>
+        <p>One card per button, each with its own component file. Size, icon, disabled and loading are
+          <em>props</em> rather than separate cards &mdash; a small primary is the same style as a large one
+          &mdash; so each card's <b>Usage</b> column shows them. Everything else in the codebase that looks
+          like a further button is <code>.btn-g</code> renamed; the tooltips name the duplicates.</p>
       </div>
       <div class="cx-grid">
 
         <article class="cx-item"
-          data-name="Button"
+          data-name="Primary button"
           data-kind="base"
-          data-cls=".btn-p .btn-g .doc-del-pop-yes"
+          data-cls=".btn-p .btn-c .btn-sw"
           data-src="css/greenstreets-theme.css"
-          data-tip="**Three variants, and that is all.** Primary `.btn-p` &mdash; one accent action per view. Secondary `.btn-g` &mdash; everything else. Danger has no class of its own yet: destructive confirmations reuse the green primary, which is wrong, so this shows `.doc-del-pop-yes` as the treatment to promote to a real `danger` variant. Three heights, chosen by context not emphasis: 42px for a page's committing action, 34px for header and toolbar actions, 28px inside a table row. Beware the duplicates &mdash; `.gs-tool-btn`, `.btn-g-sm`, `.doc-add-btn`, `.pkg-edit-toggle-btn`, `.pkg-duplicate-btn`, `.prod-filter-btn` and `.docs-vbtn` are all `.btn-g` at other sizes."
+          data-tip="The one accent action per view &mdash; the thing the screen exists to let you do. The label is wrapped in `.btn-c` so it sits above the `<img class='btn-sw'>` swoosh texture, whose strength is the `--swoosh-opacity` token; drop the swoosh and it still looks right. Never use it for a destructive action. Identical to the secondary and danger buttons apart from the colour block, so collapse the three into one `variant` prop if you prefer."
+          data-used="SA:Add retailer|../GreenStreets_Super_Admin/01-greenstreets_super_admin_Add-Retailer-4.html;RA:Products|../Retailer_Admin_Portal/02-Greenstreets_retailer_admin_Products.html;RU:Documents|../Retailer_User_Portal/03-greenstreets_retailer_user_Documents.html">
+          <script type="text/html" class="cx-src">
+            <button class="btn-p">
+              <img class="btn-sw" src="img/swoosh.png" alt="">
+              <span class="btn-c">Provision retailer</span>
+            </button>
+          </script>
+        </article>
+
+        <article class="cx-item"
+          data-name="Secondary button"
+          data-kind="base"
+          data-cls=".btn-g"
+          data-src="css/greenstreets-theme.css"
+          data-tip="The default button, and the one you will reach for most: a 1px outline on a translucent surface. Cancel, Back and every non-committing action is a secondary, never a second primary. `.gs-tool-btn`, `.btn-g-sm`, `.doc-add-btn`, `.pkg-edit-toggle-btn`, `.pkg-duplicate-btn`, `.prod-filter-btn` and `.docs-vbtn` are all this same button at other sizes &mdash; collapse them into the `size` prop."
           data-used="ALL:every screen">
           <script type="text/html" class="cx-src">
-            <div class="cx-row-v" style="align-items:center;gap:14px">
-              <div class="cx-row" style="justify-content:center">
-                <button class="btn-p"><img class="btn-sw" src="img/swoosh.png" alt=""><span class="btn-c">Provision retailer</span></button>
-                <button class="btn-g">Cancel</button>
-                <button class="doc-del-pop-yes" style="height:34px;padding:0 16px;font-size:12px">Delete document</button>
-              </div>
-              <div class="cx-row" style="justify-content:center">
-                <button class="btn-p"><span class="btn-c">Large</span></button>
-                <button class="btn-g">Default</button>
-                <button class="btn-g-sm">Small</button>
-              </div>
-              <div class="cx-row" style="justify-content:center">
-                <button class="btn-p"><span class="btn-c">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg>
-                  With icon
-                </span></button>
-                <button class="btn-p" disabled style="opacity:.45;cursor:not-allowed"><span class="btn-c">Disabled</span></button>
-                <button class="btn-g" disabled style="opacity:.45;cursor:not-allowed">Disabled</button>
-              </div>
-            </div>
+            <button class="btn-g">Cancel</button>
+          </script>
+        </article>
+
+        <article class="cx-item"
+          data-name="Danger button"
+          data-kind="base"
+          data-cls=".doc-del-pop-yes .docs-bulk-del"
+          data-src="css/supplier-portal.css"
+          data-tip="For an action that destroys or cannot be undone. **Note the gap this fills:** the system has no generic danger class &mdash; only this delete-popover button and the tinted `.docs-bulk-del` &mdash; so destructive confirmations elsewhere reuse the green primary, which is wrong. Promote this to a real `danger` variant in the port."
+          data-used="SP:Documents|../Supplier_Portal/04-greenstreets_supplier_portal_Documents.html;RA:Documents|../Retailer_Admin_Portal/02-Greenstreets_retailer_admin_Documents.html">
+          <script type="text/html" class="cx-src">
+            <button class="doc-del-pop-yes" style="height:34px;padding:0 16px;font-size:12px">Delete document</button>
           </script>
         </article>
 
         <article class="cx-item"
           data-name="Icon button"
           data-kind="base"
-          data-cls=".chev-btn .btn-kebab .act-arrow"
+          data-cls=".btn-kebab .chev-btn .act-arrow"
           data-src="css/greenstreets-theme.css &middot; portal-extras.css"
-          data-tip="A square button whose only content is an icon, so it always needs both a `title` and an `aria-label`. `.chev-btn` expands a row, `.btn-kebab` opens a row menu, `.act-arrow` is the accent variant that opens a record; `.pkg-back-btn`, `.sb-logout` and the listing `.act-mini` cluster are the same shape at other sizes."
+          data-tip="A square button whose only content is an icon, so the label it takes is not optional &mdash; it becomes both the `title` and the `aria-label`. `.btn-kebab` opens a row menu, `.chev-btn` expands a row, `.act-arrow` is the accent variant that opens a record; `.pkg-back-btn`, `.sb-logout` and the listing `.act-mini` cluster are the same shape at other sizes."
           data-used="SA:Retailers|../GreenStreets_Super_Admin/01-greenstreets_super_admin_Retailers.html;SP:Swing Tag|../Supplier_Portal/04-greenstreets_supplier_portal_Packaging-Swing-Tag.html">
           <script type="text/html" class="cx-src">
-            <div class="cx-row" style="justify-content:center">
-              <button class="chev-btn" title="Expand row" aria-label="Expand row">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m6 9 6 6 6-6"/></svg>
-              </button>
-              <button class="btn-kebab" title="Row actions" aria-label="Row actions">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
-              </button>
-              <button class="act-arrow" title="Open supplier" aria-label="Open supplier">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m9 18 6-6-6-6"/></svg>
-              </button>
-            </div>
+            <button class="btn-kebab" title="Row actions" aria-label="Row actions">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+            </button>
           </script>
         </article>
 
         <article class="cx-item"
           data-name="Button group"
           data-kind="composed"
-          data-parts="Button"
+          data-parts="Primary button|Secondary button"
           data-cls=".faction"
           data-src="css/greenstreets-theme.css"
-          data-tip="The action row that closes every form and wizard step: secondary on the left, primary on the right, above a top rule. Put it OUTSIDE the `.grp-body` so it reads as page-level rather than card-level."
+          data-tip="The action row that closes every form and wizard step: secondary on the left, primary on the right, above a top rule. Put it OUTSIDE the `.grp-body` so it reads as page-level rather than card-level. It is a layout, not a button &mdash; it has no colour of its own."
           data-used="SA:Configure|../GreenStreets_Super_Admin/01-greenstreets_super_admin_Configure.html;RA:Add supplier|../Retailer_Admin_Portal/02-Greenstreets_retailer_admin_Add-Supplier.html">
           <script type="text/html" class="cx-src">
-            <div class="faction" style="width:100%;max-width:440px">
+            <div class="faction" style="width:100%;max-width:400px">
               <button class="btn-g">Back</button>
               <button class="btn-p"><span class="btn-c">Save configuration</span></button>
             </div>
@@ -269,22 +271,13 @@
         <article class="cx-item"
           data-name="Reminder button"
           data-kind="composed"
-          data-parts="Button|Searchable action menu"
+          data-parts="Secondary button|Searchable action menu"
           data-cls=".btn-reminder .btn-reminder-urgent .reminder-dropdown"
           data-src="css/portal-extras.css"
-          data-stage="cx-ov"
-          data-tip="Chases a supplier from a listing row. `.btn-reminder-urgent` is the same control once the supplier passes its due date. The `.reminder-dropdown` carries the escalation choices; in the app it is `position:absolute` and shown by `.open` &mdash; it is pinned open here so it can be inspected."
+          data-tip="Chases a supplier from a listing row. Passing its due date flips it to `.btn-reminder-urgent` &mdash; the red treatment &mdash; and it opens a `.reminder-dropdown` of escalation choices rather than firing immediately, because the right chase depends on how overdue they are."
           data-used="RA:Suppliers|../Retailer_Admin_Portal/02-Greenstreets_retailer_admin_Suppliers-Hub.html;SA:Suppliers|../GreenStreets_Super_Admin/01-greenstreets_super_admin_Suppliers.html">
           <script type="text/html" class="cx-src">
-            <div class="cx-row" style="justify-content:center;align-items:flex-start">
-              <button class="btn-reminder">Remind</button>
-              <button class="btn-reminder btn-reminder-urgent">Overdue 14d</button>
-              <div class="reminder-dropdown">
-                <button>Send standard reminder</button>
-                <button>Escalate to account owner</button>
-                <button>Send final notice</button>
-              </div>
-            </div>
+            <button class="btn-reminder">Remind</button>
           </script>
         </article>
 
@@ -3309,9 +3302,9 @@
      it does on a portal page: themed selects, number steppers, data-grid
      toolkit, animated focus ring, click ripple, keyboard operability. -->
 <script src="js/gs-schema.js?v=1"></script>
-<script src="js/css-index.js?v=3"></script>
-<script src="js/tsx-index.js?v=2"></script>
-<script src="js/components-page.js?v=11"></script>
+<script src="js/css-index.js?v=5"></script>
+<script src="js/tsx-index.js?v=5"></script>
+<script src="js/components-page.js?v=15"></script>
 <script src="js/greenstreets-theme.js?v=1"></script>
 </body>
 </html>

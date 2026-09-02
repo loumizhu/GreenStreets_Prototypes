@@ -46,4 +46,7 @@ done
 # 3 — the CSS shown beside each specimen, read back out of the copies above
 python $D/tools/extract-css-index.py
 
+# 4 — the Next.js/Tailwind code shown beside each specimen (needs step 3)
+python $D/tools/build-tsx.py
+
 echo "Regenerated. Bump the ?v=N query on the <link>/<script> tags in $D/components.html."

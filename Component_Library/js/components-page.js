@@ -249,6 +249,103 @@
     return out + esc(src.slice(last));
   }
 
+  /* ---------------------------------------------------------------------
+     Props / States / Responsive panels for a three-column card.
+
+     All three render EXPANDED, like the CSS panel: a handoff doc that hides
+     the prop contract behind a disclosure is a doc nobody reads. Height is
+     kept in check by giving Props the full card width (its description
+     column needs it) and putting States beside Responsive underneath, so
+     the strip grows sideways rather than downwards.
+
+     The two conventions the data carries, honoured here:
+       * a state whose trigger is null is "not applicable" and its text is
+         the REASON - rendered muted, never as a real state, so nobody ports
+         an error state onto a button that has none;
+       * responsive is split into what the prototypes measurably do today
+         and what is merely RECOMMENDED, and the recommendation is labelled
+         as such in the markup. The prototypes are desktop-only.
+     --------------------------------------------------------------------- */
+
+  function propsPanel(pr) {
+    if (!pr || !pr.length) return '';
+    /* Default is folded into the Type cell rather than given a column of its
+       own: it keeps the table to three columns, which is what lets Props sit
+       beside States and Responsive in one row instead of stacking above them
+       and adding ~350px to every card. */
+    var rows = pr.map(function (p) {
+      var req = p[2] === '';
+      return '<tr>' +
+        '<td class="cx-pn"><code data-copy="' + escAttr(p[0]) + '" title="Copy ' + escAttr(p[0]) + '">' + esc(p[0]) + '</code>' +
+          (req ? '<span class="cx-req" data-cx-tip="Required prop">*</span>' : '') + '</td>' +
+        '<td class="cx-pt"><code data-copy="' + escAttr(p[1]) + '" title="Copy the type">' + esc(p[1]) + '</code>' +
+          '<span class="cx-pdf">' +
+            (req ? 'required' : p[2] === '-' ? 'optional' : 'default ' + esc(p[2])) +
+          '</span></td>' +
+        '<td class="cx-px">' + esc(p[3]) + '</td>' +
+      '</tr>';
+    }).join('');
+    return '<section class="cx-doc cx-doc-props">' +
+      '<div class="cx-doc-hd"><span class="cx-doc-t">Props</span>' +
+        '<span class="cx-doc-n">' + pr.length + ' &middot; click to copy</span></div>' +
+      '<div class="cx-doc-body"><table class="cx-props">' +
+        '<thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead>' +
+        '<tbody>' + rows + '</tbody></table></div>' +
+    '</section>';
+  }
+
+  function statesPanel(st) {
+    if (!st || !st.length) return '';
+    /* An ORDERED LIST, not an object — default, hover, focus, disabled, error
+       is the order a developer reads these in, and build-tsx.py dumps the
+       index with sort_keys=True, which silently alphabetised an object into
+       "Active, Default, Disabled…". A list survives the round trip. */
+    var live = 0;
+    var rows = st.map(function (s) {
+      var na = (s[1] === null || s[1] === undefined);
+      if (!na) live++;
+      return '<div class="cx-st' + (na ? ' cx-st-na' : '') + '">' +
+        '<div class="cx-st-hd"><span class="cx-st-k">' + esc(s[0]) + '</span>' +
+          '<span class="cx-st-w">' + (na ? 'not applicable' : esc(s[1])) + '</span></div>' +
+        '<p class="cx-st-d">' + esc(s[2]) + '</p>' +
+      '</div>';
+    }).join('');
+    return '<section class="cx-doc cx-doc-states">' +
+      '<div class="cx-doc-hd"><span class="cx-doc-t">States</span>' +
+        '<span class="cx-doc-n">' + live + ' of ' + st.length + ' apply</span></div>' +
+      '<div class="cx-doc-body">' + rows + '</div>' +
+    '</section>';
+  }
+
+  function respPanel(rs) {
+    if (!rs) return '';
+    var rec = (rs.rec || []).map(function (r) {
+      return '<div class="cx-bp"><span class="cx-bp-k">' + esc(r[0]) + '</span>' +
+        '<p class="cx-bp-d">' + esc(r[1]) + '</p></div>';
+    }).join('');
+    return '<section class="cx-doc cx-doc-resp">' +
+      '<div class="cx-doc-hd"><span class="cx-doc-t">Responsive</span>' +
+        '<span class="cx-doc-n">measured, then recommended</span></div>' +
+      '<div class="cx-doc-body">' +
+        '<div class="cx-rs-now"><span class="cx-rs-lbl">In the prototypes today</span>' +
+          '<p>' + esc(rs.now) + '</p></div>' +
+        '<div class="cx-rs-rec"><span class="cx-rs-lbl cx-rs-lbl-rec">Recommended for the port' +
+          '<b data-cx-tip="Not a specification. The prototypes were designed at desktop width only, so the mobile and tablet behaviour below is a proposal to review - not something the designs already say.">recommendation</b></span>' +
+          rec + '</div>' +
+        (rs.flag ? '<p class="cx-rs-flag"><span>Watch out</span>' + esc(rs.flag) + '</p>' : '') +
+      '</div>' +
+    '</section>';
+  }
+
+  function docsStrip(rec) {
+    var h = propsPanel(rec.pr) + statesPanel(rec.st) + respPanel(rec.rs);
+    if (!h) return null;
+    var d = document.createElement('div');
+    d.className = 'cx-docs';
+    d.innerHTML = h;
+    return d;
+  }
+
   function codePanel(title, code, note) {
     return '<div class="cx-code">' +
       '<div class="cx-code-hd">' +
@@ -395,18 +492,22 @@
     stage.className = 'cx-stage' + (stageCls ? ' ' + stageCls : '');
     stage.innerHTML = raw;
 
-    /* The markup is still one click away — it just is not shown, because the
-       CSS is what the panel beside it is for. */
-    var copy = document.createElement('button');
-    copy.type = 'button';
-    copy.className = 'cx-copy';
-    copy.title = 'Copy the HTML for ' + name;
-    copy.innerHTML = ICO_COPY + '<span>HTML</span>';
-    copy.addEventListener('click', function (e) {
-      e.preventDefault(); e.stopPropagation();
-      copyText(raw, copy, 'Markup');
-    });
-    stage.appendChild(copy);
+    /* The prototype markup stays one click away for the CSS-panel cards. A
+       three-column card deliberately gets NO button here: its preview column
+       shows the component and nothing else, and the TSX beside it — not the
+       prototype HTML — is what a developer takes away. */
+    if (!asTsx) {
+      var copy = document.createElement('button');
+      copy.type = 'button';
+      copy.className = 'cx-copy';
+      copy.title = 'Copy the HTML for ' + name;
+      copy.innerHTML = ICO_COPY + '<span>HTML</span>';
+      copy.addEventListener('click', function (e) {
+        e.preventDefault(); e.stopPropagation();
+        copyText(raw, copy, 'Markup');
+      });
+      stage.appendChild(copy);
+    }
 
     var body = document.createElement('div');
     var foot = document.createElement('div');
@@ -422,6 +523,7 @@
         codePanel('Component code (TSX)', rec.tsx, 'components/' + rec.c + '.tsx') +
         codePanel('Usage', rec.use, 'app/page.tsx');
       body.appendChild(codes);
+      item._cxDocs = docsStrip(rec);
       foot.innerHTML = partsHtml(parts) +
         (cls ? '<span class="cx-cls">' + esc(cls) + '</span>' : '') +
         (src ? '<span class="cx-src-file">' + esc(src) + '</span>' : '');
@@ -447,6 +549,9 @@
 
     item.appendChild(hdr);
     item.appendChild(body);
+    /* Docs sit between the columns and the footer: read the component, read
+       its code, then its contract. */
+    if (item._cxDocs) { item.appendChild(item._cxDocs); item._cxDocs = null; }
     if (foot.innerHTML) item.appendChild(foot);
 
     /* very tall specimens are clamped with a Show-all affordance */
