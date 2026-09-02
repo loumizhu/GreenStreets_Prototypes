@@ -340,6 +340,10 @@ body.lt .pkg-back-btn:hover{background:rgba(78,187,129,.12);border-color:#8fd0b6
 body.lt .pkg-mat-add-btn{background:rgba(78,187,129,.08);border-color:#a6d9bf;color:#2f9c62}
 body.lt .pkg-mat-add-btn:hover{background:rgba(78,187,129,.14)}
 body.lt .pkg-mat-row{background:#f6f8fa;border-color:#dfe5ec}
+body.lt .pkg-mat-total{border-top-color:#dfe5ec}
+body.lt .pkg-mat-total-lbl{color:var(--lt-ink-3)}
+body.lt .pkg-mat-total-val{color:#157043}
+body.lt .pkg-mat-total-off .pkg-mat-total-val{color:#b0700a}
 /* Duplicate button — softer readable purple on light */
 body.lt .pkg-duplicate-btn{background:#f2ecfd;border:1px solid #dcccf7;color:#7c5cd6}
 body.lt .pkg-duplicate-btn:hover{background:#e9defb}

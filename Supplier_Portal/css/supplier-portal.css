@@ -373,6 +373,11 @@ html,body{height:100%;font-family:"Inter",sans-serif;color:var(--tw)}
 .pkg-mat-row>.pkg-detail-feat[data-mt="pct"]{flex:0 0 calc(50% - 52px)}
 .pkg-mat-row>.pkg-mat-remove{flex:0 0 28px;width:28px;height:28px;border-radius:6px;margin-top:18px}
 .pkg-mat-row>.pkg-mat-remove svg{width:11px;height:11px}
+/* Calculated total — a derived LABEL under the material rows, never a field. */
+.pkg-mat-total{grid-column:1/-1;display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-top:2px;padding:7px 12px;border-top:1px dashed rgba(255,255,255,.12)}
+.pkg-mat-total-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.05em;font-weight:600;color:var(--tw3)}
+.pkg-mat-total-val{font-size:13px;font-weight:700;color:var(--gs);font-variant-numeric:tabular-nums}
+.pkg-mat-total-off .pkg-mat-total-val{color:#f5a623}
 /* sit the %-slider control on the same line as the name input */
 .pkg-mat-row .gs-pct{margin-top:-3px}
 .pkg-mat-remove{display:none;align-items:center;justify-content:center;width:16px;height:16px;padding:0;flex-shrink:0;background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.35);color:#f87171;border-radius:4px;cursor:pointer;line-height:0}

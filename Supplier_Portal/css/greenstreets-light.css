@@ -457,6 +457,10 @@ body.lt .pkg-edit-toggle-btn.pkg-edit-toggle-active{background:#4ebb81;border-co
 body.lt .pkg-mat-add-btn{background:#eaf7ee;border-color:#bfe6cf;color:#157043}
 body.lt .pkg-mat-add-btn:hover{background:#dcf1e5}
 body.lt .pkg-mat-row{background:#f6f8fa;border-color:#dfe5ec}
+body.lt .pkg-mat-total{border-top-color:#dfe5ec}
+body.lt .pkg-mat-total-lbl{color:var(--lt-ink-3)}
+body.lt .pkg-mat-total-val{color:#157043}
+body.lt .pkg-mat-total-off .pkg-mat-total-val{color:#b0700a}
 body.lt .pkg-mat-remove{background:#fdeceb;border-color:#f6cfcc;color:#cf5751}
 body.lt .pkg-mat-remove:hover{background:#fadedc}
 body.lt .gs-pkg-name-input{color:var(--lt-ink)}

@@ -150,10 +150,20 @@
         '<div class="pkg-detail-feat" data-mr="' + n + '" data-mt="pct"><div class="pkg-detail-feat-lbl">% Material ' + n + '</div>' +
           '<input class="pkg-detail-feat-input editable-text" value="' + esc(disp(m.pct)) + '" readonly></div>';
     }).join('');
-    /* No "Total of all the materials" — the base material carries no percentage
-       and the total is not a field on the packaging record. */
+    /* "Total of all the materials" is a CALCULATED LABEL, never a field: the sum
+       of the % Material N values above (the base material carries no percentage).
+       This view is read-only, so it is computed once at render. */
+    var total = Math.round(mats.reduce(function (t, m) {
+      var n = parseFloat(String(m.pct == null ? '' : m.pct).replace(/[^0-9.]/g, ''));
+      return t + (isNaN(n) ? 0 : n);
+    }, 0) * 100) / 100;
+    var named = mats.filter(function (m) { return String(m.name || '').trim() && m.name !== '—'; }).length;
+    var off = named && Math.round(total) !== 100 ? ' pkg-mat-total-off' : '';
+    var totalHtml = '<div class="pkg-mat-total' + off + '">' +
+      '<span class="pkg-mat-total-lbl">Total of all the materials</span>' +
+      '<span class="pkg-mat-total-val">' + total + '%</span></div>';
     var note = window.GSSchema.materialExportNote(mats);
-    return rows + (note ? '<div class="rpk-mat-note">' + esc(note) + '</div>' : '');
+    return rows + totalHtml + (note ? '<div class="rpk-mat-note">' + esc(note) + '</div>' : '');
   }
 
   function docsHtml(PKG) {

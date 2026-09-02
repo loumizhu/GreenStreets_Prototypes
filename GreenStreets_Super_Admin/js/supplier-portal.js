@@ -2456,6 +2456,41 @@ function pkgRenumberMaterials(grid) {
 }
 
 /* Keep "No. of Materials Used" in sync with how many materials are actually filled in. */
+/* ── "Total of all the materials" — a CALCULATED LABEL, not a field ──────────
+   It used to be a read-only <input> sitting in the grid like a real field, which
+   read as something you could fill in and could disagree with the rows above it.
+   It is now a derived line under the material rows: the sum of every % Material N,
+   recomputed live as rows are typed in, added or removed. Nothing stores it. */
+function pkgMatTotalPct(grid) {
+  var t = 0;
+  grid.querySelectorAll('[data-mr][data-mt="pct"] input.pkg-detail-feat-input').forEach(function(inp){
+    var n = parseFloat(String(inp.value || '').replace(/[^0-9.]/g, ''));
+    if (!isNaN(n)) t += n;
+  });
+  return Math.round(t * 100) / 100;
+}
+function pkgSyncMatTotal(grid) {
+  if (!grid || !grid.querySelector('[data-mr]')) return;
+  var el = grid.querySelector('.pkg-mat-total');
+  if (!el) {
+    el = document.createElement('div');
+    el.className = 'pkg-mat-total';
+    el.innerHTML = '<span class="pkg-mat-total-lbl">Total of all the materials</span><span class="pkg-mat-total-val"></span>';
+    grid.appendChild(el);
+  } else {
+    grid.appendChild(el); /* keep it last, under the rows + Add button */
+  }
+  var named = 0;
+  grid.querySelectorAll('[data-mr][data-mt="name"] input').forEach(function(inp){
+    var v = (inp.value || '').trim(); if (v && v !== '—') named++;
+  });
+  var total = pkgMatTotalPct(grid);
+  var val = el.querySelector('.pkg-mat-total-val');
+  val.textContent = total + '%';
+  el.classList.toggle('pkg-mat-total-off', !!named && Math.round(total) !== 100);
+  el.title = named && Math.round(total) !== 100 ? 'The material percentages should add up to 100%' : '';
+}
+
 function pkgSyncMatCount(grid) {
   var section = grid.closest('.pkg-detail-section');
   if (!section) return;
@@ -2479,6 +2514,7 @@ function pkgSyncMatCount(grid) {
       break;
     }
   }
+  pkgSyncMatTotal(grid);
 }
 
 /* Inject the "+ Add material" button and per-row remove buttons into every
@@ -2496,6 +2532,9 @@ function pkgInitMaterialControls() {
       if (nameInp && !nameInp.getAttribute('oninput')) nameInp.setAttribute('oninput', "pkgSyncMatCount(this.closest('.pkg-detail-grid'))");
     });
     pkgWrapMaterialRows(grid);
+    /* keep the calculated total live as any % is edited */
+    grid.addEventListener('input',  function(e){ if (e.target.closest('[data-mt="pct"]')) pkgSyncMatTotal(grid); });
+    grid.addEventListener('change', function(e){ if (e.target.closest('[data-mt="pct"]')) pkgSyncMatTotal(grid); });
     /* Base Material is a long picklist — let the user type into it too. */
     grid.querySelectorAll('.pkg-detail-feat').forEach(function(feat){
       if (feat.hasAttribute('data-mr')) return;
@@ -2517,6 +2556,7 @@ function pkgInitMaterialControls() {
     addBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg> Add material';
     if (totalFeat) grid.insertBefore(addBtn, totalFeat);
     else grid.appendChild(addBtn);
+    pkgSyncMatTotal(grid); /* last child: the derived total closes the section */
   });
 }
 document.addEventListener('DOMContentLoaded', pkgInitMaterialControls);

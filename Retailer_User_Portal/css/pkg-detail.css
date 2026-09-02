@@ -113,6 +113,12 @@
 /* Material combobox (datalist) — hide native picker indicator quirks */
 .gs-combo::-webkit-calendar-picker-indicator{opacity:.5;cursor:pointer}
 
+/* Calculated total — a derived LABEL under the material rows, never a field. */
+.pkg-mat-total{grid-column:1/-1;display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-top:2px;padding:7px 12px;border-top:1px dashed rgba(255,255,255,.12)}
+.pkg-mat-total-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.05em;font-weight:600;color:var(--tw3)}
+.pkg-mat-total-val{font-size:13px;font-weight:700;color:var(--gs);font-variant-numeric:tabular-nums}
+.pkg-mat-total-off .pkg-mat-total-val{color:#f5a623}
+
 /* ── Read-only lock ─────────────────────────────────────────────────────────
    The Retailer User can review but never edit. The sections still carry
    .pkg-sec-edit-mode so every control renders exactly as it does in the model;
@@ -164,3 +170,7 @@ body.lt .gs-pct-slider{background:linear-gradient(90deg,#4ebb81 var(--gs-pct,0%)
 body.lt .gs-pct-num{color:var(--lt-ink);background:var(--lt-surface-2);border-color:rgba(63,116,199,.4)}
 body.lt .gs-pct-num:focus{border-color:#4ebb81;background:#eaf7ee}
 body.lt .gs-pct-numwrap .fi-unit{color:var(--lt-ink-3)}
+body.lt .pkg-mat-total{border-top-color:#dfe5ec}
+body.lt .pkg-mat-total-lbl{color:var(--lt-ink-3)}
+body.lt .pkg-mat-total-val{color:#157043}
+body.lt .pkg-mat-total-off .pkg-mat-total-val{color:#b0700a}

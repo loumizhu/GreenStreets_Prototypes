@@ -162,9 +162,12 @@
       '.rpk-mat-rm{background:transparent;border:none;color:var(--tw3);cursor:pointer;padding:2px;display:inline-flex;border-radius:4px;flex-shrink:0}' +
       '.rpk-mat-rm:hover{color:var(--red,#e0605a);background:rgba(224,96,90,.14)}' +
       /* derived materials summary — count + total are computed, never asked */
-      '.rpk-mat-sum{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;font-size:11px;color:var(--tw3);margin-top:2px}' +
-      '.rpk-mat-sum b{color:var(--tw,#fff);font-weight:700}' +
-      '.rpk-mat-warn{color:var(--amber,#f5a623);font-weight:600}' +
+      /* the derived total, presented exactly as on the model packaging detail:
+         a label + value line under the rows, not a field */
+      '.rpk-mat-sum{grid-column:1/-1;display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-top:2px;padding:7px 12px;border-top:1px dashed var(--bw,rgba(255,255,255,.12))}' +
+      '.rpk-mat-total-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.05em;font-weight:600;color:var(--tw3)}' +
+      '.rpk-mat-total-val{font-size:13px;font-weight:700;color:var(--gs);font-variant-numeric:tabular-nums}' +
+      '.rpk-mat-sum.pkg-mat-total-off .rpk-mat-total-val{color:var(--amber,#f5a623)}' +
       '.rpk-mat-note{grid-column:1/-1;font-size:11px;line-height:1.5;color:var(--amber,#f5a623);background:rgba(245,166,35,.09);border:1px solid rgba(245,166,35,.28);border-radius:8px;padding:8px 11px}' +
       '.rpk-mat-add,.rpk-doc-add{display:flex;align-items:center;justify-content:center;gap:6px;padding:8px;background:rgba(78,187,129,.1);border:1px dashed rgba(78,187,129,.45);color:var(--gs);border-radius:8px;font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;transition:background .12s}' +
       '.rpk-mat-add{grid-column:1/-1;margin-top:2px}' +
@@ -258,13 +261,18 @@
      count and the total % are DERIVED, never asked — the spreadsheet's material
      count (col O) and total (col X) are computed on export. */
   function matPct(m) { var n = parseFloat(String(m.pct == null ? '' : m.pct).replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; }
+  /* "Total of all the materials" is a CALCULATED LABEL, never a field — the sum of
+     the % Material N values, recomputed on every edit (see matSumRefresh). */
   function matSumHtml() {
-    var named = PKG.materials.filter(function (m) { return String(m.name || '').trim(); });
     var total = PKG.materials.reduce(function (s, m) { return s + matPct(m); }, 0);
     total = Math.round(total * 100) / 100;
-    var warn = (named.length && Math.round(total) !== 100) ? '<span class="rpk-mat-warn">⚠ should total 100%</span>' : '';
-    return '<span>Materials: <b>' + named.length + '</b></span>' +
-      '<span>Total of all the materials: <b>' + total + '%</b></span>' + warn;
+    return '<span class="rpk-mat-total-lbl">Total of all the materials</span>' +
+      '<span class="rpk-mat-total-val">' + total + '%</span>';
+  }
+  function matSumOff() {
+    var named = PKG.materials.filter(function (m) { return String(m.name || '').trim(); }).length;
+    var total = Math.round(PKG.materials.reduce(function (s, m) { return s + matPct(m); }, 0));
+    return !!named && total !== 100;
   }
   function materialsHtml() {
     var rows = PKG.materials.map(function (m, i) {
@@ -291,7 +299,7 @@
     /* >4 materials exceeds the retailer spreadsheet's material columns (P–W) */
     var note = window.GSSchema.materialExportNote(PKG.materials);
     return dl + rows + addBtn +
-      '<div class="rpk-mat-sum">' + matSumHtml() + '</div>' +
+      '<div class="rpk-mat-sum' + (matSumOff() ? ' pkg-mat-total-off' : '') + '">' + matSumHtml() + '</div>' +
       (note ? '<div class="rpk-mat-note">' + esc(note) + '</div>' : '');
   }
 
@@ -354,6 +362,7 @@
   function matSumRefresh() {
     var sum = document.querySelector('.rpk-mat-sum'); if (!sum) return;
     sum.innerHTML = matSumHtml();
+    sum.classList.toggle('pkg-mat-total-off', matSumOff());
     var note = window.GSSchema.materialExportNote(PKG.materials);
     var box = document.querySelector('.rpk-mat-note');
     if (note && !box) { box = document.createElement('div'); box.className = 'rpk-mat-note'; sum.parentNode.insertBefore(box, sum.nextSibling); }
