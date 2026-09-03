@@ -390,19 +390,35 @@ select.fi option{background-color:#0f2038;color:var(--tw)}
 .sb-logout:hover{background:rgba(224,82,82,.16);color:var(--red)}
 
 /* ── Collapsible sidebar (icon-only rail) ─────────────────────────────────────
-   Toggled by the button under the logo (.sb-collapse-btn) or by clicking the
-   sidebar's right edge (.sb-edge, which shows a resize cursor as a hint).
-   Both are injected by enhanceSidebarCollapse() in super-admin.js. */
+   Toggled by clicking the sidebar's RIGHT EDGE (.sb-edge) — there is no button
+   under the logo any more. The edge is a 14px hotspot injected by
+   enhanceSidebarCollapse() in super-admin.js; it advertises itself with a
+   collapse-panel-shaped cursor and a chevron "tab" that slides out of the seam
+   on hover (‹ to collapse, › to expand). */
 /* Overshoot easing: the width eases in, slightly overshoots its target, then settles (ease-in/out
    with a bit of "back"). cubic-bezier(.34,1.45,.64,1) = a gentle easeOutBack. */
 .sidebar{position:relative;transition:width .3s cubic-bezier(.34,1.45,.64,1)}
 .sb-logo-zone{position:relative}
-.sb-collapse-btn{position:absolute;right:8px;bottom:6px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;padding:0;border:1px solid rgba(143,227,182,.35);border-radius:6px;background:rgba(143,227,182,.14);color:var(--gs-l);cursor:pointer;transition:background .15s,color .15s,border-color .15s;z-index:2}
-.sb-collapse-btn:hover{background:rgba(143,227,182,.26);border-color:rgba(143,227,182,.55);color:#c7f2da}
-/* same overshoot easing on the chevron flip so the whole collapse motion feels consistent */
-.sb-collapse-btn svg{transition:transform .3s cubic-bezier(.34,1.45,.64,1)}
-.sb-edge{position:absolute;top:0;right:0;width:7px;height:100%;cursor:col-resize;z-index:6;user-select:none}
-.sb-edge:hover{background:linear-gradient(90deg,transparent,rgba(143,227,182,.30))}
+/* wider, easier-to-hit hotspot; the cursor itself is a little "collapse panel" button */
+.sb-edge{position:absolute;top:0;right:0;width:14px;height:100%;z-index:6;user-select:none;
+  cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Ccircle cx='15' cy='15' r='13' fill='%23163a2b' stroke='%238fe3b6' stroke-width='2'/%3E%3Crect x='8' y='8' width='14' height='14' rx='2.5' fill='none' stroke='%238fe3b6' stroke-width='2'/%3E%3Cpath d='M13.5 8v14' stroke='%238fe3b6' stroke-width='2'/%3E%3C/svg%3E") 15 15, col-resize;}
+.sb-edge:hover{background:linear-gradient(90deg,transparent,rgba(143,227,182,.35))}
+/* chevron "tab" hint that pokes out of the seam on hover — the box is mirrored
+   (rounded on the LEFT, flat against the seam) but the ‹ chevron still points left */
+.sb-edge::after{
+  content:"";position:absolute;top:50%;right:-1px;
+  width:18px;height:44px;transform:translateY(-50%) translateX(-6px);
+  opacity:0;pointer-events:none;border-radius:8px 0 0 8px;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23c7f2da' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 6l-6 6 6 6'/%3E%3C/svg%3E") center/16px no-repeat,linear-gradient(270deg,rgba(23,58,43,.96),rgba(29,74,54,.96));
+  border:1px solid rgba(143,227,182,.45);border-right:none;
+  box-shadow:-2px 0 12px rgba(0,0,0,.35);
+  transition:opacity .18s ease,transform .18s cubic-bezier(.34,1.4,.64,1);
+}
+.sb-edge:hover::after{opacity:1;transform:translateY(-50%) translateX(0)}
+/* when already collapsed, flip the chevron to point › (expand) */
+.sidebar.sb-collapsed .sb-edge::after{
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23c7f2da' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 6l6 6-6 6'/%3E%3C/svg%3E") center/16px no-repeat,linear-gradient(270deg,rgba(23,58,43,.96),rgba(29,74,54,.96));
+}
 .sidebar.sb-collapsed{width:64px}
 .sidebar.sb-collapsed .sb-section{display:none}
 .sidebar.sb-collapsed .nav-item{justify-content:center;gap:0;padding-left:0;padding-right:0;font-size:0}
@@ -415,8 +431,6 @@ select.fi option{background-color:#0f2038;color:var(--tw)}
 /* collapsed rail keeps the logo, just shrunk to fit the 64px width (it used to be hidden) */
 .sidebar.sb-collapsed .sb-logo-zone{padding:var(--sp-3) 6px}
 .sidebar.sb-collapsed .sb-logo{height:auto;width:100%;max-height:34px}
-.sidebar.sb-collapsed .sb-collapse-btn{position:static;margin:0 auto;transform:none}
-.sidebar.sb-collapsed .sb-collapse-btn svg{transform:rotate(180deg)}
 
 /* ── MAIN ── */
 .main{flex:1;overflow-y:auto;padding:var(--sp-6);position:relative}

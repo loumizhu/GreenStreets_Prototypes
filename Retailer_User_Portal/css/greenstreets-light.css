@@ -98,6 +98,18 @@ body.lt .sb-user-name{color:var(--lt-ink)}
 body.lt .sb-user-role{color:var(--lt-ink-3)}
 body.lt .sb-logout{color:var(--lt-ink-3)}
 body.lt .sb-logout:hover{background:rgba(224,96,90,.12);color:#cf5751}
+/* collapse affordance: the sidebar's right edge (no button under the logo) —
+   same behaviour as dark, re-tinted for the pastel sidebar */
+body.lt .sb-edge{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Ccircle cx='15' cy='15' r='13' fill='%23ffffff' stroke='%236ea8fe' stroke-width='2'/%3E%3Crect x='8' y='8' width='14' height='14' rx='2.5' fill='none' stroke='%236ea8fe' stroke-width='2'/%3E%3Cpath d='M13.5 8v14' stroke='%236ea8fe' stroke-width='2'/%3E%3C/svg%3E") 15 15, col-resize;}
+body.lt .sb-edge:hover{background:linear-gradient(90deg,transparent,rgba(110,168,254,.28))}
+body.lt .sb-edge::after{
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%2333415c' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 6l-6 6 6 6'/%3E%3C/svg%3E") center/16px no-repeat,linear-gradient(270deg,#fff,#f4f7fc);
+  border-color:rgba(110,168,254,.45);box-shadow:-2px 0 12px rgba(23,43,77,.14);
+}
+body.lt .sidebar.sb-collapsed .sb-edge::after{
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%2333415c' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 6l6 6-6 6'/%3E%3C/svg%3E") center/16px no-repeat,linear-gradient(270deg,#fff,#f4f7fc);
+}
+body.lt.lt-ak .sb-edge:hover{background:linear-gradient(90deg,transparent,rgba(0,0,0,.07))}
 body.lt .bell-badge{background:#ff5f5f;box-shadow:0 0 0 2px var(--lt-logo-bg)}
 
 /* ── page header ───────────────────────────────────────────────────────────── */

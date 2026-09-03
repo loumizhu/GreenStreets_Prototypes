@@ -297,14 +297,15 @@ window.gsNotifFilter = window.gsNotifFilter || function(btn, type){
 };
 
 /* ── Collapsible sidebar ──────────────────────────────────────────────────────
-   Turns the sidebar into a collapsible icon-only rail. Injects a toggle button
-   under the logo and a clickable right-edge hotspot (col-resize cursor hints at
-   it); collapsed state is remembered in localStorage. Idempotent + guarded so it
-   no-ops on pages without a sidebar (e.g. login). */
+   Turns the sidebar into a collapsible icon-only rail. The ONLY affordance is
+   the clickable right-edge hotspot (.sb-edge) — it carries a collapse-panel
+   cursor and a chevron tab that slides out of the seam on hover; there is no
+   button under the logo any more. Collapsed state is remembered in localStorage.
+   Idempotent + guarded so it no-ops on pages without a sidebar (e.g. login). */
 function enhanceSidebarCollapse(){
   document.querySelectorAll('.sidebar').forEach(function(sb){
     var zone=sb.querySelector('.sb-logo-zone');
-    if(!zone || sb.querySelector('.sb-collapse-btn')) return;   // need a logo zone; skip if already enhanced
+    if(!zone || sb.querySelector('.sb-edge')) return;   // need a logo zone; skip if already enhanced
     try{ if(localStorage.getItem('gsSbCollapsed')==='1') sb.classList.add('sb-collapsed'); }catch(e){}
     function syncTitles(){
       var c=sb.classList.contains('sb-collapsed');
@@ -315,12 +316,6 @@ function enhanceSidebarCollapse(){
       try{ localStorage.setItem('gsSbCollapsed', sb.classList.contains('sb-collapsed')?'1':'0'); }catch(e){}
       syncTitles();
     }
-    var btn=document.createElement('button');
-    btn.type='button'; btn.className='sb-collapse-btn';
-    btn.title='Collapse / expand sidebar'; btn.setAttribute('aria-label','Collapse or expand sidebar');
-    btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg>';
-    btn.addEventListener('click',function(e){ e.stopPropagation(); toggle(); });
-    zone.appendChild(btn);
     var edge=document.createElement('div');
     edge.className='sb-edge'; edge.title='Collapse / expand sidebar';
     edge.addEventListener('click',toggle);
