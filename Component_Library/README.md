@@ -27,10 +27,31 @@ a developer asked for, instead of the CSS panel:
 | **1 — Live preview** | The component, centred and interactive (hover included) — and *nothing else*. No class names, no annotations, no copy chrome. The class list moves to the card footer. |
 | **2 — Component code (TSX)** | A reusable typed React component using Tailwind utilities inline, no CSS file. Syntax-highlighted, with a **Copy** button top-right. |
 | **3 — Usage** | `import { Button } from '@/components/Button'` plus an example JSX line with real props. **Copy** button too. |
+| **4 — CSS** *(collapsed)* | The real declarations the Tailwind utilities were translated from, as plain CSS with one **Copy** for the lot. Half the width of the Usage pane, on a slightly different surface, and shut until clicked. |
 
 The card header carries the component name, a one-line statement of its purpose, its
 `<Component />` tag, the Base/Composed chip and the *Used in* links. The design notes stay
 behind the `i` tooltip.
+
+The CSS pane is a **drawer, not a panel**. Three things about it:
+
+- While it is shut its grid track collapses to the width of its own header, so a closed drawer
+  costs the card nothing — cards stay ~1000px, and only opening one grows it (to ~1072px).
+  That is why the track lives in `.cx-codes` / `.cx-codes-css-open` rather than being a fixed
+  third column.
+- It is deliberately **not** the interactive `.cx-css` panel the other 107 specimens use.
+  That one is per-declaration copy buttons with resolved `var()` literals and it fills a whole
+  column; at half width it would be unreadable. This is a plain code block, same shape as the
+  TSX and Usage panes, built structurally from `ruleText()` output rather than regex-highlighted
+  (the text comes out in a known shape, so hand-tokenising it is exact and reuses the existing
+  `.cx-sel`/`.cx-p`/`.cx-v`/`.cx-pn` classes, already themed for both modes).
+- At ~150px it **wraps** (`white-space:pre-wrap; overflow-wrap:anywhere`) instead of scrolling
+  sideways, and it carries a standing note that these are the **base** declarations —
+  `js/css-index.js` is generated from the three base sheets only (see `SHEETS` in
+  `tools/extract-css-index.py`), and `greenstreets-light.css` really does restyle some of them
+  (`.btn-p` becomes a flat `--lt-accent-ink` fill). Without that note someone ports the green
+  gradient and loses the light theme. Adding the light overrides to the index is the obvious
+  follow-up if the drawer should show both themes.
 
 Below the three columns, a converted card carries a **docs strip** of three more panels,
 all expanded:
@@ -78,10 +99,10 @@ single button in its preview and its own component file. Size, icon, disabled an
 one. The three coloured buttons differ only in their colour block and each says so, so collapsing
 them into one `variant` prop is a one-minute edit if that is preferred.
 
-**Converted so far: Buttons** (6 of 113 specimens). Everything else still shows the CSS
-panel and has no props/states/responsive strip yet. Roll a section forward by adding
-`data-tsx` to its `<section>`, checking the generated TSX is worth shipping (hand-author an
-override where it is not — see below), and writing its `pr`/`st`/`rs` docs.
+**All 26 sections are converted.** The Buttons six are hand-authored; the other 107 are
+generated — see "What every card carries now" below for what that means and where it is
+thin. Hand-author an override in `tools/tsx_overrides.py` whenever the generated component
+or its docs are not good enough for the component in front of you.
 
 ### How the code is generated
 
@@ -314,3 +335,377 @@ worth reflecting here, re-copy the base files and re-run the extras extraction.
 There is intentionally **no `components-Light.html` twin.** The repo-wide dark/light twin rule exists
 because the prototypes have no router; this page carries both themes in one file, which is also the
 shape the Next.js port should use.
+
+## Naming: a specimen is named after the control it IS
+
+The catalogue used to name several base components after their wrapper class or
+their theming — `Field group`, `Themed select`, `Search field` — which tells a
+developer nothing about what to build. A base specimen is now named after the
+standard control:
+
+| was | now | why |
+|---|---|---|
+| Field group | **Text input** | It is a labelled text input; `.fgrp` is just the wrapper that adds the label and hint. |
+| Themed select | **Dropdown list** | "Themed" describes how it is implemented, not what it is. |
+| Search field | **Search input** | The same `.fi` text input with a leading icon in `.search-wrap`. |
+| Editable picklist (combo) | **Editable dropdown list** | "Picklist" and "combo" are two different jargons for a dropdown you can type into. |
+| Number field with stepper & unit | **Number input** | Stepper and unit are parts, not the name. |
+| Read-only & copy-link fields | **Read-only input** | |
+| Login fields | **Login input** | |
+| Field grid rows | **Form row grid** | Composed; it is the row layout, not a field. |
+| Themed checkbox | **Checkbox** | |
+| Segmented choice | **Segmented control** | The standard name for the pattern. |
+| Plain table | **Table** | "Plain" only meant "not the data grid". |
+| Status pill set | **Status pill** | One specimen per style — "set" implied variants. |
+
+**A rename is not just an attribute.** The name is the key into BOTH generated
+indexes (`CX_TSX`, `CX_CSS_INDEX.specimens`), it is referenced by `data-parts`
+on every composed specimen, it appears in tooltip prose, and it is a key in
+`build-tsx.py`'s `NAME_KIND`. So rename by replacing the string across the whole
+document *and* `build-tsx.py`, then regenerate — in that order, or the indexes
+key off names that no longer exist and every affected card loses its code and
+CSS. (`data-q`, the search haystack, is built at runtime from the name and needs
+no maintenance.)
+
+Still candidates, not yet done — say if you want them: `Body & muted copy`,
+`Inline code & numerics`, `Health dot & RAG`, `Notification count badge`,
+`Dialog heading & body`, `Empty state & search highlight`, `Identifier with
+identicon`, `Native title tooltip`.
+
+## Base is the default view
+
+The rail filter opens on **Base**, not All: the primitives are what a port
+starts from, and opening on all 113 buries 66 base elements under 47
+compositions. `kindFilter` starts at `'base'`, the Base button ships with `.on`,
+and `wireSearch()` calls `run()` once on load so the default actually applies.
+
+## What every card carries now
+
+All 26 sections are on the four-pane card (the old interactive CSS panel is
+gone from the page). Per specimen: **preview · TSX · Usage · collapsed CSS
+drawer**, then the **Props / States / Responsive** strip.
+
+The six Buttons components are hand-authored in `tsx_overrides.py`. The other
+107 are generated by `tools/tsx_docs.py` on one rule: **generate from measured
+facts, hand-write only what is a judgement.**
+
+- **Props** — per KIND (18 tables), mirroring the prop contract the skeleton in
+  `tsx_skeletons.py` actually emits. Not per specimen, because every specimen of
+  a kind gets the same generated signature.
+- **States** — per SPECIMEN, from real CSS. Three distinct outcomes, and the
+  difference is the point: *has it* (the rule is quoted), *not applicable* (the
+  component cannot have it, with the reason — grey), *not defined yet* (it could,
+  but nothing defines it — amber, a gap for the port).
+  Two traps handled: the CSS index only keeps rules targeting the element
+  itself, so `state_scan()` re-scans the full sheets for descendant rules —
+  without it the panel concluded "no hover rule" for `Table`, which is false
+  (`.tbl tbody tr:hover` exists). And a rule whose only effect is
+  `outline:none` is **skipped**, because printing
+  `.tbl th.gs-sortable:focus{outline:none}` as the focus state tells a developer
+  the opposite of the truth.
+- **Responsive** — `rs.now` is per SPECIMEN and measured: `media_index()` indexes
+  every `@media` block in all four portals by the classes it targets, so a card
+  either quotes its real breakpoint rules or states factually that it has none.
+  This is not decoration: **8 specimens do have breakpoint rules** (`Card`,
+  `Recap card`, `Selectable tier cards`, `Stat cards`, `Form row grid`,
+  `Page header bar`, `Data grid`, `Review sidebar`) and 99 have none. A blanket
+  "desktop-only" line would have been a lie on those eight. `rs.rec` is per kind
+  and the UI badges it as a recommendation.
+
+**Cards stack when the preview cannot fit.** The 300px preview column was sized
+for a single button; a data grid or a login card cannot live in it. `layoutStages()`
+decides per specimen on two signals — inherently wide markup (`WIDE_SEL`) or
+measured overflow — and stacks the preview onto its own full-width row (29 of
+113 today). It runs **synchronously**, not in a `requestAnimationFrame`: rAF is
+throttled and in a hidden tab may never fire, which left every card unstacked
+until the tab was focused.
+
+## base-kit.html — the base components as a design sheet, for Figma
+
+**Four** standalone pages — `base-kit-1.html` … `base-kit-4.html`: base
+components only, no code, laid out as UI-kit sheets to be imported into Figma.
+55 frames in 19 sections, split across the four by FRAME count so the parts come
+out a similar length; a section is never split across two parts. There are
+**deliberately no links between them** — four separate pages import as four
+artboards, where one 17,000px page converts as a single unwieldy frame. The
+"Behaviours, not drawings" appendix sits once, on part 4. Each frame is a
+handoff entry — component name, one-line purpose, then one labelled cell per
+state the component actually has. Generated by `tools/build-base-kit.py` (wired
+into `regenerate.sh`) from the same `cx-src` specimen markup as
+`components.html` — **do not hand-edit the pages**, and do not fork the
+specimens into them.
+
+**No class names anywhere on the sheet**, and it takes two passes because they
+appear in two places:
+
+* the **purpose line** — the tooltips are written for developers and often open
+  with the implementation ("Author a plain select.fi.fi-select"), so `purpose()`
+  takes the first sentence containing no selector, class, CSS declaration or
+  function call, and strips code tokens from the first sentence only if every
+  sentence has some;
+* the **drawn content** — the typography specimens label themselves with their
+  class ("Heading 1 · .pg-title", "Page subtitle · .pg-sub — one line of context
+  under a title"), which is useful in the catalogue and meaningless on a sheet
+  bound for Figma. `strip_code_text()` removes those annotations from **text
+  nodes only**, splitting on tags so `class="…"` survives — which matters,
+  because the classes are what draw the components.
+
+Verified after every build: **0 code tokens** in any drawn text or purpose line
+across the four parts.
+
+**One control per frame.** Several specimens documented the same control twice —
+the dropdown had two selects, the number input two identical fields, the
+checkbox drew checked/unchecked/indeterminate side by side (which the state
+CELLS now do), and the login specimen repeated its icon-field shape. Each is now
+a single control, so the frame reads as one component in several states rather
+than a small form.
+
+**The themed dropdown is BAKED, not scripted.** `theme_select()` in the
+generator emits the enhancer's own output — `.cs-wrap` > hidden `<select>` +
+`.fi.cs-trigger` + `.cs-menu` — with the option list rendered where the cell
+asks to be open, and marks the select `data-cs="1"` so the real
+`GSEnhanceSelects` leaves it alone. That matters for an export artefact: while
+the open cell was realised at runtime, a stale or blocked script drew a *closed*
+control under a label reading "Open", which is worse than drawing nothing.
+
+**Focus rings every control in the cell**, not one marked target. A spec sheet
+documents the treatment, so a frame holding a text input and a textarea shows
+the ring on both — even though a browser can only focus one. Two exceptions,
+both principled: `[tabindex="-1"]` never rings (the number stepper's arrows and
+the combo caret are not keyboard-focusable), and that suppression must be
+emitted **last**, because the rules it overrides sit at the same specificity.
+
+The bug behind that: `rules_for()` was reading classes inside `:not()` as
+**target** classes, so the product's generic keyboard rule —
+`[tabindex]:not(.fi):not(.btn-p):not(.btn-g):not(.btn-g-sm):not(tr):focus-visible`
+— was attributed to every specimen declaring `.fi` or a button class, and at
+`(0,7,0)` it outranked the kit's own focus rules. `:not()` groups are now
+stripped before the target classes are read.
+
+**purpose(): a code-free sentence, a hand-written line, or nothing.** Stripping
+code out of a technical sentence produces gibberish ("On load, swaps it for a (a
+div + a themed ), keeps the real hidden for its value"), which on a handoff
+sheet is worse than silence. So: the first tooltip sentence containing no code;
+else a hand-written line from `PURPOSE`; else nothing, and the name carries the
+frame. Verified after every build: **0 code tokens** in any purpose line or
+drawn text, and 0 blank purposes.
+
+**An open list is drawn WITH one item hovered.** A plain open list plus a
+separate hover cell was two near-identical drawings of the same menu — and the
+hover cell drew *nothing*, because this component's hover lives on `.cs-opt`,
+which only exists once the list is open. One cell now carries both, showing
+three option states at once: hovered, selected, plain. That needed `STRUCTURAL`
+entries to accept an optional CSS state, i.e. `(label, css state, action)` as
+well as `(label, action)`. One trap: suppressing the standalone hover **cell**
+must not suppress its **rules** — `SKIP_CSS_STATE` still collects them, because
+the combined cell needs `.bk-st-hover .cs-opt:first-child` to exist in the
+generated stylesheet. Dropping both is why the hovered option first drew
+nothing.
+
+**Deliberately NOT linked from the repo `index.html`.** It is an export
+artefact, not a prototype to review.
+
+It leaves out 11 of the 66 base specimens, listed on the page in a
+"Behaviours, not drawings" appendix with the reason for each: a motion
+behaviour (focus ring, ripple, entrance cascade, press feedback, shake,
+rotating placeholder), a build technique (icon sprite), an OS-drawn control
+(native title tooltip), a behaviour layer (keyboard operability), or prototype
+scaffolding (nav bar, screens). Each would import as an **empty frame**, which
+is worse than an honest omission.
+
+### Figma-import hygiene — the part that matters
+
+All of it lives at the bottom of `css/base-kit.css`, and every rule is there
+for a measured reason, not a hunch:
+
+1. **`backdrop-filter` is neutralised** on everything (23 declarations across
+   the three base sheets). Figma cannot import a backdrop blur, and a
+   capture-based import bakes in a blur of whatever sat behind — so the glass
+   surfaces would arrive as smeared noise. Off, they show the solid fill they
+   should *become* in Figma.
+2. **Nothing is `position:fixed`.** Fixed elements import as detached layers
+   parked over the artboard. Three specimens were still fixed after the first
+   pass — the toast, the coach hint and the stat tooltip — found by measuring
+   computed `position` across the built page, not by reading the CSS.
+3. **The frames do not clip** (`overflow:visible`). Two specimens overflow
+   their frame: a tooltip's pointer tail (an `::after` at `bottom:-6px`) and a
+   demo table's toolbar. A clipping frame silently truncates those in the
+   export, which is the single failure this sheet exists to avoid. A few pixels
+   past the border is honest — it is the component's real size — and the
+   artboard's 48px padding absorbs it, so nothing overlaps a neighbour.
+4. **All animation and transition is off**, so a capture cannot catch a
+   component mid-tween and import a half-faded layer.
+5. **The FX layer is removed** and the ripple/particle/focus-ring tokens are
+   zeroed by `js/base-kit.js`, so there is no stray full-viewport layer.
+6. **Flat canvas fill, not the product gradient** — a gradient behind every
+   frame imports as one huge image layer.
+7. **Column spans are decided at BUILD time**, not measured at runtime, so two
+   exports of the same file are identical. `SPAN_OVERRIDE` in the generator is
+   the place to change one.
+
+### Every state a component actually has, drawn
+
+A handoff sheet has to show more than a resting component, so each frame draws
+one cell per state, labelled. **101 cells across 55 frames; 28 frames carry more
+than one.** The dropdown list, for example, is *Collapsed · Focus · Open · Value
+selected*; the checkbox is *Unchecked · Hover · Checked · Indeterminate*.
+
+Two different problems, solved two different ways:
+
+**CSS states — hover, focus, active, disabled.** `:hover` cannot be forced, so
+`tools/kit_states.py` reads the real declarations out of the stylesheets and
+re-applies them under a wrapper class — `.btn-p:hover{...}` becomes
+`.bk-st-hover .btn-p{...}`, verbatim — into a generated `css/base-kit-states.css`
+(43 rules). What the sheet draws is the real state by construction, and being
+regenerated it cannot drift from the CSS.
+
+**Structural states — collapsed/open, selected, checked, filled, sorted.** These
+are a different DOM, not a pseudo-class. The product CSS already styles them
+(`.on` 31 rules, `.active` 38, `.open` 19, `:checked` 12), so nothing is
+generated: `base-kit.js` puts the markup into the state by doing what a user
+would do — click the trigger, choose the option, tick the box. The list lives in
+`STRUCTURAL` in `kit_states.py` and the actions in `ACTIONS` in `base-kit.js`;
+**keep the two in step.**
+
+Rules the data follows, each because the naive version was wrong:
+
+1. **A state must target the specimen's OWN primary classes** (`data-cls`).
+   Without that test a colour-swatch grid gained a hover from a `.gs-lp` that
+   merely appeared in its markup.
+2. **It must change something visible** — a rule that only sets `cursor` is not
+   a state. And a rule whose only effect is `outline:none` is skipped: that is
+   the *absence* of a focus ring, and quoting it would say the opposite.
+3. **Motion is stripped from the re-applied rules.** This stylesheet loads after
+   `base-kit.css`, so an `animation` carried over with `!important` would defeat
+   the no-motion rule and let a capture catch a mid-tween.
+4. **A state on a repeated child is pinned to one of them.** `.tbl tbody tr:hover`
+   across a table drew every row hovered, which reads as a bug.
+5. **Focus is singular.** The focus rules require a `.bk-st-target` marker that
+   `base-kit.js` puts on exactly one element per cell — without it a two-field
+   specimen drew two focus rings at once, which no browser can produce.
+6. **`error` is not drawn at all.** The system has two error rules and both are
+   `.gs-shake`, a keyframe animation. There is no static error appearance, and
+   inventing one would put a state in front of a developer that does not exist.
+
+#### The focus ring, and why it was missing
+
+Focus in this system is **not a per-class rule**, which is why the sheet had it
+almost nowhere. `.fi`, `.btn-p`, `.btn-g` and `.btn-g-sm` get the animated
+`.fs-ring` **overlay** drawn by `greenstreets-theme.js`; everything else
+focusable gets the generic keyboard rule in `greenstreets-theme.css`
+(`outline:2px solid var(--field-stroke-color); outline-offset:2px`, which
+deliberately excludes those four classes so they don't get a double ring).
+
+The kit removed the overlay for export hygiene — a positioned overlay imports as
+a detached layer — and only planned a Focus cell where a specimen owned a
+`:focus` rule. Between the two, a focused field showed nothing but its faint
+inner glow and buttons showed nothing at all. Three fixes:
+
+1. `SYSTEM_FOCUS` in `kit_states.py` reproduces both real treatments statically,
+   using **`outline`** rather than `box-shadow` so it stacks with the field's own
+   focus glow instead of overwriting it.
+2. A Focus cell is planned for anything **focusable**, not only for
+   rule-bearers — which is what gave the buttons theirs back.
+3. `--field-stroke-weight` is no longer zeroed by `deFx()`. It was, which made
+   every ring 0px wide.
+
+**The ring is the ACCENT, not the stylesheet default.** `greenstreets-theme.css`
+declares `--field-stroke-color:#5b9cf6` (blue), but no portal ever renders that:
+`gs-appearance.js:64` overwrites it at runtime with the active accent, and the
+default preset is emerald `#4ebb81`. The kit doesn't load that script (it injects
+a whole settings panel), so `.bk-artboard` sets the token to `var(--gs)` — which
+*is* the accent — and the ring follows the accent exactly as the product does.
+Reading the stylesheet alone would have shipped a blue ring the product never
+shows.
+
+The focus target is marked on **one** element per cell (`.bk-st-target`), because
+focus is singular; a two-field specimen otherwise drew two rings at once. The
+marker falls back through real focusables, then likely-clickable classes
+(`.gs-crumb`, `.nav-item`, `.landing-tab`…), then the cell box — the middle step
+exists because a breadcrumb crumb is an `<a>` with no `href` in the specimen, so
+nothing matched and three real focus states were being dropped.
+
+#### The open state is BUILT, never clicked
+
+The open cells were originally realised by clicking the trigger, because the
+enhancer renders its options on the real open path. That cost three things the
+sheet could not carry, and all three were reported as bugs:
+
+* clicking moved **focus** into the dropdown, and the same handler re-ran on
+  every click and scroll, so focus was dragged back there constantly — nothing
+  else on the page could be focused;
+* the same click **collapsed any text selection**, so you could not select a
+  label to copy it;
+* the enhancer's menu is a `position:fixed` portal appended to `<body>`, so
+  every open had to be chased and moved back into its frame.
+
+So `buildMenu()` constructs the menu instead, from the real `<select>` options
+(or `GS_VOCAB` for the editable combo) using the enhancer's own classes. **The
+sheet is now fully static: no synthetic clicks, no focus theft, no portals**, and
+`sweep()` no longer re-opens anything — it only removes what must not exist in an
+export. Verified: nothing is focused on load, no `<body>` portals, and text
+selection survives.
+
+Four layout traps this exposed, each fixed in `css/base-kit.css`:
+
+1. An **unopened `.cs-menu`** exists in every enhanced wrap; forced into flow by
+   the no-fixed rule it rendered as an empty 12x12 stub in every non-open cell.
+   Hidden unless `.open`.
+2. `.pkg-detail-grid` is a **two-column** form grid, but a kit frame holds one
+   field — so the control got half the width.
+3. The cell is a flex container, so `.pkg-detail-section` sized to its
+   **content** (196px) rather than to the cell (598px); widening the cell alone
+   did nothing until the section was told to stretch.
+4. The material vocabulary holds values up to **84 characters**, so no 4-up row
+   of cells can show one on a single line. That one frame's cells carry a large
+   `min-width` so the row wraps 2-up and each field is ~600px, at which every
+   option fits.
+
+#### The verification pass is the load-bearing part
+
+`verifyStates()` in `base-kit.js` diffs every state cell against its default on
+computed style, element count, text, and the `checked`/`indeterminate`/`value`
+properties. **A cell that renders identically is removed**, because it would
+otherwise assert a state the component does not have — and it is reported to the
+console and on `window.BK_DROPPED`. It runs at runtime because it needs computed
+styles, and it is deterministic, so two exports of the same file still match.
+
+That check has earned its place repeatedly. It caught, and forced fixes for:
+`:first-of-type` being evaluated independently of `:not()` (so
+`:not(.on):first-of-type` matched nothing wherever the first item is the selected
+one — true in both the segmented control and tabs); a breadcrumb's
+`:last-of-type` landing on the *current* crumb; a stylesheet rule written
+`button.gs-crumb:hover` not applying to a specimen whose crumbs are `<a>`; the
+themed select's menu being a `position:fixed` portal appended to `<body>` whose
+options only render on the real open path, so a hand-added `.open` opened an
+*empty* menu; the progress bar's fill being `.prog-f` with an unclassed `<span>`
+for its percentage, so a guessed `[class*="-fill"]` selector was a no-op; and the
+number input already shipping with values, which made its "Filled" cell a
+duplicate of its default (it now draws *With a value · Empty* instead).
+
+Five cells remain dropped, all honestly: `Primary button / Focus` and
+`Secondary button / Focus` (the buttons have no CSS focus rule — the ring is the
+JS overlay layer, which is not reproduced), `Icon button / Active` and
+`Number input / Active`, and `Dropdown list / Hover` (its hover lives on
+`.cs-opt`, which only exists in the Open cell).
+
+Menus are moved out of `<body>` into their frame and capped to a **6-option
+sample** with the remaining count stated. Drawn in full, the editable dropdown's
+47-value vocabulary rendered per cell made that frame 1728px tall against a 457px
+next-largest — it had stopped documenting the control and started dumping data.
+
+**The export hygiene is idempotent.** `sweep()` runs after every interaction,
+not once at boot: the theme JS re-creates its fixed full-viewport FX layer
+lazily on the first pointer event, and re-opening a menu can leave a portal on
+`<body>`. Measured after a single theme toggle before this was fixed: one fixed
+element and one stray body child, both of which would import as detached layers
+over the artboard.
+
+### Fidelity
+
+The frames are drawn by the real portal stylesheets, and the real portal JS
+runs first, so a dropdown list is the themed control (its hidden native
+`<select>` stays `display:none`, so it does not export as a duplicate layer),
+number fields have their steppers, and the editable dropdown is built by
+`gs-pkg-controls.js`. One file carries both themes via the cover's toggle — the
+same exception `components.html` documents.

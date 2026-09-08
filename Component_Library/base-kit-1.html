@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>GreenStreets — Base component kit 1/4</title>
+<meta name="description" content="The base components of the GreenStreets design system, laid out as a design sheet for import into Figma. No code.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<!-- The REAL portal stylesheets, in portal load order: every frame below is
+     rendered by the CSS that ships in the prototypes, not by a redraw. -->
+<link rel="stylesheet" href="css/greenstreets-theme.css?v=1">
+<link rel="stylesheet" href="css/supplier-portal.css?v=1">
+<link rel="stylesheet" href="css/portal-extras.css?v=1">
+<link rel="stylesheet" href="css/greenstreets-light.css?v=1">
+<link rel="stylesheet" href="css/portal-extras-light.css?v=1">
+<!-- The sheet's own layout, plus the Figma-import hygiene overrides -->
+<link rel="stylesheet" href="css/base-kit.css?v=16">
+<!-- GENERATED: the real :hover declarations, re-applied under .bk-st-hover
+     so this static sheet can draw the hover state. See tools/kit_states.py -->
+<link rel="stylesheet" href="css/base-kit-states.css?v=16">
+</head>
+<body class="bk-body">
+
+<div class="bk-artboard">
+
+  <header class="bk-cover">
+    <div class="bk-cover-main">
+      <p class="bk-eyebrow">GreenStreets design system</p>
+      <h1>Base component kit</h1>
+      <p class="bk-part">Part 1 of 4</p>
+      <p class="bk-lede">Every base component in the system — one primitive per frame, drawn by the
+        production stylesheets. Where a component's hover changes its appearance, that state is drawn
+        beside the default, from the real <code>:hover</code> declarations. Compositions, code and
+        documentation live in the component library; this sheet is the drawing.</p>
+    </div>
+    <dl class="bk-facts">
+      <div><dt>Frames</dt><dd>14</dd></div>
+      <div><dt>Sections</dt><dd>3</dd></div>
+      <div><dt>State cells</dt><dd>39</dd></div>
+      <div><dt>Theme</dt><dd>Dark (primary)</dd></div>
+      <div><dt>Generated</dt><dd>2026-09-08</dd></div>
+    </dl>
+    <button class="bk-theme" type="button" id="bkTheme" aria-pressed="false">Light theme</button>
+  </header>
+
+    <section class="bk-sec">
+      <header class="bk-sec-hd">
+        <span class="bk-sec-n">01</span>
+        <h2>Typography</h2>
+        <span class="bk-sec-c">4</span>
+      </header>
+      <div class="bk-grid">
+      <figure class="bk-frame bk-span-3" data-frame="Heading levels" data-cells="1">
+        <figcaption class="bk-label">
+          <span class="bk-name">Heading levels</span>
+          <span class="bk-purpose">Nothing in the system needs a fifth level — if a screen seems to, it wants splitting into cards.</span>
+        </figcaption>
+        <div class="bk-states">
+            <div class="bk-cell">
+              <div class="bk-cell-box">
+                <div class="cx-row-v">
+                 <div class="pg-eyebrow">Retailer account</div>
+                 <h1 class="pg-title" style="margin:0">Heading 1 &middot;</h1>
+                 <h2 class="grp-hdr" style="margin:0;border:0;padding:0;background:none">Heading 2 &middot;</h2>
+                 <h3 class="sec-lbl" style="margin:0">Heading 3 &middot;</h3>
+                 <h4 class="flbl" style="margin:0">Heading 4 &middot; (field label)</h4>
+                </div>
+              </div>
+              <span class="bk-cell-lbl">Default</span>
+            </div>
+        </div>
+      </figure>
+      <figure class="bk-frame bk-span-3" data-frame="Body &amp; muted copy" data-cells="1">
+        <figcaption class="bk-label">
+          <span class="bk-name">Body &amp; muted copy</span>
+          <span class="bk-purpose">Body copy is deliberately small — these are dense compliance tables, not marketing pages.</span>
+        </figcaption>
+        <div class="bk-states">
+            <div class="bk-cell">
+              <div class="bk-cell-box">
+                <div class="cx-row-v" style="max-width:620px">
+                 <div style="font-size:13px;color:var(--tw);line-height:1.7">Default body text &mdash; the paragraph style used across the app, sized for dense compliance tables and forms.</div>
+                 <div class="pg-sub" style="margin:0">Page subtitle &middot; &mdash; one line of context under a title.</div>
+                 <div class="fhint">Field hint &middot; &mdash; helper text under a control.</div>
+                 <div class="tbl-muted">Listing meta &middot; &mdash; timestamps, ids, counts.</div>
+                 <div class="dim">De-emphasised label &middot;</div>
+                </div>
+              </div>
+              <span class="bk-cell-lbl">Default</span>
+            </div>
+        </div>
+      </figure>
+      <figure class="bk-frame bk-span-3" data-frame="Inline code &amp; numerics" data-cells="1">
+        <figcaption class="bk-label">
+          <span class="bk-name">Inline code &amp; numerics</span>
+          <span class="bk-purpose">Never set a column of numbers in proportional figures.</span>
+        </figcaption>
+        <div class="bk-states">
+            <div class="bk-cell">
+              <div class="bk-cell-box">
+                <div class="cx-row-v">
+                 <div class="stat-val">1 284</div>
+                 <div class="cx-row">
+                 <span class="tbl-val">184 g</span>
+                 <span class="pkg-frac">18/23</span>
+                 <span class="gs-pkg-id-chip">PKG-SWT-0091</span>
+                 <span class="gs-id"><span class="gs-id-text"><span class="gs-id-dim">PRM-2026-</span><span class="gs-id-key">04871</span></span></span>
+                 </div>
+                </div>
+              </div>
+              <span class="bk-cell-lbl">Default</span>
+            </div>
+        </div>
+      </figure>
+      <figure class="bk-frame bk-span-3" data-frame="Type scale" data-cells="1">
+        <figcaption class="bk-label">
+          <span class="bk-name">Type scale</span>
+          <span class="bk-purpose">Inter throughout, at six practical sizes.</span>
+        </figcaption>
+        <div class="bk-states">
+            <div class="bk-cell">
+              <div class="bk-cell-box">
+                <div class="cx-row-v">
+                 <div class="pg-title">Page title</div>
+                 <div class="pg-sub">Page subtitle — one line of context under the title.</div>
+                 <div class="grp-hdr" style="border:0;padding:0;background:none">Card header</div>
+                 <div class="stat-val">1 284</div>
+                 <div class="sec-lbl">Section label</div>
+                 <div class="tbl-muted">Muted meta text</div>
+                </div>
+              </div>
+              <span class="bk-cell-lbl">Default</span>
+            </div>
+        </div>
+      </figure>
+      </div>
+    </section>
+    <section class="bk-sec">
+      <header class="bk-sec-hd">
+        <span class="bk-sec-n">02</span>
+        <h2>Buttons</h2>
+        <span class="bk-sec-c">4</span>
+      </header>
+      <div class="bk-grid">
+      <figure class="bk-frame bk-span-3" data-frame="Primary button" data-cells="4">
+        <figcaption class="bk-label">
+          <span class="bk-name">Primary button</span>
+          <span class="bk-purpose">The one accent action per view — the thing the screen exists to let you do.</span>
+        </figcaption>
+        <div class="bk-states">
+            <div class="bk-cell">
+              <div class="bk-cell-box">
+                <button class="btn-p">
+                 <img class="btn-sw" src="img/swoosh.png" alt="">
+                 <span class="btn-c">Provision retailer</span>
+                </button>
+              </div>
+              <span class="bk-cell-lbl">Default</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box bk-st-hover">
+                <button class="btn-p">
+                 <img class="btn-sw" src="img/swoosh.png" alt="">
+                 <span class="btn-c">Provision retailer</span>
+                </button>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Hover</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box bk-st-focus">
+                <button class="btn-p">
+                 <img class="btn-sw" src="img/swoosh.png" alt="">
+                 <span class="btn-c">Provision retailer</span>
+                </button>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Focus</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box bk-st-active">
+                <button class="btn-p">
+                 <img class="btn-sw" src="img/swoosh.png" alt="">
+                 <span class="btn-c">Provision retailer</span>
+                </button>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Active</span>
+            </div>
+        </div>
+      </figure>
+      <figure class="bk-frame bk-span-3" data-frame="Secondary button" data-cells="4">
+        <figcaption class="bk-label">
+          <span class="bk-name">Secondary button</span>
+          <span class="bk-purpose">The default button, and the one you will reach for most: a 1px outline on a translucent surface.</span>
+        </figcaption>
+        <div class="bk-states">
+            <div class="bk-cell">
+              <div class="bk-cell-box">
+                <button class="btn-g">Cancel</button>
+              </div>
+              <span class="bk-cell-lbl">Default</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box bk-st-hover">
+                <button class="btn-g">Cancel</button>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Hover</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box bk-st-focus">
+                <button class="btn-g">Cancel</button>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Focus</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box bk-st-active">
+                <button class="btn-g">Cancel</button>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Active</span>
+            </div>
+        </div>
+      </figure>
+      <figure class="bk-frame bk-span-3" data-frame="Danger button" data-cells="3">
+        <figcaption class="bk-label">
+          <span class="bk-name">Danger button</span>
+          <span class="bk-purpose">For an action that destroys or cannot be undone.</span>
+        </figcaption>
+        <div class="bk-states">
+            <div class="bk-cell">
+              <div class="bk-cell-box">
+                <button class="doc-del-pop-yes" style="height:34px;padding:0 16px;font-size:12px">Delete document</button>
+              </div>
+              <span class="bk-cell-lbl">Default</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box bk-st-hover">
+                <button class="doc-del-pop-yes" style="height:34px;padding:0 16px;font-size:12px">Delete document</button>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Hover</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box bk-st-focus">
+                <button class="doc-del-pop-yes" style="height:34px;padding:0 16px;font-size:12px">Delete document</button>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Focus</span>
+            </div>
+        </div>
+      </figure>
+      <figure class="bk-frame bk-span-3" data-frame="Icon button" data-cells="4">
+        <figcaption class="bk-label">
+          <span class="bk-name">Icon button</span>
+          <span class="bk-purpose">A square button whose only content is an icon, so the label it takes is not optional — it becomes both the title and the aria-label.</span>
+        </figcaption>
+        <div class="bk-states">
+            <div class="bk-cell">
+              <div class="bk-cell-box">
+                <button class="btn-kebab" title="Row actions" aria-label="Row actions">
+                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+                </button>
+              </div>
+              <span class="bk-cell-lbl">Default</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box bk-st-hover">
+                <button class="btn-kebab" title="Row actions" aria-label="Row actions">
+                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+                </button>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Hover</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box bk-st-focus">
+                <button class="btn-kebab" title="Row actions" aria-label="Row actions">
+                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+                </button>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Focus</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box bk-st-active">
+                <button class="btn-kebab" title="Row actions" aria-label="Row actions">
+                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+                </button>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Active</span>
+            </div>
+        </div>
+      </figure>
+      </div>
+    </section>
+    <section class="bk-sec">
+      <header class="bk-sec-hd">
+        <span class="bk-sec-n">03</span>
+        <h2>Form inputs</h2>
+        <span class="bk-sec-c">6</span>
+      </header>
+      <div class="bk-grid">
+      <figure class="bk-frame bk-span-3" data-frame="Text input" data-cells="3">
+        <figcaption class="bk-label">
+          <span class="bk-name">Text input</span>
+          <span class="bk-purpose">The atom of every form.</span>
+        </figcaption>
+        <div class="bk-states">
+            <div class="bk-cell">
+              <div class="bk-cell-box">
+                <div class="cx-frame">
+                 <div class="fgrp">
+                 <div class="flbl">Registered company name <span class="req">*</span></div>
+                 <input class="fi" placeholder="e.g. Primark Stores Ltd">
+                 <div class="fhint">As it appears on the trade register — this name is printed on the DoC.</div>
+                 </div>
+                 <div class="fgrp">
+                 <div class="flbl">Notes</div>
+                 <textarea class="fi notes-area" rows="3" placeholder="Anything the compliance team should know…"></textarea>
+                 </div>
+                </div>
+              </div>
+              <span class="bk-cell-lbl">Empty</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box bk-st-focus">
+                <div class="cx-frame">
+                 <div class="fgrp">
+                 <div class="flbl">Registered company name <span class="req">*</span></div>
+                 <input class="fi" placeholder="e.g. Primark Stores Ltd">
+                 <div class="fhint">As it appears on the trade register — this name is printed on the DoC.</div>
+                 </div>
+                 <div class="fgrp">
+                 <div class="flbl">Notes</div>
+                 <textarea class="fi notes-area" rows="3" placeholder="Anything the compliance team should know…"></textarea>
+                 </div>
+                </div>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Focus</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box" data-bk-do="filled">
+                <div class="cx-frame">
+                 <div class="fgrp">
+                 <div class="flbl">Registered company name <span class="req">*</span></div>
+                 <input class="fi" placeholder="e.g. Primark Stores Ltd">
+                 <div class="fhint">As it appears on the trade register — this name is printed on the DoC.</div>
+                 </div>
+                 <div class="fgrp">
+                 <div class="flbl">Notes</div>
+                 <textarea class="fi notes-area" rows="3" placeholder="Anything the compliance team should know…"></textarea>
+                 </div>
+                </div>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Filled</span>
+            </div>
+        </div>
+      </figure>
+      <figure class="bk-frame bk-span-3" data-frame="Dropdown list" data-cells="3">
+        <figcaption class="bk-label">
+          <span class="bk-name">Dropdown list</span>
+          <span class="bk-purpose">A single choice from a fixed list. The menu is drawn by the system, not by the browser, so it matches the rest of the interface.</span>
+        </figcaption>
+        <div class="bk-states">
+            <div class="bk-cell">
+              <div class="bk-cell-box">
+                <div class="cx-frame">
+                 <div class="fg2">
+                 <div class="fgrp">
+                 <div class="flbl">Packaging level</div>
+                 <div class="cs-wrap"><select class="fi fi-select" data-cs="1" style="display:none">
+                 <option>Primary</option>
+                 <option selected>Secondary</option>
+                 <option>Tertiary</option>
+                 </select><div class="fi cs-trigger" tabindex="0"><span class="cs-val">Secondary</span><span class="cs-caret"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></span></div><div class="cs-menu"></div></div>
+                 </div>
+                 </div>
+                </div>
+              </div>
+              <span class="bk-cell-lbl">Collapsed</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box bk-st-focus">
+                <div class="cx-frame">
+                 <div class="fg2">
+                 <div class="fgrp">
+                 <div class="flbl">Packaging level</div>
+                 <div class="cs-wrap"><select class="fi fi-select" data-cs="1" style="display:none">
+                 <option>Primary</option>
+                 <option selected>Secondary</option>
+                 <option>Tertiary</option>
+                 </select><div class="fi cs-trigger" tabindex="0"><span class="cs-val">Secondary</span><span class="cs-caret"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></span></div><div class="cs-menu"></div></div>
+                 </div>
+                 </div>
+                </div>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Focus</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box bk-st-hover">
+                <div class="cx-frame">
+                 <div class="fg2">
+                 <div class="fgrp">
+                 <div class="flbl">Packaging level</div>
+                 <div class="cs-wrap open"><select class="fi fi-select" data-cs="1" style="display:none">
+                 <option>Primary</option>
+                 <option selected>Secondary</option>
+                 <option>Tertiary</option>
+                 </select><div class="fi cs-trigger" tabindex="0"><span class="cs-val">Secondary</span><span class="cs-caret"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></span></div><div class="cs-menu open"><div class="cs-opt">Primary</div><div class="cs-opt sel">Secondary</div><div class="cs-opt">Tertiary</div></div></div>
+                 </div>
+                 </div>
+                </div>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Open, one item hovered</span>
+            </div>
+        </div>
+      </figure>
+      <figure class="bk-frame bk-span-3" data-frame="Search input" data-cells="3">
+        <figcaption class="bk-label">
+          <span class="bk-name">Search input</span>
+          <span class="bk-purpose">The filter control at the head of every listing. Typing narrows the rows below it.</span>
+        </figcaption>
+        <div class="bk-states">
+            <div class="bk-cell">
+              <div class="bk-cell-box">
+                <div class="search-wrap" style="max-width:320px">
+                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                 <input class="fi fi-search" placeholder="Search SKU or description…">
+                </div>
+              </div>
+              <span class="bk-cell-lbl">Empty</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box bk-st-focus">
+                <div class="search-wrap" style="max-width:320px">
+                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                 <input class="fi fi-search" placeholder="Search SKU or description…">
+                </div>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Focus</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box" data-bk-do="query">
+                <div class="search-wrap" style="max-width:320px">
+                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                 <input class="fi fi-search" placeholder="Search SKU or description…">
+                </div>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">With a query</span>
+            </div>
+        </div>
+      </figure>
+      <figure class="bk-frame bk-span-2" data-frame="Login input" data-cells="2">
+        <figcaption class="bk-label">
+          <span class="bk-name">Login input</span>
+          <span class="bk-purpose">Render the MFA pair conditionally — it only applies to accounts where MFA is enforced.</span>
+        </figcaption>
+        <div class="bk-states">
+            <div class="bk-cell">
+              <div class="bk-cell-box">
+                <div style="max-width:320px">
+                 <div class="fgrp-login fi-icon-wrap">
+                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16v12H4z"/><path d="m4 7 8 6 8-6"/></svg>
+                 <input class="fi" type="email" placeholder="name@greenstreets.ie">
+                 </div>
+                 <input class="fi mfa-fi" type="text" inputmode="numeric" placeholder="000 000" style="margin-bottom:0">
+                 <div class="mfa-hint">
+                 <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.4"/><path d="M8 7v4M8 5.5v.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+                 <span>MFA required for this account</span>
+                 </div>
+                </div>
+              </div>
+              <span class="bk-cell-lbl">Default</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box bk-st-focus">
+                <div style="max-width:320px">
+                 <div class="fgrp-login fi-icon-wrap">
+                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16v12H4z"/><path d="m4 7 8 6 8-6"/></svg>
+                 <input class="fi" type="email" placeholder="name@greenstreets.ie">
+                 </div>
+                 <input class="fi mfa-fi" type="text" inputmode="numeric" placeholder="000 000" style="margin-bottom:0">
+                 <div class="mfa-hint">
+                 <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.4"/><path d="M8 7v4M8 5.5v.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+                 <span>MFA required for this account</span>
+                 </div>
+                </div>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Focus</span>
+            </div>
+        </div>
+      </figure>
+      <figure class="bk-frame bk-span-3" data-frame="Number input" data-cells="5">
+        <figcaption class="bk-label">
+          <span class="bk-name">Number input</span>
+          <span class="bk-purpose">Stepper clicks dispatch both input and change.</span>
+        </figcaption>
+        <div class="bk-states">
+            <div class="bk-cell">
+              <div class="bk-cell-box">
+                <div class="fg2" style="max-width:420px">
+                 <div class="fgrp">
+                 <div class="flbl">Weight</div>
+                 <div class="fi-wrap">
+                 <input class="fi fi-has-unit" type="number" step="0.01" value="1.72">
+                 <span class="fi-unit">g</span>
+                 </div>
+                 </div>
+                </div>
+              </div>
+              <span class="bk-cell-lbl">With a value</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box bk-st-hover">
+                <div class="fg2" style="max-width:420px">
+                 <div class="fgrp">
+                 <div class="flbl">Weight</div>
+                 <div class="fi-wrap">
+                 <input class="fi fi-has-unit" type="number" step="0.01" value="1.72">
+                 <span class="fi-unit">g</span>
+                 </div>
+                 </div>
+                </div>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Hover</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box bk-st-focus">
+                <div class="fg2" style="max-width:420px">
+                 <div class="fgrp">
+                 <div class="flbl">Weight</div>
+                 <div class="fi-wrap">
+                 <input class="fi fi-has-unit" type="number" step="0.01" value="1.72">
+                 <span class="fi-unit">g</span>
+                 </div>
+                 </div>
+                </div>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Focus</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box bk-st-active">
+                <div class="fg2" style="max-width:420px">
+                 <div class="fgrp">
+                 <div class="flbl">Weight</div>
+                 <div class="fi-wrap">
+                 <input class="fi fi-has-unit" type="number" step="0.01" value="1.72">
+                 <span class="fi-unit">g</span>
+                 </div>
+                 </div>
+                </div>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Active</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box" data-bk-do="empty">
+                <div class="fg2" style="max-width:420px">
+                 <div class="fgrp">
+                 <div class="flbl">Weight</div>
+                 <div class="fi-wrap">
+                 <input class="fi fi-has-unit" type="number" step="0.01" value="1.72">
+                 <span class="fi-unit">g</span>
+                 </div>
+                 </div>
+                </div>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Empty</span>
+            </div>
+        </div>
+      </figure>
+      <figure class="bk-frame bk-span-3" data-frame="Editable dropdown list" data-cells="4">
+        <figcaption class="bk-label">
+          <span class="bk-name">Editable dropdown list</span>
+          <span class="bk-purpose">A dropdown list you can also type into, for a value that SHOULD come from a controlled vocabulary but must still accept a write-in — material names, certifications.</span>
+        </figcaption>
+        <div class="bk-states">
+            <div class="bk-cell">
+              <div class="bk-cell-box">
+                <div class="pkg-detail-section pkg-sec-edit-mode" style="max-width:340px">
+                 <div class="pkg-detail-grid">
+                 <div class="pkg-detail-feat" data-mt="name">
+                 <div class="pkg-detail-feat-lbl">Material 1 name</div>
+                 <input class="fi pkg-detail-feat-input" value="Paper Kraft">
+                 </div>
+                 </div>
+                </div>
+              </div>
+              <span class="bk-cell-lbl">Collapsed</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box bk-st-focus">
+                <div class="pkg-detail-section pkg-sec-edit-mode" style="max-width:340px">
+                 <div class="pkg-detail-grid">
+                 <div class="pkg-detail-feat" data-mt="name">
+                 <div class="pkg-detail-feat-lbl">Material 1 name</div>
+                 <input class="fi pkg-detail-feat-input" value="Paper Kraft">
+                 </div>
+                 </div>
+                </div>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Focus</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box bk-st-hover" data-bk-do="open">
+                <div class="pkg-detail-section pkg-sec-edit-mode" style="max-width:340px">
+                 <div class="pkg-detail-grid">
+                 <div class="pkg-detail-feat" data-mt="name">
+                 <div class="pkg-detail-feat-lbl">Material 1 name</div>
+                 <input class="fi pkg-detail-feat-input" value="Paper Kraft">
+                 </div>
+                 </div>
+                </div>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Open, one item hovered</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box" data-bk-do="typed">
+                <div class="pkg-detail-section pkg-sec-edit-mode" style="max-width:340px">
+                 <div class="pkg-detail-grid">
+                 <div class="pkg-detail-feat" data-mt="name">
+                 <div class="pkg-detail-feat-lbl">Material 1 name</div>
+                 <input class="fi pkg-detail-feat-input" value="Paper Kraft">
+                 </div>
+                 </div>
+                </div>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Typed</span>
+            </div>
+        </div>
+      </figure>
+      </div>
+    </section>
+
+
+  <footer class="bk-foot">
+    <span>GreenStreets — base component kit</span>
+    <span>Generated from components.html by tools/build-base-kit.py · do not hand-edit</span>
+  </footer>
+
+</div>
+
+<script src="js/gs-schema.js?v=1"></script>
+<script src="js/gs-pkg-controls.js?v=1"></script>
+<script src="js/greenstreets-theme.js?v=1"></script>
+<script src="js/base-kit.js?v=16"></script>
+</body>
+</html>

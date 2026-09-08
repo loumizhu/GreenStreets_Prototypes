@@ -1,0 +1,318 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   base-kit.css — the design sheet for base-kit.html
+
+   Everything here is prefixed `bk-` so it can never collide with a portal
+   class. It styles the SHEET (artboard, section bands, frames) and nothing
+   inside a frame: the components are drawn by the real portal stylesheets.
+
+   The file has two jobs. The first is layout. The second is FIGMA-IMPORT
+   HYGIENE — see the block at the bottom, which is the part that matters if
+   this page is going to be converted into Figma frames.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+:root{
+  --bk-canvas:#080e18;
+  --bk-frame:#0e1725;
+  --bk-frame-2:#101b2b;
+  --bk-line:rgba(148,180,230,.16);
+  --bk-line-2:rgba(148,180,230,.26);
+  --bk-ink:#ffffff;
+  --bk-ink-2:rgba(255,255,255,.66);
+  --bk-ink-3:rgba(255,255,255,.42);
+  --bk-accent:#8fe3b6;
+  --bk-gap:24px;
+  --bk-pad:48px;
+  --bk-ui:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --bk-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+body.bk-lt{
+  --bk-canvas:#eef1f6;
+  --bk-frame:#ffffff;
+  --bk-frame-2:#f7f9fc;
+  --bk-line:#e2e8f2;
+  --bk-line-2:#cfd9e9;
+  --bk-ink:#33415c;
+  --bk-ink-2:#5a6b86;
+  --bk-ink-3:#8592ab;
+  --bk-accent:#2f7d57;
+}
+
+/* The page background must be a FLAT fill, not the product's gradient: a
+   gradient behind every frame imports as one huge image layer and makes the
+   translucent component surfaces read wrong. */
+html,body.bk-body{
+  margin:0;padding:0;background:var(--bk-canvas)!important;
+  font-family:var(--bk-ui);color:var(--bk-ink);
+  -webkit-font-smoothing:antialiased;
+}
+body.bk-body::before,body.bk-body::after{content:none!important;display:none!important}
+
+/* The focus ring follows the ACCENT, not the stylesheet default.
+   greenstreets-theme.css declares `--field-stroke-color:#5b9cf6` (blue), but no
+   portal ever renders that: `gs-appearance.js` overwrites it at runtime with the
+   active accent, and the default preset is emerald `#4ebb81`. The kit does not
+   load that script - it injects a whole settings panel - so the token is set
+   here to `var(--gs)`, which IS the accent, exactly as the script would. Change
+   the accent and the ring follows, like the product. */
+.bk-artboard{--field-stroke-color:var(--gs,#4ebb81)}
+
+/* One fixed-width artboard, so the sheet maps onto a single Figma frame. */
+.bk-artboard{
+  width:1440px;margin:0 auto;padding:var(--bk-pad);
+  box-sizing:border-box;background:var(--bk-canvas);
+}
+
+/* ── cover ──────────────────────────────────────────────────────────────── */
+.bk-cover{
+  position:relative;
+  padding:44px 44px 40px;margin-bottom:56px;
+  border:1px solid var(--bk-line);border-radius:16px;background:var(--bk-frame);
+}
+.bk-eyebrow{
+  margin:0 0 10px;font-size:11px;font-weight:700;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--bk-accent);
+}
+.bk-cover h1{margin:0 0 14px;font-size:44px;line-height:1.05;font-weight:600;letter-spacing:-.02em}
+.bk-part{
+  margin:0 0 14px;font-family:var(--bk-mono);font-size:12px;font-weight:700;
+  letter-spacing:.06em;color:var(--bk-accent);
+}
+.bk-lede{margin:0;max-width:660px;font-size:14px;line-height:1.65;color:var(--bk-ink-2)}
+.bk-facts{
+  display:flex;gap:44px;margin:32px 0 0;padding:24px 0 0;
+  border-top:1px solid var(--bk-line);
+}
+.bk-facts dt{
+  margin:0 0 6px;font-size:10px;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--bk-ink-3);
+}
+.bk-facts dd{margin:0;font-size:20px;font-weight:600;font-variant-numeric:tabular-nums}
+.bk-theme{
+  position:absolute;top:44px;right:44px;
+  height:30px;padding:0 14px;border-radius:8px;cursor:pointer;
+  border:1px solid var(--bk-line-2);background:transparent;
+  color:var(--bk-ink-2);font-family:inherit;font-size:11px;font-weight:600;
+}
+.bk-theme:hover{color:var(--bk-accent);border-color:var(--bk-accent)}
+
+/* ── section band ───────────────────────────────────────────────────────── */
+.bk-sec{margin:0 0 56px}
+.bk-sec-hd{
+  display:flex;align-items:center;gap:14px;
+  margin:0 0 20px;padding-bottom:12px;border-bottom:1px solid var(--bk-line);
+}
+.bk-sec-n{
+  font-family:var(--bk-mono);font-size:12px;font-weight:700;
+  color:var(--bk-accent);min-width:24px;
+}
+.bk-sec-hd h2{margin:0;font-size:19px;font-weight:600;letter-spacing:-.01em;flex:1 1 auto}
+.bk-sec-c{
+  font-family:var(--bk-mono);font-size:11px;color:var(--bk-ink-3);
+  border:1px solid var(--bk-line);border-radius:20px;padding:2px 9px;
+}
+
+/* ── the frames ─────────────────────────────────────────────────────────── */
+.bk-grid{
+  display:grid;gap:var(--bk-gap);
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  align-items:start;
+}
+.bk-span-2{grid-column:span 2}
+.bk-span-3{grid-column:span 3}
+
+.bk-frame{
+  margin:0;min-width:0;
+  border:1px solid var(--bk-line);border-radius:12px;
+  background:var(--bk-frame);overflow:visible;
+}
+.bk-label{border-radius:11px 11px 0 0}
+/* The frame header is the handoff header: what it is, and what it is for.
+   A sheet that names a component but not its purpose makes the reader guess. */
+.bk-label{
+  display:flex;flex-direction:column;gap:3px;
+  padding:12px 16px;border-bottom:1px solid var(--bk-line);
+  background:var(--bk-frame-2);border-radius:11px 11px 0 0;
+}
+.bk-name{font-size:12.5px;font-weight:600;letter-spacing:.01em;color:var(--bk-ink)}
+.bk-purpose{font-size:11px;line-height:1.5;color:var(--bk-ink-3)}
+
+/* ── state cells ────────────────────────────────────────────────────────────
+   One cell per state, each labelled. The label sits UNDER the specimen: the
+   eye should land on the component first and read the state second. */
+.bk-states{display:flex;flex-wrap:wrap;gap:18px;align-items:stretch;padding:20px}
+.bk-states>.bk-cell{flex:1 1 0}
+.bk-cell{
+  display:flex;flex-direction:column;gap:9px;min-width:0;flex:0 1 auto;
+}
+.bk-cell-box{
+  flex:1 1 auto;display:flex;align-items:center;justify-content:center;
+  padding:22px 18px;min-height:74px;
+  border:1px dashed var(--bk-line);border-radius:9px;
+  position:relative;
+}
+.bk-span-2 .bk-cell-box,.bk-span-3 .bk-cell-box{justify-content:flex-start;padding:22px}
+.bk-cell-box>*{min-width:0;max-width:100%}
+.bk-cell-lbl{
+  flex:0 0 auto;text-align:center;
+  font-size:9.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--bk-ink-3);
+}
+/* The hover cell is marked, so nobody mistakes it for a second component. */
+.bk-cell-lbl-alt{color:var(--bk-accent)}
+.bk-cell[data-bk-variant] .bk-cell-box{border-color:rgba(143,227,182,.30)}
+/* .bk-stage was the single-specimen box, before states were drawn. The cell
+   box replaces it; the selector is kept because the Figma-hygiene block below
+   is written against it and the stage class still rides on each cell. */
+.bk-stage{position:relative}            /* NOT fixed - see the hygiene block */
+
+/* A tooltip/hint pointer is drawn with an ::after that sits OUTSIDE the
+   element box (bottom:-6px, 11px tall). The frame clips, so without extra
+   room the tail is cut off — and the tail is part of the component, not
+   decoration. Measured, not guessed: these two overflowed by 9px. */
+.bk-cell-box:has(.gs-grid-hint),
+.bk-cell-box:has(.stat-tip),
+.bk-cell-box:has([class*="-tip"]),
+.bk-stage:has(.gs-grid-hint),
+.bk-stage:has(.stat-tip),
+.bk-stage:has([class*="-tip"]){padding-bottom:46px}
+.bk-stage>*{min-width:0;max-width:100%}
+
+.bk-menu-more{
+  padding:8px 12px;border-top:1px dashed var(--bk-line-2);
+  font-size:10px;font-style:italic;color:var(--bk-ink-3);
+}
+
+/* ── appendix ───────────────────────────────────────────────────────────── */
+.bk-appendix-body{
+  border:1px solid var(--bk-line);border-radius:12px;
+  background:var(--bk-frame);padding:26px 28px;
+}
+.bk-appendix-body>p{margin:0 0 18px;max-width:720px;font-size:13px;line-height:1.65;color:var(--bk-ink-2)}
+.bk-appendix-body ul{margin:0;padding:0;list-style:none;display:grid;gap:1px;background:var(--bk-line)}
+.bk-appendix-body li{
+  display:grid;grid-template-columns:260px 1fr;gap:20px;
+  padding:12px 16px;background:var(--bk-frame);
+}
+.bk-appendix-body b{font-size:12.5px;font-weight:600;color:var(--bk-ink)}
+.bk-appendix-body span{font-size:12.5px;line-height:1.55;color:var(--bk-ink-2)}
+
+.bk-foot{
+  display:flex;justify-content:space-between;gap:20px;
+  padding-top:22px;border-top:1px solid var(--bk-line);
+  font-size:11px;color:var(--bk-ink-3);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   FIGMA-IMPORT HYGIENE
+   Read this before changing anything above.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* 1 — No backdrop blur. There are 23 `backdrop-filter` declarations across the
+   three base stylesheets. Figma cannot import a backdrop blur at all, and a
+   screenshot-based import bakes in a blur of whatever happened to sit behind
+   the element — so the glass surfaces would arrive as smeared noise. Removing
+   it makes every frame show the solid fill it should BECOME in Figma. */
+.bk-artboard *{
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+
+/* 2 — Nothing fixed. A `position:fixed` element imports as a detached layer
+   parked over the top-left of the artboard. The overlay-bearing specimens are
+   pinned in flow instead (the `cx-ov` convention from the catalogue). */
+.bk-cell-box .cs-menu,
+.bk-stage .cs-menu,
+.bk-stage .gs-ecombo-menu,
+.bk-stage .gs-colmenu,
+.bk-stage .gs-bulkbar,
+.bk-stage .docs-bulk-bar,
+.bk-stage .modal-overlay,
+.bk-stage .toast,
+.bk-stage .gst-bubble,
+.bk-stage [class*="-overlay"],
+.bk-stage [class*="-menu"],
+.bk-stage .gs-toast,
+.bk-stage .gs-grid-hint,
+.bk-stage .stat-tip,
+.bk-stage [class*="-tip"],
+.bk-stage [class*="-toast"],
+.bk-stage [class*="-hint"],
+.bk-cell-box [class*="-overlay"],
+.bk-cell-box [class*="-menu"],
+.bk-cell-box [class*="-tip"],
+.bk-cell-box [class*="-toast"],
+.bk-cell-box [class*="-hint"],
+.bk-cell-box .gs-toast,
+.bk-cell-box .gs-grid-hint,
+.bk-cell-box .stat-tip,
+.bk-cell-box .gs-bulkbar,
+.bk-cell-box .docs-bulk-bar,
+.bk-cell-box .gs-colmenu{
+  position:static!important;
+  inset:auto!important;
+  transform:none!important;
+  animation:none!important;
+}
+.bk-stage .cx-ov,
+.bk-ov .cs-menu,.bk-ov .gs-colmenu,.bk-ov .toast,
+.bk-ov .gs-bulkbar,.bk-ov .docs-bulk-bar{
+  display:block!important;opacity:1!important;visibility:visible!important;
+}
+/* The FX layer the theme JS appends to <body> is a full-viewport fixed div.
+   base-kit.js removes it; this is the belt-and-braces. */
+#gs-fx-layer,.fs-ring{display:none!important}
+
+/* 3 — No motion in a still. Every transition and animation is off, so a
+   capture cannot catch a component mid-tween and import a half-faded layer. */
+.bk-artboard *,.bk-artboard *::before,.bk-artboard *::after{
+  animation:none!important;
+  transition:none!important;
+}
+
+/* 3b — The built-in-flow menus must not resize their own field.
+   An unopened `.cs-menu` is created by the enhancer inside the wrap; forced
+   into flow by the rule above it renders as an empty 12x12 stub, so it is
+   hidden until it is actually open. And a long option must WRAP rather than
+   widen the control: the editable dropdown's vocabulary contains values long
+   enough to push its field from 106px to 524px, overflowing both its own
+   section and the frame. */
+.bk-cell-box .cs-menu:not(.open){display:none!important}
+.bk-cell-box .cs-wrap,
+.bk-cell-box .gs-ecombo{width:100%!important;min-width:0!important;max-width:100%!important}
+.bk-cell-box .pkg-detail-section,
+.bk-cell-box .pkg-detail-grid,
+.bk-cell-box .pkg-detail-feat{min-width:0!important;max-width:100%!important}
+/* `.pkg-detail-grid` is a TWO-column form grid, but a kit frame holds a single
+   field - so the control was given half the width (106px of 232px) and the
+   vocabulary wrapped hard in the open menu. One column per cell. */
+.bk-cell-box .pkg-detail-grid{grid-template-columns:1fr!important}
+/* The section's own card padding is chrome for a real page; inside a frame the
+   frame already provides the padding, and those 32px are the difference between
+   an option that fits on one line and one that wraps. */
+.bk-cell-box .pkg-detail-section{padding:0!important;background:none!important;border:0!important}
+/* The cell is a flex container, so the section was a flex item sizing to its
+   CONTENT (196px) instead of to the cell (598px) - which is why widening the
+   cell alone did nothing. Stretch it. */
+.bk-cell-box>.pkg-detail-section{flex:1 1 auto;width:100%!important}
+.bk-cell-box .cs-menu{
+  width:100%!important;min-width:0!important;max-width:100%!important;
+  box-sizing:border-box;
+}
+.bk-cell-box .cs-opt{white-space:normal!important;overflow-wrap:anywhere;height:auto!important}
+
+/* The material vocabulary holds values up to 84 characters ("Paper GD2 -
+   Coated WLC, grey back (spec.volume 1.3 to 1.45 cm3/g)..."), so no 4-up row
+   of cells can show one on a single line - at 266px every option wrapped to
+   two. Cells in this frame get a large min-width so the row wraps 2-up and
+   each field is ~600px, which fits nearly every value. */
+.bk-frame[data-frame="Editable dropdown list"] .bk-cell{min-width:560px}
+
+/* 4 — Scrollable regions must be fully drawn. An `overflow:auto` box exports
+   only the visible slice, silently truncating a table or a long menu. */
+.bk-cell-box .tbl-wrap,
+.bk-stage .tbl-wrap,
+.bk-stage .cs-menu,
+.bk-stage .gs-ecombo-menu,
+.bk-stage [class*="-menu"]{
+  max-height:none!important;overflow:visible!important;
+}

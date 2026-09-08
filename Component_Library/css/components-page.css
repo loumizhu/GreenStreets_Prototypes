@@ -24,6 +24,7 @@
   --cx-line-2:rgba(148,180,230,.30);
   --cx-stage:rgba(4,10,20,.34);
   --cx-code-bg:rgba(3,8,16,.72);
+  --cx-code-bg-2:rgba(10,20,34,.86);   /* the CSS drawer, a shade off the code panes */
   --cx-code-ink:#c8dcf5;
   --cx-accent:#8fe3b6;
   --cx-shadow:0 18px 46px -18px rgba(2,6,14,.62);
@@ -49,6 +50,7 @@ body.lt{
   --cx-line-2:#cfd9e9;
   --cx-stage:rgba(246,248,251,.85);
   --cx-code-bg:#f4f7fc;
+  --cx-code-bg-2:#eaeff7;
   --cx-code-ink:#41506d;
   --cx-accent:#4f9d78;
   --cx-shadow:0 14px 34px -18px rgba(60,80,120,.35);
@@ -404,7 +406,7 @@ body.lt .cx-v{color:#39885f}
 .cx-tri>.cx-stage{border-right:1px solid var(--cx-line);border-bottom:1px solid var(--cx-line)}
 .cx-stage-center{display:flex;align-items:center;justify-content:center;padding:26px 20px;min-height:150px}
 .cx-stage-center>*{max-width:100%}
-.cx-codes{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);min-width:0}
+.cx-codes{display:grid;min-width:0}
 .cx-codes>.cx-code+.cx-code{border-left:1px solid var(--cx-line)}
 
 .cx-item-hdr-tsx{align-items:flex-start;gap:12px;padding:13px 14px 12px}
@@ -606,6 +608,12 @@ body.lt .cx-props tbody tr:hover td{background:rgba(80,110,160,.05)}
   color:var(--cx-ink-3);background:rgba(148,180,230,.10);border-color:var(--cx-line);
 }
 .cx-st-na .cx-st-d{color:var(--cx-ink-3);font-style:italic}
+/* "not defined yet" is a GAP, not an absence — amber, like a recommendation,
+   because it is something for the port to decide rather than something the
+   component cannot do. */
+.cx-st-undef .cx-st-w{
+  color:var(--cx-doc-warn);background:var(--cx-doc-warn-w);border-color:var(--cx-doc-warn-b);
+}
 
 /* — responsive — */
 .cx-rs-lbl{
@@ -651,4 +659,70 @@ body.lt .cx-props tbody tr:hover td{background:rgba(80,110,160,.05)}
   .cx-pt{max-width:none}
   .cx-px{min-width:0}
   .cx-doc-body{max-height:300px}
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   COLUMN 4 — the plain-CSS drawer
+
+   Half the width of the Usage pane, and shut until asked for. While it is
+   shut its track collapses to the width of its own header rather than holding
+   an empty half-width column, so a closed drawer costs the card nothing.
+   ══════════════════════════════════════════════════════════════════════════ */
+.cx-code-css{
+  background:var(--cx-code-bg-2);            /* deliberately not --cx-code-bg */
+  border-left:1px solid var(--cx-line);
+}
+.cx-code-css .cx-code-hd{gap:6px;padding-left:8px}
+
+/* The label + chevron is the hit target; Copy sits beside it, not inside
+   (a button inside a button is invalid and Chrome drops the inner one). */
+.cx-css-toggle{
+  display:inline-flex;align-items:center;gap:6px;flex-shrink:0;
+  height:22px;padding:0 6px 0 4px;border:0;border-radius:6px;
+  background:transparent;color:var(--cx-ink-3);
+  font-family:inherit;cursor:pointer;
+}
+.cx-css-toggle:hover{color:var(--cx-accent);background:rgba(148,180,230,.10)}
+.cx-css-chev{
+  width:0;height:0;flex-shrink:0;
+  border-left:5px solid currentColor;
+  border-top:4px solid transparent;border-bottom:4px solid transparent;
+  transition:transform .16s ease;
+}
+.cx-css-open .cx-css-chev{transform:rotate(90deg)}
+.cx-css-count{
+  font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  opacity:.66;white-space:nowrap;
+}
+/* Shut: the drawer is a slim tab, so there is nothing to copy yet. */
+.cx-code-css:not(.cx-css-open) .cx-code-copy{display:none}
+/* Half the width of a code pane is ~150px, so this one WRAPS instead of
+   scrolling sideways: a horizontal scrollbar per declaration would make the
+   drawer unreadable, and unlike the TSX panes there is no indentation here
+   worth preserving beyond the two-space declaration indent. */
+.cx-code-css .cx-code-body{
+  max-height:460px;padding:10px 11px;font-size:10.5px;line-height:1.6;
+  white-space:pre-wrap;overflow-wrap:anywhere;
+}
+
+.cx-css-note{
+  margin:0;padding:7px 11px 9px;border-top:1px solid var(--cx-line);
+  font-size:9.5px;line-height:1.5;color:var(--cx-ink-3);   /* inherits the UI font, not the pane's mono */
+}
+.cx-css-note code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:9px}
+
+/* A preview that cannot live in the 300px column takes its own row instead —
+   see layoutStages() for how a card is picked. */
+.cx-tri-stack{grid-template-columns:minmax(0,1fr)}
+.cx-tri-stack>.cx-stage{border-right:0;border-bottom:1px solid var(--cx-line)}
+.cx-tri-stack .cx-stage-center{min-height:0;padding:20px}
+
+/* Four tracks. The drawer opens to half the Usage pane's width. */
+.cx-codes{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr) auto}
+.cx-codes-css-open{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr) minmax(0,.5fr)}
+
+@media (max-width:1340px){
+  /* Stacked: an "auto" track would stretch full width, so pin the shut
+     drawer to its header height instead and let the open one grow. */
+  .cx-codes,.cx-codes-css-open{grid-template-columns:minmax(0,1fr)}
 }

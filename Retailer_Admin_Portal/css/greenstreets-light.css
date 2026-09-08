@@ -79,6 +79,7 @@ body.lt .sidebar{
 }
 body.lt .sb-logo-zone{background:var(--lt-logo-bg);border-bottom:1px solid var(--lt-sb-stroke)}
 body.lt .sb-logo{filter:none}
+body.lt .sidebar.sb-collapsed .sb-logo-zone::after{filter:none}
 body.lt .sb-section{color:var(--lt-ink-3)}
 body.lt .nav-item{color:var(--lt-ink-2)}
 body.lt .nav-item:hover{background:rgba(110,168,254,.10);color:var(--lt-ink)}

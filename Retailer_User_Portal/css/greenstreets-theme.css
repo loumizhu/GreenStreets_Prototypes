@@ -385,7 +385,16 @@ select.fi option{background-color:#0f2038;color:var(--tw)}
 .sidebar.sb-collapsed .sb-notif-label{display:none}
 .sidebar.sb-collapsed .sb-user{justify-content:center;padding-left:0;padding-right:0}
 .sidebar.sb-collapsed .sb-user-info,.sidebar.sb-collapsed .sb-logout{display:none}
+/* collapsed rail swaps the wordmark for the compact Greenstreets mark (the
+   favicon tile) — the full logo is unreadable at 64px, and hiding it entirely
+   left the rail with no brand at all. */
+.sidebar.sb-collapsed .sb-logo-zone{padding:var(--sp-3) 6px}
 .sidebar.sb-collapsed .sb-logo{display:none}
+.sidebar.sb-collapsed .sb-logo-zone::after{
+  content:"";display:block;width:34px;height:34px;margin:0 auto;border-radius:8px;
+  background:url('../../img/greenstreet-favicon.png') center/contain no-repeat;
+  filter:drop-shadow(0 1px 6px rgba(0,0,0,.3));
+}
 
 /* ── MAIN ── */
 .main{flex:1;overflow-y:auto;padding:var(--sp-6);position:relative}

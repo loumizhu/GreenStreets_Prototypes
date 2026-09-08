@@ -9,6 +9,13 @@ cls(){ grep -oE '\.[a-zA-Z][a-zA-Z0-9_-]*' "$1" | sort -u | tr -d '.'; }
 cp Supplier_Portal/css/greenstreets-theme.css  $D/css/greenstreets-theme.css
 cp Supplier_Portal/css/supplier-portal.css     $D/css/supplier-portal.css
 cp Supplier_Portal/css/greenstreets-light.css  $D/css/greenstreets-light.css
+
+# The editable-combo builder, so the "Editable dropdown list" specimen is driven
+# by the REAL implementation instead of a static reproduction. The Retailer User
+# copy is the standalone file (the Supplier Portal has the same code inline in
+# supplier-portal.js). It has no auto-init — it only acts when called — so
+# loading it on the catalogue page is side-effect free.
+cp Retailer_User_Portal/js/gs-pkg-controls.js  $D/js/gs-pkg-controls.js
 cp Supplier_Portal/js/greenstreets-theme.js    $D/js/greenstreets-theme.js
 cp Supplier_Portal/js/gs-schema.js             $D/js/gs-schema.js
 
@@ -48,5 +55,8 @@ python $D/tools/extract-css-index.py
 
 # 4 — the Next.js/Tailwind code shown beside each specimen (needs step 3)
 python $D/tools/build-tsx.py
+
+# The base-only design sheet for Figma import (base-kit.html).
+python $D/tools/build-base-kit.py
 
 echo "Regenerated. Bump the ?v=N query on the <link>/<script> tags in $D/components.html."

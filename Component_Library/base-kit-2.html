@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>GreenStreets — Base component kit 2/4</title>
+<meta name="description" content="The base components of the GreenStreets design system, laid out as a design sheet for import into Figma. No code.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<!-- The REAL portal stylesheets, in portal load order: every frame below is
+     rendered by the CSS that ships in the prototypes, not by a redraw. -->
+<link rel="stylesheet" href="css/greenstreets-theme.css?v=1">
+<link rel="stylesheet" href="css/supplier-portal.css?v=1">
+<link rel="stylesheet" href="css/portal-extras.css?v=1">
+<link rel="stylesheet" href="css/greenstreets-light.css?v=1">
+<link rel="stylesheet" href="css/portal-extras-light.css?v=1">
+<!-- The sheet's own layout, plus the Figma-import hygiene overrides -->
+<link rel="stylesheet" href="css/base-kit.css?v=16">
+<!-- GENERATED: the real :hover declarations, re-applied under .bk-st-hover
+     so this static sheet can draw the hover state. See tools/kit_states.py -->
+<link rel="stylesheet" href="css/base-kit-states.css?v=16">
+</head>
+<body class="bk-body">
+
+<div class="bk-artboard">
+
+  <header class="bk-cover">
+    <div class="bk-cover-main">
+      <p class="bk-eyebrow">GreenStreets design system</p>
+      <h1>Base component kit</h1>
+      <p class="bk-part">Part 2 of 4</p>
+      <p class="bk-lede">Every base component in the system — one primitive per frame, drawn by the
+        production stylesheets. Where a component's hover changes its appearance, that state is drawn
+        beside the default, from the real <code>:hover</code> declarations. Compositions, code and
+        documentation live in the component library; this sheet is the drawing.</p>
+    </div>
+    <dl class="bk-facts">
+      <div><dt>Frames</dt><dd>13</dd></div>
+      <div><dt>Sections</dt><dd>4</dd></div>
+      <div><dt>State cells</dt><dd>32</dd></div>
+      <div><dt>Theme</dt><dd>Dark (primary)</dd></div>
+      <div><dt>Generated</dt><dd>2026-09-08</dd></div>
+    </dl>
+    <button class="bk-theme" type="button" id="bkTheme" aria-pressed="false">Light theme</button>
+  </header>
+
+    <section class="bk-sec">
+      <header class="bk-sec-hd">
+        <span class="bk-sec-n">04</span>
+        <h2>Selection controls</h2>
+        <span class="bk-sec-c">2</span>
+      </header>
+      <div class="bk-grid">
+      <figure class="bk-frame bk-span-3" data-frame="Segmented control" data-cells="4">
+        <figcaption class="bk-label">
+          <span class="bk-name">Segmented control</span>
+          <span class="bk-purpose">A mutually-exclusive row where every option stays visible — used for a short closed vocabulary (2–5 options); longer lists fall back to the themed select.</span>
+        </figcaption>
+        <div class="bk-states">
+            <div class="bk-cell">
+              <div class="bk-cell-box">
+                <div class="pkg-detail-section pkg-sec-edit-mode" style="max-width:520px">
+                 <div class="pkg-detail-grid">
+                 <div class="pkg-detail-feat gs-has-seg">
+                 <div class="pkg-detail-feat-lbl">Packaging Level</div>
+                 <div class="gs-seg" role="radiogroup" aria-label="Packaging level">
+                 <button type="button" class="gs-seg-opt on">Primary</button>
+                 <button type="button" class="gs-seg-opt">Secondary</button>
+                 <button type="button" class="gs-seg-opt">Tertiary</button>
+                 </div>
+                 </div>
+                 </div>
+                </div>
+              </div>
+              <span class="bk-cell-lbl">Default</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box bk-st-hover">
+                <div class="pkg-detail-section pkg-sec-edit-mode" style="max-width:520px">
+                 <div class="pkg-detail-grid">
+                 <div class="pkg-detail-feat gs-has-seg">
+                 <div class="pkg-detail-feat-lbl">Packaging Level</div>
+                 <div class="gs-seg" role="radiogroup" aria-label="Packaging level">
+                 <button type="button" class="gs-seg-opt on">Primary</button>
+                 <button type="button" class="gs-seg-opt">Secondary</button>
+                 <button type="button" class="gs-seg-opt">Tertiary</button>
+                 </div>
+                 </div>
+                 </div>
+                </div>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Hover</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box bk-st-focus">
+                <div class="pkg-detail-section pkg-sec-edit-mode" style="max-width:520px">
+                 <div class="pkg-detail-grid">
+                 <div class="pkg-detail-feat gs-has-seg">
+                 <div class="pkg-detail-feat-lbl">Packaging Level</div>
+                 <div class="gs-seg" role="radiogroup" aria-label="Packaging level">
+                 <button type="button" class="gs-seg-opt on">Primary</button>
+                 <button type="button" class="gs-seg-opt">Secondary</button>
+                 <button type="button" class="gs-seg-opt">Tertiary</button>
+                 </div>
+                 </div>
+                 </div>
+                </div>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Focus</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box" data-bk-do="seg-next">
+                <div class="pkg-detail-section pkg-sec-edit-mode" style="max-width:520px">
+                 <div class="pkg-detail-grid">
+                 <div class="pkg-detail-feat gs-has-seg">
+                 <div class="pkg-detail-feat-lbl">Packaging Level</div>
+                 <div class="gs-seg" role="radiogroup" aria-label="Packaging level">
+                 <button type="button" class="gs-seg-opt on">Primary</button>
+                 <button type="button" class="gs-seg-opt">Secondary</button>
+                 <button type="button" class="gs-seg-opt">Tertiary</button>
+                 </div>
+                 </div>
+                 </div>
+                </div>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Second option selected</span>
+            </div>
+        </div>
+      </figure>
+      <figure class="bk-frame bk-span-3" data-frame="Checkbox" data-cells="5">
+        <figcaption class="bk-label">
+          <span class="bk-name">Checkbox</span>
+          <span class="bk-purpose">Native checkboxes are restyled (dark fill, green when checked) so listings look consistent.</span>
+        </figcaption>
+        <div class="bk-states">
+            <div class="bk-cell">
+              <div class="bk-cell-box">
+                <div class="cx-row">
+                 <label style="display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--tw2)">
+                 <input type="checkbox" class="gs-row-check"> Include in this report
+                 </label>
+                </div>
+              </div>
+              <span class="bk-cell-lbl">Unchecked</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box bk-st-hover">
+                <div class="cx-row">
+                 <label style="display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--tw2)">
+                 <input type="checkbox" class="gs-row-check"> Include in this report
+                 </label>
+                </div>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Hover</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box bk-st-focus">
+                <div class="cx-row">
+                 <label style="display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--tw2)">
+                 <input type="checkbox" class="gs-row-check"> Include in this report
+                 </label>
+                </div>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Focus</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box" data-bk-do="checked">
+                <div class="cx-row">
+                 <label style="display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--tw2)">
+                 <input type="checkbox" class="gs-row-check"> Include in this report
+                 </label>
+                </div>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Checked</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box" data-bk-do="indeterminate">
+                <div class="cx-row">
+                 <label style="display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--tw2)">
+                 <input type="checkbox" class="gs-row-check"> Include in this report
+                 </label>
+                </div>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Indeterminate</span>
+            </div>
+        </div>
+      </figure>
+      </div>
+    </section>
+    <section class="bk-sec">
+      <header class="bk-sec-hd">
+        <span class="bk-sec-n">05</span>
+        <h2>Alerts &amp; feedback</h2>
+        <span class="bk-sec-c">4</span>
+      </header>
+      <div class="bk-grid">
+      <figure class="bk-frame bk-span-1" data-frame="Alert banner" data-cells="1">
+        <figcaption class="bk-label">
+          <span class="bk-name">Alert banner</span>
+          <span class="bk-purpose">An in-page banner for a condition that persists — 3 submissions awaiting review, an EPR window closing.</span>
+        </figcaption>
+        <div class="bk-states">
+            <div class="bk-cell">
+              <div class="bk-cell-box">
+                <div class="cx-row-v" style="width:100%">
+                 <div class="alert alert-info">
+                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5b9cf6" stroke-width="2" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                 <span>3 submissions at Supplier Complete — review each before generating a DoC</span>
+                 </div>
+                 <div class="alert alert-warn">
+                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f5a623" stroke-width="2" style="flex-shrink:0"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg>
+                 <span>Citeo Q2 submission closes in 48 hours — 3 product weights are still missing</span>
+                 </div>
+                 <div class="alert" style="background:rgba(78,187,129,.08);border:1px solid rgba(78,187,129,.24);color:#8fe3b6">
+                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" style="flex-shrink:0"><path d="M20 6 9 17l-5-5"/></svg>
+                 <span>Declaration of Conformity issued for 12 products</span>
+                 </div>
+                 <div class="alert" style="background:rgba(224,96,90,.08);border:1px solid rgba(224,96,90,.26);color:#f0a09b">
+                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6M9 9l6 6"/></svg>
+                 <span>Import failed — row 42 has no SKU. Fix the file and upload again.</span>
+                 </div>
+                </div>
+              </div>
+              <span class="bk-cell-lbl">Default</span>
+            </div>
+        </div>
+      </figure>
+      <figure class="bk-frame bk-span-2" data-frame="Toast" data-cells="1">
+        <figcaption class="bk-label">
+          <span class="bk-name">Toast</span>
+          <span class="bk-purpose">A transient confirmation of something the user just did — component saved, reminder sent.</span>
+        </figcaption>
+        <div class="bk-states">
+            <div class="bk-cell">
+              <div class="bk-cell-box cx-ov">
+                <div class="gs-toast show">Swing Tag saved · 8 of 9 sections complete</div>
+              </div>
+              <span class="bk-cell-lbl">Default</span>
+            </div>
+        </div>
+      </figure>
+      <figure class="bk-frame bk-span-3" data-frame="Keyboard coach hint" data-cells="3">
+        <figcaption class="bk-label">
+          <span class="bk-name">Keyboard coach hint</span>
+          <span class="bk-purpose">A one-time hint above the first focused row of a data grid, teaching the arrow-key model that a spreadsheet-trained supplier will expect but not discover.</span>
+        </figcaption>
+        <div class="bk-states">
+            <div class="bk-cell">
+              <div class="bk-cell-box cx-ov">
+                <div class="gs-grid-hint">
+                 <span class="gs-grid-hint-keys">↑ ↓</span> move between rows<span class="gs-grid-hint-keys">Enter</span> opens
+                 <button class="gs-grid-hint-x" title="Dismiss" aria-label="Dismiss hint">&times;</button>
+                </div>
+              </div>
+              <span class="bk-cell-lbl">Default</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box cx-ov bk-st-hover">
+                <div class="gs-grid-hint">
+                 <span class="gs-grid-hint-keys">↑ ↓</span> move between rows<span class="gs-grid-hint-keys">Enter</span> opens
+                 <button class="gs-grid-hint-x" title="Dismiss" aria-label="Dismiss hint">&times;</button>
+                </div>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Hover</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box cx-ov bk-st-focus">
+                <div class="gs-grid-hint">
+                 <span class="gs-grid-hint-keys">↑ ↓</span> move between rows<span class="gs-grid-hint-keys">Enter</span> opens
+                 <button class="gs-grid-hint-x" title="Dismiss" aria-label="Dismiss hint">&times;</button>
+                </div>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Focus</span>
+            </div>
+        </div>
+      </figure>
+      <figure class="bk-frame bk-span-1" data-frame="Post-MVP note" data-cells="1">
+        <figcaption class="bk-label">
+          <span class="bk-name">Post-MVP note</span>
+          <span class="bk-purpose">An inline marker on a control that is visible in the prototype but out of scope for the first release — multi-jurisdiction, some EPR automations.</span>
+        </figcaption>
+        <div class="bk-states">
+            <div class="bk-cell">
+              <div class="bk-cell-box">
+                <div class="postmvp-note">Multi-jurisdiction reporting arrives after MVP — a retailer is provisioned in a single market for now.</div>
+              </div>
+              <span class="bk-cell-lbl">Default</span>
+            </div>
+        </div>
+      </figure>
+      </div>
+    </section>
+    <section class="bk-sec">
+      <header class="bk-sec-hd">
+        <span class="bk-sec-n">06</span>
+        <h2>Cards &amp; surfaces</h2>
+        <span class="bk-sec-c">2</span>
+      </header>
+      <div class="bk-grid">
+      <figure class="bk-frame bk-span-2" data-frame="Card" data-cells="2">
+        <figcaption class="bk-label">
+          <span class="bk-name">Card</span>
+          <span class="bk-purpose">The default surface for a group of related content, with an optional header row for its title and actions.</span>
+        </figcaption>
+        <div class="bk-states">
+            <div class="bk-cell">
+              <div class="bk-cell-box">
+                <div class="grids">
+                 <div class="grp">
+                 <div class="grp-hdr">Company details</div>
+                 <div class="grp-body">
+                 <div class="fgrp"><div class="flbl">Legal name</div><input class="fi" value="Primark Stores Ltd"></div>
+                 <div class="fgrp" style="margin-bottom:0"><div class="flbl">VAT</div><input class="fi" value="IE1234567T"></div>
+                 </div>
+                 </div>
+                 <div class="grp">
+                 <div class="grp-hdr">Jurisdiction</div>
+                 <div class="grp-body">
+                 <div class="recap-row"><span class="recap-key">Market</span><span class="recap-val">Ireland</span></div>
+                 <div class="recap-row"><span class="recap-key">Region</span><span class="recap-val">EU · eu-west-1</span></div>
+                 <div class="recap-row"><span class="recap-key">Multi-jur.</span><span class="recap-val" style="color:var(--tw3)">Post-MVP</span></div>
+                 </div>
+                 </div>
+                </div>
+              </div>
+              <span class="bk-cell-lbl">Default</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box bk-st-focus">
+                <div class="grids">
+                 <div class="grp">
+                 <div class="grp-hdr">Company details</div>
+                 <div class="grp-body">
+                 <div class="fgrp"><div class="flbl">Legal name</div><input class="fi" value="Primark Stores Ltd"></div>
+                 <div class="fgrp" style="margin-bottom:0"><div class="flbl">VAT</div><input class="fi" value="IE1234567T"></div>
+                 </div>
+                 </div>
+                 <div class="grp">
+                 <div class="grp-hdr">Jurisdiction</div>
+                 <div class="grp-body">
+                 <div class="recap-row"><span class="recap-key">Market</span><span class="recap-val">Ireland</span></div>
+                 <div class="recap-row"><span class="recap-key">Region</span><span class="recap-val">EU · eu-west-1</span></div>
+                 <div class="recap-row"><span class="recap-key">Multi-jur.</span><span class="recap-val" style="color:var(--tw3)">Post-MVP</span></div>
+                 </div>
+                 </div>
+                </div>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Focus</span>
+            </div>
+        </div>
+      </figure>
+      <figure class="bk-frame bk-span-3" data-frame="Stat cards" data-cells="2">
+        <figcaption class="bk-label">
+          <span class="bk-name">Stat cards</span>
+          <span class="bk-purpose">Body-level KPI cards in a 3- or 4-up grid above a listing.</span>
+        </figcaption>
+        <div class="bk-states">
+            <div class="bk-cell">
+              <div class="bk-cell-box">
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px">
+                 <div class="stat"><div class="stat-lbl">Total products</div><div class="stat-val">64</div></div>
+                 <div class="stat"><div class="stat-lbl">Packaging complete</div><div class="stat-val" style="color:#8fe3b6">16</div></div>
+                 <div class="stat"><div class="stat-lbl">Awaiting packaging data</div><div class="stat-val" style="color:#f5a623">48</div></div>
+                </div>
+              </div>
+              <span class="bk-cell-lbl">Default</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box bk-st-hover">
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px">
+                 <div class="stat"><div class="stat-lbl">Total products</div><div class="stat-val">64</div></div>
+                 <div class="stat"><div class="stat-lbl">Packaging complete</div><div class="stat-val" style="color:#8fe3b6">16</div></div>
+                 <div class="stat"><div class="stat-lbl">Awaiting packaging data</div><div class="stat-val" style="color:#f5a623">48</div></div>
+                </div>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Hover</span>
+            </div>
+        </div>
+      </figure>
+      </div>
+    </section>
+    <section class="bk-sec">
+      <header class="bk-sec-hd">
+        <span class="bk-sec-n">07</span>
+        <h2>Tables &amp; data grid</h2>
+        <span class="bk-sec-c">5</span>
+      </header>
+      <div class="bk-grid">
+      <figure class="bk-frame bk-span-3" data-frame="Table" data-cells="2">
+        <figcaption class="bk-label">
+          <span class="bk-name">Table</span>
+          <span class="bk-purpose">A fixed contextual table with no toolbar — an import preview, a DoC request context block.</span>
+        </figcaption>
+        <div class="bk-states">
+            <div class="bk-cell">
+              <div class="bk-cell-box">
+                <div class="tbl-wrap">
+                 <table class="tbl" data-nosort>
+                 <thead><tr><th>Row</th><th>SKU</th><th>Description</th><th>Weight</th><th>Result</th></tr></thead>
+                 <tbody>
+                 <tr><td class="tbl-muted">1</td><td><div class="tbl-name">PRM-04871</div><div class="tbl-sub">Tops</div></td><td>Ribbed jersey tee</td><td class="tbl-val">184 g</td><td><span class="pill pill-green">Ready</span></td></tr>
+                 <tr><td class="tbl-muted">2</td><td><div class="tbl-name">PRM-04872</div><div class="tbl-sub">Tops</div></td><td>Ribbed jersey tee — long sleeve</td><td class="tbl-val">211 g</td><td><span class="pill pill-green">Ready</span></td></tr>
+                 <tr><td class="tbl-muted">3</td><td><div class="tbl-name">PRM-04873</div><div class="tbl-sub">—</div></td><td class="tbl-warn">Missing description</td><td class="tbl-val tbl-warn">—</td><td><span class="pill pill-amber">Needs review</span></td></tr>
+                 </tbody>
+                 </table>
+                </div>
+              </div>
+              <span class="bk-cell-lbl">Default</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box" data-bk-do="row-selected">
+                <div class="tbl-wrap">
+                 <table class="tbl" data-nosort>
+                 <thead><tr><th>Row</th><th>SKU</th><th>Description</th><th>Weight</th><th>Result</th></tr></thead>
+                 <tbody>
+                 <tr><td class="tbl-muted">1</td><td><div class="tbl-name">PRM-04871</div><div class="tbl-sub">Tops</div></td><td>Ribbed jersey tee</td><td class="tbl-val">184 g</td><td><span class="pill pill-green">Ready</span></td></tr>
+                 <tr><td class="tbl-muted">2</td><td><div class="tbl-name">PRM-04872</div><div class="tbl-sub">Tops</div></td><td>Ribbed jersey tee — long sleeve</td><td class="tbl-val">211 g</td><td><span class="pill pill-green">Ready</span></td></tr>
+                 <tr><td class="tbl-muted">3</td><td><div class="tbl-name">PRM-04873</div><div class="tbl-sub">—</div></td><td class="tbl-warn">Missing description</td><td class="tbl-val tbl-warn">—</td><td><span class="pill pill-amber">Needs review</span></td></tr>
+                 </tbody>
+                 </table>
+                </div>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Row selected</span>
+            </div>
+        </div>
+      </figure>
+      <figure class="bk-frame bk-span-3" data-frame="Sortable header" data-cells="4">
+        <figcaption class="bk-label">
+          <span class="bk-name">Sortable header</span>
+          <span class="bk-purpose">It skips action columns — empty headers, ones labelled &#x27;Actions&#x27;, and ones whose body cells contain a  — so they never become a stray focus target.</span>
+        </figcaption>
+        <div class="bk-states">
+            <div class="bk-cell">
+              <div class="bk-cell-box">
+                <div class="tbl-wrap">
+                 <table class="tbl">
+                 <thead><tr><th>SKU</th><th>Category</th><th>Weight</th><th>Actions</th></tr></thead>
+                 <tbody>
+                 <tr><td>PRM-04871</td><td>Tops</td><td class="tbl-val">184</td><td><button class="btn-g-sm">Open</button></td></tr>
+                 <tr><td>PRM-04102</td><td>Dresses</td><td class="tbl-val">96</td><td><button class="btn-g-sm">Open</button></td></tr>
+                 <tr><td>PRM-04990</td><td>Footwear</td><td class="tbl-val">640</td><td><button class="btn-g-sm">Open</button></td></tr>
+                 </tbody>
+                 </table>
+                </div>
+              </div>
+              <span class="bk-cell-lbl">Unsorted</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box bk-st-focus">
+                <div class="tbl-wrap">
+                 <table class="tbl">
+                 <thead><tr><th>SKU</th><th>Category</th><th>Weight</th><th>Actions</th></tr></thead>
+                 <tbody>
+                 <tr><td>PRM-04871</td><td>Tops</td><td class="tbl-val">184</td><td><button class="btn-g-sm">Open</button></td></tr>
+                 <tr><td>PRM-04102</td><td>Dresses</td><td class="tbl-val">96</td><td><button class="btn-g-sm">Open</button></td></tr>
+                 <tr><td>PRM-04990</td><td>Footwear</td><td class="tbl-val">640</td><td><button class="btn-g-sm">Open</button></td></tr>
+                 </tbody>
+                 </table>
+                </div>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Focus</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box" data-bk-do="sort-asc">
+                <div class="tbl-wrap">
+                 <table class="tbl">
+                 <thead><tr><th>SKU</th><th>Category</th><th>Weight</th><th>Actions</th></tr></thead>
+                 <tbody>
+                 <tr><td>PRM-04871</td><td>Tops</td><td class="tbl-val">184</td><td><button class="btn-g-sm">Open</button></td></tr>
+                 <tr><td>PRM-04102</td><td>Dresses</td><td class="tbl-val">96</td><td><button class="btn-g-sm">Open</button></td></tr>
+                 <tr><td>PRM-04990</td><td>Footwear</td><td class="tbl-val">640</td><td><button class="btn-g-sm">Open</button></td></tr>
+                 </tbody>
+                 </table>
+                </div>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Sorted ascending</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box" data-bk-do="sort-desc">
+                <div class="tbl-wrap">
+                 <table class="tbl">
+                 <thead><tr><th>SKU</th><th>Category</th><th>Weight</th><th>Actions</th></tr></thead>
+                 <tbody>
+                 <tr><td>PRM-04871</td><td>Tops</td><td class="tbl-val">184</td><td><button class="btn-g-sm">Open</button></td></tr>
+                 <tr><td>PRM-04102</td><td>Dresses</td><td class="tbl-val">96</td><td><button class="btn-g-sm">Open</button></td></tr>
+                 <tr><td>PRM-04990</td><td>Footwear</td><td class="tbl-val">640</td><td><button class="btn-g-sm">Open</button></td></tr>
+                 </tbody>
+                 </table>
+                </div>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Sorted descending</span>
+            </div>
+        </div>
+      </figure>
+      <figure class="bk-frame bk-span-3" data-frame="Bulk-selection bar" data-cells="3">
+        <figcaption class="bk-label">
+          <span class="bk-name">Bulk-selection bar</span>
+          <span class="bk-purpose">Floats in as soon as one row is ticked: the count, the actions that apply to a selection, and Clear.</span>
+        </figcaption>
+        <div class="bk-states">
+            <div class="bk-cell">
+              <div class="bk-cell-box cx-ov">
+                <div class="gs-bulkbar">
+                 <span class="gs-bulk-count">3 selected</span>
+                 <button class="gs-bulk-btn">Export selected</button>
+                 <button class="gs-bulk-btn">Send reminder</button>
+                 <button class="gs-bulk-btn">Clear</button>
+                </div>
+              </div>
+              <span class="bk-cell-lbl">Default</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box cx-ov bk-st-hover">
+                <div class="gs-bulkbar">
+                 <span class="gs-bulk-count">3 selected</span>
+                 <button class="gs-bulk-btn">Export selected</button>
+                 <button class="gs-bulk-btn">Send reminder</button>
+                 <button class="gs-bulk-btn">Clear</button>
+                </div>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Hover</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box cx-ov bk-st-focus">
+                <div class="gs-bulkbar">
+                 <span class="gs-bulk-count">3 selected</span>
+                 <button class="gs-bulk-btn">Export selected</button>
+                 <button class="gs-bulk-btn">Send reminder</button>
+                 <button class="gs-bulk-btn">Clear</button>
+                </div>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Focus</span>
+            </div>
+        </div>
+      </figure>
+      <figure class="bk-frame bk-span-2" data-frame="Column chooser" data-cells="2">
+        <figcaption class="bk-label">
+          <span class="bk-name">Column chooser</span>
+          <span class="bk-purpose">Behind the Columns tool: a checkbox per column that shows/hides it, also zeroing the matching  width on colgroup tables.</span>
+        </figcaption>
+        <div class="bk-states">
+            <div class="bk-cell">
+              <div class="bk-cell-box cx-ov">
+                <div class="gs-colmenu">
+                 <label><input type="checkbox" class="gs-row-check" checked> Supplier</label>
+                 <label><input type="checkbox" class="gs-row-check" checked> Country</label>
+                 <label><input type="checkbox" class="gs-row-check" checked> Products</label>
+                 <label><input type="checkbox" class="gs-row-check"> Last submission</label>
+                 <label><input type="checkbox" class="gs-row-check" checked> Status</label>
+                </div>
+              </div>
+              <span class="bk-cell-lbl">Default</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box cx-ov bk-st-focus">
+                <div class="gs-colmenu">
+                 <label><input type="checkbox" class="gs-row-check" checked> Supplier</label>
+                 <label><input type="checkbox" class="gs-row-check" checked> Country</label>
+                 <label><input type="checkbox" class="gs-row-check" checked> Products</label>
+                 <label><input type="checkbox" class="gs-row-check"> Last submission</label>
+                 <label><input type="checkbox" class="gs-row-check" checked> Status</label>
+                </div>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Focus</span>
+            </div>
+        </div>
+      </figure>
+      <figure class="bk-frame bk-span-3" data-frame="Empty state &amp; search highlight" data-cells="2">
+        <figcaption class="bk-label">
+          <span class="bk-name">Empty state &amp; search highlight</span>
+          <span class="bk-purpose">Search matches are wrapped in  in TEXT NODES ONLY (never by rewriting element markup), so pills and badges inside a matching row survive intact.</span>
+        </figcaption>
+        <div class="bk-states">
+            <div class="bk-cell">
+              <div class="bk-cell-box">
+                <div class="tbl-wrap">
+                 <table class="tbl" data-nosort>
+                 <thead><tr><th>Supplier</th><th>Country</th></tr></thead>
+                 <tbody>
+                 <tr><td>Indo<mark class="gs-hl">tex</mark> Manufacturing</td><td>Bangladesh</td></tr>
+                 <tr class="gs-empty-row"><td colspan="2">No matching rows<a onclick="return cxNoop()" style="color:var(--gs-l);cursor:pointer">Clear filters</a></td></tr>
+                 </tbody>
+                 </table>
+                </div>
+                <div class="tbl-footer">Showing 1 of 380</div>
+              </div>
+              <span class="bk-cell-lbl">Default</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box bk-st-focus">
+                <div class="tbl-wrap">
+                 <table class="tbl" data-nosort>
+                 <thead><tr><th>Supplier</th><th>Country</th></tr></thead>
+                 <tbody>
+                 <tr><td>Indo<mark class="gs-hl">tex</mark> Manufacturing</td><td>Bangladesh</td></tr>
+                 <tr class="gs-empty-row"><td colspan="2">No matching rows<a onclick="return cxNoop()" style="color:var(--gs-l);cursor:pointer">Clear filters</a></td></tr>
+                 </tbody>
+                 </table>
+                </div>
+                <div class="tbl-footer">Showing 1 of 380</div>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Focus</span>
+            </div>
+        </div>
+      </figure>
+      </div>
+    </section>
+
+
+  <footer class="bk-foot">
+    <span>GreenStreets — base component kit</span>
+    <span>Generated from components.html by tools/build-base-kit.py · do not hand-edit</span>
+  </footer>
+
+</div>
+
+<script src="js/gs-schema.js?v=1"></script>
+<script src="js/gs-pkg-controls.js?v=1"></script>
+<script src="js/greenstreets-theme.js?v=1"></script>
+<script src="js/base-kit.js?v=16"></script>
+</body>
+</html>

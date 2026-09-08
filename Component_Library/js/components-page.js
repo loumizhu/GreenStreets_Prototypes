@@ -267,6 +267,92 @@
          as such in the markup. The prototypes are desktop-only.
      --------------------------------------------------------------------- */
 
+  /* ---------------------------------------------------------------------
+     Column 4 — plain CSS, collapsed by default.
+
+     A developer porting to Tailwind still wants to see the real declarations
+     the utilities came from: to check a gradient stop, or to find what the
+     generator dropped. So the three-column card gets a fourth pane after
+     Usage, at half the width of the others and shut until asked for.
+
+     It is deliberately NOT the interactive `.cx-css` panel the other 107
+     specimens use (per-declaration copy buttons, resolved var() literals) —
+     that panel is the whole right-hand column there and is far too busy for
+     a half-width drawer. This is a plain code block, the same shape as the
+     TSX and Usage panes beside it, with one Copy for the lot.
+
+     Markup is built structurally rather than regex-highlighted: the text
+     comes out of ruleText() in a known shape, so tokenising it by hand is
+     both exact and cheaper, and it reuses the existing .cx-sel/.cx-p/.cx-v/
+     .cx-pn token classes, which are already themed for light and dark.
+     --------------------------------------------------------------------- */
+
+  function cssRulesFor(name) {
+    var rules = [];
+    (CSSX.specimens[name] || []).forEach(function (k) {
+      var rec = CSSX.rules[k];
+      if (!rec) return;
+      rec.r.forEach(function (pair) {
+        rules.push([(k.indexOf('--') === 0 ? ':root' : '.' + k) + pair[0], pair[1]]);
+      });
+    });
+    return rules;
+  }
+
+  function highlightCssRule(sel, decls) {
+    return '<span class="cx-sel">' + esc(sel) + '</span><span class="cx-pn"> {</span>\n' +
+      decls.map(function (d) {
+        return '  <span class="cx-p">' + esc(d[0]) + '</span><span class="cx-pn">:</span> ' +
+               '<span class="cx-v">' + esc(d[1]) + '</span><span class="cx-pn">;</span>';
+      }).join('\n') +
+      '\n<span class="cx-pn">}</span>';
+  }
+
+  function cssPane(name) {
+    var rules = cssRulesFor(name);
+    if (!rules.length) return '';
+    var plain = rules.map(function (r) { return ruleText(r[0], r[1]); }).join('\n\n');
+    var body  = rules.map(function (r) { return highlightCssRule(r[0], r[1]); }).join('\n\n');
+    var n     = rules.length;
+    return '<div class="cx-code cx-code-css">' +
+      '<div class="cx-code-hd">' +
+        '<button class="cx-css-toggle" type="button" aria-expanded="false"' +
+          ' title="Show the CSS these utilities came from">' +
+          '<span class="cx-css-chev" aria-hidden="true"></span>' +
+          '<span class="cx-code-t">CSS</span>' +
+          '<span class="cx-css-count">' + n + (n === 1 ? ' rule' : ' rules') + '</span>' +
+        '</button>' +
+        '<button class="cx-code-copy" type="button" data-copy="' + escAttr(plain) +
+          '" title="Copy CSS">' + ICO_COPY + 'Copy</button>' +
+      '</div>' +
+      '<pre class="cx-code-body" hidden><code>' + body + '</code></pre>' +
+      '<p class="cx-css-note" hidden>Base declarations. The light theme overrides some of ' +
+        'these in <code>greenstreets-light.css</code>.</p>' +
+    '</div>';
+  }
+
+  /* One delegated handler: the pane is built with the card, so there is no
+     point wiring a listener per specimen. Toggling also flips a class on the
+     .cx-codes grid, because the collapsed pane shrinks its track to the width
+     of its own header instead of holding a half-width column of nothing. */
+  function wireCssPanes() {
+    document.addEventListener('click', function (e) {
+      var t = e.target.closest && e.target.closest('.cx-css-toggle');
+      if (!t) return;
+      e.preventDefault();
+      var pane = t.closest('.cx-code-css');
+      var pre  = pane.querySelector('.cx-code-body');
+      var open = t.getAttribute('aria-expanded') === 'true';
+      t.setAttribute('aria-expanded', open ? 'false' : 'true');
+      pre.hidden = open;                                  /* [hidden] is !important in the host reset */
+      var note = pane.querySelector('.cx-css-note');
+      if (note) note.hidden = open;
+      pane.classList.toggle('cx-css-open', !open);
+      var codes = pane.closest('.cx-codes');
+      if (codes) codes.classList.toggle('cx-codes-css-open', !open);
+    });
+  }
+
   function propsPanel(pr) {
     if (!pr || !pr.length) return '';
     /* Default is folded into the Type cell rather than given a column of its
@@ -301,12 +387,18 @@
        index with sort_keys=True, which silently alphabetised an object into
        "Active, Default, Disabled…". A list survives the round trip. */
     var live = 0;
+    /* Three outcomes, and the difference matters to a developer:
+         trigger null  -> the component CANNOT have this state (with the reason)
+         trigger ''    -> it could, but nothing defines it yet — a gap to fill
+         otherwise     -> it has it, and the trigger names what causes it     */
     var rows = st.map(function (s) {
       var na = (s[1] === null || s[1] === undefined);
-      if (!na) live++;
-      return '<div class="cx-st' + (na ? ' cx-st-na' : '') + '">' +
+      var undef = (s[1] === '');
+      if (!na && !undef) live++;
+      var lbl = na ? 'not applicable' : undef ? 'not defined yet' : esc(s[1]);
+      return '<div class="cx-st' + (na ? ' cx-st-na' : undef ? ' cx-st-undef' : '') + '">' +
         '<div class="cx-st-hd"><span class="cx-st-k">' + esc(s[0]) + '</span>' +
-          '<span class="cx-st-w">' + (na ? 'not applicable' : esc(s[1])) + '</span></div>' +
+          '<span class="cx-st-w">' + lbl + '</span></div>' +
         '<p class="cx-st-d">' + esc(s[2]) + '</p>' +
       '</div>';
     }).join('');
@@ -521,7 +613,8 @@
       codes.className = 'cx-codes';
       codes.innerHTML =
         codePanel('Component code (TSX)', rec.tsx, 'components/' + rec.c + '.tsx') +
-        codePanel('Usage', rec.use, 'app/page.tsx');
+        codePanel('Usage', rec.use, 'app/page.tsx') +
+        cssPane(name);
       body.appendChild(codes);
       item._cxDocs = docsStrip(rec);
       foot.innerHTML = partsHtml(parts) +
@@ -705,7 +798,10 @@
     toc.innerHTML = html;
   }
 
-  var kindFilter = 'all';
+  /* Base is the default view: the primitives are what a port starts from, and
+     opening on all 113 buries them under compositions. The user switches to
+     Composed (or All) deliberately. */
+  var kindFilter = 'base';
 
   function wireSearch() {
     var wrap = document.querySelector('.cx-nav-search');
@@ -748,6 +844,7 @@
     }
 
     input.addEventListener('input', run);
+    run();                       /* apply the default filter on load */
     if (clear) clear.addEventListener('click', function () { input.value = ''; run(); input.focus(); });
     document.querySelectorAll('[data-cx-kind-filter]').forEach(function (b) {
       b.addEventListener('click', function () {
@@ -849,8 +946,48 @@
      can still show a half-checked select-all box. */
   document.querySelectorAll('input[data-indeterminate]').forEach(function (c) { c.indeterminate = true; });
 
+  /* One specimen (the editable dropdown list) is driven by the REAL portal
+     builder rather than a static reproduction, because its menu is appended to
+     <body> and positioned by JS — there is nothing sensible to hand-author.
+     Scoped to [data-cx-enhance="pkg"] on purpose: GSPkgControls rewrites any
+     .pkg-detail-feat it is given, and the neighbouring Segmented control and
+     Percentage slider specimens are already authored in their enhanced shape. */
+  (function enhancePkgSpecimens() {
+    if (typeof window.GSPkgControls !== 'function') return;
+    document.querySelectorAll('[data-cx-enhance="pkg"] .cx-stage').forEach(function (st) {
+      try { window.GSPkgControls(st); } catch (e) {}
+    });
+  })();
+
+  /* The 300px preview column was sized for a single button. Rolling the
+     four-pane card out to every section put data grids, app shells and login
+     cards in it, which is unreadable — so a card whose preview cannot live in
+     300px is STACKED instead: preview full width on its own row, code panes
+     beneath. Decided per specimen rather than by hand-tagging sections, on two
+     signals: markup that is inherently wide, or content that actually
+     overflows once laid out. */
+  var WIDE_SEL = [
+    'table', '.tbl', '.tbl-wrap', '.sidebar', '.pshell', '.grp', '.pg-hdr-bar',
+    '.filter-toolbar', '.pkg-detail-section', '.fg2', '.fg3', '.fg4',
+    '.login-card', '.onb-body', '.gs-bulkbar', '.gs-pager', '.tier-grid',
+    '.recap-grid', '.stat-row', '.hdr-stat-row', '.air-layout', '.cx-frame',
+    '.modal', '.dlg', '.dlg-card', '.side-panel', '.pnav', '.landing-tabs',
+    '.bc', '.crumbs'
+  ].join(',');
+
+  function layoutStages() {
+    document.querySelectorAll('.cx-tri').forEach(function (tri) {
+      var stage = tri.querySelector('.cx-stage');
+      if (!stage) return;
+      var wide = !!stage.querySelector(WIDE_SEL) ||
+                 stage.scrollWidth > stage.clientWidth + 1;
+      tri.classList.toggle('cx-tri-stack', wide);
+    });
+  }
+
   numberSections();
   wireCssCopy();
+  wireCssPanes();
   buildToc();
   wireTooltips();
   wireSearch();
@@ -864,6 +1001,18 @@
   if (nSecs) nSecs.textContent = document.querySelectorAll('.cx-sec').length;
   if (nBase) nBase.textContent = document.querySelectorAll('.cx-item[data-kind="base"]').length;
   if (nComp) nComp.textContent = document.querySelectorAll('.cx-item[data-kind="composed"]').length;
+
+  /* Synchronously, NOT in a requestAnimationFrame: rAF is throttled (and in a
+     hidden tab may never fire), which left every card unstacked until the tab
+     was focused. The markup signal needs no layout, so it works immediately;
+     the overflow signal needs layout, so re-run on load and on resize. */
+  layoutStages();
+  window.addEventListener('load', layoutStages);
+  var reflow;
+  window.addEventListener('resize', function () {
+    clearTimeout(reflow);
+    reflow = setTimeout(layoutStages, 180);
+  });
 
   function ready(fn) {
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);

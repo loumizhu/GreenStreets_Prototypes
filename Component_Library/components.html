@@ -15,7 +15,7 @@
 <link rel="stylesheet" href="css/greenstreets-light.css?v=1">
 <link rel="stylesheet" href="css/portal-extras-light.css?v=1">
 <!-- ...and the gallery chrome (everything prefixed cx-) -->
-<link rel="stylesheet" href="css/components-page.css?v=16">
+<link rel="stylesheet" href="css/components-page.css?v=23">
 </head>
 <body class="cx-body">
 
@@ -39,8 +39,8 @@
     <div class="cx-nav-hits" aria-live="polite"></div>
 
     <div class="cx-seg" role="group" aria-label="Filter by kind" style="margin:8px 6px 0">
-      <button type="button" class="on" data-cx-kind-filter="all">All</button>
-      <button type="button" data-cx-kind-filter="base">Base</button>
+      <button type="button" data-cx-kind-filter="all">All</button>
+      <button type="button" class="on" data-cx-kind-filter="base">Base</button>
       <button type="button" data-cx-kind-filter="composed">Composed</button>
     </div>
 
@@ -97,7 +97,7 @@
 
             <div class="cx-grp" data-label="Primitives"></div>
 
-    <section class="cx-sec" id="sec-typography" data-title="Typography">
+    <section class="cx-sec" id="sec-typography" data-title="Typography" data-tsx>
 
     <div class="cx-sec-hdr">
       <h2><span class="cx-sec-n"></span>Typography</h2>
@@ -285,7 +285,7 @@
     </section>
 
 
-    <section class="cx-sec" id="sec-fields" data-title="Form inputs">
+    <section class="cx-sec" id="sec-fields" data-title="Form inputs" data-tsx>
 
     <div class="cx-sec-hdr">
       <h2><span class="cx-sec-n"></span>Form inputs</h2>
@@ -296,7 +296,7 @@
 
 
         <article class="cx-item"
-          data-name="Field group"
+          data-name="Text input"
           data-kind="base"
           data-cls=".fgrp .flbl .fi .fhint .req"
           data-src="css/greenstreets-theme.css"
@@ -320,9 +320,9 @@
 
 
         <article class="cx-item"
-          data-name="Field grid rows"
+          data-name="Form row grid"
           data-kind="composed"
-          data-parts="Field group"
+          data-parts="Text input"
           data-cls=".fg2 .fg3 .fg4"
           data-src="css/greenstreets-theme.css"
           data-tip="Fixed-column form rows: `.fg2` two-up, `.fg3` three-up, `.fg4` four-up. Note the number fields: a `type=number` input must sit in its own `.fi-wrap`, because `GSEnhanceNumbers()` positions the ▲▼ stepper against `input.parentNode` — put the input straight into the `.fgrp` and the stepper centres on label-plus-input instead of the input, sitting visibly too low."
@@ -345,7 +345,7 @@
 
 
         <article class="cx-item"
-          data-name="Themed select"
+          data-name="Dropdown list"
           data-kind="base"
           data-cls="select.fi.fi-select → .cs-wrap .cs-trigger .cs-menu .cs-opt"
           data-src="css/greenstreets-theme.css · js/greenstreets-theme.js"
@@ -362,17 +362,6 @@
                     <option>Tertiary</option>
                   </select>
                 </div>
-                <div class="fgrp">
-                  <div class="flbl">Base material</div>
-                  <select class="fi fi-select">
-                    <option value="" disabled selected>Select…</option>
-                    <option>Cardboard_CartonBoard</option>
-                    <option>Corrugate</option>
-                    <option>Plastic_Single_MonoLayer</option>
-                    <option>Glass</option>
-                    <option>Metal</option>
-                  </select>
-                </div>
               </div>
             </div>
           </script>
@@ -381,7 +370,7 @@
 
 
         <article class="cx-item"
-          data-name="Search field"
+          data-name="Search input"
           data-kind="base"
           data-cls=".search-wrap .fi.fi-search"
           data-src="css/greenstreets-theme.css"
@@ -398,7 +387,7 @@
 
 
         <article class="cx-item"
-          data-name="Login fields"
+          data-name="Login input"
           data-kind="base"
           data-cls=".fgrp-login .fi-icon-wrap &middot; .mfa-fi .mfa-hint"
           data-src="css/greenstreets-theme.css"
@@ -409,10 +398,6 @@
               <div class="fgrp-login fi-icon-wrap">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16v12H4z"/><path d="m4 7 8 6 8-6"/></svg>
                 <input class="fi" type="email" placeholder="name@greenstreets.ie">
-              </div>
-              <div class="fgrp-login fi-icon-wrap">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
-                <input class="fi" type="password" placeholder="Password">
               </div>
               <input class="fi mfa-fi" type="text" inputmode="numeric" placeholder="000 000" style="margin-bottom:0">
               <div class="mfa-hint">
@@ -426,7 +411,7 @@
 
 
         <article class="cx-item"
-          data-name="Number field with stepper &amp; unit"
+          data-name="Number input"
           data-kind="base"
           data-cls=".fi-wrap .fi-has-unit .fi-unit .gs-num-steppers .gs-num-btn"
           data-src="css/greenstreets-theme.css · js/greenstreets-theme.js"
@@ -436,16 +421,9 @@
             <div class="fg2" style="max-width:420px">
               <div class="fgrp">
                 <div class="flbl">Weight</div>
-                <div class="fi-wrap fi-has-unit">
-                  <input class="fi" type="number" step="0.01" value="1.72">
+                <div class="fi-wrap">
+                  <input class="fi fi-has-unit" type="number" step="0.01" value="1.72">
                   <span class="fi-unit">g</span>
-                </div>
-              </div>
-              <div class="fgrp">
-                <div class="flbl">Grammage</div>
-                <div class="fi-wrap fi-has-unit">
-                  <input class="fi" type="number" value="300">
-                  <span class="fi-unit">gsm</span>
                 </div>
               </div>
             </div>
@@ -455,9 +433,9 @@
 
 
         <article class="cx-item"
-          data-name="Read-only &amp; copy-link fields"
+          data-name="Read-only input"
           data-kind="composed"
-          data-parts="Field group"
+          data-parts="Text input"
           data-cls=".fi-ro .invite-link-field .pd-readonly"
           data-src="css/greenstreets-theme.css · css/supplier-portal.css"
           data-tip="A value the user can read and copy but not edit — a provisioned slug, a generated invite token, a supplier-submitted figure a retailer may only review. Use `readonly` plus `.fi-ro`, never `disabled`: disabled controls drop out of the tab order and their text fails contrast."
@@ -478,25 +456,21 @@
 
 
         <article class="cx-item"
-          data-name="Editable picklist (combo)"
+          data-name="Editable dropdown list"
           data-kind="base"
-          data-cls=".gs-combo .gs-ecombo .gs-ecombo-caret .gs-ecombo-menu"
-          data-src="css/supplier-portal.css · js/gs-pkg-controls.js"
-          data-tip="A field whose value SHOULD come from a controlled vocabulary but must still accept a write-in — material names, certifications. `.gs-combo` marks a view-mode field that is backed by a picklist (it gets a chevron affordance); `.gs-ecombo` is the edit-mode input plus its themed menu. Anything typed here that is not in the vocabulary will fail at export, so the port must validate on save."
+          data-cls=".gs-ecombo .gs-ecombo-caret .gs-ecombo-menu &middot; .cs-menu .cs-opt"
+          data-src="css/supplier-portal.css &middot; js/gs-pkg-controls.js"
+          data-cx-enhance="pkg"
+          data-tip="A dropdown list you can also type into, for a value that SHOULD come from a controlled vocabulary but must still accept a write-in &mdash; material names, certifications. This card runs the real builder, so it works: type to filter, &uarr;&darr; to move, Enter or click to pick, and the caret always shows the full list. Author the plain input (`.pkg-detail-feat-input` on a `data-mt='name'` field) and `GSPkgControls(scope)` upgrades it. Do NOT reach for a native `&lt;datalist&gt;` &mdash; Chrome filters that popup by the field's current value, so a field that already has a value shows a one-item list, and the popup is OS-drawn and cannot be themed. Anything typed here that is not in the vocabulary fails at export, so the port must validate on save against `GS_VOCAB`."
           data-used="RU:Packaging detail|../Retailer_User_Portal/03-greenstreets_retailer_user_Packaging-Detail.html;SP:Poly Bag|../Supplier_Portal/04-greenstreets_supplier_portal_Packaging-Poly-Bag.html">
           <script type="text/html" class="cx-src">
-            <div class="fgrp" style="max-width:340px">
-              <div class="flbl">Material 1 name</div>
-              <div class="gs-ecombo">
-                <input class="fi" value="Kraft paper" list="cx-mats">
-                <span class="gs-ecombo-caret">
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m6 9 6 6 6-6"/></svg>
-                </span>
+            <div class="pkg-detail-section pkg-sec-edit-mode" style="max-width:340px">
+              <div class="pkg-detail-grid">
+                <div class="pkg-detail-feat" data-mt="name">
+                  <div class="pkg-detail-feat-lbl">Material 1 name</div>
+                  <input class="fi pkg-detail-feat-input" value="Paper Kraft">
+                </div>
               </div>
-              <datalist id="cx-mats">
-                <option>Kraft paper</option><option>Recycled paperboard</option><option>LDPE</option><option>PET</option>
-              </datalist>
-              <div class="fhint">Type to search, or pick from the vocabulary in <b>gs-schema.js</b>.</div>
             </div>
           </script>
         </article>
@@ -505,7 +479,7 @@
         <article class="cx-item"
           data-name="Live values"
           data-kind="composed"
-          data-parts="Field group|Themed select|Themed checkbox"
+          data-parts="Text input|Dropdown list|Checkbox"
           data-cls=".fgrp .fi select.fi .gs-row-check"
           data-src="convention"
           data-tip="The same three input types wired to a readout, to show what a controlled port has to keep in sync. Note the select: the visible control is the themed replacement, but the value is read from the real hidden `<select>`, and selection re-dispatches a bubbling `change` &mdash; so an existing `onchange` handler keeps working and a React port can bind to it normally."
@@ -540,7 +514,7 @@
     </section>
 
 
-    <section class="cx-sec" id="sec-selection" data-title="Selection controls">
+    <section class="cx-sec" id="sec-selection" data-title="Selection controls" data-tsx>
 
 
       <div class="cx-sec-hdr">
@@ -576,7 +550,7 @@
 
 
         <article class="cx-item"
-          data-name="Segmented choice"
+          data-name="Segmented control"
           data-kind="base"
           data-cls=".gs-seg .gs-seg-opt (+.on) &middot; .prod-filter-btn .notif-filter-btn"
           data-src="css/supplier-portal.css · js/gs-pkg-controls.js"
@@ -603,7 +577,7 @@
         <article class="cx-item"
           data-name="Percentage slider + number"
           data-kind="composed"
-          data-parts="Number field with stepper &amp; unit"
+          data-parts="Number input"
           data-cls=".gs-pct .gs-pct-slider .gs-pct-numwrap .gs-pct-num"
           data-src="css/supplier-portal.css · js/gs-pkg-controls.js"
           data-tip="Every 0–100 schema field (recycled content, % by weight) gets a slider and a number box on one line, kept in sync — the slider for a rough figure, the box for the exact one. Both are clamped to 0–100 and commit on `input`. Only displays under `.pkg-sec-edit-mode .gs-has-pct`."
@@ -631,7 +605,7 @@
 
 
         <article class="cx-item"
-          data-name="Themed checkbox"
+          data-name="Checkbox"
           data-kind="base"
           data-cls=".gs-row-check .gs-check-all .gs-check-col"
           data-src="css/greenstreets-theme.css"
@@ -640,14 +614,7 @@
           <script type="text/html" class="cx-src">
             <div class="cx-row">
               <label style="display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--tw2)">
-                <input type="checkbox" class="gs-row-check" checked> Selected
-              </label>
-              <label style="display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--tw2)">
-                <input type="checkbox" class="gs-row-check"> Unselected
-              </label>
-              <label style="display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--tw2)">
-                <!-- set el.indeterminate = true in JS; there is no HTML attribute for it -->
-                <input type="checkbox" class="gs-check-all" data-indeterminate> Select all (indeterminate)
+                <input type="checkbox" class="gs-row-check"> Include in this report
               </label>
             </div>
           </script>
@@ -657,7 +624,7 @@
     </section>
 
 
-    <section class="cx-sec" id="sec-alerts" data-title="Alerts &amp; feedback">
+    <section class="cx-sec" id="sec-alerts" data-title="Alerts &amp; feedback" data-tsx>
 
     <div class="cx-sec-hdr">
       <h2><span class="cx-sec-n"></span>Alerts &amp; feedback</h2>
@@ -776,7 +743,7 @@
     </section>
 
 
-    <section class="cx-sec" id="sec-cards" data-title="Cards &amp; surfaces">
+    <section class="cx-sec" id="sec-cards" data-title="Cards &amp; surfaces" data-tsx>
 
 
       <div class="cx-sec-hdr">
@@ -867,7 +834,7 @@
         <article class="cx-item"
           data-name="Selectable tier cards"
           data-kind="composed"
-          data-parts="Card|Status pill set"
+          data-parts="Card|Status pill"
           data-cls=".tier-grid .tier .tier-sel .tier-name .tier-desc .dim"
           data-src="css/greenstreets-theme.css"
           data-tip="A radio group rendered as cards — the account tier on the Super Admin Configure screen. Exactly one carries `.tier-sel` and a `.pill-gs` 'Selected'; unselected names get `.dim`. Give the group `role='radiogroup'` in the port, since cards are not natively a choice control."
@@ -886,7 +853,7 @@
         <article class="cx-item"
           data-name="Packaging thumbnail card"
           data-kind="composed"
-          data-parts="Card|Status pill set"
+          data-parts="Card|Status pill"
           data-cls=".pkg-grid .pkg-card .pkg-thumb .pkg-card-name .pkg-card-sku .pkg-card-status .pkg-dash"
           data-src="css/portal-extras.css"
           data-tip="The gallery view of a product's packaging set: a thumbnail (or a dashed `.pkg-dash` placeholder when no image has been supplied), the component name, its SKU and a status pill. The dashed placeholder is deliberate — a missing image is information."
@@ -922,7 +889,7 @@
         <article class="cx-item"
           data-name="Packaging row card"
           data-kind="composed"
-          data-parts="Card|Status pill set"
+          data-parts="Card|Status pill"
           data-cls=".pkg-row-list .pkg-row-card .pkg-row-icon-badge .pkg-row-feats .pkg-row-feat"
           data-src="css/supplier-portal.css"
           data-tip="The Supplier Portal replaced its packaging table with this row-card list: an icon badge, the name plus level and source, then a strip of the three or four features a supplier actually scans for. It is clickable as a whole — note it deliberately gets NO press-scale (a transform on a card becomes a containing block and displaces the focus ring); the click ripple is its press feedback instead."
@@ -987,7 +954,7 @@
     </section>
 
 
-    <section class="cx-sec" id="sec-tables" data-title="Tables &amp; data grid">
+    <section class="cx-sec" id="sec-tables" data-title="Tables &amp; data grid" data-tsx>
 
 
       <div class="cx-sec-hdr">
@@ -1001,7 +968,7 @@
         <article class="cx-item"
           data-name="Data grid (full toolkit, live)"
           data-kind="composed"
-          data-parts="Plain table|Sortable header|Pager|Bulk-selection bar|Column chooser|Search field|Themed select"
+          data-parts="Table|Sortable header|Pager|Bulk-selection bar|Column chooser|Search input|Dropdown list"
           data-cls=".filter-toolbar + table.tbl → initListings()"
           data-src="js/greenstreets-theme.js · css/greenstreets-theme.css"
           data-clamp
@@ -1050,7 +1017,7 @@
 
 
         <article class="cx-item"
-          data-name="Plain table"
+          data-name="Table"
           data-kind="base"
           data-cls=".tbl-wrap table.tbl .tbl-name .tbl-sub .tbl-val .tbl-muted .tbl-warn"
           data-src="css/greenstreets-theme.css"
@@ -1098,7 +1065,7 @@
         <article class="cx-item"
           data-name="Pager"
           data-kind="composed"
-          data-parts="Themed select"
+          data-parts="Dropdown list"
           data-cls=".gs-pager .gs-pager-info .gs-pager-ctrls .gs-pager-lbl"
           data-src="js/greenstreets-theme.js"
           data-tip="Injected under every enhanced listing: 'Showing A–B of N' on the left, then rows-per-page, Prev / Page X of Y / Next and a 'Go to' page-jump select. With few rows it renders as a single disabled page rather than disappearing, so the control's position never jumps. A pre-existing static 'Showing X of Y' footer is auto-hidden because this replaces it."
@@ -1188,7 +1155,7 @@
         <article class="cx-item"
           data-name="Products listing (Supplier Portal)"
           data-kind="composed"
-          data-parts="Plain table|Sortable header|Themed checkbox|Status pill set|Pager"
+          data-parts="Table|Sortable header|Checkbox|Status pill|Pager"
           data-cls=".prod-tbl .prod-sortable .gs-name-th .pcmp-cell .prod-status-pill .prod-pager"
           data-src="css/supplier-portal.css · js/supplier-portal.js"
           data-tip="The Supplier Portal's product listing is its own engine (`prodSort` / `prodGoto`), not the shared toolkit, because it needs a components cell that lists each expected packaging component with its entered count, plus a per-row Mark-complete / Submit action cluster. Its rows run a spreadsheet-style keyboard model (`data-gs-grid`), which is why the shared keyboard layer skips them."
@@ -1256,7 +1223,7 @@
     </section>
 
 
-    <section class="cx-sec" id="sec-dialogs" data-title="Modals &amp; dialogs">
+    <section class="cx-sec" id="sec-dialogs" data-title="Modals &amp; dialogs" data-tsx>
 
     <div class="cx-sec-hdr">
       <h2><span class="cx-sec-n"></span>Modals &amp; dialogs</h2>
@@ -1341,7 +1308,7 @@
         <article class="cx-item"
           data-name="Side panel (sheet)"
           data-kind="composed"
-          data-parts="Dialog surface|Field group"
+          data-parts="Dialog surface|Text input"
           data-cls=".theme-panel .theme-panel-hdr .theme-sec-lbl .theme-row .theme-color-input .theme-range .theme-io-btn"
           data-src="css/greenstreets-theme.css · js/greenstreets-theme.js"
           data-stage="cx-ov"
@@ -1372,7 +1339,7 @@
         <article class="cx-item"
           data-name="List picker dialog"
           data-kind="composed"
-          data-parts="Dialog surface|Search field|Status pill set"
+          data-parts="Dialog surface|Search input|Status pill"
           data-cls=".pkg-modal-overlay .pkg-modal .pkg-modal-search-wrap .pkg-modal-list .pkg-modal-item .pkg-modal-create-btn"
           data-src="css/greenstreets-theme.css"
           data-stage="cx-ov"
@@ -1428,7 +1395,7 @@
 
     <div class="cx-grp" data-label="Data display"></div>
 
-    <section class="cx-sec" id="sec-pills" data-title="Pills &amp; badges">
+    <section class="cx-sec" id="sec-pills" data-title="Pills &amp; badges" data-tsx>
 
 
       <div class="cx-sec-hdr">
@@ -1440,7 +1407,7 @@
 
 
         <article class="cx-item"
-          data-name="Status pill set"
+          data-name="Status pill"
           data-kind="base"
           data-cls=".pill .pill-gs|-green|-amber|-red|-blue|-grey|-expired"
           data-src="css/greenstreets-theme.css"
@@ -1560,7 +1527,7 @@
     </section>
 
 
-    <section class="cx-sec" id="sec-progress" data-title="Progress &amp; steps">
+    <section class="cx-sec" id="sec-progress" data-title="Progress &amp; steps" data-tsx>
 
 
       <div class="cx-sec-hdr">
@@ -1671,7 +1638,7 @@
 
     <div class="cx-grp" data-label="Layout &amp; navigation"></div>
 
-    <section class="cx-sec" id="sec-shell" data-title="App shells">
+    <section class="cx-sec" id="sec-shell" data-title="App shells" data-tsx>
 
 
       <div class="cx-sec-hdr">
@@ -1804,7 +1771,7 @@
     </section>
 
 
-    <section class="cx-sec" id="sec-nav" data-title="Navigation">
+    <section class="cx-sec" id="sec-nav" data-title="Navigation" data-tsx>
 
 
       <div class="cx-sec-hdr">
@@ -1941,7 +1908,7 @@
 
     <div class="cx-grp" data-label="Menus, tooltips &amp; overlays"></div>
 
-    <section class="cx-sec" id="sec-overlays" data-title="Menus &amp; dropdowns">
+    <section class="cx-sec" id="sec-overlays" data-title="Menus &amp; dropdowns" data-tsx>
 
     <div class="cx-sec-hdr">
       <h2><span class="cx-sec-n"></span>Menus &amp; dropdowns</h2>
@@ -1954,7 +1921,7 @@
         <article class="cx-item"
           data-name="Notification dropdown"
           data-kind="composed"
-          data-parts="Status pill set|Body &amp; muted copy"
+          data-parts="Status pill|Body &amp; muted copy"
           data-cls=".ra-notif-menu .ra-notif-hd .ra-notif-item .ra-notif-dot .ra-notif-txt .ra-notif-time .ra-notif-foot"
           data-src="css/portal-extras.css"
           data-tip="The bell's dropdown: the newest few notifications with an unread dot, and a footer link to the full page. Deliberately short — it is a peek, not the inbox. The Retailer User portal ships the identical component as `.ru-notif-*`."
@@ -1976,7 +1943,7 @@
         <article class="cx-item"
           data-name="Searchable action menu"
           data-kind="composed"
-          data-parts="Search field"
+          data-parts="Search input"
           data-cls=".comp-menu .comp-menu-search .comp-menu-create-new &middot; .export-dd-menu .su-role-menu .pkg-table-add-menu"
           data-src="css/supplier-portal.css · css/greenstreets-theme.css"
           data-stage="cx-ov"
@@ -2005,7 +1972,7 @@
     </section>
 
 
-    <section class="cx-sec" id="sec-tooltips" data-title="Tooltips &amp; hovercards">
+    <section class="cx-sec" id="sec-tooltips" data-title="Tooltips &amp; hovercards" data-tsx>
 
 
       <div class="cx-sec-hdr">
@@ -2056,7 +2023,7 @@
         <article class="cx-item"
           data-name="Hovercard"
           data-kind="composed"
-          data-parts="Body &amp; muted copy|Status pill set"
+          data-parts="Body &amp; muted copy|Status pill"
           data-cls=".prod-tooltip-box .prod-tooltip-list .prod-tooltip-note &middot; .pcmp-tip"
           data-src="css/supplier-portal.css"
           data-stage="cx-ov"
@@ -2080,7 +2047,7 @@
 
     <div class="cx-grp" data-label="Domain components"></div>
 
-    <section class="cx-sec" id="sec-packaging" data-title="Packaging data capture">
+    <section class="cx-sec" id="sec-packaging" data-title="Packaging data capture" data-tsx>
 
 
       <div class="cx-sec-hdr">
@@ -2094,7 +2061,7 @@
         <article class="cx-item"
           data-name="Detail section"
           data-kind="composed"
-          data-parts="Heading levels|Field group|Themed select"
+          data-parts="Heading levels|Text input|Dropdown list"
           data-cls=".pkg-detail-section .pkg-detail-feat .pkg-sec-edit-mode .pd-field-missing"
           data-src="css/supplier-portal.css · js/gs-schema.js"
           data-tip="One numbered schema section, shown read-only then in edit mode. A field is a label plus a `readonly` input holding the value; when it is backed by a picklist a hidden `<select>` sits alongside and becomes the control once `.pkg-sec-edit-mode` is on the section. Edit is **per section**, never whole-page &mdash; flipping all nine at once loses the reviewer&rsquo;s place. `gsAlignPkgDetailToSchema()` rebuilds every option list from the schema at load, so a saved page cannot drift from the vocabulary."
@@ -2148,7 +2115,7 @@
         <article class="cx-item"
           data-name="Material breakdown rows"
           data-kind="composed"
-          data-parts="Field group|Number field with stepper &amp; unit"
+          data-parts="Text input|Number input"
           data-cls=".pkg-mat-row .pkg-mat-add-btn .pkg-mat-remove .pkg-mat-total"
           data-src="css/supplier-portal.css · css/pkg-detail.css"
           data-tip="An unbounded list of materials, one per line: name (from the vocabulary), % by weight, and a remove X — the first row can never be removed. A derived total sits underneath as a LABEL, never a field, and turns amber via `.pkg-mat-total-off` until it reaches exactly 100%. Note there is no '% base material' field: the base material is a single value, the breakdown is the list."
@@ -2157,12 +2124,12 @@
             <div style="max-width:560px">
               <div class="pkg-mat-row">
                 <input class="fi" value="LDPE">
-                <div class="fi-wrap fi-has-unit"><input class="fi" type="number" value="70"><span class="fi-unit">%</span></div>
+                <div class="fi-wrap"><input class="fi fi-has-unit" type="number" value="70"><span class="fi-unit">%</span></div>
                 <span class="pkg-mat-remove" aria-hidden="true"></span>
               </div>
               <div class="pkg-mat-row">
                 <input class="fi" value="Recycled LDPE">
-                <div class="fi-wrap fi-has-unit"><input class="fi" type="number" value="30"><span class="fi-unit">%</span></div>
+                <div class="fi-wrap"><input class="fi fi-has-unit" type="number" value="30"><span class="fi-unit">%</span></div>
                 <button class="pkg-mat-remove" title="Remove material" aria-label="Remove material">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
@@ -2180,7 +2147,7 @@
         <article class="cx-item"
           data-name="Document chips on a field"
           data-kind="composed"
-          data-parts="Field group|Chips"
+          data-parts="Text input|Chips"
           data-cls=".doc-chips .doc-chip .doc-add-btn"
           data-src="css/supplier-portal.css · css/pkg-detail.css"
           data-tip="Supporting evidence attached to a schema field, as removable chips plus an Add button that opens the document picker. The chip's icon colour is derived from the file extension (PDF red, XLSX blue) and long names are truncated to ~32 characters."
@@ -2233,7 +2200,7 @@
         <article class="cx-item"
           data-name="Product-detail component card"
           data-kind="composed"
-          data-parts="Card|Status pill set"
+          data-parts="Card|Status pill"
           data-cls=".pd-card .pd-card-head .pd-card-name .pd-comp-count .pd-qty-badge .pd-qty-step .pd-collapse"
           data-src="css/supplier-progress.css → css/supplier-portal.css"
           data-tip="On the Supplier Portal product detail, each packaging component is a collapsible card with a '× N' quantity badge and a −/+ stepper (make a component ×2, ×3 on one product). The header count shows how many of the component's own fields are complete, so a supplier can see which card still needs work without opening it."
@@ -2266,7 +2233,7 @@
         <article class="cx-item"
           data-name="Suggested component"
           data-kind="composed"
-          data-parts="Status pill set"
+          data-parts="Status pill"
           data-cls=".pd-sugg-card .pd-sugg-badge .pd-sugg-actions .pcmp-pill-sugg .pcmp-accept .pcmp-x-sugg"
           data-src="css/supplier-portal.css"
           data-tip="A component the retailer expects on this product but the supplier has not entered. It renders as a distinct dashed/amber card (or a `.pcmp-pill-sugg` in a listing) with Accept ✓ and Dismiss ✗ — accepting turns it into a real component and the pill goes green. It is a suggestion, never a silent pre-fill: the supplier is the one attesting to the data."
@@ -2295,7 +2262,7 @@
         <article class="cx-item"
           data-name="Packaging level filters"
           data-kind="composed"
-          data-parts="Segmented choice|Chips"
+          data-parts="Segmented control|Chips"
           data-cls=".pkg-level-filters .pkg-level-filter-btn .pkg-active-filters .pkg-filter-chip .pkg-filter-clear-all"
           data-src="css/supplier-portal.css"
           data-tip="Packaging is always grouped by level, so the level filter is a permanent sub-tab row rather than a dropdown. Active filters from the advanced panel are echoed back as removable `.pkg-filter-chip`s with a Clear all — a filter you cannot see is a filter you forget you set."
@@ -2321,7 +2288,7 @@
     </section>
 
 
-    <section class="cx-sec" id="sec-ai" data-title="AI upload &amp; review">
+    <section class="cx-sec" id="sec-ai" data-title="AI upload &amp; review" data-tsx>
 
 
       <div class="cx-sec-hdr">
@@ -2335,7 +2302,7 @@
         <article class="cx-item"
           data-name="Review field"
           data-kind="composed"
-          data-parts="Field group|Themed select|AI confidence badge"
+          data-parts="Text input|Dropdown list|AI confidence badge"
           data-cls=".air-field .air-field-lbl .lbl-missing .air-ctrl-row .air-badge-slot .req-star"
           data-src="css/supplier-portal.css · js/air-review.js"
           data-tip="One extracted value: the schema label (dimmed with `.lbl-missing` when nothing was found), the control, and a confidence badge in its own slot. Editing the value calls `markEdited()` which clears the invalid state and replaces the badge with 'User verified' — a human decision always outranks the model's confidence."
@@ -2372,7 +2339,7 @@
         <article class="cx-item"
           data-name="Dynamic materials block"
           data-kind="composed"
-          data-parts="Themed select|Number field with stepper &amp; unit"
+          data-parts="Dropdown list|Number input"
           data-cls=".air-materials .air-mat-head .air-mat-row .air-mat-pct .air-mat-del .air-mat-add .air-mat-sum"
           data-src="css/supplier-portal.css · js/air-review.js"
           data-tip="The materials list as the review screen renders it, with a live running total. `.air-mat-sum` gets `.ok` at exactly 100% and `.warn` otherwise — and it is patched as its own node on every keystroke rather than re-rendering the block, because re-rendering destroyed the field being typed in and it lost focus after one character."
@@ -2408,7 +2375,7 @@
         <article class="cx-item"
           data-name="On-field AI suggestion"
           data-kind="composed"
-          data-parts="Field group"
+          data-parts="Text input"
           data-cls=".ai-onfield .ai-onfield-icon .ai-onfield-accept .ai-onfield-dismiss .fi-ai-pending"
           data-src="css/supplier-portal.css"
           data-tip="A suggestion that lives ON the control instead of beside it: the field gets `.fi-ai-pending` styling and an accept/dismiss pair. It keeps the suggestion and the thing being suggested in the same place, so accepting is one click with no ambiguity about which field it applies to."
@@ -2475,7 +2442,7 @@
     </section>
 
 
-    <section class="cx-sec" id="sec-documents" data-title="Documents">
+    <section class="cx-sec" id="sec-documents" data-title="Documents" data-tsx>
 
 
       <div class="cx-sec-hdr">
@@ -2516,7 +2483,7 @@
         <article class="cx-item"
           data-name="Document thumbnail card"
           data-kind="composed"
-          data-parts="Card|Themed checkbox"
+          data-parts="Card|Checkbox"
           data-cls=".docs-grid .docs-thumb .docs-thumb-icon .docs-thumb-name .docs-thumb-type .docs-thumb-actions .docs-thumb-cb"
           data-src="css/supplier-portal.css"
           data-tip="A card per document: a type-coloured icon, the filename, the document type, a select checkbox and hover actions (download, delete). The checkbox is what feeds the bulk bar, so it stays visible rather than appearing on hover."
@@ -2575,7 +2542,7 @@
         <article class="cx-item"
           data-name="Document preview"
           data-kind="composed"
-          data-parts="Dialog surface|Status pill set"
+          data-parts="Dialog surface|Status pill"
           data-cls=".docs-preview-overlay .docs-preview-card .docs-preview-hdr .docs-preview-body .docs-preview-foot .dpv-sheet .dpv-page"
           data-src="css/supplier-portal.css"
           data-stage="cx-ov"
@@ -2616,7 +2583,7 @@
     </section>
 
 
-    <section class="cx-sec" id="sec-notifications" data-title="Notifications">
+    <section class="cx-sec" id="sec-notifications" data-title="Notifications" data-tsx>
 
 
       <div class="cx-sec-hdr">
@@ -2630,7 +2597,7 @@
         <article class="cx-item"
           data-name="Notification row"
           data-kind="composed"
-          data-parts="Status pill set|Body &amp; muted copy"
+          data-parts="Status pill|Body &amp; muted copy"
           data-cls=".notif-item .notif-unread .notif-stripe-* .notif-icon-* .notif-top .notif-title .notif-time .notif-msg .notif-actions .notif-type-pill"
           data-src="css/portal-extras.css"
           data-tip="One notification, in all four severities. The stripe and icon classes are paired (`.notif-stripe-urgent` + `.notif-icon-urgent`). `.notif-unread` raises the row's contrast. Note the message body carries the numbers — '47 suppliers … oldest invite 22 days ago' — because a notification with no figures cannot be triaged."
@@ -2687,7 +2654,7 @@
     </section>
 
 
-    <section class="cx-sec" id="sec-onboarding" data-title="Onboarding &amp; invites">
+    <section class="cx-sec" id="sec-onboarding" data-title="Onboarding &amp; invites" data-tsx>
 
 
       <div class="cx-sec-hdr">
@@ -2736,7 +2703,7 @@
         <article class="cx-item"
           data-name="Invite block"
           data-kind="composed"
-          data-parts="Read-only &amp; copy-link fields"
+          data-parts="Read-only input"
           data-cls=".invite-section .invite-lbl .invite-link-row .invite-link-field .invite-or .invite-email-row"
           data-src="css/greenstreets-theme.css"
           data-tip="Copy a tokenised onboarding link, or send it by email — both, always, in that order. The link path exists because the person doing the inviting often is not the person who has the right email address to hand."
@@ -2765,7 +2732,7 @@
     </section>
 
 
-    <section class="cx-sec" id="sec-auth" data-title="Login &amp; auth">
+    <section class="cx-sec" id="sec-auth" data-title="Login &amp; auth" data-tsx>
 
 
       <div class="cx-sec-hdr">
@@ -2779,7 +2746,7 @@
         <article class="cx-item"
           data-name="Login card"
           data-kind="composed"
-          data-parts="Login fields"
+          data-parts="Login input"
           data-cls=".login-wrap .login-bg-img .login-card .login-logo-zone .login-form-zone .login-eyebrow .login-title .login-sub .forgot"
           data-src="css/greenstreets-theme.css"
           data-clamp
@@ -2828,7 +2795,7 @@
     </section>
 
 
-    <section class="cx-sec" id="sec-timeline" data-title="Timeline &amp; audit">
+    <section class="cx-sec" id="sec-timeline" data-title="Timeline &amp; audit" data-tsx>
 
 
       <div class="cx-sec-hdr">
@@ -2861,7 +2828,7 @@
     </section>
 
 
-    <section class="cx-sec" id="sec-tours" data-title="Guided tours">
+    <section class="cx-sec" id="sec-tours" data-title="Guided tours" data-tsx>
 
 
       <div class="cx-sec-hdr">
@@ -2933,7 +2900,7 @@
 
     <div class="cx-grp" data-label="Reference"></div>
 
-    <section class="cx-sec" id="sec-tokens" data-title="Design tokens">
+    <section class="cx-sec" id="sec-tokens" data-title="Design tokens" data-tsx>
 
 
       <div class="cx-sec-hdr">
@@ -3033,7 +3000,7 @@
     </section>
 
 
-    <section class="cx-sec" id="sec-theming" data-title="Theming &amp; appearance">
+    <section class="cx-sec" id="sec-theming" data-title="Theming &amp; appearance" data-tsx>
 
 
       <div class="cx-sec-hdr">
@@ -3091,7 +3058,7 @@
         <article class="cx-item"
           data-name="Appearance panel"
           data-kind="composed"
-          data-parts="Segmented choice"
+          data-parts="Segmented control"
           data-cls=".appr-presets .appr-preset .appr-preset-sw .appr-accents .appr-accent .appr-logo-row .gsa-sec .gsa-row .gsa-seg"
           data-src="css/portal-extras.css · js/gs-appearance.js"
           data-tip="The user-facing appearance section on each portal's Settings page: accent colour, logo, density and motion. Distinct from the designers-only theme customizer — this is the subset a real user is allowed to change, and it is the one the port should keep."
@@ -3117,7 +3084,7 @@
     </section>
 
 
-    <section class="cx-sec" id="sec-motion" data-title="Motion &amp; interaction">
+    <section class="cx-sec" id="sec-motion" data-title="Motion &amp; interaction" data-tsx>
 
 
       <div class="cx-sec-hdr">
@@ -3238,7 +3205,7 @@
     </section>
 
 
-    <section class="cx-sec" id="sec-proto" data-title="Prototype scaffolding">
+    <section class="cx-sec" id="sec-proto" data-title="Prototype scaffolding" data-tsx>
 
 
       <div class="cx-sec-hdr">
@@ -3302,9 +3269,10 @@
      it does on a portal page: themed selects, number steppers, data-grid
      toolkit, animated focus ring, click ripple, keyboard operability. -->
 <script src="js/gs-schema.js?v=1"></script>
-<script src="js/css-index.js?v=5"></script>
-<script src="js/tsx-index.js?v=5"></script>
-<script src="js/components-page.js?v=15"></script>
+<script src="js/gs-pkg-controls.js?v=1"></script>
+<script src="js/css-index.js?v=8"></script>
+<script src="js/tsx-index.js?v=9"></script>
+<script src="js/components-page.js?v=24"></script>
 <script src="js/greenstreets-theme.js?v=1"></script>
 </body>
 </html>
