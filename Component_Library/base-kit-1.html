@@ -14,10 +14,10 @@
 <link rel="stylesheet" href="css/greenstreets-light.css?v=1">
 <link rel="stylesheet" href="css/portal-extras-light.css?v=1">
 <!-- The sheet's own layout, plus the Figma-import hygiene overrides -->
-<link rel="stylesheet" href="css/base-kit.css?v=16">
+<link rel="stylesheet" href="css/base-kit.css?v=25">
 <!-- GENERATED: the real :hover declarations, re-applied under .bk-st-hover
      so this static sheet can draw the hover state. See tools/kit_states.py -->
-<link rel="stylesheet" href="css/base-kit-states.css?v=16">
+<link rel="stylesheet" href="css/base-kit-states.css?v=25">
 </head>
 <body class="bk-body">
 
@@ -34,11 +34,11 @@
         documentation live in the component library; this sheet is the drawing.</p>
     </div>
     <dl class="bk-facts">
-      <div><dt>Frames</dt><dd>14</dd></div>
+      <div><dt>Frames</dt><dd>13</dd></div>
       <div><dt>Sections</dt><dd>3</dd></div>
-      <div><dt>State cells</dt><dd>39</dd></div>
+      <div><dt>State cells</dt><dd>44</dd></div>
       <div><dt>Theme</dt><dd>Dark (primary)</dd></div>
-      <div><dt>Generated</dt><dd>2026-09-08</dd></div>
+      <div><dt>Generated</dt><dd>2026-09-10</dd></div>
     </dl>
     <button class="bk-theme" type="button" id="bkTheme" aria-pressed="false">Light theme</button>
   </header>
@@ -142,7 +142,7 @@
         <span class="bk-sec-c">4</span>
       </header>
       <div class="bk-grid">
-      <figure class="bk-frame bk-span-3" data-frame="Primary button" data-cells="4">
+      <figure class="bk-frame bk-span-3" data-frame="Primary button" data-cells="5">
         <figcaption class="bk-label">
           <span class="bk-name">Primary button</span>
           <span class="bk-purpose">The one accent action per view — the thing the screen exists to let you do.</span>
@@ -182,11 +182,20 @@
                  <span class="btn-c">Provision retailer</span>
                 </button>
               </div>
-              <span class="bk-cell-lbl bk-cell-lbl-alt">Active</span>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Pressed</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box bk-st-disabled-sys" data-bk-do="disable">
+                <button class="btn-p">
+                 <img class="btn-sw" src="img/swoosh.png" alt="">
+                 <span class="btn-c">Provision retailer</span>
+                </button>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Disabled</span>
             </div>
         </div>
       </figure>
-      <figure class="bk-frame bk-span-3" data-frame="Secondary button" data-cells="4">
+      <figure class="bk-frame bk-span-3" data-frame="Secondary button" data-cells="5">
         <figcaption class="bk-label">
           <span class="bk-name">Secondary button</span>
           <span class="bk-purpose">The default button, and the one you will reach for most: a 1px outline on a translucent surface.</span>
@@ -214,11 +223,17 @@
               <div class="bk-cell-box bk-st-active">
                 <button class="btn-g">Cancel</button>
               </div>
-              <span class="bk-cell-lbl bk-cell-lbl-alt">Active</span>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Pressed</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box bk-st-disabled-sys" data-bk-do="disable">
+                <button class="btn-g">Cancel</button>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Disabled</span>
             </div>
         </div>
       </figure>
-      <figure class="bk-frame bk-span-3" data-frame="Danger button" data-cells="3">
+      <figure class="bk-frame bk-span-3" data-frame="Danger button" data-cells="5">
         <figcaption class="bk-label">
           <span class="bk-name">Danger button</span>
           <span class="bk-purpose">For an action that destroys or cannot be undone.</span>
@@ -242,9 +257,21 @@
               </div>
               <span class="bk-cell-lbl bk-cell-lbl-alt">Focus</span>
             </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box bk-st-active">
+                <button class="doc-del-pop-yes" style="height:34px;padding:0 16px;font-size:12px">Delete document</button>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Pressed</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box bk-st-disabled-sys" data-bk-do="disable">
+                <button class="doc-del-pop-yes" style="height:34px;padding:0 16px;font-size:12px">Delete document</button>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Disabled</span>
+            </div>
         </div>
       </figure>
-      <figure class="bk-frame bk-span-3" data-frame="Icon button" data-cells="4">
+      <figure class="bk-frame bk-span-3" data-frame="Icon button" data-cells="5">
         <figcaption class="bk-label">
           <span class="bk-name">Icon button</span>
           <span class="bk-purpose">A square button whose only content is an icon, so the label it takes is not optional — it becomes both the title and the aria-label.</span>
@@ -280,7 +307,15 @@
                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
                 </button>
               </div>
-              <span class="bk-cell-lbl bk-cell-lbl-alt">Active</span>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Pressed</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box bk-st-disabled-sys" data-bk-do="disable">
+                <button class="btn-kebab" title="Row actions" aria-label="Row actions">
+                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+                </button>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Disabled</span>
             </div>
         </div>
       </figure>
@@ -290,10 +325,10 @@
       <header class="bk-sec-hd">
         <span class="bk-sec-n">03</span>
         <h2>Form inputs</h2>
-        <span class="bk-sec-c">6</span>
+        <span class="bk-sec-c">5</span>
       </header>
       <div class="bk-grid">
-      <figure class="bk-frame bk-span-3" data-frame="Text input" data-cells="3">
+      <figure class="bk-frame bk-span-3" data-frame="Text input" data-cells="4">
         <figcaption class="bk-label">
           <span class="bk-name">Text input</span>
           <span class="bk-purpose">The atom of every form.</span>
@@ -332,6 +367,22 @@
               <span class="bk-cell-lbl bk-cell-lbl-alt">Focus</span>
             </div>
             <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box bk-st-disabled-sys" data-bk-do="disable">
+                <div class="cx-frame">
+                 <div class="fgrp">
+                 <div class="flbl">Registered company name <span class="req">*</span></div>
+                 <input class="fi" placeholder="e.g. Primark Stores Ltd">
+                 <div class="fhint">As it appears on the trade register — this name is printed on the DoC.</div>
+                 </div>
+                 <div class="fgrp">
+                 <div class="flbl">Notes</div>
+                 <textarea class="fi notes-area" rows="3" placeholder="Anything the compliance team should know…"></textarea>
+                 </div>
+                </div>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Disabled</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
               <div class="bk-cell-box" data-bk-do="filled">
                 <div class="cx-frame">
                  <div class="fgrp">
@@ -343,6 +394,50 @@
                  <div class="flbl">Notes</div>
                  <textarea class="fi notes-area" rows="3" placeholder="Anything the compliance team should know…"></textarea>
                  </div>
+                </div>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Filled</span>
+            </div>
+        </div>
+      </figure>
+      <figure class="bk-frame bk-span-3" data-frame="Input field with icon" data-cells="4">
+        <figcaption class="bk-label">
+          <span class="bk-name">Input field with icon</span>
+          <span class="bk-purpose">Swap the icon for any other 13px glyph.</span>
+        </figcaption>
+        <div class="bk-states">
+            <div class="bk-cell">
+              <div class="bk-cell-box">
+                <div class="search-wrap" style="max-width:320px">
+                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                 <input class="fi fi-search" placeholder="Search SKU or description…">
+                </div>
+              </div>
+              <span class="bk-cell-lbl">Empty</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box bk-st-focus">
+                <div class="search-wrap" style="max-width:320px">
+                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                 <input class="fi fi-search" placeholder="Search SKU or description…">
+                </div>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Focus</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box bk-st-disabled-sys" data-bk-do="disable">
+                <div class="search-wrap" style="max-width:320px">
+                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                 <input class="fi fi-search" placeholder="Search SKU or description…">
+                </div>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Disabled</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box" data-bk-do="query">
+                <div class="search-wrap" style="max-width:320px">
+                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                 <input class="fi fi-search" placeholder="Search SKU or description…">
                 </div>
               </div>
               <span class="bk-cell-lbl bk-cell-lbl-alt">Filled</span>
@@ -408,81 +503,6 @@
             </div>
         </div>
       </figure>
-      <figure class="bk-frame bk-span-3" data-frame="Search input" data-cells="3">
-        <figcaption class="bk-label">
-          <span class="bk-name">Search input</span>
-          <span class="bk-purpose">The filter control at the head of every listing. Typing narrows the rows below it.</span>
-        </figcaption>
-        <div class="bk-states">
-            <div class="bk-cell">
-              <div class="bk-cell-box">
-                <div class="search-wrap" style="max-width:320px">
-                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-                 <input class="fi fi-search" placeholder="Search SKU or description…">
-                </div>
-              </div>
-              <span class="bk-cell-lbl">Empty</span>
-            </div>
-            <div class="bk-cell" data-bk-variant="1">
-              <div class="bk-cell-box bk-st-focus">
-                <div class="search-wrap" style="max-width:320px">
-                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-                 <input class="fi fi-search" placeholder="Search SKU or description…">
-                </div>
-              </div>
-              <span class="bk-cell-lbl bk-cell-lbl-alt">Focus</span>
-            </div>
-            <div class="bk-cell" data-bk-variant="1">
-              <div class="bk-cell-box" data-bk-do="query">
-                <div class="search-wrap" style="max-width:320px">
-                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-                 <input class="fi fi-search" placeholder="Search SKU or description…">
-                </div>
-              </div>
-              <span class="bk-cell-lbl bk-cell-lbl-alt">With a query</span>
-            </div>
-        </div>
-      </figure>
-      <figure class="bk-frame bk-span-2" data-frame="Login input" data-cells="2">
-        <figcaption class="bk-label">
-          <span class="bk-name">Login input</span>
-          <span class="bk-purpose">Render the MFA pair conditionally — it only applies to accounts where MFA is enforced.</span>
-        </figcaption>
-        <div class="bk-states">
-            <div class="bk-cell">
-              <div class="bk-cell-box">
-                <div style="max-width:320px">
-                 <div class="fgrp-login fi-icon-wrap">
-                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16v12H4z"/><path d="m4 7 8 6 8-6"/></svg>
-                 <input class="fi" type="email" placeholder="name@greenstreets.ie">
-                 </div>
-                 <input class="fi mfa-fi" type="text" inputmode="numeric" placeholder="000 000" style="margin-bottom:0">
-                 <div class="mfa-hint">
-                 <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.4"/><path d="M8 7v4M8 5.5v.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-                 <span>MFA required for this account</span>
-                 </div>
-                </div>
-              </div>
-              <span class="bk-cell-lbl">Default</span>
-            </div>
-            <div class="bk-cell" data-bk-variant="1">
-              <div class="bk-cell-box bk-st-focus">
-                <div style="max-width:320px">
-                 <div class="fgrp-login fi-icon-wrap">
-                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16v12H4z"/><path d="m4 7 8 6 8-6"/></svg>
-                 <input class="fi" type="email" placeholder="name@greenstreets.ie">
-                 </div>
-                 <input class="fi mfa-fi" type="text" inputmode="numeric" placeholder="000 000" style="margin-bottom:0">
-                 <div class="mfa-hint">
-                 <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.4"/><path d="M8 7v4M8 5.5v.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-                 <span>MFA required for this account</span>
-                 </div>
-                </div>
-              </div>
-              <span class="bk-cell-lbl bk-cell-lbl-alt">Focus</span>
-            </div>
-        </div>
-      </figure>
       <figure class="bk-frame bk-span-3" data-frame="Number input" data-cells="5">
         <figcaption class="bk-label">
           <span class="bk-name">Number input</span>
@@ -532,7 +552,7 @@
               <span class="bk-cell-lbl bk-cell-lbl-alt">Focus</span>
             </div>
             <div class="bk-cell" data-bk-variant="1">
-              <div class="bk-cell-box bk-st-active">
+              <div class="bk-cell-box bk-st-disabled-sys" data-bk-do="disable">
                 <div class="fg2" style="max-width:420px">
                  <div class="fgrp">
                  <div class="flbl">Weight</div>
@@ -543,7 +563,7 @@
                  </div>
                 </div>
               </div>
-              <span class="bk-cell-lbl bk-cell-lbl-alt">Active</span>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Disabled</span>
             </div>
             <div class="bk-cell" data-bk-variant="1">
               <div class="bk-cell-box" data-bk-do="empty">
@@ -635,6 +655,6 @@
 <script src="js/gs-schema.js?v=1"></script>
 <script src="js/gs-pkg-controls.js?v=1"></script>
 <script src="js/greenstreets-theme.js?v=1"></script>
-<script src="js/base-kit.js?v=16"></script>
+<script src="js/base-kit.js?v=25"></script>
 </body>
 </html>

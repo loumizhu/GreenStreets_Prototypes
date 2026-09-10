@@ -347,7 +347,7 @@ standard control:
 |---|---|---|
 | Field group | **Text input** | It is a labelled text input; `.fgrp` is just the wrapper that adds the label and hint. |
 | Themed select | **Dropdown list** | "Themed" describes how it is implemented, not what it is. |
-| Search field | **Search input** | The same `.fi` text input with a leading icon in `.search-wrap`. |
+| Search field | **Input field with icon** | The same `.fi` text input with a leading icon in `.search-wrap`. |
 | Editable picklist (combo) | **Editable dropdown list** | "Picklist" and "combo" are two different jargons for a dropdown you can type into. |
 | Number field with stepper & unit | **Number input** | Stepper and unit are parts, not the name. |
 | Read-only & copy-link fields | **Read-only input** | |
@@ -546,9 +546,9 @@ for a measured reason, not a hunch:
 ### Every state a component actually has, drawn
 
 A handoff sheet has to show more than a resting component, so each frame draws
-one cell per state, labelled. **101 cells across 55 frames; 28 frames carry more
-than one.** The dropdown list, for example, is *Collapsed · Focus · Open · Value
-selected*; the checkbox is *Unchecked · Hover · Checked · Indeterminate*.
+one cell per state, labelled. **136 cells across 55 frames.** The dropdown list,
+for example, is *Collapsed · Focus · Open, one item hovered*; the primary button
+is *Default · Hover · Focus · Active · Disabled*.
 
 Two different problems, solved two different ways:
 
@@ -556,8 +556,26 @@ Two different problems, solved two different ways:
 `tools/kit_states.py` reads the real declarations out of the stylesheets and
 re-applies them under a wrapper class — `.btn-p:hover{...}` becomes
 `.bk-st-hover .btn-p{...}`, verbatim — into a generated `css/base-kit-states.css`
-(43 rules). What the sheet draws is the real state by construction, and being
+(41 rules). What the sheet draws is the real state by construction, and being
 regenerated it cannot drift from the CSS.
+
+Three states are exceptions, because the product applies them through something
+other than a per-class rule and reading the stylesheets alone finds nothing:
+**focus** (the animated `.fs-ring` overlay, plus the generic keyboard outline)
+and **disabled** (no portal ever wrote `:disabled` for `.btn-p`/`.btn-g`, so
+the button frames had no deactivated state at all). Both are reproduced by hand
+in `SYSTEM_FOCUS` / `SYSTEM_DISABLED`, and the disabled one is keyed off the
+`[disabled]` **attribute** rather than a class list — keyed off classes it
+missed the two button specimens authored with a portal-specific class, and each
+drew identically to its own default cell.
+
+The third is **press feedback**, and it is worth knowing there is only one of
+it: the entire system has a single `:active` declaration, `transform:scale(.955)`
+on a long list of button selectors. No control has a bespoke pressed state, so
+the cell is labelled *Pressed* and documents that one shrink. Its only real
+exception is the number stepper, whose arrows are explicitly excluded — and an
+extracted active rule whose whole effect is `transform:none` is skipped rather
+than reported, since it removes the press feedback instead of being one.
 
 **Structural states — collapsed/open, selected, checked, filled, sorted.** These
 are a different DOM, not a pseudo-class. The product CSS already styles them

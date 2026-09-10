@@ -320,6 +320,23 @@
 
 
         <article class="cx-item"
+          data-name="Input field with icon"
+          data-kind="base"
+          data-cls=".search-wrap .fi.fi-search"
+          data-src="css/greenstreets-theme.css"
+          data-tip="A text input with a leading icon, always inside `.search-wrap` (which positions the icon and pads the field to clear it). The magnifier below is the commonest case - it is the left-hand control of every listing's filter toolbar, and wired to `gsFilterToolbar(this)` it filters rows by plain-text match with no per-table JS. Swap the icon for any other 13px glyph."
+          data-used="ALL:every listing">
+          <script type="text/html" class="cx-src">
+            <div class="search-wrap" style="max-width:320px">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <input class="fi fi-search" placeholder="Search SKU or description…">
+            </div>
+          </script>
+        </article>
+
+
+
+        <article class="cx-item"
           data-name="Form row grid"
           data-kind="composed"
           data-parts="Text input"
@@ -341,6 +358,10 @@
             </div>
           </script>
         </article>
+
+
+
+
 
 
 
@@ -369,20 +390,7 @@
 
 
 
-        <article class="cx-item"
-          data-name="Search input"
-          data-kind="base"
-          data-cls=".search-wrap .fi.fi-search"
-          data-src="css/greenstreets-theme.css"
-          data-tip="A search input with a leading magnifier, always inside `.search-wrap` (which positions the icon). This is the left-hand control of every listing's filter toolbar; wired to `gsFilterToolbar(this)` it filters rows by plain-text match with no per-table JS."
-          data-used="ALL:every listing">
-          <script type="text/html" class="cx-src">
-            <div class="search-wrap" style="max-width:320px">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-              <input class="fi fi-search" placeholder="Search SKU or description…">
-            </div>
-          </script>
-        </article>
+
 
 
 
@@ -968,7 +976,7 @@
         <article class="cx-item"
           data-name="Data grid (full toolkit, live)"
           data-kind="composed"
-          data-parts="Table|Sortable header|Pager|Bulk-selection bar|Column chooser|Search input|Dropdown list"
+          data-parts="Table|Sortable header|Pager|Bulk-selection bar|Column chooser|Input field with icon|Dropdown list"
           data-cls=".filter-toolbar + table.tbl → initListings()"
           data-src="js/greenstreets-theme.js · css/greenstreets-theme.css"
           data-clamp
@@ -1339,7 +1347,7 @@
         <article class="cx-item"
           data-name="List picker dialog"
           data-kind="composed"
-          data-parts="Dialog surface|Search input|Status pill"
+          data-parts="Dialog surface|Input field with icon|Status pill"
           data-cls=".pkg-modal-overlay .pkg-modal .pkg-modal-search-wrap .pkg-modal-list .pkg-modal-item .pkg-modal-create-btn"
           data-src="css/greenstreets-theme.css"
           data-stage="cx-ov"
@@ -1609,7 +1617,10 @@
           data-used="SP:AI Processing|../Supplier_Portal/04-greenstreets_supplier_portal_AI-Processing.html">
           <script type="text/html" class="cx-src">
             <div class="cx-row" style="gap:22px">
-              <div class="spin-ring"></div>
+              <div style="position:relative;width:40px;height:40px;flex:0 0 auto">
+                <div style="position:absolute;inset:0;border-radius:50%;border:3px solid var(--line)"></div>
+                <div class="spin-ring"></div>
+              </div>
               <span class="gs-autosave gs-as-saving"><span class="gs-as-spin"></span>Saving…</span>
             </div>
           </script>
@@ -1943,7 +1954,7 @@
         <article class="cx-item"
           data-name="Searchable action menu"
           data-kind="composed"
-          data-parts="Search input"
+          data-parts="Input field with icon"
           data-cls=".comp-menu .comp-menu-search .comp-menu-create-new &middot; .export-dd-menu .su-role-menu .pkg-table-add-menu"
           data-src="css/supplier-portal.css · css/greenstreets-theme.css"
           data-stage="cx-ov"
@@ -2046,6 +2057,48 @@
     </section>
 
     <div class="cx-grp" data-label="Domain components"></div>
+
+    <section class="cx-sec" id="sec-pkgcomp" data-title="Packaging components">
+
+        <article class="cx-item"
+          data-name="Component chip"
+          data-kind="base"
+          data-cls=".pcmp-pill .pcmp-num .pcmp-txt .pcmp-qty .pcmp-steppers .pcmp-step .pcmp-x &middot; .pcmp-has-note .pcmp-note-ic"
+          data-src="css/supplier-portal.css"
+          data-tip="One packaging component attached to a product, as it appears in a list of them. The leading number is its position, the name truncates rather than wrapping, and the trailing controls are a &minus;/+ pair for how many of this component the product carries and an &times; to detach it. The minus is disabled at one, so the count can never fall to zero by accident &mdash; detaching is the explicit action. A &ldquo;&times; N&rdquo; badge appears only above one, in a different colour from the chip so a quantity never reads as part of the name. When the retailer has attached a note it gains a speech-bubble glyph and an amber border. `.pcmp-pill-sugg` is the same chip restyled for a component the retailer expects but the supplier has not entered."
+          data-used="SP:Products|../Supplier_Portal/04-greenstreets_supplier_portal_Products.html;SP:Product detail|../Supplier_Portal/04-greenstreets_supplier_portal_Product-Detail.html">
+          <script type="text/html" class="cx-src">
+            <div class="pcmp-list" style="grid-template-columns:1fr;max-width:250px">
+              <span class="pcmp-pill">
+                <span class="pcmp-num">1</span>
+                <span class="pcmp-txt">Swing Tag</span>
+                <span class="pcmp-steppers">
+                  <button class="pcmp-step pcmp-step-minus" disabled title="Fewer of this component"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+                  <button class="pcmp-step pcmp-step-plus" title="More of this component"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+                </span>
+                <span class="pcmp-x" title="Remove component"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>
+              </span>
+            </div>
+          </script>
+        </article>
+
+
+
+        <article class="cx-item"
+          data-name="Add component button"
+          data-kind="base"
+          data-cls=".pcmp-add .pcmp-add-btn"
+          data-src="css/supplier-portal.css"
+          data-tip="The dashed button that closes a list of component chips. Dashed and unfilled on purpose &mdash; it is an empty slot inviting one more, not an action competing with the chips beside it; on hover it takes the accent. It opens a picker of the supplier&rsquo;s saved components, with an option to build a new one."
+          data-used="SP:Products|../Supplier_Portal/04-greenstreets_supplier_portal_Products.html">
+          <script type="text/html" class="cx-src">
+            <span class="pcmp-add">
+              <button class="pcmp-add-btn" title="Add packaging component"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Add component</button>
+            </span>
+          </script>
+        </article>
+
+    </section>
 
     <section class="cx-sec" id="sec-packaging" data-title="Packaging data capture" data-tsx>
 
@@ -3270,9 +3323,9 @@
      toolkit, animated focus ring, click ripple, keyboard operability. -->
 <script src="js/gs-schema.js?v=1"></script>
 <script src="js/gs-pkg-controls.js?v=1"></script>
-<script src="js/css-index.js?v=8"></script>
-<script src="js/tsx-index.js?v=9"></script>
-<script src="js/components-page.js?v=24"></script>
+<script src="js/css-index.js?v=10"></script>
+<script src="js/tsx-index.js?v=11"></script>
+<script src="js/components-page.js?v=26"></script>
 <script src="js/greenstreets-theme.js?v=1"></script>
 </body>
 </html>

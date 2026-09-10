@@ -39,6 +39,42 @@
    drawing a ring INSIDE the focused field. */
 .bk-st-focus [tabindex="-1"]{outline:none!important}
 
+/* ---- the system disabled treatment (see SYSTEM_DISABLED in tools/kit_states.py) ---- */
+/* Keyed off the ATTRIBUTE, not a class list. Keyed off classes, this missed the
+   two button specimens that are catalogued under a generic name but authored
+   with the portal's own class - `.doc-del-pop-yes` for Danger, `.btn-kebab` for
+   Icon - and both drew identically to their default cell, which is exactly the
+   lie a state cell must never tell. */
+/* Scoped to `-sys`, NOT to every disabled cell. A component that declares its
+   OWN :disabled rule must keep it: the packaging component chip dims its
+   stepper to .32, and this block - emitted last, so it wins on source order -
+   was overriding that to .45 and shipping a value the product never renders.
+   Only the allowlist cells, which exist precisely because no rule was found,
+   carry `.bk-st-disabled-sys`. */
+.bk-st-disabled-sys [disabled],
+.bk-st-disabled-sys [aria-disabled="true"]{
+  opacity:.45!important;
+  cursor:not-allowed!important;
+  pointer-events:none!important;
+  box-shadow:none!important;
+}
+/* The label beside a disabled control dims with it - a bright label over a
+   greyed field reads as a rendering fault rather than an unavailable control. */
+.bk-st-disabled-sys .flbl,
+.bk-st-disabled-sys .fi-unit,
+.bk-st-disabled-sys label:has([disabled]){opacity:.45!important}
+
+/* ---- press feedback (see SYSTEM_ACTIVE in tools/kit_states.py) ---- */
+.bk-st-active button,
+.bk-st-active [role="button"],
+.bk-st-active .btn-p,
+.bk-st-active .btn-g,
+.bk-st-active .btn-g-sm{transform:scale(.955)!important}
+/* The stepper arrows are excluded in the product too. Last word, as with the
+   focus suppression - the rule it overrides shares its specificity. */
+.bk-st-active .gs-num-btn,
+.bk-st-active .gs-num-steppers button{transform:none!important}
+
 /* ---- hover ---- */
 .bk-st-hover .btn-p{filter:brightness(1.06) !important; box-shadow:0 12px 26px -8px rgba(78,187,129,.55) !important}
 .bk-st-hover .btn-g{background:rgba(255,255,255,.08) !important; color:var(--tw) !important; border-color:rgba(255,255,255,.3) !important}
@@ -68,6 +104,10 @@
 .bk-st-hover .bc-link{color:var(--tw) !important}
 .bk-st-hover .gs-crumb:not(.gs-crumb-current):first-of-type{background:rgba(78,187,129,.15) !important; border-color:rgba(78,187,129,.42) !important; color:#fff !important}
 .bk-st-hover .landing-tab:not(.active):last-of-type{color:rgba(255,255,255,.75) !important}
+.bk-st-hover .pcmp-x{background:rgba(224,82,82,.28) !important; color:#fff !important}
+.bk-st-hover .pcmp-note-ic{color:#ffd479 !important}
+.bk-st-hover .pcmp-step{background:rgba(78,187,129,.28) !important; color:#fff !important}
+.bk-st-hover .pcmp-add-btn{border-color:rgba(78,187,129,.55) !important; color:var(--gs) !important; background:rgba(78,187,129,.07) !important}
 .bk-st-hover .docs-vbtn{color:#fff !important}
 .bk-st-hover .docs-bulk-dl{filter:brightness(1.08) !important}
 .bk-st-hover .hdr-theme-toggle{background:rgba(78,187,129,.12) !important; border-color:var(--gs) !important; color:var(--gs-l) !important}
@@ -78,13 +118,12 @@
 .bk-st-focus .fi{background:rgba(255,255,255,.07) !important; box-shadow:0 0 0 3px rgba(91,156,246,.14) !important}
 
 /* ---- active ---- */
-.bk-st-active .btn-p{transform:scale(.955) !important}
-.bk-st-active .btn-g{transform:scale(.955) !important}
-.bk-st-active .chev-btn{transform:scale(.955) !important}
-.bk-st-active .gs-num-btn{transform:none !important}
 .bk-st-active .imp-exit{transform:scale(.955) !important}
 .bk-st-active .nav-item:not(.active):last-of-type{transform:scale(.955) !important}
 .bk-st-active .sb-logout{transform:scale(.955) !important}
+
+/* ---- disabled ---- */
+.bk-st-disabled .pcmp-step{opacity:.32 !important; pointer-events:none !important}
 
 /* ---- the system focus ring (see SYSTEM_FOCUS in tools/kit_states.py) ---- */
 /* EVERY control in a focus cell gets the ring, not one marked target. A spec
@@ -120,4 +159,40 @@
    arrows and the editable combo's caret are both tabIndex=-1 and were each
    drawing a ring INSIDE the focused field. */
 .bk-st-focus [tabindex="-1"]{outline:none!important}
+
+/* ---- the system disabled treatment (see SYSTEM_DISABLED in tools/kit_states.py) ---- */
+/* Keyed off the ATTRIBUTE, not a class list. Keyed off classes, this missed the
+   two button specimens that are catalogued under a generic name but authored
+   with the portal's own class - `.doc-del-pop-yes` for Danger, `.btn-kebab` for
+   Icon - and both drew identically to their default cell, which is exactly the
+   lie a state cell must never tell. */
+/* Scoped to `-sys`, NOT to every disabled cell. A component that declares its
+   OWN :disabled rule must keep it: the packaging component chip dims its
+   stepper to .32, and this block - emitted last, so it wins on source order -
+   was overriding that to .45 and shipping a value the product never renders.
+   Only the allowlist cells, which exist precisely because no rule was found,
+   carry `.bk-st-disabled-sys`. */
+.bk-st-disabled-sys [disabled],
+.bk-st-disabled-sys [aria-disabled="true"]{
+  opacity:.45!important;
+  cursor:not-allowed!important;
+  pointer-events:none!important;
+  box-shadow:none!important;
+}
+/* The label beside a disabled control dims with it - a bright label over a
+   greyed field reads as a rendering fault rather than an unavailable control. */
+.bk-st-disabled-sys .flbl,
+.bk-st-disabled-sys .fi-unit,
+.bk-st-disabled-sys label:has([disabled]){opacity:.45!important}
+
+/* ---- press feedback (see SYSTEM_ACTIVE in tools/kit_states.py) ---- */
+.bk-st-active button,
+.bk-st-active [role="button"],
+.bk-st-active .btn-p,
+.bk-st-active .btn-g,
+.bk-st-active .btn-g-sm{transform:scale(.955)!important}
+/* The stepper arrows are excluded in the product too. Last word, as with the
+   focus suppression - the rule it overrides shares its specificity. */
+.bk-st-active .gs-num-btn,
+.bk-st-active .gs-num-steppers button{transform:none!important}
 

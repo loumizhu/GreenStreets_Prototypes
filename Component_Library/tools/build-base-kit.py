@@ -61,6 +61,13 @@ BEHAVIOURS = {
     'Prototype nav bar':            'A reviewer aid for jumping between screens. Not product UI.',
 }
 
+# Base specimens deliberately left OUT of the kit - not behaviours, just not
+# distinct controls. Login input is a text field with a leading icon, which the
+# Text input and Input-field-with-icon frames already cover between them. Excluded here
+# only: the specimen stays in components.html, where a composed specimen
+# references it through `data-parts`.
+NOT_A_CONTROL = {'Login input'}
+
 # Specimens whose hover rule exists but produces NO visible difference, checked
 # by diffing computed styles between the two rendered cells. They get one cell:
 # two identical drawings side by side would assert a state that isn't there.
@@ -155,7 +162,7 @@ PURPOSE = {
     'Number input':
         'A numeric field with its own increment controls and an optional unit '
         'suffix, in place of the browser default.',
-    'Search input':
+    'Input field with icon':
         'The filter control at the head of every listing. Typing narrows the '
         'rows below it.',
     'Table':
@@ -277,6 +284,8 @@ def parse():
             if 'data-kind="base"' not in attrs:
                 continue
             name = H.unescape(re.search(r'data-name="([^"]*)"', attrs).group(1))
+            if name in NOT_A_CONTROL:
+                continue
             stage = re.search(r'data-stage="([^"]*)"', attrs)
             cls = re.search(r'data-cls="([^"]*)"', attrs)
             tip = re.search(r'data-tip="([^"]*)"', attrs)
@@ -310,11 +319,8 @@ def uniquify(markup, suffix):
     return markup
 
 
-def build():
-    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
-    sections = parse()
-    all_rules = ST.state_rules(LIB)
-
+def split_drawn(sections):
+    """(sections that have something to draw, names of the behaviours skipped)."""
     drawn, skipped, frames = [], [], 0
     for title, items in sections:
         keep = [it for it in items if it[0] not in BEHAVIOURS]
@@ -322,7 +328,11 @@ def build():
         if keep:
             drawn.append((title, keep))
             frames += len(keep)
+    return drawn, skipped, frames
 
+
+def render(drawn, all_rules):
+    """Render the sections. Shared by the four-part kit and the SP sheet."""
     used_rules, multi, cells_all = [], [], []
     parts = []
     for i, (title, items) in enumerate(drawn, 1):
@@ -388,6 +398,16 @@ def build():
             '      <div class="bk-grid">\n%s\n      </div>\n'
             '    </section>' % (i, H.escape(title), len(items), '\n'.join(cards)))
 
+    return parts, used_rules, cells_all, multi
+
+
+def build():
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    sections = parse()
+    all_rules = ST.state_rules(LIB)
+    drawn, skipped, frames = split_drawn(sections)
+    parts, used_rules, cells_all, multi = render(drawn, all_rules)
+
     n_rules = ST.emit(LIB, used_rules)
 
     appendix = '\n'.join(
@@ -436,10 +456,121 @@ def build():
     print('  behaviours listed but not drawn (%d, on part %d): %s'
           % (len(skipped), PARTS, ', '.join(skipped)))
 
+    build_sp(sections, all_rules)
+
     old = os.path.join(LIB, 'base-kit.html')
     if os.path.exists(old):
         os.remove(old)
         print('  removed the old single-page base-kit.html')
+
+
+SP_OUT = os.path.join(LIB, 'base-kit-5.html')
+
+# Read once from the real sheets so the cover cannot drift from the product.
+TOKEN_RX = re.compile(r'(--[a-z0-9-]+)\s*:\s*([^;}]+)')
+
+
+def sp_tokens():
+    """The :root custom properties of the Supplier Portal's own stylesheets."""
+    tok = {}
+    for f in ('greenstreets-theme.css', 'supplier-portal.css'):
+        css = io.open(os.path.join(LIB, 'css', f), encoding='utf-8').read()
+        for m in re.finditer(r':root\{(.*?)\}', css, re.S):
+            for k, v in TOKEN_RX.findall(m.group(1)):
+                tok[k] = v.strip()
+    return tok
+
+
+def sp_specimens(sections):
+    """Sections filtered to the components the Supplier Portal actually has.
+
+    `data-used` is a list of EXAMPLE links, not a record of presence, so it
+    cannot be the filter - it points Primary button at three other portals.
+    The stylesheets can: greenstreets-theme.css + supplier-portal.css are the
+    Supplier Portal's own, and portal-extras.css carries only what is exclusive
+    to the other three. A specimen whose classes resolve in the base sheets is
+    a Supplier Portal component; one whose classes resolve only in the extras
+    is somebody else's.
+    """
+    base = ''
+    for f in ('greenstreets-theme.css', 'supplier-portal.css'):
+        base += io.open(os.path.join(LIB, 'css', f), encoding='utf-8').read()
+    have = set(re.findall(r'\.([A-Za-z][\w-]+)', base))
+
+    out, dropped = [], []
+    for title, items in sections:
+        keep = []
+        for it in items:
+            cls = set(re.findall(r'\.([A-Za-z][\w-]+)', it[3]))
+            # No classes at all = a token or behaviour specimen; those are the
+            # system's, so they stay.
+            if not cls or (cls & have):
+                keep.append(it)
+            else:
+                dropped.append(it[0])
+        if keep:
+            out.append((title, keep))
+    return out, dropped
+
+
+def build_sp(sections, all_rules):
+    """One page, Supplier Portal only, with a cover that describes the UI."""
+    scoped, dropped = sp_specimens(sections)
+    drawn, skipped, frames = split_drawn(scoped)
+    parts, used, cells, _multi = render(drawn, all_rules)
+
+    # No ST.emit here on purpose. The four-part kit is a superset of this page
+    # and is built first, so css/base-kit-states.css already holds every rule
+    # these frames need; emitting again would truncate that sheet to this
+    # subset and silently strip states from parts 1-4.
+    del used
+
+    t = sp_tokens()
+    swatches = [
+        ('Canvas', t.get('--bg-0', '#070f1c'), 'the page behind everything'),
+        ('Accent', t.get('--gs', '#4ebb81'), 'brand green - primary actions, active nav, focus'),
+        ('Accent light', t.get('--gs-l', '#8fe3b6'), 'gradient top end, active indicator'),
+        ('Info', t.get('--bl', '#5b9cf6'), 'links and informational status'),
+        ('Warning', t.get('--amber', '#f5a623'), 'attention, expiring, low confidence'),
+        ('Danger', t.get('--red', '#e0605a'), 'destructive actions and failures'),
+    ]
+    swatch_html = '\n'.join(
+        '        <li><span class="bk-sw" style="background:%s"></span>'
+        '<b>%s</b><code>%s</code><span class="bk-sw-note">%s</span></li>'
+        % (v, H.escape(n), H.escape(v), H.escape(note))
+        for n, v, note in swatches)
+
+    facts = [
+        ('Type', "Inter 300-700. Body 13px, labels 11px uppercase, page title 21px."),
+        ('Corner radius', '%s controls, %s cards, %s panels.'
+         % (t.get('--rs', '10px'), t.get('--rm', '13px'), t.get('--rl', '18px'))),
+        ('Spacing', 'A 7-step scale: %s.'
+         % ', '.join(t.get('--sp-%d' % i, '') for i in range(1, 8))),
+        ('Control height', 'Buttons 42px. Fields 10px/12px padding at 13px, so ~39px.'),
+        ('Ink', 'Full white for primary text, %s for secondary, %s for muted.'
+         % (t.get('--tw2', ''), t.get('--tw3', ''))),
+        ('Hairline', '1px %s; %s where a border needs to read as an edge.'
+         % (t.get('--line', ''), t.get('--line-2', ''))),
+        ('Focus', 'A 2px ring in the accent, drawn on at the control\'s own radius. '
+                  'It follows the accent, so re-theming moves it.'),
+        ('Surfaces', 'Cards are a near-transparent white wash over the page, with a '
+                     'blur behind them - so the background gradient reads through every panel.'),
+    ]
+    fact_html = '\n'.join(
+        '        <div><dt>%s</dt><dd>%s</dd></div>' % (H.escape(k), H.escape(v))
+        for k, v in facts)
+
+    html = SP_TEMPLATE % {
+        'body': '\n'.join(parts),
+        'canvas': t.get('--bg-0', '#070f1c'),
+        'swatches': swatch_html,
+        'facts': fact_html,
+    }
+    io.open(SP_OUT, 'w', encoding='utf-8', newline='\n').write(html)
+    print('  base-kit-5.html  %2d frames in %2d sections  %3d KB   (Supplier Portal only)'
+          % (frames, len(drawn), os.path.getsize(SP_OUT) // 1024))
+    print('     %d state cells; not a Supplier Portal component (%d): %s'
+          % (len(cells), len(dropped), ', '.join(dropped) or 'none'))
 
 
 def indent(block, n):
@@ -525,6 +656,86 @@ APPENDIX = '''  <section class="bk-sec bk-appendix">
       </ul>
     </div>
   </section>
+'''
+
+SP_TEMPLATE = '''<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>GreenStreets — Supplier Portal base components</title>
+<meta name="description" content="The Supplier Portal's base components, laid out as a design sheet for import into Figma. No code.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<!-- The Supplier Portal's OWN stylesheets, in its load order. portal-extras is
+     deliberately absent: it carries only the other three portals' exclusive
+     rules, and nothing on this page should be drawn by them. -->
+<link rel="stylesheet" href="css/greenstreets-theme.css?v=1">
+<link rel="stylesheet" href="css/supplier-portal.css?v=1">
+<link rel="stylesheet" href="css/greenstreets-light.css?v=1">
+<link rel="stylesheet" href="css/base-kit.css?v=22">
+<link rel="stylesheet" href="css/base-kit-states.css?v=22">
+</head>
+<body class="bk-body">
+
+<div class="bk-artboard">
+
+  <header class="bk-cover bk-cover-ui">
+    <div class="bk-cover-main">
+      <p class="bk-eyebrow">GreenStreets design system</p>
+      <h1>Supplier Portal — base components</h1>
+      <p class="bk-lede">Every primitive the Supplier Portal is built from, one per frame, drawn by
+        the portal's own production stylesheets. Where a component has more than one state, each
+        state is drawn beside the default from the real declarations. This sheet is the drawing;
+        code and documentation live in the component library.</p>
+    </div>
+    <button class="bk-theme" type="button" id="bkTheme" aria-pressed="false">Light theme</button>
+  </header>
+
+  <section class="bk-sec bk-ui">
+    <header class="bk-sec-hd">
+      <span class="bk-sec-n">—</span>
+      <h2>The surface everything sits on</h2>
+    </header>
+    <div class="bk-ui-body">
+      <figure class="bk-canvas">
+        <div class="bk-canvas-swatch"></div>
+        <figcaption>
+          <b>Page background</b>
+          <p>A near-black navy, %(canvas)s, with four soft radial washes over it — green at the top
+            left, blue at the top right, a deeper blue rising from the bottom centre, and a faint
+            teal at the lower right — above a dark navy diagonal. It is fixed to the viewport, so it
+            does not scroll with the content.</p>
+          <p class="bk-canvas-note">The frames below sit on a flat panel instead: Figma cannot
+            import a multi-layer gradient or a backdrop blur, and the real background would arrive
+            as a stack of detached shapes. Rebuild it in Figma from the description above.</p>
+        </figcaption>
+      </figure>
+
+      <ul class="bk-swatches">
+%(swatches)s
+      </ul>
+
+      <dl class="bk-ui-facts">
+%(facts)s
+      </dl>
+    </div>
+  </section>
+
+%(body)s
+
+  <footer class="bk-foot">
+    <span>GreenStreets — Supplier Portal base components</span>
+    <span>Generated from components.html by tools/build-base-kit.py · do not hand-edit</span>
+  </footer>
+
+</div>
+
+<script src="js/gs-schema.js?v=1"></script>
+<script src="js/gs-pkg-controls.js?v=1"></script>
+<script src="js/greenstreets-theme.js?v=1"></script>
+<script src="js/base-kit.js?v=22"></script>
+</body>
+</html>
 '''
 
 if __name__ == '__main__':

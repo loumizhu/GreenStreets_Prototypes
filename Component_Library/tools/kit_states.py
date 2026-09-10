@@ -90,7 +90,7 @@ DEFAULT_LABEL = {
     'Editable dropdown list': 'Collapsed',
     'Checkbox': 'Unchecked',
     'Text input': 'Empty',
-    'Search input': 'Empty',
+    'Input field with icon': 'Empty',
     'Progress bar': 'In progress',
     'Sortable header': 'Unsorted',
     'Number input': 'With a value',
@@ -117,8 +117,10 @@ STRUCTURAL = {
     'Text input': [
         ('Filled', 'filled'),
     ],
-    'Search input': [
-        ('With a query', 'query'),
+    'Input field with icon': [
+        # "With a query" read as a search-only label. The control is a text
+        # field with an icon, so it matches Text input's own filled cell.
+        ('Filled', 'query'),
     ],
     'Number input': [
         ('Empty', 'empty'),
@@ -139,6 +141,13 @@ STRUCTURAL = {
     ],
     'Table': [
         ('Row selected', 'row-selected'),
+    ],
+    # The chip's two real variants. Both are markup the product emits, not CSS
+    # a wrapper class can force: the quantity badge and the note glyph only
+    # exist when there is a quantity above one / a note to show.
+    'Component chip': [
+        ('Quantity above one', 'pcmp-qty'),
+        ('With a retailer note', 'pcmp-note'),
     ],
     'Status pill': [],          # the specimen already draws every tone
     'Alert banner': [],         # ditto
@@ -191,6 +200,90 @@ SYSTEM_FOCUS = """/* ---- the system focus ring (see SYSTEM_FOCUS in tools/kit_s
    drawing a ring INSIDE the focused field. */
 .bk-st-focus [tabindex="-1"]{outline:none!important}
 """
+
+
+# The system's disabled treatment, reproduced statically - and, like
+# SYSTEM_FOCUS, hand-written because it is not a per-class rule that could be
+# extracted. No portal declares `:disabled` for `.btn-p` / `.btn-g` /
+# `.btn-g-sm`, so the four button frames drew NO deactivated state at all,
+# though `disabled` is a documented prop. The treatment itself is not invented:
+# every product button class that DOES carry it agrees on dim + no pointer
+# (`.gs-pager .btn-g-sm[disabled]`, `.prod-submit-btn`, `.pcmp-step`,
+# `.prod-pg-btn`, `.dpg-btn`, `.air-finish-btn`), and .45 is the opacity the
+# handoff docs in tools/tsx_overrides.py already specify.
+SYSTEM_DISABLED = """/* ---- the system disabled treatment (see SYSTEM_DISABLED in tools/kit_states.py) ---- */
+/* Keyed off the ATTRIBUTE, not a class list. Keyed off classes, this missed the
+   two button specimens that are catalogued under a generic name but authored
+   with the portal's own class - `.doc-del-pop-yes` for Danger, `.btn-kebab` for
+   Icon - and both drew identically to their default cell, which is exactly the
+   lie a state cell must never tell. */
+/* Scoped to `-sys`, NOT to every disabled cell. A component that declares its
+   OWN :disabled rule must keep it: the packaging component chip dims its
+   stepper to .32, and this block - emitted last, so it wins on source order -
+   was overriding that to .45 and shipping a value the product never renders.
+   Only the allowlist cells, which exist precisely because no rule was found,
+   carry `.bk-st-disabled-sys`. */
+.bk-st-disabled-sys [disabled],
+.bk-st-disabled-sys [aria-disabled="true"]{
+  opacity:.45!important;
+  cursor:not-allowed!important;
+  pointer-events:none!important;
+  box-shadow:none!important;
+}
+/* The label beside a disabled control dims with it - a bright label over a
+   greyed field reads as a rendering fault rather than an unavailable control. */
+.bk-st-disabled-sys .flbl,
+.bk-st-disabled-sys .fi-unit,
+.bk-st-disabled-sys label:has([disabled]){opacity:.45!important}
+"""
+
+# Specimens whose primary control really does take `disabled`. An allowlist, not
+# a scan for `<button>`: a Table's rows are not disablable and dimming its
+# toolbar would assert a state the component does not have. The themed dropdown
+# is out because its trigger is a div with no disabled attribute and no product
+# rule to reproduce.
+SYSTEM_DISABLED_FOR = {
+    'Primary button', 'Secondary button', 'Danger button', 'Icon button',
+    'Button group', 'Reminder button',
+    'Text input', 'Input field with icon', 'Login input', 'Number input', 'Checkbox',
+}
+
+
+# The press feedback, reproduced statically - the third system treatment,
+# alongside SYSTEM_FOCUS and SYSTEM_DISABLED. There is exactly ONE `:active`
+# declaration in the whole system (greenstreets-theme.css, the PRESS FEEDBACK
+# block): `transform:scale(.955)` on a long list of button selectors, most of
+# which are the bare `button` / `[role="button"]` TAGS. No control has a bespoke
+# pressed state.
+#
+# Extraction matches on the specimen's CLASSES, so it caught `.btn-p` and
+# `.btn-g` and missed Danger button, whose specimen is authored as a plain
+# `<button class="doc-del-pop-yes">` - which the product shrinks exactly like
+# the others. Omitting a state the control has is the same lie as inventing one
+# it lacks, so the tag reach is reproduced here.
+#
+# The one exception is real and load-bearing: `.gs-num-btn:active{transform:none}`
+# - the number stepper's arrows deliberately do NOT shrink, because a 4.5%
+# shrink on a 14px arrow reads as a glitch.
+SYSTEM_ACTIVE = """/* ---- press feedback (see SYSTEM_ACTIVE in tools/kit_states.py) ---- */
+.bk-st-active button,
+.bk-st-active [role="button"],
+.bk-st-active .btn-p,
+.bk-st-active .btn-g,
+.bk-st-active .btn-g-sm{transform:scale(.955)!important}
+/* The stepper arrows are excluded in the product too. Last word, as with the
+   focus suppression - the rule it overrides shares its specificity. */
+.bk-st-active .gs-num-btn,
+.bk-st-active .gs-num-steppers button{transform:none!important}
+"""
+
+# Specimens whose control really is pressable. An allowlist for the same reason
+# SYSTEM_DISABLED_FOR is one: a Table's toolbar shrinking would document a press
+# state for the table.
+SYSTEM_ACTIVE_FOR = {
+    'Primary button', 'Secondary button', 'Danger button', 'Icon button',
+    'Button group', 'Reminder button',
+}
 
 
 # These carry their hover on the combined open cell above, so the plain CSS
@@ -304,6 +397,8 @@ def emit(lib, used, out_name='base-kit-states.css'):
         '',
     ]
     lines.append(SYSTEM_FOCUS)
+    lines.append(SYSTEM_DISABLED)
+    lines.append(SYSTEM_ACTIVE)
 
     seen, n = set(), 0
     by_state = {}
@@ -334,6 +429,8 @@ def emit(lib, used, out_name='base-kit-states.css'):
     # ORDER is what decides. Emitted first, the suppression lost and the number
     # stepper's arrows kept drawing their own rings inside the focused field.
     lines.append(SYSTEM_FOCUS)
+    lines.append(SYSTEM_DISABLED)
+    lines.append(SYSTEM_ACTIVE)
 
     io.open(os.path.join(lib, 'css', out_name), 'w',
             encoding='utf-8', newline='\n').write('\n'.join(lines) + '\n')
@@ -367,6 +464,28 @@ def plan(name, cls_spec, all_rules, markup):
         # Without this, buttons had no Focus cell at all.
         if state == 'focus' and not got and focusable:
             cells.append(('Focus', 'focus', ''))
+            continue
+        # Disabled is a SYSTEM treatment too - see SYSTEM_DISABLED. The button
+        # classes carry no `:disabled` rule anywhere, so without this the four
+        # button frames had no deactivated state at all.
+        if state == 'disabled' and not got and name in SYSTEM_DISABLED_FOR:
+            cells.append(('Disabled', 'disabled-sys', 'disable'))
+            continue
+        # Same for the press feedback - see SYSTEM_ACTIVE. Extraction reads
+        # classes, and this rule reaches most of its targets through the bare
+        # `button` tag, so Danger button had no Active cell.
+        if state == 'active' and name in SYSTEM_ACTIVE_FOR:
+            cells.append(('Pressed', 'active', ''))
+            continue
+        # A rule whose whole effect is `transform:none` REMOVES the press
+        # feedback rather than being one - `.gs-num-btn:active{transform:none}`
+        # is there precisely so the stepper arrows do not shrink. Reported as a
+        # state it drew a cell identical to the default, asserting a press the
+        # control does not have. Same reasoning as skipping an `outline:none`
+        # rule when scanning for focus states.
+        if state == 'active' and got and all(
+                d.split(':', 1)[-1].strip() in ('none', 'unset', 'initial')
+                for _p, dec in got for d in dec.split(';') if d.strip()):
             continue
         if not got:
             continue

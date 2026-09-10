@@ -43,7 +43,7 @@ SECTION_KIND = {
 }
 NAME_KIND = {
     'Dropdown list': 'select', 'Editable dropdown list': 'select',
-    'Search input': 'search', 'Checkbox': 'checkbox',
+    'Input field with icon': 'search', 'Checkbox': 'checkbox',
     'Segmented control': 'segmented', 'Percentage slider + number': 'slider',
     'Icon-only buttons': 'iconbutton',
     'Confirmation dialog': 'confirm', 'Inline confirm popover': 'confirm',

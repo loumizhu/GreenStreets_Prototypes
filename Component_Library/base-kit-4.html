@@ -14,10 +14,10 @@
 <link rel="stylesheet" href="css/greenstreets-light.css?v=1">
 <link rel="stylesheet" href="css/portal-extras-light.css?v=1">
 <!-- The sheet's own layout, plus the Figma-import hygiene overrides -->
-<link rel="stylesheet" href="css/base-kit.css?v=16">
+<link rel="stylesheet" href="css/base-kit.css?v=25">
 <!-- GENERATED: the real :hover declarations, re-applied under .bk-st-hover
      so this static sheet can draw the hover state. See tools/kit_states.py -->
-<link rel="stylesheet" href="css/base-kit-states.css?v=16">
+<link rel="stylesheet" href="css/base-kit-states.css?v=25">
 </head>
 <body class="bk-body">
 
@@ -34,11 +34,11 @@
         documentation live in the component library; this sheet is the drawing.</p>
     </div>
     <dl class="bk-facts">
-      <div><dt>Frames</dt><dd>16</dd></div>
-      <div><dt>Sections</dt><dd>8</dd></div>
-      <div><dt>State cells</dt><dd>38</dd></div>
+      <div><dt>Frames</dt><dd>18</dd></div>
+      <div><dt>Sections</dt><dd>9</dd></div>
+      <div><dt>State cells</dt><dd>47</dd></div>
       <div><dt>Theme</dt><dd>Dark (primary)</dd></div>
-      <div><dt>Generated</dt><dd>2026-09-08</dd></div>
+      <div><dt>Generated</dt><dd>2026-09-10</dd></div>
     </dl>
     <button class="bk-theme" type="button" id="bkTheme" aria-pressed="false">Light theme</button>
   </header>
@@ -350,6 +350,151 @@
     <section class="bk-sec">
       <header class="bk-sec-hd">
         <span class="bk-sec-n">14</span>
+        <h2>Packaging components</h2>
+        <span class="bk-sec-c">2</span>
+      </header>
+      <div class="bk-grid">
+      <figure class="bk-frame bk-span-3" data-frame="Component chip" data-cells="6">
+        <figcaption class="bk-label">
+          <span class="bk-name">Component chip</span>
+          <span class="bk-purpose">One packaging component attached to a product, as it appears in a list of them.</span>
+        </figcaption>
+        <div class="bk-states">
+            <div class="bk-cell">
+              <div class="bk-cell-box">
+                <div class="pcmp-list" style="grid-template-columns:1fr;max-width:250px">
+                 <span class="pcmp-pill">
+                 <span class="pcmp-num">1</span>
+                 <span class="pcmp-txt">Swing Tag</span>
+                 <span class="pcmp-steppers">
+                 <button class="pcmp-step pcmp-step-minus" disabled title="Fewer of this component"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+                 <button class="pcmp-step pcmp-step-plus" title="More of this component"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+                 </span>
+                 <span class="pcmp-x" title="Remove component"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>
+                 </span>
+                </div>
+              </div>
+              <span class="bk-cell-lbl">Default</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box bk-st-hover">
+                <div class="pcmp-list" style="grid-template-columns:1fr;max-width:250px">
+                 <span class="pcmp-pill">
+                 <span class="pcmp-num">1</span>
+                 <span class="pcmp-txt">Swing Tag</span>
+                 <span class="pcmp-steppers">
+                 <button class="pcmp-step pcmp-step-minus" disabled title="Fewer of this component"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+                 <button class="pcmp-step pcmp-step-plus" title="More of this component"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+                 </span>
+                 <span class="pcmp-x" title="Remove component"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>
+                 </span>
+                </div>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Hover</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box bk-st-focus">
+                <div class="pcmp-list" style="grid-template-columns:1fr;max-width:250px">
+                 <span class="pcmp-pill">
+                 <span class="pcmp-num">1</span>
+                 <span class="pcmp-txt">Swing Tag</span>
+                 <span class="pcmp-steppers">
+                 <button class="pcmp-step pcmp-step-minus" disabled title="Fewer of this component"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+                 <button class="pcmp-step pcmp-step-plus" title="More of this component"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+                 </span>
+                 <span class="pcmp-x" title="Remove component"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>
+                 </span>
+                </div>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Focus</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box bk-st-disabled">
+                <div class="pcmp-list" style="grid-template-columns:1fr;max-width:250px">
+                 <span class="pcmp-pill">
+                 <span class="pcmp-num">1</span>
+                 <span class="pcmp-txt">Swing Tag</span>
+                 <span class="pcmp-steppers">
+                 <button class="pcmp-step pcmp-step-minus" disabled title="Fewer of this component"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+                 <button class="pcmp-step pcmp-step-plus" title="More of this component"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+                 </span>
+                 <span class="pcmp-x" title="Remove component"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>
+                 </span>
+                </div>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Disabled</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box" data-bk-do="pcmp-qty">
+                <div class="pcmp-list" style="grid-template-columns:1fr;max-width:250px">
+                 <span class="pcmp-pill">
+                 <span class="pcmp-num">1</span>
+                 <span class="pcmp-txt">Swing Tag</span>
+                 <span class="pcmp-steppers">
+                 <button class="pcmp-step pcmp-step-minus" disabled title="Fewer of this component"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+                 <button class="pcmp-step pcmp-step-plus" title="More of this component"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+                 </span>
+                 <span class="pcmp-x" title="Remove component"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>
+                 </span>
+                </div>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Quantity above one</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box" data-bk-do="pcmp-note">
+                <div class="pcmp-list" style="grid-template-columns:1fr;max-width:250px">
+                 <span class="pcmp-pill">
+                 <span class="pcmp-num">1</span>
+                 <span class="pcmp-txt">Swing Tag</span>
+                 <span class="pcmp-steppers">
+                 <button class="pcmp-step pcmp-step-minus" disabled title="Fewer of this component"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+                 <button class="pcmp-step pcmp-step-plus" title="More of this component"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+                 </span>
+                 <span class="pcmp-x" title="Remove component"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>
+                 </span>
+                </div>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">With a retailer note</span>
+            </div>
+        </div>
+      </figure>
+      <figure class="bk-frame bk-span-3" data-frame="Add component button" data-cells="3">
+        <figcaption class="bk-label">
+          <span class="bk-name">Add component button</span>
+          <span class="bk-purpose">The dashed button that closes a list of component chips.</span>
+        </figcaption>
+        <div class="bk-states">
+            <div class="bk-cell">
+              <div class="bk-cell-box">
+                <span class="pcmp-add">
+                 <button class="pcmp-add-btn" title="Add packaging component"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Add component</button>
+                </span>
+              </div>
+              <span class="bk-cell-lbl">Default</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box bk-st-hover">
+                <span class="pcmp-add">
+                 <button class="pcmp-add-btn" title="Add packaging component"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Add component</button>
+                </span>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Hover</span>
+            </div>
+            <div class="bk-cell" data-bk-variant="1">
+              <div class="bk-cell-box bk-st-focus">
+                <span class="pcmp-add">
+                 <button class="pcmp-add-btn" title="Add packaging component"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Add component</button>
+                </span>
+              </div>
+              <span class="bk-cell-lbl bk-cell-lbl-alt">Focus</span>
+            </div>
+        </div>
+      </figure>
+      </div>
+    </section>
+    <section class="bk-sec">
+      <header class="bk-sec-hd">
+        <span class="bk-sec-n">15</span>
         <h2>AI upload &amp; review</h2>
         <span class="bk-sec-c">1</span>
       </header>
@@ -388,7 +533,7 @@
     </section>
     <section class="bk-sec">
       <header class="bk-sec-hd">
-        <span class="bk-sec-n">15</span>
+        <span class="bk-sec-n">16</span>
         <h2>Documents</h2>
         <span class="bk-sec-c">2</span>
       </header>
@@ -500,7 +645,7 @@
     </section>
     <section class="bk-sec">
       <header class="bk-sec-hd">
-        <span class="bk-sec-n">16</span>
+        <span class="bk-sec-n">17</span>
         <h2>Timeline &amp; audit</h2>
         <span class="bk-sec-c">1</span>
       </header>
@@ -529,7 +674,7 @@
     </section>
     <section class="bk-sec">
       <header class="bk-sec-hd">
-        <span class="bk-sec-n">17</span>
+        <span class="bk-sec-n">18</span>
         <h2>Guided tours</h2>
         <span class="bk-sec-c">1</span>
       </header>
@@ -566,7 +711,7 @@
     </section>
     <section class="bk-sec">
       <header class="bk-sec-hd">
-        <span class="bk-sec-n">18</span>
+        <span class="bk-sec-n">19</span>
         <h2>Design tokens</h2>
         <span class="bk-sec-c">3</span>
       </header>
@@ -641,7 +786,7 @@
     </section>
     <section class="bk-sec">
       <header class="bk-sec-hd">
-        <span class="bk-sec-n">19</span>
+        <span class="bk-sec-n">20</span>
         <h2>Theming &amp; appearance</h2>
         <span class="bk-sec-c">2</span>
       </header>
@@ -771,6 +916,6 @@
 <script src="js/gs-schema.js?v=1"></script>
 <script src="js/gs-pkg-controls.js?v=1"></script>
 <script src="js/greenstreets-theme.js?v=1"></script>
-<script src="js/base-kit.js?v=16"></script>
+<script src="js/base-kit.js?v=25"></script>
 </body>
 </html>

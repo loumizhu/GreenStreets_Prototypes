@@ -14,6 +14,7 @@ var GS_PAGES={
   's6':'01-greenstreets_super_admin_Impersonate.html',
   's7':'01-greenstreets_super_admin_Users.html',
   's11':'01-greenstreets_super_admin_Products.html',
+  's11_new':'01-greenstreets_super_admin_Add-Product.html',
   's12':'01-greenstreets_super_admin_Product-Detail.html',
   's8':'01-greenstreets_super_admin_Packagings.html',
   's9':'01-greenstreets_super_admin_Documents.html',

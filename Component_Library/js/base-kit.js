@@ -226,6 +226,42 @@
       if (inp) inp.value = 'swing tag';
     },
 
+    /* Deactivated. The attribute, not just the class, so the drawn cell is the
+       real thing a developer ships - and so the focus ring cannot appear on it. */
+    disable: function (box) {
+      box.querySelectorAll('input,button,select,textarea').forEach(function (el) {
+        el.disabled = true;
+        el.setAttribute('aria-disabled', 'true');
+      });
+    },
+
+    /* The component chip's two variants. The product BUILDS these - the badge
+       and the glyph are absent markup when there is no quantity and no note -
+       so a wrapper class cannot draw them; they have to be inserted. Keep in
+       step with prodCompCell / prodCompNoteIc in supplier-portal.js. */
+    'pcmp-qty': function (box) {
+      var pill = box.querySelector('.pcmp-pill'), steps = box.querySelector('.pcmp-steppers');
+      if (!pill || !steps) return;
+      var q = document.createElement('span');
+      q.className = 'pcmp-qty';
+      q.textContent = '× 3';
+      pill.insertBefore(q, steps);
+      var minus = box.querySelector('.pcmp-step-minus');
+      if (minus) minus.disabled = false;   /* above one, it is live again */
+    },
+    'pcmp-note': function (box) {
+      var pill = box.querySelector('.pcmp-pill'), steps = box.querySelector('.pcmp-steppers');
+      if (!pill || !steps) return;
+      pill.classList.add('pcmp-has-note');
+      var ic = document.createElement('span');
+      ic.className = 'pcmp-note-ic';
+      ic.setAttribute('title', 'Note from the retailer');
+      ic.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" ' +
+        'stroke="currentColor" stroke-width="2.2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 ' +
+        '2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>';
+      pill.insertBefore(ic, steps);
+    },
+
     'sort-asc': function (box) { sortHeader(box, 'asc'); },
     'sort-desc': function (box) { sortHeader(box, 'desc'); },
 

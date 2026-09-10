@@ -1,31 +1,30 @@
 /* ==========================================================================
    sa-category-manager.js — the platform "Manage categories" window.
 
-   Loaded ONLY by 01-greenstreets_super_admin_Products-Categories.html (+ its
-   Light twin), which seeds window.SA_CATEGORIES before this script runs.
-   Categories are a PLATFORM-level list here (the Super Admin owns the taxonomy
-   every retailer picks from), so the entry point is the Products screen's
-   "All categories" filter: this script renders that <select>, puts
-   "Manage categories…" at the top of it, and opens the window when it is
-   picked — the filter itself never takes that value.
+   Loaded ONLY by 01-greenstreets_super_admin_Add-Product.html (+ its Light
+   twin), whose Category dropdown (js/sa-add-product.js) carries
+   "Manage categories…" as its first entry: picking it puts the select back to
+   its previous value and calls window.saOpenCategoryManager() from here.
+
+   Categories are PLATFORM-level — the Super Admin owns the taxonomy every
+   retailer classifies against — so this window edits window.SA_CATEGORIES and
+   the page re-renders from it.
 
    What the window does, and what each action really touches:
-     • search      — filters the list only; never changes the stored order;
-     • rename      — a field with ✓ apply / ✕ cancel (Enter / Esc do the same).
+     • search   — filters the list only; never changes the stored order;
+     • rename   — a field with ✓ apply / ✕ cancel (Enter / Esc do the same).
        NEVER committed on blur: the tick is the only commit, so clicking away
-       leaves the category as it was. Applying also re-labels every product in
-       that category (PRODUCTS_S11) and re-renders the catalogue;
-     • remove      — asks first, and says how many products use the category;
-       those products are left without one;
-     • reorder     — drag the grip, or focus it and press ↑ / ↓. The order is
-       the order of the filter list, so it is worth controlling;
-     • add         — appended to the end of the list.
+       leaves the category as it was. Applying also re-labels every product
+       already carrying it in the catalogue dataset (PRODUCTS_S11);
+     • remove   — asks first, and says how many catalogue products use it;
+     • reorder  — drag the grip, or focus it and press ↑ / ↓. That order is the
+       order of the Category dropdown, so it is worth controlling;
+     • add      — appended to the end of the list.
    Everything applies immediately; "Done" only closes the window.
    ========================================================================== */
 (function () {
   'use strict';
-  var FILTER_ID = 'sa-cat-filter';
-  if (!document.getElementById(FILTER_ID)) return;
+  if (!document.getElementById('sa-newprod-root')) return;
 
   var OV = 'sa-catmgr';
   var confirmIdx = -1;   /* the row currently asking "Remove?" */
@@ -36,8 +35,10 @@
   var term = '';         /* the search field's current text */
 
   function cats() { return (window.SA_CATEGORIES = window.SA_CATEGORIES || []); }
+  function selectedCat() { return (window.sapGetCat ? window.sapGetCat() : '') || ''; }
   function products() { return window.PRODUCTS_S11 || []; }
   function toast(m) {
+    if (typeof window.sapToast === 'function') { window.sapToast(m); return; }
     if (typeof window.saProdMiniToast === 'function') { window.saProdMiniToast(m); return; }
     var t = document.getElementById('sa-toast');
     if (!t) { t = document.createElement('div'); t.id = 'sa-toast'; document.body.appendChild(t); }
@@ -55,45 +56,16 @@
     return n;
   }
 
-  /* ---- the Products screen's category filter ----------------------------- */
-  function filterSel() { return document.getElementById(FILTER_ID); }
-
-  /* Rebuild the filter's options from the list. `keep` is the value to leave
-     selected (falls back to the current one, then to "all"). */
-  function renderFilter(keep) {
-    var sel = filterSel(); if (!sel) return;
-    var want = keep != null ? keep : (sel.value || 'all');
-    var list = cats();
-    if (want !== 'all' && list.indexOf(want) < 0) want = 'all';
-    sel.innerHTML =
-      '<option value="__manage__">⚙︎  Manage categories…</option>' +
-      '<option value="all"' + (want === 'all' ? ' selected' : '') + '>All categories</option>' +
-      list.map(function (c) {
-        return '<option' + (c === want ? ' selected' : '') + '>' + esc(c) + '</option>';
-      }).join('');
-    sel.value = want;
-    /* the themed select mirrors the native one on 'change' */
-    try { sel.dispatchEvent(new Event('change', { bubbles: true })); } catch (e) {}
+  /* ---- the page this window belongs to ----------------------------------- */
+  /* Re-render the New-product page so its Category dropdown shows the new list,
+     then re-theme its controls (render() emits plain <select>s). */
+  function refreshPage() {
+    if (!window.sapRender) return;
+    window.sapRender();
+    var root = document.getElementById('sa-newprod-root');
+    if (root && window.GSEnhanceSelects) window.GSEnhanceSelects(root);
+    if (root && window.GSEnhanceNumbers) window.GSEnhanceNumbers(root);
   }
-
-  var busy = false;
-  window.saCatFilter = function (sel) {
-    if (busy) return;
-    if (sel.value === '__manage__') {
-      /* not a filter value — put the control back, then open the window */
-      busy = true;
-      sel.value = sel.dataset.last || 'all';
-      try { sel.dispatchEvent(new Event('change', { bubbles: true })); } catch (e) {}
-      busy = false;
-      window.saOpenCategoryManager();
-      return;
-    }
-    sel.dataset.last = sel.value;
-    if (typeof window.ptFilter === 'function') window.ptFilter('s11', 'cat', sel.value);
-  };
-
-  /* Re-render the product catalogue after a rename / removal changed its data. */
-  function refreshTable() { if (typeof window.ptRender === 'function') window.ptRender('s11'); }
 
   /* ---- styles ------------------------------------------------------------ */
   function injectCss() {
@@ -136,6 +108,7 @@
       '.cat-name{flex:1;min-width:0;text-align:left;font-family:inherit;font-size:12.5px;font-weight:500;color:var(--tw);background:none;border:1px solid transparent;border-radius:7px;padding:6px 9px;cursor:text;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:background .12s,border-color .12s}' +
       '.cat-name:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.16)}' +
       '.cat-name mark{background:rgba(78,187,129,.28);color:inherit;border-radius:3px;padding:0 1px}' +
+      '.cat-on{color:var(--gs-l,#8fe3b6)!important;background:rgba(78,187,129,.12)!important;border-color:rgba(78,187,129,.3)!important}' +
       '.cat-use{font-size:9.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gs-l,#8fe3b6);background:rgba(78,187,129,.12);border:1px solid rgba(78,187,129,.3);border-radius:20px;padding:3px 8px;white-space:nowrap;flex-shrink:0}' +
       '.cat-use.zero{color:var(--tw3);background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12)}' +
       '.cat-ico{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:var(--tw2);cursor:pointer;padding:5px 6px;border-radius:7px;display:flex;flex-shrink:0;transition:background .12s,color .12s,border-color .12s}' +
@@ -292,13 +265,15 @@
     var host = document.getElementById('cat-list'); if (!host) return;
     var all = cats(), rows = matches(), searching = !!term.trim();
 
+    var cur = selectedCat();
     host.innerHTML = rows.length ? rows.map(function (r) {
       var i = r.i, name = r.name, used = usage(name);
 
       if (i === confirmIdx) {
         return '<div class="cat-row confirm">' +
           '<span class="cat-confirm-txt">Remove <b>' + esc(name) + '</b>?' +
-            (used ? ' ' + used + ' product' + (used === 1 ? '' : 's') + ' will be left without a category.' : '') + '</span>' +
+            (name === cur ? ' It is selected on this product.' : '') +
+            (used ? ' ' + used + ' catalogue product' + (used === 1 ? '' : 's') + ' will be left without a category.' : '') + '</span>' +
           '<button class="cat-btn-sm" onclick="saCatCancelRemove()">Keep</button>' +
           '<button class="cat-btn-sm cat-btn-danger" onclick="saCatRemove(' + i + ')">Remove</button>' +
         '</div>';
@@ -322,7 +297,9 @@
           ' onmousedown="saCatGripDown(this)" onmouseup="saCatGripUp(this)"' +
           ' onkeydown="saCatGripKey(event,' + i + ')">' + I_GRIP + '</button>' +
         '<button class="cat-name" title="Click to rename" onclick="saCatEdit(' + i + ')">' + mark(name) + '</button>' +
-        '<span class="cat-use' + (used ? '' : ' zero') + '">' + used + ' product' + (used === 1 ? '' : 's') + '</span>' +
+        (name === cur ? '<span class="cat-use cat-on">On this product</span>' : '') +
+        '<span class="cat-use' + (used ? '' : ' zero') + '" title="Products already in the catalogue with this category">' +
+          used + ' product' + (used === 1 ? '' : 's') + '</span>' +
         '<button class="cat-ico" title="Rename category" onclick="saCatEdit(' + i + ')">' + I_PENCIL + '</button>' +
         '<button class="cat-ico cat-x" title="Remove category" onclick="saCatAskRemove(' + i + ')">' + I_BIN + '</button>' +
       '</div>';
@@ -428,7 +405,7 @@
     flashIdx = to;
     if (keepGrip) gripIdx = to;
     confirmIdx = -1; editIdx = -1;
-    renderFilter(); renderList();
+    refreshPage(); renderList();
     toast('“' + moved + '” moved to position ' + (to + 1));
   }
 
@@ -446,14 +423,13 @@
     if (!now) { if (window.gsShake) window.gsShake(inp); inp.focus(); toast('A category needs a name'); return; }
     if (dupe(now, i)) { if (window.gsShake) window.gsShake(inp); inp.focus(); toast('“' + now + '” already exists'); return; }
     list[i] = now;
-    /* re-label the products that carry it, and the filter if it is the active one */
+    /* re-label the catalogue products that carry it, and this product too */
     var n = 0;
     products().forEach(function (p) { if (p.cat === was) { p.cat = now; n++; } });
-    var sel = filterSel();
-    var keep = (sel && sel.value === was) ? now : null;
+    if (window.sapSetCat && selectedCat() === was) window.sapSetCat(now);
     editIdx = -1; flashIdx = i;
-    renderFilter(keep); refreshTable(); renderList();
-    toast('“' + was + '” renamed to “' + now + '”' + (n ? ' · ' + n + ' product' + (n === 1 ? '' : 's') + ' updated' : ''));
+    refreshPage(); renderList();
+    toast('“' + was + '” renamed to “' + now + '”' + (n ? ' · ' + n + ' catalogue product' + (n === 1 ? '' : 's') + ' updated' : ''));
   };
 
   /* ---- remove ------------------------------------------------------------ */
@@ -465,9 +441,12 @@
     list.splice(i, 1);
     var n = 0;
     products().forEach(function (p) { if (p.cat === name) { p.cat = ''; n++; } });
+    var clearedHere = (selectedCat() === name);
+    if (clearedHere && window.sapSetCat) window.sapSetCat('');
     confirmIdx = -1; editIdx = -1;
-    renderFilter(); refreshTable(); renderList();
-    toast('“' + name + '” removed' + (n ? ' · ' + n + ' product' + (n === 1 ? '' : 's') + ' left without a category' : ''));
+    refreshPage(); renderList();
+    toast('“' + name + '” removed' + (clearedHere ? ' · this product has no category now' : '') +
+      (n ? ' · ' + n + ' catalogue product' + (n === 1 ? '' : 's') + ' left without one' : ''));
   };
 
   /* ---- add --------------------------------------------------------------- */
@@ -486,16 +465,12 @@
       term = '';
       var s = document.getElementById('cat-search'); if (s) s.value = '';
     }
-    renderFilter(); renderList();
+    refreshPage(); renderList();
     inp.focus();
     toast('“' + name + '” added');
     var host = document.getElementById('cat-list');
     if (host && host.lastElementChild) host.lastElementChild.scrollIntoView({ block: 'nearest' });
   };
 
-  /* ---- boot -------------------------------------------------------------- */
-  /* Fill the filter before greenstreets-theme.js themes it (this file is linked
-     first), so its trigger has a label and its menu has the manage entry. */
-  renderFilter('all');
-  var sel0 = filterSel(); if (sel0) sel0.dataset.last = 'all';
 })();
+

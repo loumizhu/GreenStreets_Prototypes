@@ -316,3 +316,63 @@ body.bk-body::before,body.bk-body::after{content:none!important;display:none!imp
 .bk-stage [class*="-menu"]{
   max-height:none!important;overflow:visible!important;
 }
+
+/* ── base-kit-5: the Supplier Portal sheet's UI-information block ─────────
+   The four-part kit opens on build statistics (frames, sections, cells).
+   Those describe the generator, not the interface, so this sheet replaces
+   them with what someone rebuilding the UI in Figma actually needs: the page
+   background, the palette with each colour's job, and the measurements.
+   Values are READ from the portal stylesheets at build time - see sp_tokens()
+   in tools/build-base-kit.py - so they cannot drift from the product. */
+.bk-cover-ui{margin-bottom:34px}
+.bk-sec.bk-ui{margin-bottom:56px}
+.bk-ui-body{display:flex;flex-direction:column;gap:28px}
+
+.bk-canvas{
+  display:flex;gap:24px;margin:0;padding:22px;
+  border:1px solid var(--bk-line);border-radius:14px;background:var(--bk-frame);
+}
+/* The real page background, reproduced here as the ONE place on the sheet
+   that shows it - the frames deliberately sit on a flat panel, because Figma
+   imports a multi-layer gradient as a stack of detached shapes. */
+.bk-canvas-swatch{
+  flex:0 0 300px;height:190px;border-radius:12px;
+  border:1px solid var(--bk-line-2);
+  background-color:#070f1c;
+  background-image:
+    radial-gradient(320px 220px at 8% -8%,rgba(78,187,129,.20),transparent 60%),
+    radial-gradient(270px 250px at 108% 6%,rgba(91,156,246,.16),transparent 58%),
+    radial-gradient(320px 250px at 46% 118%,rgba(55,102,176,.22),transparent 60%),
+    radial-gradient(180px 150px at 82% 82%,rgba(67,179,173,.10),transparent 60%),
+    linear-gradient(165deg,#081321 0%,#0b1a30 38%,#0a1626 72%,#081120 100%);
+}
+.bk-canvas figcaption{align-self:center}
+.bk-canvas b{display:block;margin:0 0 8px;font-size:15px;font-weight:600}
+.bk-canvas p{margin:0 0 10px;max-width:640px;font-size:13px;line-height:1.65;color:var(--bk-ink-2)}
+.bk-canvas-note{color:var(--bk-ink-3)!important;font-size:12px!important}
+
+.bk-swatches{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:14px 22px;
+  margin:0;padding:0;list-style:none;
+}
+.bk-swatches li{display:flex;align-items:center;gap:11px;flex-wrap:wrap}
+.bk-sw{
+  width:30px;height:30px;flex:0 0 30px;border-radius:8px;
+  border:1px solid var(--bk-line-2);
+}
+.bk-swatches b{font-size:13px;font-weight:600}
+.bk-swatches code{
+  font-family:var(--bk-mono);font-size:11px;color:var(--bk-ink-3);
+  text-transform:uppercase;
+}
+.bk-sw-note{flex:1 0 100%;padding-left:41px;font-size:11px;color:var(--bk-ink-3);line-height:1.5}
+
+.bk-ui-facts{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:18px 40px;
+  margin:0;padding:22px 0 0;border-top:1px solid var(--bk-line);
+}
+.bk-ui-facts dt{
+  margin:0 0 5px;font-size:10px;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--bk-ink-3);
+}
+.bk-ui-facts dd{margin:0;font-size:13px;line-height:1.6;color:var(--bk-ink-2)}
