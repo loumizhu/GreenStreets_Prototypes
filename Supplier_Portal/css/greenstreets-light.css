@@ -18,10 +18,10 @@
    preview, wizard-style menus) get their own light overrides below because
    supplier-portal.css bakes navy + translucent-white into them.
 
-   Supplier Portal has no left sidebar — the shell is .pshell > .ph (header
-   bar) > .pbody (content). So this file skips the sidebar block RA/RU/SA
-   carry, and instead has a larger "listings + packaging detail" section
-   (this portal's biggest surface area).
+   The shell is .sidebar (left pane, injected by js/supplier-shell.js) beside
+   .pshell > .ph (header bar) > .pbody (content). The sidebar block mirroring
+   RA/RU/SA is at the END of this file; the bulk here is the larger
+   "listings + packaging detail" section (this portal's biggest surface area).
    ═════════════════════════════════════════════════════════════════════════ */
 
 :root{
@@ -679,3 +679,42 @@ body.lt .forgot:hover{color:var(--lt-accent-ink)}
 /* native <select> option popups — light fallback */
 body.lt select{color-scheme:light}
 body.lt option{background:#fff;color:var(--lt-ink)}
+
+
+/* ── LEFT PANE (added with js/supplier-shell.js) — soft pastel glass ───────
+   Mirrors the Retailer Admin / Retailer User / Super Admin sidebar block; the
+   --lt-sb-* tokens were already declared above. */
+body.lt .sidebar{
+  background:linear-gradient(var(--lt-sb-angle,200deg),var(--lt-sb-1) 0%,var(--lt-sb-2) 100%);
+  border:1px solid var(--lt-sb-stroke,var(--lt-line));
+  box-shadow:var(--sh-1);
+  backdrop-filter:none;-webkit-backdrop-filter:none;
+}
+body.lt .sb-logo-zone{background:#fff;border-bottom:1px solid var(--lt-sb-stroke)}
+body.lt .sb-logo{filter:none}
+body.lt .sb-section{color:var(--lt-ink-3)}
+body.lt .nav-item{color:var(--lt-ink-2)}
+body.lt .nav-item:hover{background:rgba(110,168,254,.10);color:var(--lt-ink)}
+body.lt .nav-item.active{
+  background:linear-gradient(90deg,transparent,rgba(110,168,254,.10) 45%,rgba(110,168,254,.22));
+  color:var(--lt-accent-ink);box-shadow:inset 0 0 0 1px rgba(110,168,254,.30);
+}
+body.lt .nav-item.active::before{background:var(--lt-accent);box-shadow:0 0 8px rgba(110,168,254,.55)}
+body.lt .sb-divider{background:var(--lt-line)}
+body.lt .sb-notif-row{border-top-color:var(--lt-line)}
+body.lt .sb-notif-row:hover{background:rgba(110,168,254,.08)}
+body.lt .sb-bell-btn{color:var(--lt-ink-3);background:rgba(94,107,133,.06)}
+body.lt .sb-notif-label{color:var(--lt-ink-3)}
+body.lt .sb-user{border-top-color:var(--lt-line)}
+body.lt .sb-user-name{color:var(--lt-ink)}
+body.lt .sb-user-role{color:var(--lt-ink-3)}
+body.lt .sb-logout{color:var(--lt-ink-3)}
+body.lt .sb-logout:hover{background:rgba(224,96,90,.12);color:#cf5751}
+body.lt .sb-notif-pop{
+  background:#fff;border:1px solid var(--lt-line-2);
+  box-shadow:0 14px 34px rgba(53,72,110,.16);
+  backdrop-filter:none;-webkit-backdrop-filter:none;
+}
+body.lt .sb-notif-item:hover{background:rgba(110,168,254,.08)}
+body.lt .sb-notif-dot.amber{background:#c9852a}
+body.lt .sb-notif-dot.blue{background:var(--lt-accent)}

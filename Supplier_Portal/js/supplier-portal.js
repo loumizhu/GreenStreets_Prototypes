@@ -2722,37 +2722,27 @@ function gsBuildBreadcrumb(){
   var ph = document.querySelector('.ph'); if(!ph) return;
   var crumbs = null, isTabs = false;
   var body = document.querySelector('.pkg-detail-body');
+  /* The three sections are the LEFT PANE now (js/supplier-shell.js), so the
+     header carries a plain location trail instead of the old tab strip —
+     matching the Super Admin / Retailer portals. */
   if(body){
-    /* Packaging-component detail: keep the 3 tabs; nest the detail under the
-       "Packaging Components" tab. */
-    isTabs = true;
+    /* Packaging-component detail: Packaging Components > <component>. */
     var nm = (body.querySelector('.gs-pkg-name-input')||{}).value;
     if(!nm){ var h = body.querySelector('div[style*="font-weight:800"]'); nm = h ? h.textContent.trim() : 'Component'; }
     crumbs = [
-      {label:'Products',              act:"gsGoLanding('products')"},
-      {label:'Packaging Components',  act:"gsGoLanding('packaging')", current:true},
-      {label:nm,                      nested:true, arrow:true},
-      {label:'Supporting Documents',  act:"gsGoLanding('docs')"}
+      {label:'Packaging Components',  act:"gsGoLanding('packaging')"},
+      {label:nm,                      current:true}
     ];
   } else if(document.getElementById('pd-body')){
-    /* Product detail: keep the 3 tabs; nest "Product Detail" under Products. */
-    isTabs = true;
+    /* Product detail: Products > Product Detail. */
     crumbs = [
-      {label:'Products',              act:"gsGoLanding('products')", current:true},
-      {label:'Product Detail',        nested:true, arrow:true},
-      {label:'Packaging Components',  act:"gsGoLanding('packaging')"},
-      {label:'Supporting Documents',  act:"gsGoLanding('docs')"}
+      {label:'Products',              act:"gsGoLanding('products')"},
+      {label:'Product Detail',        current:true}
     ];
   } else if(document.getElementById('prod-tbody') || document.getElementById('pkg-lib-tbody') || document.getElementById('docs-tbody-new')){
-    /* One of the three listing pages: the section tabs live in the header now.
-       Detect which page we're on by its listing table and highlight it. */
-    isTabs = true;
-    var act = (typeof gsCurrentLandingTab==='function' && gsCurrentLandingTab()) || 'products';
-    crumbs = [
-      {label:'Products',              act:"switchLandingTab('products')",  current:act==='products'},
-      {label:'Packaging Components',  act:"switchLandingTab('packaging')", current:act==='packaging'},
-      {label:'Supporting Documents',  act:"switchLandingTab('docs')",      current:act==='docs'}
-    ];
+    /* One of the three listing pages — the left pane already marks which one,
+       so the header gets no crumb bar at all. Still drop the in-page tab strip
+       the nav was moved out of. */
     var lt = document.querySelector('.landing-tabs'); if(lt) lt.style.display = 'none';
   }
   if(!crumbs) return;
