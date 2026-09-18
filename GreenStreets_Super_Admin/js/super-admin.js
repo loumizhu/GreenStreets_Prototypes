@@ -218,9 +218,12 @@ function ptSort(scope,col){
   ptRender(scope);
   var table=document.getElementById('pt-table-'+scope);
   if(table)table.querySelectorAll('th[data-col]').forEach(function(th){
-    var arrow=th.querySelector('.sort-arrow');
+    var arrow=th.querySelector('.gs-sort-arrow,.sort-arrow');
+    var active=th.getAttribute('data-col')===col;
+    /* match the shared sortable-header look (greenstreets-theme.css): data-sort drives the green active arrow */
+    if(active)th.setAttribute('data-sort',st.sortDir===1?'asc':'desc');else th.removeAttribute('data-sort');
     if(!arrow)return;
-    arrow.textContent=th.getAttribute('data-col')===col?(st.sortDir===1?'↑':'↓'):'↕';
+    arrow.textContent=active?(st.sortDir===1?' ▲':' ▼'):' ↕';
   });
 }
 
@@ -314,7 +317,7 @@ function saProdInjectCss() {
   if (document.getElementById('saprod-css')) return;
   var st = document.createElement('style'); st.id = 'saprod-css';
   st.textContent =
-    '.saprod-cb,#saprod-selectall{width:15px;height:15px;accent-color:var(--gs);cursor:pointer;vertical-align:middle;margin:0}' +
+    '.saprod-cb,#saprod-selectall{margin:0}' +
     '#pt-table-s11 tr.saprod-row-sel td{background:rgba(78,187,129,.09)}' +
     '#pt-table-s11 tr.saprod-row-sel td:first-child{box-shadow:inset 3px 0 0 var(--gs)}' +
     '#saprod-bulkbar{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(24px);display:flex;align-items:center;gap:10px;padding:9px 12px;background:#0f2338;border:1px solid var(--line-2,rgba(148,180,230,.28));border-radius:12px;box-shadow:0 16px 40px -10px rgba(0,0,0,.6);z-index:9997;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}' +
@@ -331,6 +334,52 @@ function saProdInjectCss() {
   document.head.appendChild(st);
 }
 
+/* The selection actions live in the sticky filter toolbar (.ftb-sel) — the same place the generic
+   data-grid toolkit puts them, see gsAddBulk in greenstreets-theme.js. saProdEnsureBar() below still
+   builds the older floating bar, because the pre-rollout toolbar test page overrides
+   saProdUpdateBar and drives that bar itself. The count here is a CLASS, not an id, so the two can
+   never collide on a page that ends up with both. */
+function saProdEnsureInline() {
+  saProdInjectCss();
+  var tb = document.querySelector('.filter-toolbar');
+  if (!tb) return null;
+  var sel = tb.querySelector('.ftb-sel');
+  if (sel) return sel;
+  sel = document.createElement('div');
+  sel.className = 'ftb-sel';
+  var ic = 'width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"';
+  /* .gs-tool-btn is the toolbar's own button component (Compact / Columns / Export); .accent marks
+     the primary action and .danger the destructive one — no bespoke button classes here. */
+  sel.innerHTML =
+    '<span class="ftb-sel-count"><b class="ftb-sel-n">0</b> selected</span>' +
+    '<button type="button" class="gs-tool-btn accent" title="Approve the selected products" onclick="saProdBulkApprove()">' +
+      '<svg ' + ic + ' stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg><span>Approve</span></button>' +
+    '<button type="button" class="gs-tool-btn" title="Send a reminder for the selected products" onclick="saProdBulkRemind()">' +
+      '<svg ' + ic + ' stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span>Remind</span></button>' +
+    '<button type="button" class="gs-tool-btn" title="Export the selected products" onclick="saProdBulkExport()">' +
+      '<svg ' + ic + ' stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>Export</span></button>' +
+    '<button type="button" class="gs-tool-btn" title="Generate a Declaration of Conformity" onclick="saProdBulkDownloadDoc()">' +
+      '<svg ' + ic + ' stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg><span>DoC</span></button>' +
+    '<button type="button" class="gs-tool-btn danger" title="Clear selection" aria-label="Clear selection" onclick="saProdClearSel()">' +
+      '<svg ' + ic + ' stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg><span>Clear</span></button>';
+  tb.appendChild(sel);
+  return sel;
+}
+
+/* Same in/out animation contract as the toolkit's cluster. Implemented locally as a fallback because
+   super-admin.js loads BEFORE greenstreets-theme.js, so GSToolbarSelect does not exist yet on the
+   first call (ptInit renders at parse time). */
+function saProdSelToggle(tb, on) {
+  if (!tb) return;
+  if (window.GSToolbarSelect) { window.GSToolbarSelect(tb, on); return; }
+  clearTimeout(tb._ftbSelT);
+  if (on) { tb.classList.remove('ftb-sel-off'); tb.classList.add('ftb-sel-on'); }
+  else if (tb.classList.contains('ftb-sel-on')) {
+    tb.classList.remove('ftb-sel-on'); tb.classList.add('ftb-sel-off');
+    tb._ftbSelT = setTimeout(function(){ tb.classList.remove('ftb-sel-off'); }, 440);
+  }
+}
+
 function saProdEnsureBar() {
   saProdInjectCss();
   var bar = document.getElementById('saprod-bulkbar');
@@ -340,24 +389,27 @@ function saProdEnsureBar() {
   bar.innerHTML =
     '<span class="saprod-bb-count"><b id="saprod-bb-n">0</b> selected</span>' +
     '<span class="saprod-bb-sep"></span>' +
-    '<button type="button" class="saprod-bb-btn saprod-bb-approve" onclick="saProdBulkApprove()">' +
-      '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>Approve</button>' +
-    '<button type="button" class="saprod-bb-btn" onclick="saProdBulkRemind()">' +
+    '<button type="button" class="saprod-bb-btn saprod-bb-approve" title="Approve selected products" onclick="saProdBulkApprove()">' +
+      '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg><span>Approve</span></button>' +
+    '<button type="button" class="saprod-bb-btn" title="Send a reminder for the selected products" onclick="saProdBulkRemind()">' +
       '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Send reminder</button>' +
-    '<button type="button" class="saprod-bb-btn" onclick="saProdBulkExport()">' +
+    '<button type="button" class="saprod-bb-btn" title="Export the selected products" onclick="saProdBulkExport()">' +
       '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export CSV</button>' +
-    '<button type="button" class="saprod-bb-btn" onclick="saProdBulkDownloadDoc()">' +
+    '<button type="button" class="saprod-bb-btn" title="Generate a Declaration of Conformity" onclick="saProdBulkDownloadDoc()">' +
       '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>Generate DoC</button>' +
-    '<button type="button" class="saprod-bb-btn saprod-bb-clear" onclick="saProdClearSel()" aria-label="Clear selection">Clear</button>';
+    '<button type="button" class="saprod-bb-btn saprod-bb-clear" onclick="saProdClearSel()" aria-label="Clear selection" title="Clear selection"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg><span>Clear</span></button>';
   document.body.appendChild(bar);
   return bar;
 }
 
 function saProdUpdateBar() {
-  var bar = saProdEnsureBar();
+  var sel = saProdEnsureInline();
+  if (!sel) return;
   var n = saProdSel.size;
-  document.getElementById('saprod-bb-n').textContent = n;
-  bar.classList.toggle('show', n > 0);
+  var c = sel.querySelector('.ftb-sel-n');
+  if (c && n > 0) c.textContent = n;   /* keep the last count through the retract animation */
+  saProdSelToggle(sel.parentNode, n > 0);
+  if (window.GSFitToolbar) window.GSFitToolbar(sel.parentNode);
 }
 
 function saProdSelectedRows() {
@@ -417,7 +469,7 @@ ptInit('s11',PRODUCTS_S11,{
   rowHtml:function(r){
     var checked = saProdSel.has(r.sku) ? ' checked' : '';
     var isComplete = r.status === 'Complete';
-    var cbCell = '<td class="saprod-cb-cell" onclick="event.stopPropagation()" style="vertical-align:middle;text-align:center"><input type="checkbox" class="saprod-cb" aria-label="Select '+r.sku+'"'+checked+' onclick="event.stopPropagation();saProdToggleRow(this,\''+r.sku+'\')"></td>';
+    var cbCell = '<td class="saprod-cb-cell gs-check-col" onclick="event.stopPropagation()" style="vertical-align:middle;text-align:center"><input type="checkbox" class="saprod-cb" aria-label="Select '+r.sku+'"'+checked+' onclick="event.stopPropagation();saProdToggleRow(this,\''+r.sku+'\')"></td>';
 
     var docBtn = isComplete
       ? '<button class="btn-p" title="Generate Declaration of Conformity" onclick="event.stopPropagation();saDownloadDoc(\''+r.sku+'\')" style="height:24px;display:inline-flex;align-items:center;vertical-align:middle;box-sizing:border-box;font-size:11px;padding:0 10px;margin-right:6px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="margin-right:4px;position:relative;top:-1px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>DoC</button>'

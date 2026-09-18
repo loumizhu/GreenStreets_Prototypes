@@ -819,9 +819,129 @@ select.fi option{background-color:#0f2038;color:var(--tw)}
 .ftb-group{display:flex;align-items:center;gap:6px;padding:4px 4px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.03)}
 .ftb-group .cs-wrap,.ftb-group select.fi{min-width:120px}
 .ftb-actions{display:flex;align-items:center;gap:6px;margin-left:auto}
+
+/* ── STICKY FILTER TOOLBAR + IN-BAR SELECTION ACTIONS ──────────────────────────────────────────
+   Every listing's filter bar sticks to the top of the scrollport and the bulk-selection actions
+   appear INSIDE it (.ftb-sel), instead of in a floating bar at the bottom of the card — so the
+   controls stay with the rows you are scrolling through.
+   Three things this depends on:
+   1. The card must NOT clip. `.grp` is overflow:hidden, which makes it the sticky element's own
+      scrollport and cancels the stickiness outright — so a card that carries a filter bar opens up
+      (and rounds its header, which the clipping used to do for it).
+   2. `--ftb-top` cancels the scroll container's own top padding so the bar pins FLUSH with the
+      scrollport top; at top:0 it pins one padding lower and rows scroll visibly above it. It is
+      MEASURED by gsStickyToolbar rather than assumed, because the containers differ per portal
+      (.main is var(--sp-6)=24px, the supplier portal's .pbody is 18px).
+   3. The background must be near-opaque, since rows scroll underneath it. */
+.grp:has(.filter-toolbar){overflow:visible}
+.grp:has(.filter-toolbar)>.grp-hdr{border-radius:var(--rl) var(--rl) 0 0}
+.filter-toolbar{
+  position:sticky;top:var(--ftb-top,0px);z-index:40;
+  /* Sits directly ON the table: same box as .tbl-wrap below it (no negative side margins, so the
+     edges line up), no gap under it, and only its top corners are round — the two read as one
+     unit whose border runs continuously from the bar into the header row. */
+  padding:10px;margin:0;
+  border-radius:var(--rs) var(--rs) 0 0;
+  background:linear-gradient(120deg,rgba(30,52,84,.97),rgba(24,43,72,.98));
+  border:1px solid var(--line);border-bottom:0;
+  backdrop-filter:blur(16px) saturate(150%);-webkit-backdrop-filter:blur(16px) saturate(150%);
+  transition:border-color .2s ease,box-shadow .2s ease
+}
+/* the table it sits on loses its own top corners so the seam is flat */
+.grp:has(.filter-toolbar) .tbl-wrap{border-top-left-radius:0;border-top-right-radius:0}
+/* contour + shadow only once it is actually pinned (set by gsStickyToolbar) */
+.filter-toolbar.ftb-stuck{border-color:var(--line-2);box-shadow:0 14px 26px -18px rgba(0,0,0,.85)}
+/* the search gives up width so filters + tools + selection actions fit on one row; it shrinks
+   again while the selection cluster is showing */
+.filter-toolbar .search-wrap{flex:1 1 240px;min-width:150px;max-width:340px}
+.filter-toolbar.ftb-sel-on .search-wrap,.filter-toolbar.ftb-sel-off .search-wrap{max-width:200px}
+/* the filter cluster must NOT wrap internally — that grows the bar's height instead of pushing a
+   sibling onto a second row, which is the thing gsFitToolbar exists to prevent */
+.filter-toolbar .ftb-group{flex-wrap:nowrap}
+
+/* ── the selection cluster ── */
+.ftb-sel{display:none;align-items:center;gap:6px;padding-left:10px;
+  border-left:1px solid var(--bw,rgba(255,255,255,.14))}
+.filter-toolbar.ftb-sel-on .ftb-sel,.filter-toolbar.ftb-sel-off .ftb-sel{display:flex}
+.ftb-sel-count{display:inline-flex;align-items:center;height:34px;flex:none;
+  font-size:12px;color:var(--tw2);white-space:nowrap}
+/* the bold count needs a real word space after it — the browser's collapsed one reads as cramped
+   against the heavier digit */
+.ftb-sel-count b{color:var(--tw);font-weight:700;margin-right:4px}
+.ftb-sel .gs-tool-btn{flex:none}
+/* enters left→right with a short per-item stagger … */
+.filter-toolbar.ftb-sel-on .ftb-sel>*{animation:ftbSelIn .34s cubic-bezier(.2,.85,.3,1) both}
+.filter-toolbar.ftb-sel-on .ftb-sel>:nth-child(1){animation-delay:0s}
+.filter-toolbar.ftb-sel-on .ftb-sel>:nth-child(2){animation-delay:.045s}
+.filter-toolbar.ftb-sel-on .ftb-sel>:nth-child(3){animation-delay:.09s}
+.filter-toolbar.ftb-sel-on .ftb-sel>:nth-child(4){animation-delay:.135s}
+.filter-toolbar.ftb-sel-on .ftb-sel>:nth-child(5){animation-delay:.18s}
+.filter-toolbar.ftb-sel-on .ftb-sel>:nth-child(6){animation-delay:.225s}
+@keyframes ftbSelIn{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:none}}
+/* … and retracts the way it came, right-most first, so it reads as withdrawing rather than
+   blinking out. .ftb-sel-off keeps the cluster displayed for the duration. */
+.filter-toolbar.ftb-sel-off .ftb-sel>*{animation:ftbSelOut .24s cubic-bezier(.45,0,.9,.6) both}
+.filter-toolbar.ftb-sel-off .ftb-sel>:nth-last-child(1){animation-delay:0s}
+.filter-toolbar.ftb-sel-off .ftb-sel>:nth-last-child(2){animation-delay:.035s}
+.filter-toolbar.ftb-sel-off .ftb-sel>:nth-last-child(3){animation-delay:.07s}
+.filter-toolbar.ftb-sel-off .ftb-sel>:nth-last-child(4){animation-delay:.105s}
+.filter-toolbar.ftb-sel-off .ftb-sel>:nth-last-child(5){animation-delay:.14s}
+.filter-toolbar.ftb-sel-off .ftb-sel>:nth-last-child(6){animation-delay:.175s}
+@keyframes ftbSelOut{from{opacity:1;transform:none}to{opacity:0;transform:translateX(-14px)}}
+
+/* ── fitting one row (set by gsFitToolbar, escalating only as far as it must) ──
+   step 1  the search gives up width — the most elastic control on the bar
+   step 2  the search goes narrower still and the filter selects are capped (labels intact)
+   step 3  the buttons drop to their icons, each keeping a title
+   Labels are deliberately the LAST thing to go: at 1440px the densest listing (Products — 4 filters
+   plus 5 actions) fits at step 2 with every label readable. */
+.filter-toolbar.ftb-tight .search-wrap{flex:0 1 170px;max-width:170px}
+.filter-toolbar.ftb-tight2 .search-wrap{flex:0 1 136px;max-width:136px}
+.filter-toolbar.ftb-tight2 .cs-wrap,
+.filter-toolbar.ftb-tight2 .ftb-group .cs-wrap,
+.filter-toolbar.ftb-tight2 .ftb-group select.fi{min-width:0;max-width:108px}
+.filter-toolbar.ftb-tighter .search-wrap{flex:0 1 132px;max-width:132px;min-width:108px}
+.filter-toolbar.ftb-tighter .cs-wrap,
+.filter-toolbar.ftb-tighter .ftb-group .cs-wrap,
+.filter-toolbar.ftb-tighter .ftb-group select.fi{min-width:0;max-width:104px}
+.filter-toolbar.ftb-tighter .gs-tool-btn>span{display:none}
+.filter-toolbar.ftb-tighter .gs-tool-btn{padding:0 9px;gap:0}
+/* the PRIMARY action keeps its word even at the tightest step — a row of bare icons with no
+   labelled anchor reads as a puzzle */
+.filter-toolbar.ftb-tighter .ftb-sel .accent>span,
+.filter-toolbar.ftb-tighter .ftb-sel .gs-bulk-export>span{display:inline}
+.filter-toolbar.ftb-tighter .ftb-sel .accent,
+.filter-toolbar.ftb-tighter .ftb-sel .gs-bulk-export{padding:0 12px;gap:6px}
+/* Last resort — a genuinely narrow container (the half-width cards on the detail pages have only
+   ~536px of inner width, against ~744px of controls) cannot fit one row at any label length. There
+   the cluster takes its OWN row, right-aligned under a rule, which reads as deliberate rather than
+   as an accidental wrap — and since it then has the row to itself, its labels come back. */
+.filter-toolbar.ftb-stack{flex-wrap:wrap}
+.filter-toolbar.ftb-stack .ftb-sel{
+  width:100%;margin-left:0;padding-left:0;border-left:0;
+  padding-top:9px;margin-top:2px;border-top:1px solid var(--bw,rgba(255,255,255,.14));
+  justify-content:flex-end}
+.filter-toolbar.ftb-stack .ftb-sel .gs-tool-btn>span{display:inline}
+.filter-toolbar.ftb-stack .ftb-sel .gs-tool-btn{padding:0 12px;gap:6px}
+
+/* a capped select truncates rather than pushing the row wider */
+.filter-toolbar.ftb-tight2 .cs-trigger,.filter-toolbar.ftb-tight2 select.fi,
+.filter-toolbar.ftb-tighter .cs-trigger,.filter-toolbar.ftb-tighter select.fi{
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* The floating bottom bar is retired in favour of the in-bar cluster. The rules below are kept
+   for reference (and for the pre-rollout toolbar test pages, which carry their own copies). */
+.gs-bulkbar{display:none!important}
 .gs-tool-btn{height:34px;padding:0 12px;border-radius:9px;border:1px solid var(--line-2);background:rgba(255,255,255,.04);color:var(--tw2);font-family:'Inter',sans-serif;font-size:11.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;transition:all .15s}
 .gs-tool-btn:hover{background:rgba(255,255,255,.09);color:var(--tw)}
 .gs-tool-btn.on{background:rgba(78,187,129,.14);border-color:rgba(78,187,129,.4);color:var(--gs-l)}
+/* Modifiers, so a toolbar action never needs a bespoke button class. `.accent` is the same accent
+   treatment `.on` carries (a primary action rather than an engaged toggle); `.danger` is the
+   destructive tint the rest of the system already uses for remove/clear/logout/reset. */
+.gs-tool-btn.accent{background:rgba(78,187,129,.14);border-color:rgba(78,187,129,.4);color:var(--gs-l)}
+.gs-tool-btn.accent:hover{background:rgba(78,187,129,.24);border-color:var(--gs);color:var(--tw)}
+.gs-tool-btn.danger{background:rgba(224,96,90,.10);border-color:rgba(224,96,90,.32);color:var(--red)}
+.gs-tool-btn.danger:hover{background:rgba(224,96,90,.16);border-color:rgba(224,96,90,.45);color:var(--red)}
 /* rows hidden by filter or pagination */
 .tbl tbody tr.gs-filtered,.tbl tbody tr.gs-paged{display:none}
 /* bottom pager: count (left) + controls (right) */
@@ -924,11 +1044,11 @@ table[data-gs-grid] tbody tr.gs-kbd-row{ outline:2px solid var(--field-stroke-co
 /* bulk-select column + floating action bar */
 .tbl th.gs-check-col,.tbl td.gs-check-col{width:40px;text-align:center;cursor:default}
 /* Shadcn-style checkbox — all listing/row selectors. Native input kept for logic, restyled via appearance:none (dark-theme suited). */
-.tbl td.gs-check-col input,.tbl th.gs-check-col input,.gs-colmenu input[type=checkbox]{-webkit-appearance:none;appearance:none;width:16px;height:16px;flex:none;cursor:pointer;vertical-align:middle;border:1px solid var(--line-2);border-radius:5px;background:rgba(255,255,255,.05);box-shadow:0 1px 2px rgba(2,6,14,.35);transition:background .15s ease,border-color .15s ease,box-shadow .15s ease}
-.tbl td.gs-check-col input:hover,.tbl th.gs-check-col input:hover,.gs-colmenu input[type=checkbox]:hover{border-color:var(--gs-l)}
-.tbl td.gs-check-col input:checked,.tbl th.gs-check-col input:checked,.gs-colmenu input[type=checkbox]:checked{background-color:var(--gs);border-color:var(--gs);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2304160e' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");background-size:11px 11px;background-position:center;background-repeat:no-repeat}
-.tbl td.gs-check-col input:indeterminate,.tbl th.gs-check-col input:indeterminate{background-color:var(--gs);border-color:var(--gs);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2304160e' stroke-width='3.5' stroke-linecap='round'%3E%3Cpath d='M6 12h12'/%3E%3C/svg%3E");background-size:11px 11px;background-position:center;background-repeat:no-repeat}
-.tbl td.gs-check-col input:focus-visible,.tbl th.gs-check-col input:focus-visible,.gs-colmenu input[type=checkbox]:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(78,187,129,.4);border-color:var(--gs)}
+.tbl td.gs-check-col input,.tbl th.gs-check-col input,.gs-colmenu input[type=checkbox],.saprod-cb,#saprod-selectall{-webkit-appearance:none;appearance:none;width:16px;height:16px;flex:none;cursor:pointer;vertical-align:middle;border:1px solid var(--line-2);border-radius:5px;background:rgba(255,255,255,.05);box-shadow:0 1px 2px rgba(2,6,14,.35);transition:background .15s ease,border-color .15s ease,box-shadow .15s ease}
+.tbl td.gs-check-col input:hover,.tbl th.gs-check-col input:hover,.gs-colmenu input[type=checkbox]:hover,.saprod-cb:hover,#saprod-selectall:hover{border-color:var(--gs-l)}
+.tbl td.gs-check-col input:checked,.tbl th.gs-check-col input:checked,.gs-colmenu input[type=checkbox]:checked,.saprod-cb:checked,#saprod-selectall:checked{background-color:var(--gs);border-color:var(--gs);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2304160e' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");background-size:11px 11px;background-position:center;background-repeat:no-repeat}
+.tbl td.gs-check-col input:indeterminate,.tbl th.gs-check-col input:indeterminate,#saprod-selectall:indeterminate{background-color:var(--gs);border-color:var(--gs);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2304160e' stroke-width='3.5' stroke-linecap='round'%3E%3Cpath d='M6 12h12'/%3E%3C/svg%3E");background-size:11px 11px;background-position:center;background-repeat:no-repeat}
+.tbl td.gs-check-col input:focus-visible,.tbl th.gs-check-col input:focus-visible,.gs-colmenu input[type=checkbox]:focus-visible,.saprod-cb:focus-visible,#saprod-selectall:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(78,187,129,.4);border-color:var(--gs)}
 .gs-bulkbar{position:sticky;bottom:8px;display:none;align-items:center;gap:12px;margin-top:var(--sp-3);padding:10px 14px;border-radius:11px;font-size:12.5px;color:var(--tw2);z-index:6;
   background:linear-gradient(120deg,rgba(78,187,129,.18),rgba(91,156,246,.13));border:1px solid rgba(78,187,129,.32);
   backdrop-filter:blur(12px) saturate(140%);-webkit-backdrop-filter:blur(12px) saturate(140%);box-shadow:var(--sh-1)}

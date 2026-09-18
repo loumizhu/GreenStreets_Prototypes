@@ -128,7 +128,10 @@ html,body{height:100%;font-family:'Inter',sans-serif;color:var(--tw);background:
 .alert-info{background:rgba(91,156,246,.1);border:1px solid rgba(91,156,246,.2);color:#9dc4ff}
 
 /* ── FILTER TOOLBAR ── */
-.filter-toolbar{display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;align-items:center;gap:8px;margin-bottom:12px;white-space:nowrap}
+/* Flex, not a 4-column grid: this rule loads after greenstreets-theme.css and used to re-impose
+   the old grid on the shared filter-bar component, which left no room for the in-bar selection
+   cluster (it landed in a grid cell of its own). Same layout the other three portals use. */
+.filter-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:0;white-space:nowrap}
 .filter-group{display:contents}
 .search-wrap{position:relative;display:flex;align-items:center}
 .search-wrap svg{position:absolute;left:9px;color:var(--tw3);pointer-events:none}

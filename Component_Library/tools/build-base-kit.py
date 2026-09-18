@@ -594,7 +594,7 @@ TEMPLATE = '''<!DOCTYPE html>
 <link rel="stylesheet" href="css/greenstreets-light.css?v=1">
 <link rel="stylesheet" href="css/portal-extras-light.css?v=1">
 <!-- The sheet's own layout, plus the Figma-import hygiene overrides -->
-<link rel="stylesheet" href="css/base-kit.css?v=16">
+<link rel="stylesheet" href="css/base-kit.css?v=26">
 <!-- GENERATED: the real :hover declarations, re-applied under .bk-st-hover
      so this static sheet can draw the hover state. See tools/kit_states.py -->
 <link rel="stylesheet" href="css/base-kit-states.css?v=16">
@@ -672,7 +672,7 @@ SP_TEMPLATE = '''<!DOCTYPE html>
 <link rel="stylesheet" href="css/greenstreets-theme.css?v=1">
 <link rel="stylesheet" href="css/supplier-portal.css?v=1">
 <link rel="stylesheet" href="css/greenstreets-light.css?v=1">
-<link rel="stylesheet" href="css/base-kit.css?v=22">
+<link rel="stylesheet" href="css/base-kit.css?v=26">
 <link rel="stylesheet" href="css/base-kit-states.css?v=22">
 </head>
 <body class="bk-body">

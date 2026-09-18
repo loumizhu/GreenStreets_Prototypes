@@ -152,6 +152,14 @@ body.bk-body::before,body.bk-body::after{content:none!important;display:none!imp
 }
 .bk-span-2 .bk-cell-box,.bk-span-3 .bk-cell-box{justify-content:flex-start;padding:22px}
 .bk-cell-box>*{min-width:0;max-width:100%}
+/* The specimens are authored for components.html, which styles these two
+   wrappers in components-page.css - a sheet this export does NOT link. Left
+   unstyled they are plain blocks, so a row of controls (the Documents view
+   toggle + its size slider, the theme button + its segmented control) stacked
+   and stretched instead of sitting side by side, with no gap between them,
+   which read as a broken component rather than a missing rule. */
+.cx-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.cx-row-v{display:flex;flex-direction:column;gap:10px;align-items:flex-start}
 .bk-cell-lbl{
   flex:0 0 auto;text-align:center;
   font-size:9.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;

@@ -443,6 +443,7 @@
      a single odd table can never break the page. Skips the paginated product tables (own engine). */
   var IC_ROWS='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>';
   var IC_COLS='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="18" rx="1"/></svg>';
+  var IC_X='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="13" height="13"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
   var IC_DL='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';
   function gsToolBtn(label,icon){
     var b=document.createElement('button'); b.type='button'; b.className='gs-tool-btn'; b.innerHTML=icon+'<span>'+label+'</span>'; return b;
@@ -482,18 +483,141 @@
     });
     return menu;
   }
+  /* Keep a filter toolbar on ONE row. The selection cluster adds 240-470px to a bar that already
+     carries search + filters + row tools, which pushed it onto a second row on the denser listings.
+     Rather than guess at fixed widths per page, measure: if any child has wrapped, shrink the search
+     (.ftb-tight) and, if that is still not enough, collapse the button labels to their icons and cap
+     the filter selects (.ftb-tighter). Escalation stops as soon as it fits, so a wide window keeps
+     the full labels. */
+  /* One row or more than one? Measured from the bar's own content height against its tallest child,
+     NOT from per-child offsetTop deltas: the items are vertically centred and differ in height, so a
+     30px-tall cluster beside a 40px field sits a few px lower and read as "wrapped" even when the
+     row fit — which escalated the fit all the way to icon-only for no reason. */
+  function gsWrapped(tb){
+    var kids=tb.children, max=0, i;
+    if(!kids.length) return false;
+    for(i=0;i<kids.length;i++) max=Math.max(max,kids[i].offsetHeight);
+    var cs=getComputedStyle(tb);
+    var inner=tb.clientHeight-(parseFloat(cs.paddingTop)||0)-(parseFloat(cs.paddingBottom)||0);
+    return inner>max+6;
+  }
+  /* How many flex lines the children occupy. gsWrapped answers "is this more than one row?" but
+     cannot count rows, and once the bar is deliberately stacked (cluster on its own row) it is TRUE
+     by design — so the stacked form needs a measure of its own. Lines are bucketed by each child's
+     vertical CENTRE, which is what the shared `align-items:center` actually aligns; bucketing by
+     offsetTop instead reads a 30px pill beside a 40px field as two rows. Zero-sized children (the
+     hidden cluster) are skipped. */
+  function gsLines(el){
+    var lines=[], k=el.children, i, j, c, mid, hit;
+    for(i=0;i<k.length;i++){
+      c=k[i];
+      if(!c.offsetWidth && !c.offsetHeight) continue;
+      mid=c.offsetTop+c.offsetHeight/2; hit=false;
+      for(j=0;j<lines.length;j++){ if(Math.abs(lines[j]-mid)<14){ hit=true; break; } }
+      if(!hit) lines.push(mid);
+    }
+    return lines.length;
+  }
+  /* Does the STACKED form fit? Two rows exactly — the controls above, the cluster below — with the
+     cluster itself unwrapped. */
+  function gsStackFits(tb){
+    var sel=tb.querySelector('.ftb-sel');
+    return gsLines(tb)<=2 && (!sel || gsLines(sel)<=1);
+  }
+  /* Escalate only as far as it must, and in the order that costs the least meaning:
+       1  .ftb-tight   the search gives up width — the most elastic control on the bar
+       2  .ftb-tight2  the search narrows again and the filter selects are capped (labels intact)
+       3  .ftb-stack   the selection cluster takes a row of its own
+       4  .ftb-tighter last resort — the row's buttons drop to their icons, each keeping a title
+     Stacking comes BEFORE stripping labels, which is the whole point: a label is meaning, a second
+     row is only space. Ordered the other way (the original), the steps were not monotonic in the
+     window width — a 1600px window fitted one row at .ftb-tighter and so showed bare icons, while a
+     1440px one could not fit at any label length, stacked, and got its labels BACK. Same page, same
+     selection, wider window, less readable bar: that is the inconsistency this order removes.
+     Having stacked, the caps on the search and selects are re-tested and dropped if the freed row
+     made them unnecessary. */
+  var FTB_STEPS=['ftb-tight','ftb-tight2'];
+  function gsFitToolbar(tb){
+    if(!tb) return;
+    FTB_STEPS.forEach(function(c){ tb.classList.remove(c); });
+    tb.classList.remove('ftb-tighter');
+    tb.classList.remove('ftb-stack');
+    for(var i=0;i<FTB_STEPS.length;i++){
+      if(!gsWrapped(tb)) return;          // fits — stop here and keep what is still legible
+      tb.classList.add(FTB_STEPS[i]);
+    }
+    if(!gsWrapped(tb)) return;
+    tb.classList.add('ftb-stack');
+    /* the cluster's row is free space the controls above no longer need to pay for */
+    for(i=FTB_STEPS.length-1;i>=0;i--){
+      tb.classList.remove(FTB_STEPS[i]);
+      if(!gsStackFits(tb)){ tb.classList.add(FTB_STEPS[i]); break; }
+    }
+    if(gsStackFits(tb)) return;
+    tb.classList.add('ftb-tighter');
+  }
+  window.GSFitToolbar=gsFitToolbar;
+
+  /* Show / hide a toolbar's selection cluster. The exit needs its own class because the cluster is
+     display:none when idle — .ftb-sel-off keeps it laid out until the retract animation is done. */
+  function gsToolbarSelect(tb,on){
+    if(!tb) return;
+    clearTimeout(tb._ftbSelT);
+    if(on){
+      tb.classList.remove('ftb-sel-off');
+      tb.classList.add('ftb-sel-on');
+      gsFitToolbar(tb);
+    } else if(tb.classList.contains('ftb-sel-on')){
+      tb.classList.remove('ftb-sel-on');
+      tb.classList.add('ftb-sel-off');
+      tb._ftbSelT=setTimeout(function(){ tb.classList.remove('ftb-sel-off'); gsFitToolbar(tb); },440);
+    }
+  }
+  window.GSToolbarSelect=gsToolbarSelect;
+
+  /* Mark a sticky filter toolbar as pinned so it can take its contour + shadow only then. Listens on
+     the toolbar's own scroll container (.main on the admin shell) rather than the window, since the
+     page itself does not scroll. */
+  function gsStickyToolbar(tb){
+    if(tb.dataset.gsSticky) return;
+    var sc=tb.closest('.main')||tb.closest('.pbody')||null;
+    if(!sc) return;
+    tb.dataset.gsSticky='1';
+    /* pull the bar up by the scrollport's own top padding so it pins flush with its top edge */
+    var pad=parseFloat(getComputedStyle(sc).paddingTop)||0;
+    tb.style.setProperty('--ftb-top',(-pad)+'px');
+    var check=function(){
+      tb.classList.toggle('ftb-stuck', tb.getBoundingClientRect().top<=sc.getBoundingClientRect().top+1);
+    };
+    sc.addEventListener('scroll',check,{passive:true});
+    window.addEventListener('resize',check);
+    window.addEventListener('resize',function(){ gsFitToolbar(tb); });
+    check();
+    gsFitToolbar(tb);
+  }
+
   function gsAddBulk(table){
     var head=table.tHead&&table.tHead.rows[0]; if(!head) return;
     var scope=table.closest('.grp-body')||table.parentNode;
-    var bar=document.createElement('div'); bar.className='gs-bulkbar';
-    bar.innerHTML='<span class="gs-bulk-count">0 selected</span><span class="spacer"></span><button class="btn-g-sm gs-bulk-export" type="button">Export selected</button><button class="btn-g-sm gs-bulk-clear" type="button">Clear</button>';
-    scope.appendChild(bar);
+    /* The actions live IN the sticky filter toolbar (.ftb-sel), so they travel with the rows being
+       scrolled; the old floating .gs-bulkbar sat at the bottom of the card and scrolled away. */
+    var tb=table._gsToolbar;
+    var bar=document.createElement('div'); bar.className='ftb-sel';
+    var cnt=document.createElement('span'); cnt.className='ftb-sel-count';
+    cnt.innerHTML='<b class="ftb-sel-n">0</b> selected';
+    /* the SAME component as the bar's Compact / Columns / Export tools */
+    var expBtn=gsToolBtn('Export selected',IC_DL); expBtn.classList.add('gs-bulk-export'); expBtn.title='Export selected rows';
+    var clrBtn=gsToolBtn('Clear',IC_X); clrBtn.classList.add('gs-bulk-clear','danger'); clrBtn.title='Clear selection';
+    bar.appendChild(cnt); bar.appendChild(expBtn); bar.appendChild(clrBtn);
+    (tb||scope).appendChild(bar);
     function hidden(r){ return r.classList.contains('gs-filtered')||r.classList.contains('gs-paged')||r.classList.contains('gs-empty-row'); }
     function refresh(){
       var vis=0, sel=0;
       Array.prototype.forEach.call(table.tBodies[0].rows,function(r){ if(hidden(r))return; var c=r.querySelector('.gs-row-check'); if(!c)return; vis++; if(c.checked)sel++; });
-      bar.querySelector('.gs-bulk-count').textContent=sel+' selected';
-      bar.classList.toggle('on', sel>0);
+      /* only write the count while there IS a selection — otherwise it reads "0 selected"
+         for the length of the retract animation */
+      if(sel>0) bar.querySelector('.ftb-sel-n').textContent=sel;
+      gsToolbarSelect(tb, sel>0);
       all.checked = vis>0 && sel===vis; all.indeterminate = sel>0 && sel<vis;
     }
     var all;
@@ -523,8 +647,8 @@
         c.addEventListener('change',refresh);
       });
     }
-    bar.querySelector('.gs-bulk-export').addEventListener('click',function(){ gsExportCsv(table,true); });
-    bar.querySelector('.gs-bulk-clear').addEventListener('click',function(){ table.querySelectorAll('.gs-row-check').forEach(function(c){c.checked=false;}); all.checked=false; refresh(); });
+    expBtn.addEventListener('click',function(){ gsExportCsv(table,true); });
+    clrBtn.addEventListener('click',function(){ table.querySelectorAll('.gs-row-check').forEach(function(c){c.checked=false;}); all.checked=false; refresh(); });
     all.addEventListener('change',function(){
       Array.prototype.forEach.call(table.tBodies[0].rows,function(r){ if(hidden(r))return; var c=r.querySelector('.gs-row-check'); if(c)c.checked=all.checked; });
       refresh();
@@ -643,8 +767,9 @@
     gsAfterFilter(table,'');
   }
   function initListings(root){
-    (root||document).querySelectorAll('.filter-toolbar').forEach(function(tb){
+    (root||document).querySelectorAll('.filter-toolbar,.ftb-host').forEach(function(tb){
       try{ enhanceListing(tb); }catch(err){ /* never break the page over one table */ }
+      try{ gsStickyToolbar(tb); }catch(err){}
     });
   }
   window.GSInitListings=initListings;

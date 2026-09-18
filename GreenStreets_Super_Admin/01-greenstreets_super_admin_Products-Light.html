@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>GreenStreets Super Admin · Products (Light)</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/greenstreets-theme.css?v=55">
+<link rel="stylesheet" href="css/greenstreets-theme.css?v=66">
 <!-- Products-Light now uses the SHARED light theme (no separate/duplicated CSS) -->
-<link rel="stylesheet" href="css/greenstreets-light.css?v=19">
+<link rel="stylesheet" href="css/greenstreets-light.css?v=22">
 <style>
 /* Products-specific only: Approve action button = lighter green */
 .act-cell [data-approved]{background:#4ebb81!important;border-color:#4ebb81!important;color:#fff!important;box-shadow:none!important}
@@ -52,14 +52,14 @@
           <div class="tbl-wrap"><table class="tbl" id="pt-table-s11">
             <colgroup><col width="3%"><col width="13%"><col width="13%"><col width="8%"><col width="13%"><col width="13%"><col width="11%"><col width="9%"><col width="13%"><col width="4%"></colgroup>
             <thead><tr>
-              <th style="text-align:center;padding-left:0;padding-right:0"><input type="checkbox" id="saprod-selectall" aria-label="Select all products" title="Select all" onclick="saProdToggleAll(this)"></th>
-              <th data-col="sku" onclick="ptSort('s11','sku')" style="cursor:pointer;user-select:none">SKU <span class="sort-arrow" style="opacity:.4;font-size:9px">↕</span></th>
+              <th class="gs-check-col" style="text-align:center;padding-left:0;padding-right:0"><input type="checkbox" id="saprod-selectall" aria-label="Select all products" title="Select all" onclick="saProdToggleAll(this)"></th>
+              <th class="gs-sortable" data-col="sku" onclick="ptSort('s11','sku')" >SKU <span class="gs-sort-arrow"> ↕</span></th>
               <th>Description</th>
-              <th data-col="cat" onclick="ptSort('s11','cat')" style="cursor:pointer;user-select:none">Category <span class="sort-arrow" style="opacity:.4;font-size:9px">↕</span></th>
-              <th data-col="retailer" onclick="ptSort('s11','retailer')" style="cursor:pointer;user-select:none">Retailer <span class="sort-arrow" style="opacity:.4;font-size:9px">↕</span></th>
+              <th class="gs-sortable" data-col="cat" onclick="ptSort('s11','cat')" >Category <span class="gs-sort-arrow"> ↕</span></th>
+              <th class="gs-sortable" data-col="retailer" onclick="ptSort('s11','retailer')" >Retailer <span class="gs-sort-arrow"> ↕</span></th>
               <th>Supplier</th>
               <th>Packaging</th>
-              <th data-col="status" onclick="ptSort('s11','status')" style="cursor:pointer;user-select:none">Status <span class="sort-arrow" style="opacity:.4;font-size:9px">↕</span></th>
+              <th class="gs-sortable" data-col="status" onclick="ptSort('s11','status')" >Status <span class="gs-sort-arrow"> ↕</span></th>
               <th>Actions</th>
               <th></th>
             </tr></thead>
@@ -89,8 +89,8 @@
     </div>
   </div>
 </div>
-<script src="js/super-admin.js?v=22"></script>
-<script src="js/greenstreets-theme.js?v=38"></script>
+<script src="js/super-admin.js?v=26"></script>
+<script src="js/greenstreets-theme.js?v=45"></script>
 <script src="js/greenstreets-light.js?v=2"></script>
 </body>
 </html>

@@ -2526,11 +2526,13 @@ function gsPkgSelectedRows(){
 function gsPkgBulkSync(){
   var sel = gsPkgSelectedRows();
   var n = sel.length;
-  var bar = document.getElementById('gs-pkg-bulkbar');
-  if(bar){
-    bar.classList.toggle('on', n>0);
-    var lbl = bar.querySelector('.gs-bulk-count');
-    if(lbl) lbl.textContent = n + ' selected';
+  /* the cluster lives in the listing's sticky control row now */
+  gsPkgBuildBulkBar();
+  var host = gsSpHost('pkg-lib-table');
+  if(host){
+    var lbl = host.querySelector('.ftb-sel-n');
+    if(lbl && n>0) lbl.textContent = n;   /* hold the last count through the retract animation */
+    gsSpSelToggle(host, n>0);
   }
   var all = gsPkgBulkVisibleRows();
   var checkedVis = all.filter(function(r){ var c=r.querySelector('.gs-row-check'); return c&&c.checked; }).length;
@@ -2543,12 +2545,6 @@ function gsPkgBulkSync(){
 function gsPkgBulkClear(){
   document.querySelectorAll('#pkg-lib-tbody .gs-row-check').forEach(function(c){ c.checked=false; });
   gsPkgBulkSync();
-}
-function gsPkgBulkEdit(){
-  var rows = gsPkgSelectedRows();
-  if(!rows.length) return;
-  if(rows.length===1){ var k=gsPkgRowKey(rows[0]); if(k && typeof go==='function'){ go('pkgdetail-'+k); return; } }
-  if(typeof gsToast==='function') gsToast('Bulk-editing '+rows.length+' components');
 }
 function gsPkgBulkDownload(){
   var rows = gsPkgSelectedRows();
@@ -2565,21 +2561,48 @@ function gsPkgBulkRemove(){
   gsPkgBulkSync();
   if(typeof gsToast==='function') gsToast(rows.length+' component'+(rows.length>1?'s':'')+' removed');
 }
+/* The selection actions sit IN the listing's own control row (tagged .ftb-host), which is sticky —
+   they used to be a floating bar appended to <body>. Buttons are .gs-tool-btn, the same component as
+   the rest of the toolbars; .danger carries the portal's destructive tint (Remove), and Clear stays
+   neutral beside it so there is only one red button per row. */
 function gsPkgBuildBulkBar(){
-  if(document.getElementById('gs-pkg-bulkbar')) return;
-  var bar = document.createElement('div');
-  bar.id='gs-pkg-bulkbar';
-  bar.className='gs-bulkbar';
-  bar.innerHTML =
-    '<span class="gs-bulk-count">0 selected</span>'+
-    '<div class="gs-bulk-actions">'+
-      '<button class="gs-bulk-btn" onclick="gsPkgBulkEdit()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button>'+
-      '<button class="gs-bulk-btn" onclick="gsPkgBulkDownload()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download</button>'+
-      '<button class="gs-bulk-btn gs-bulk-danger" onclick="gsPkgBulkRemove()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Remove</button>'+
-      '<button class="gs-bulk-btn gs-bulk-ghost" onclick="gsPkgBulkClear()">Clear</button>'+
-    '</div>';
-  document.body.appendChild(bar);
+  var host = gsSpHost('pkg-lib-table');
+  if(!host || host.querySelector('.ftb-sel')) return;
+  var sel = document.createElement('div');
+  sel.className = 'ftb-sel';
+  sel.innerHTML =
+    '<span class="ftb-sel-count"><b class="ftb-sel-n">0</b> selected</span>' +
+    '<button type="button" class="gs-tool-btn" title="Download the selected components" onclick="gsPkgBulkDownload()">'+
+      '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>Download</span></button>' +
+    '<button type="button" class="gs-tool-btn danger" title="Remove the selected components" onclick="gsPkgBulkRemove()">'+
+      '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg><span>Remove</span></button>' +
+    '<button type="button" class="gs-tool-btn" title="Clear selection" onclick="gsPkgBulkClear()">'+
+      '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg><span>Clear</span></button>';
+  host.appendChild(sel);
 }
+
+/* The control row that hosts a listing's selection cluster. Scoped to the listing's own tab panel
+   rather than the first .ftb-host in the document, so the packaging and product clusters cannot
+   collide if the two listings ever share a page. */
+function gsSpHost(tableId){
+  var t=document.getElementById(tableId);
+  var root=(t&&(t.closest('.landing-tab-panel')||t.closest('.pbody')))||document;
+  return root.querySelector('.ftb-host')||document.querySelector('.ftb-host');
+}
+
+/* show / hide it with the shared animation contract (local fallback: supplier-portal.js loads
+   before greenstreets-theme.js) */
+function gsSpSelToggle(host, on){
+  if(!host) return;
+  if(window.GSToolbarSelect){ window.GSToolbarSelect(host, on); if(window.GSFitToolbar) window.GSFitToolbar(host); return; }
+  clearTimeout(host._ftbSelT);
+  if(on){ host.classList.remove('ftb-sel-off'); host.classList.add('ftb-sel-on'); }
+  else if(host.classList.contains('ftb-sel-on')){
+    host.classList.remove('ftb-sel-on'); host.classList.add('ftb-sel-off');
+    host._ftbSelT=setTimeout(function(){ host.classList.remove('ftb-sel-off'); },440);
+  }
+}
+
 function gsPkgBulkInit(){
   var table = document.getElementById('pkg-lib-table');
   var tbody = document.getElementById('pkg-lib-tbody');
@@ -2644,45 +2667,39 @@ function gsProdBulkAfterRender(){
 function gsProdBulkSync(){
   _gsProdSel = _gsProdSel || {};
   var n = gsProdSelectedIds().length;
-  var bar = document.getElementById('gs-prod-bulkbar');
-  if(bar){ bar.classList.toggle('on', n>0); var lbl=bar.querySelector('.gs-bulk-count'); if(lbl) lbl.textContent = n+' selected'; }
+  gsProdBuildBulkBar();
+  var host = gsSpHost('prod-tbl-el');
+  if(host){
+    var lbl = host.querySelector('.ftb-sel-n');
+    if(lbl && n>0) lbl.textContent = n;
+    gsSpSelToggle(host, n>0);
+  }
   var rows = Array.prototype.slice.call(document.querySelectorAll('#prod-tbody tr[data-pi]'));
   var checked = rows.filter(function(r){ return !!_gsProdSel[+r.getAttribute('data-pi')]; }).length;
   var sa = document.getElementById('prod-check-all');
   if(sa){ sa.checked = rows.length>0 && checked===rows.length; sa.indeterminate = checked>0 && checked<rows.length; }
 }
 function gsProdBulkClear(){ _gsProdSel = {}; gsProdBulkAfterRender(); }
-function gsProdBulkEdit(){
-  var ids = gsProdSelectedIds(); if(!ids.length) return;
-  if(ids.length===1 && typeof openProductDetail==='function'){ openProductDetail(ids[0]); return; }
-  if(typeof gsToast==='function') gsToast('Bulk-editing '+ids.length+' products');
-}
 function gsProdBulkExport(){
   var ids = gsProdSelectedIds(); if(!ids.length) return;
   if(typeof gsToast==='function') gsToast('Exporting '+ids.length+' product'+(ids.length>1?'s':''));
 }
-function gsProdBulkRemove(){
-  var ids = gsProdSelectedIds(); if(!ids.length) return;
-  if(!confirm('Remove '+ids.length+' selected product'+(ids.length>1?'s':'')+' from the list?')) return;
-  if(typeof PRODUCTS!=='undefined'){ PRODUCTS = PRODUCTS.filter(function(p){ return ids.indexOf(p.id)<0; }); }
-  _gsProdSel = {};
-  if(typeof prodRender==='function') prodRender();
-  if(typeof gsToast==='function') gsToast(ids.length+' product'+(ids.length>1?'s':'')+' removed');
-}
+/* Products carries only Export beside Clear — deliberately no Remove and no Edit. The products are
+   the RETAILER's records; a supplier completes them, it does not own or delete them, so the listing
+   offers no destructive action at all (unlike the packaging library, which is the supplier's own).
+   Editing happens on the product's detail page, which the row click already opens. */
 function gsProdBuildBulkBar(){
-  if(document.getElementById('gs-prod-bulkbar')) return;
-  var bar = document.createElement('div');
-  bar.id='gs-prod-bulkbar';
-  bar.className='gs-bulkbar';
-  bar.innerHTML =
-    '<span class="gs-bulk-count">0 selected</span>'+
-    '<div class="gs-bulk-actions">'+
-      '<button class="gs-bulk-btn" onclick="gsProdBulkEdit()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button>'+
-      '<button class="gs-bulk-btn" onclick="gsProdBulkExport()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button>'+
-      '<button class="gs-bulk-btn gs-bulk-danger" onclick="gsProdBulkRemove()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Remove</button>'+
-      '<button class="gs-bulk-btn gs-bulk-ghost" onclick="gsProdBulkClear()">Clear</button>'+
-    '</div>';
-  document.body.appendChild(bar);
+  var host = gsSpHost('prod-tbl-el');
+  if(!host || host.querySelector('.ftb-sel')) return;
+  var sel = document.createElement('div');
+  sel.className = 'ftb-sel';
+  sel.innerHTML =
+    '<span class="ftb-sel-count"><b class="ftb-sel-n">0</b> selected</span>' +
+    '<button type="button" class="gs-tool-btn" title="Export the selected products" onclick="gsProdBulkExport()">'+
+      '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>Export</span></button>' +
+    '<button type="button" class="gs-tool-btn" title="Clear selection" onclick="gsProdBulkClear()">'+
+      '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg><span>Clear</span></button>';
+  host.appendChild(sel);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════

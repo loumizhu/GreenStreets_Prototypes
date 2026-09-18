@@ -132,7 +132,7 @@ html,body{height:100%;font-family:'Inter',sans-serif;color:var(--tw);background:
    data-grid toolkit's grouped [search]·[ftb-group]·[ftb-actions] reflow (right-aligns Compact/Columns/Export).
    This rule used to force display:grid, which — being the later stylesheet — silently overrode that flex
    layout and broke the right-alignment for every listing on this portal. */
-.filter-toolbar{align-items:center;gap:8px;margin-bottom:12px;white-space:nowrap}
+.filter-toolbar{align-items:center;gap:8px;margin-bottom:0;white-space:nowrap}
 .filter-group{display:contents}
 .search-wrap{position:relative;display:flex;align-items:center}
 .search-wrap svg{position:absolute;left:9px;color:var(--tw3);pointer-events:none}

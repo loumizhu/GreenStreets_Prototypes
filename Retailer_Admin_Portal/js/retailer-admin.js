@@ -484,7 +484,51 @@ function raProdInjectCss() {
   document.head.appendChild(st);
 }
 
-/* floating bulk-action bar */
+/* The selection actions live in the sticky filter toolbar (.ftb-sel) — the same place the generic
+   data-grid toolkit puts them, see gsAddBulk in greenstreets-theme.js. raProdEnsureBar() below is
+   kept (it builds the older floating bar) so nothing that drives it directly breaks. The count here
+   is a CLASS, not an id, so the two can never collide on a page that has both. */
+function raProdEnsureInline() {
+  raProdInjectCss();
+  var tb = document.querySelector('.filter-toolbar');
+  if (!tb) return null;
+  var sel = tb.querySelector('.ftb-sel');
+  if (sel) return sel;
+  var ic = 'width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"';
+  sel = document.createElement('div');
+  sel.className = 'ftb-sel';
+  /* .gs-tool-btn is the toolbar's own button component (Compact / Columns / Export); .accent marks
+     the primary action and .danger the destructive one. */
+  sel.innerHTML =
+    '<span class="ftb-sel-count"><b class="ftb-sel-n">0</b> selected</span>' +
+    '<button type="button" class="gs-tool-btn accent" title="Approve the selected products" onclick="raProdBulkApprove()">' +
+      '<svg ' + ic + ' stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg><span>Approve</span></button>' +
+    '<button type="button" class="gs-tool-btn" title="Send a reminder for the selected products" onclick="raProdBulkRemind()">' +
+      '<svg ' + ic + ' stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span>Remind</span></button>' +
+    '<button type="button" class="gs-tool-btn" title="Export the selected products" onclick="raProdBulkExport()">' +
+      '<svg ' + ic + ' stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>Export</span></button>' +
+    '<button type="button" class="gs-tool-btn" title="Generate a Declaration of Conformity" onclick="raProdBulkDownloadDoc()">' +
+      '<svg ' + ic + ' stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg><span>DoC</span></button>' +
+    '<button type="button" class="gs-tool-btn danger" title="Clear selection" aria-label="Clear selection" onclick="raProdClearSel()">' +
+      '<svg ' + ic + ' stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg><span>Clear</span></button>';
+  tb.appendChild(sel);
+  return sel;
+}
+
+/* Same in/out animation contract as the toolkit's cluster; implemented locally as a fallback because
+   retailer-admin.js loads before greenstreets-theme.js. */
+function raProdSelToggle(tb, on) {
+  if (!tb) return;
+  if (window.GSToolbarSelect) { window.GSToolbarSelect(tb, on); return; }
+  clearTimeout(tb._ftbSelT);
+  if (on) { tb.classList.remove('ftb-sel-off'); tb.classList.add('ftb-sel-on'); }
+  else if (tb.classList.contains('ftb-sel-on')) {
+    tb.classList.remove('ftb-sel-on'); tb.classList.add('ftb-sel-off');
+    tb._ftbSelT = setTimeout(function(){ tb.classList.remove('ftb-sel-off'); }, 440);
+  }
+}
+
+/* floating bulk-action bar (legacy path, no longer shown — see raProdEnsureInline) */
 function raProdEnsureBar() {
   raProdInjectCss();
   var bar = document.getElementById('raprod-bulkbar');
@@ -508,10 +552,13 @@ function raProdEnsureBar() {
 }
 
 function raProdUpdateBar() {
-  var bar = raProdEnsureBar();
+  var sel = raProdEnsureInline();
+  if (!sel) return;
   var n = raProdSel.size;
-  document.getElementById('raprod-bb-n').textContent = n;
-  bar.classList.toggle('show', n > 0);
+  var c = sel.querySelector('.ftb-sel-n');
+  if (c && n > 0) c.textContent = n;   /* keep the last count through the retract animation */
+  raProdSelToggle(sel.parentNode, n > 0);
+  if (window.GSFitToolbar) window.GSFitToolbar(sel.parentNode);
 }
 
 function raProdSelectedRows() {

@@ -56,7 +56,7 @@ html,body{height:100%;font-family:"Inter",sans-serif;color:var(--tw)}
 .fi option{background:#1a2f4a;color:#fff}
 .fi-ro{background:rgba(255,255,255,.03)!important;color:rgba(255,255,255,.45)!important;cursor:not-allowed}
 .fi-has-unit{padding-right:40px}
-.fi-unit{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:11px;color:rgba(255,255,255,.4);pointer-events:none;font-weight:500}
+.fi-unit{position:absolute;z-index:1;right:10px;top:50%;transform:translateY(-50%);font-size:11px;color:rgba(255,255,255,.4);pointer-events:none;font-weight:500}
 /* Chips */
 .chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:4px}
 .chip{cursor:pointer;user-select:none}
@@ -197,7 +197,7 @@ html,body{height:100%;font-family:"Inter",sans-serif;color:var(--tw)}
 .step-chip-menu.open{display:flex}
 .product-card-menu-hdr{font-size:10px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.05em;padding:9px 12px 6px;position:sticky;top:0;background:#16294a}
 .comp-menu-search-wrap{position:relative;padding:0 10px 8px;flex-shrink:0}
-.comp-menu-search-wrap svg{position:absolute;left:18px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,.35);pointer-events:none}
+.comp-menu-search-wrap svg{position:absolute;z-index:1;left:18px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,.35);pointer-events:none}
 .comp-menu-search{width:100%;padding:6px 10px 6px 26px;font-size:11px;border:1px solid rgba(255,255,255,.14);border-radius:6px;background:rgba(255,255,255,.06);color:#fff;font-family:"Inter",sans-serif;outline:none}
 .comp-menu-search:focus{border-color:var(--gs)}
 .comp-menu-search::placeholder{color:rgba(255,255,255,.3)}
@@ -1058,7 +1058,7 @@ select.pd-input option{background:#16294a;color:#fff}
 .gs-pct-numwrap .gs-num-steppers{right:4px;width:16px;height:22px}
 .gs-pct-num{width:104px;font-size:13px;color:#fff;font-weight:600;background:rgba(255,255,255,.07);border:1px solid rgba(91,156,246,.4);border-radius:6px;padding:5px 24px 5px 8px;font-family:"Inter",sans-serif}
 .gs-pct-num:focus{outline:none;border-color:var(--gs);background:rgba(78,187,129,.08)}
-.gs-pct-numwrap .fi-unit{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:12px;color:rgba(255,255,255,.5);pointer-events:none}
+.gs-pct-numwrap .fi-unit{position:absolute;z-index:1;right:8px;top:50%;transform:translateY(-50%);font-size:12px;color:rgba(255,255,255,.5);pointer-events:none}
 .gs-has-pct .pkg-detail-feat-input.editable-text{display:block}
 .pkg-sec-edit-mode .gs-has-pct .pkg-detail-feat-input.editable-text{display:none}
 .pkg-sec-edit-mode .gs-has-pct .gs-pct{display:flex}

@@ -202,7 +202,12 @@ body{
 .login-sub{font-size:11.5px;color:var(--tw3);text-align:center;margin-bottom:20px;line-height:1.5}
 .fgrp-login{margin-bottom:10px}
 .fi-icon-wrap{position:relative}
-.fi-icon-wrap svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--tw3);pointer-events:none}
+/* z-index is LOAD-BEARING on every overlay that sits on a .fi: the field carries
+   backdrop-filter:blur(8px), and in Chrome an abs-positioned sibling with z-index:auto lands in that
+   field's backdrop and is blurred away — the search magnifier rendered as a faint smudge. A z-index
+   lifts it out of the backdrop; .fs-ring has carried one (z-index:3) all along, which is exactly why
+   the focus ring stayed crisp while these icons did not. */
+.fi-icon-wrap svg{position:absolute;z-index:1;left:12px;top:50%;transform:translateY(-50%);color:var(--tw3);pointer-events:none}
 .fi-icon-wrap .fi{padding-left:34px}
 .mfa-fi{letter-spacing:.32em;text-align:center;font-size:17px;font-weight:600}
 .mfa-hint{display:flex;align-items:center;gap:6px;margin:8px 2px 18px;font-size:10.5px;color:var(--bl-l)}
@@ -413,7 +418,7 @@ select.fi option{background-color:#0f2038;color:var(--tw)}
 /* ── FILTER TOOLBAR ── */
 .filter-toolbar{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;align-items:center;gap:var(--sp-2);margin-bottom:var(--sp-4)}
 .search-wrap{position:relative;display:flex;align-items:center}
-.search-wrap svg{position:absolute;left:11px;color:var(--tw3);pointer-events:none}
+.search-wrap svg{position:absolute;z-index:1;left:11px;color:var(--tw3);pointer-events:none}
 .fi-search{padding-left:32px}
 .fi-select{cursor:pointer}
 
@@ -523,7 +528,7 @@ select.fi option{background-color:#0f2038;color:var(--tw)}
 
 /* ── COUNTRY SELECT ── */
 .csel-wrap{position:relative}
-.csel-wrap .csel-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--tw3);pointer-events:none}
+.csel-wrap .csel-icon{position:absolute;z-index:1;left:11px;top:50%;transform:translateY(-50%);color:var(--tw3);pointer-events:none}
 .csel-dropdown{position:absolute;top:calc(100% + 6px);left:0;right:0;background:linear-gradient(165deg,rgba(15,26,46,.98),rgba(9,17,32,.99));border:1px solid var(--line-2);border-radius:var(--rs);max-height:200px;overflow-y:auto;z-index:50;box-shadow:var(--sh-2);backdrop-filter:blur(20px)}
 .csel-opt{padding:9px 13px;font-size:12px;color:var(--tw2);cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:background .12s}
 .csel-opt:hover{background:rgba(78,187,129,.1);color:var(--tw)}
@@ -666,7 +671,7 @@ select.fi option{background-color:#0f2038;color:var(--tw)}
    suffix (.fi-unit), the JS shifts the unit left so the two don't collide. */
 .fi[type=number]::-webkit-inner-spin-button,.fi[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 .fi[type=number]{-moz-appearance:textfield}
-.gs-num-steppers{position:absolute;top:50%;right:5px;transform:translateY(-50%);display:flex;flex-direction:column;width:18px;height:26px;border-radius:6px;overflow:hidden;border:1px solid var(--line-2);background:rgba(255,255,255,.05)}
+.gs-num-steppers{position:absolute;z-index:1;top:50%;right:5px;transform:translateY(-50%);display:flex;flex-direction:column;width:18px;height:26px;border-radius:6px;overflow:hidden;border:1px solid var(--line-2);background:rgba(255,255,255,.05)}
 .gs-num-btn{flex:1;display:flex;align-items:center;justify-content:center;padding:0;background:none;border:none;color:var(--tw3);cursor:pointer;transition:background .12s,color .12s}
 .gs-num-btn:first-child{border-bottom:1px solid var(--line)}
 .gs-num-btn:hover{background:rgba(91,156,246,.2);color:var(--gs-l)}
@@ -695,9 +700,191 @@ select.fi option{background-color:#0f2038;color:var(--tw)}
 .ftb-group{display:flex;align-items:center;gap:6px;padding:4px 4px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.03)}
 .ftb-group .cs-wrap,.ftb-group select.fi{min-width:120px}
 .ftb-actions{display:flex;align-items:center;gap:6px;margin-left:auto}
+
+/* ── STICKY FILTER TOOLBAR + IN-BAR SELECTION ACTIONS ──────────────────────────────────────────
+   Every listing's filter bar sticks to the top of the scrollport and the bulk-selection actions
+   appear INSIDE it (.ftb-sel), instead of in a floating bar at the bottom of the card — so the
+   controls stay with the rows you are scrolling through.
+   Three things this depends on:
+   1. The card must NOT clip. `.grp` is overflow:hidden, which makes it the sticky element's own
+      scrollport and cancels the stickiness outright — so a card that carries a filter bar opens up
+      (and rounds its header, which the clipping used to do for it).
+   2. `--ftb-top` cancels the scroll container's own top padding so the bar pins FLUSH with the
+      scrollport top; at top:0 it pins one padding lower and rows scroll visibly above it. It is
+      MEASURED by gsStickyToolbar rather than assumed, because the containers differ per portal
+      (.main is var(--sp-6)=24px, the supplier portal's .pbody is 18px).
+   3. The background must be near-opaque, since rows scroll underneath it. */
+.grp:has(.filter-toolbar){overflow:visible}
+.grp:has(.filter-toolbar)>.grp-hdr{border-radius:var(--rl) var(--rl) 0 0}
+.filter-toolbar{
+  position:sticky;top:var(--ftb-top,0px);z-index:40;
+  /* Sits directly ON the table: same box as .tbl-wrap below it (no negative side margins, so the
+     edges line up), no gap under it, and only its top corners are round — the two read as one
+     unit whose border runs continuously from the bar into the header row. */
+  padding:10px;margin:0;
+  border-radius:var(--rs) var(--rs) 0 0;
+  background:linear-gradient(120deg,rgba(30,52,84,.97),rgba(24,43,72,.98));
+  border:1px solid var(--line);border-bottom:0;
+  backdrop-filter:blur(16px) saturate(150%);-webkit-backdrop-filter:blur(16px) saturate(150%);
+  transition:border-color .2s ease,box-shadow .2s ease
+}
+/* the table it sits on loses its own top corners so the seam is flat */
+.grp:has(.filter-toolbar) .tbl-wrap{border-top-left-radius:0;border-top-right-radius:0}
+/* contour + shadow only once it is actually pinned (set by gsStickyToolbar) */
+.filter-toolbar.ftb-stuck{border-color:var(--line-2);box-shadow:0 14px 26px -18px rgba(0,0,0,.85)}
+/* the search gives up width so filters + tools + selection actions fit on one row; it shrinks
+   again while the selection cluster is showing */
+.filter-toolbar .search-wrap{flex:1 1 240px;min-width:150px;max-width:340px}
+.filter-toolbar.ftb-sel-on .search-wrap,.filter-toolbar.ftb-sel-off .search-wrap{max-width:200px}
+/* the filter cluster must NOT wrap internally — that grows the bar's height instead of pushing a
+   sibling onto a second row, which is the thing gsFitToolbar exists to prevent */
+.filter-toolbar .ftb-group{flex-wrap:nowrap}
+
+/* ── the selection cluster ── */
+.ftb-sel{display:none;align-items:center;gap:6px;padding-left:10px;
+  border-left:1px solid var(--bw,rgba(255,255,255,.14))}
+.filter-toolbar.ftb-sel-on .ftb-sel,.filter-toolbar.ftb-sel-off .ftb-sel{display:flex}
+.ftb-sel-count{display:inline-flex;align-items:center;height:34px;flex:none;
+  font-size:12px;color:var(--tw2);white-space:nowrap}
+/* the bold count needs a real word space after it — the browser's collapsed one reads as cramped
+   against the heavier digit */
+.ftb-sel-count b{color:var(--tw);font-weight:700;margin-right:4px}
+.ftb-sel .gs-tool-btn{flex:none}
+/* enters left→right with a short per-item stagger … */
+.filter-toolbar.ftb-sel-on .ftb-sel>*{animation:ftbSelIn .34s cubic-bezier(.2,.85,.3,1) both}
+.filter-toolbar.ftb-sel-on .ftb-sel>:nth-child(1){animation-delay:0s}
+.filter-toolbar.ftb-sel-on .ftb-sel>:nth-child(2){animation-delay:.045s}
+.filter-toolbar.ftb-sel-on .ftb-sel>:nth-child(3){animation-delay:.09s}
+.filter-toolbar.ftb-sel-on .ftb-sel>:nth-child(4){animation-delay:.135s}
+.filter-toolbar.ftb-sel-on .ftb-sel>:nth-child(5){animation-delay:.18s}
+.filter-toolbar.ftb-sel-on .ftb-sel>:nth-child(6){animation-delay:.225s}
+@keyframes ftbSelIn{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:none}}
+/* … and retracts the way it came, right-most first, so it reads as withdrawing rather than
+   blinking out. .ftb-sel-off keeps the cluster displayed for the duration. */
+.filter-toolbar.ftb-sel-off .ftb-sel>*{animation:ftbSelOut .24s cubic-bezier(.45,0,.9,.6) both}
+.filter-toolbar.ftb-sel-off .ftb-sel>:nth-last-child(1){animation-delay:0s}
+.filter-toolbar.ftb-sel-off .ftb-sel>:nth-last-child(2){animation-delay:.035s}
+.filter-toolbar.ftb-sel-off .ftb-sel>:nth-last-child(3){animation-delay:.07s}
+.filter-toolbar.ftb-sel-off .ftb-sel>:nth-last-child(4){animation-delay:.105s}
+.filter-toolbar.ftb-sel-off .ftb-sel>:nth-last-child(5){animation-delay:.14s}
+.filter-toolbar.ftb-sel-off .ftb-sel>:nth-last-child(6){animation-delay:.175s}
+@keyframes ftbSelOut{from{opacity:1;transform:none}to{opacity:0;transform:translateX(-14px)}}
+
+/* ── fitting one row (set by gsFitToolbar, escalating only as far as it must) ──
+   step 1  .ftb-tight    the search gives up width — the most elastic control on the bar
+   step 2  .ftb-tight2   the search goes narrower still and the filter selects are capped
+   step 3  .ftb-stack    the selection cluster takes a row of its own (labels intact)
+   step 4  .ftb-tighter  last resort — the buttons drop to their icons, each keeping a title
+   Labels are deliberately the LAST thing to go, which is why STACKING comes before stripping them:
+   a label is meaning, a second row is only space. With the steps ordered the other way they were
+   not monotonic in the window width — the Packaging listing fitted one row at step 4 in a 1600px
+   window and so showed bare icons, while a 1440px one could not fit at any label length, stacked,
+   and got its labels back. Same page, wider window, less readable bar. */
+.filter-toolbar.ftb-tight .search-wrap{flex:0 1 170px;max-width:170px}
+.filter-toolbar.ftb-tight2 .search-wrap{flex:0 1 136px;max-width:136px}
+.filter-toolbar.ftb-tight2 .cs-wrap,
+.filter-toolbar.ftb-tight2 .ftb-group .cs-wrap,
+.filter-toolbar.ftb-tight2 .ftb-group select.fi{min-width:0;max-width:108px}
+.filter-toolbar.ftb-tighter .search-wrap{flex:0 1 132px;max-width:132px;min-width:108px}
+.filter-toolbar.ftb-tighter .cs-wrap,
+.filter-toolbar.ftb-tighter .ftb-group .cs-wrap,
+.filter-toolbar.ftb-tighter .ftb-group select.fi{min-width:0;max-width:104px}
+.filter-toolbar.ftb-tighter .gs-tool-btn>span{display:none}
+.filter-toolbar.ftb-tighter .gs-tool-btn{padding:0 9px;gap:0}
+/* the PRIMARY action keeps its word even at the tightest step — a row of bare icons with no
+   labelled anchor reads as a puzzle */
+.filter-toolbar.ftb-tighter .ftb-sel .accent>span,
+.filter-toolbar.ftb-tighter .ftb-sel .gs-bulk-export>span{display:inline}
+.filter-toolbar.ftb-tighter .ftb-sel .accent,
+.filter-toolbar.ftb-tighter .ftb-sel .gs-bulk-export{padding:0 12px;gap:6px}
+/* Last resort — a genuinely narrow container (the half-width cards on the detail pages have only
+   ~536px of inner width, against ~744px of controls) cannot fit one row at any label length. There
+   the cluster takes its OWN row, right-aligned under a rule, which reads as deliberate rather than
+   as an accidental wrap — and since it then has the row to itself, its labels come back. */
+.filter-toolbar.ftb-stack{flex-wrap:wrap}
+.filter-toolbar.ftb-stack .ftb-sel{
+  width:100%;margin-left:0;padding-left:0;border-left:0;
+  padding-top:9px;margin-top:2px;border-top:1px solid var(--bw,rgba(255,255,255,.14));
+  justify-content:flex-end}
+.filter-toolbar.ftb-stack .ftb-sel .gs-tool-btn>span{display:inline}
+.filter-toolbar.ftb-stack .ftb-sel .gs-tool-btn{padding:0 12px;gap:6px}
+
+/* a capped select truncates rather than pushing the row wider */
+.filter-toolbar.ftb-tight2 .cs-trigger,.filter-toolbar.ftb-tight2 select.fi,
+.filter-toolbar.ftb-tighter .cs-trigger,.filter-toolbar.ftb-tighter select.fi{
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* The floating bottom bar is retired in favour of the in-bar cluster. The rules below are kept
+   for reference (and for the pre-rollout toolbar test pages, which carry their own copies). */
+.gs-bulkbar{display:none!important}
+
+/* ── the same treatment for this portal's hand-rolled control rows ──
+   The Products and Packaging listings predate the shared .filter-toolbar component and carry
+   their own inline-styled rows; tagging them .ftb-host gives them the sticky bar and the
+   in-bar selection cluster without touching their own layout rules. GENERATED from the block
+   above — regenerate it rather than hand-editing, or the two will drift. */
+.ftb-host{position:relative}
+.grp:has(.ftb-host)>.grp-hdr{border-radius:var(--rl) var(--rl) 0 0}
+.ftb-host{
+  position:sticky;top:var(--ftb-top,0px);z-index:40;
+  /* Sits directly ON the table: same box as .tbl-wrap below it (no negative side margins, so the
+     edges line up), no gap under it, and only its top corners are round — the two read as one
+     unit whose border runs continuously from the bar into the header row. */
+  padding:10px;margin:0;
+  border-radius:var(--rs) var(--rs) 0 0;
+  background:linear-gradient(120deg,rgba(30,52,84,.97),rgba(24,43,72,.98));
+  border:1px solid var(--line);border-bottom:0;
+  backdrop-filter:blur(16px) saturate(150%);-webkit-backdrop-filter:blur(16px) saturate(150%);
+  transition:border-color .2s ease,box-shadow .2s ease
+}
+.ftb-host.ftb-sel-on .search-wrap,.ftb-host.ftb-sel-off .search-wrap{max-width:200px}
+.ftb-host.ftb-sel-on .ftb-sel,.ftb-host.ftb-sel-off .ftb-sel{display:flex}
+.ftb-host.ftb-sel-on .ftb-sel>:nth-child(1){animation-delay:0s}
+.ftb-host.ftb-sel-on .ftb-sel>:nth-child(2){animation-delay:.045s}
+.ftb-host.ftb-sel-on .ftb-sel>:nth-child(3){animation-delay:.09s}
+.ftb-host.ftb-sel-on .ftb-sel>:nth-child(4){animation-delay:.135s}
+.ftb-host.ftb-sel-on .ftb-sel>:nth-child(5){animation-delay:.18s}
+.ftb-host.ftb-sel-on .ftb-sel>:nth-child(6){animation-delay:.225s}
+.ftb-host.ftb-sel-off .ftb-sel>:nth-last-child(1){animation-delay:0s}
+.ftb-host.ftb-sel-off .ftb-sel>:nth-last-child(2){animation-delay:.035s}
+.ftb-host.ftb-sel-off .ftb-sel>:nth-last-child(3){animation-delay:.07s}
+.ftb-host.ftb-sel-off .ftb-sel>:nth-last-child(4){animation-delay:.105s}
+.ftb-host.ftb-sel-off .ftb-sel>:nth-last-child(5){animation-delay:.14s}
+.ftb-host.ftb-sel-off .ftb-sel>:nth-last-child(6){animation-delay:.175s}
+.ftb-host.ftb-tight2 .search-wrap{flex:0 1 136px;max-width:136px}
+.ftb-host.ftb-tight2 .cs-wrap,
+.ftb-host.ftb-tight2 .ftb-group .cs-wrap,
+.ftb-host.ftb-tight2 .ftb-group select.fi{min-width:0;max-width:108px}
+.ftb-host.ftb-tighter .search-wrap{flex:0 1 132px;max-width:132px;min-width:108px}
+.ftb-host.ftb-tighter .cs-wrap,
+.ftb-host.ftb-tighter .ftb-group .cs-wrap,
+.ftb-host.ftb-tighter .ftb-group select.fi{min-width:0;max-width:104px}
+.ftb-host.ftb-tighter .gs-tool-btn>span{display:none}
+.ftb-host.ftb-tighter .gs-tool-btn{padding:0 9px;gap:0}
+.ftb-host.ftb-tighter .ftb-sel .accent,
+.ftb-host.ftb-tighter .ftb-sel .gs-bulk-export{padding:0 12px;gap:6px}
+.ftb-host.ftb-stack .ftb-sel{
+  width:100%;margin-left:0;padding-left:0;border-left:0;
+  padding-top:9px;margin-top:2px;border-top:1px solid var(--bw,rgba(255,255,255,.14));
+  justify-content:flex-end}
+.ftb-host.ftb-stack .ftb-sel .gs-tool-btn>span{display:inline}
+.ftb-host.ftb-stack .ftb-sel .gs-tool-btn{padding:0 12px;gap:6px}
+
+/* These two listings have no bordered wrapper under them (their tables sit loose in the page),
+   so unlike the shared component the bar stays a self-contained rounded row instead of joining
+   a border below it. */
+.ftb-host{border-bottom:1px solid var(--line);border-radius:var(--rs)}
+
 .gs-tool-btn{height:34px;padding:0 12px;border-radius:9px;border:1px solid var(--line-2);background:rgba(255,255,255,.04);color:var(--tw2);font-family:'Inter',sans-serif;font-size:11.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;transition:all .15s}
 .gs-tool-btn:hover{background:rgba(255,255,255,.09);color:var(--tw)}
 .gs-tool-btn.on{background:rgba(78,187,129,.14);border-color:rgba(78,187,129,.4);color:var(--gs-l)}
+/* Modifiers, so a toolbar action never needs a bespoke button class. `.accent` is the same accent
+   treatment `.on` carries (a primary action rather than an engaged toggle); `.danger` is the
+   destructive tint the rest of the system already uses for remove/clear/logout/reset. */
+.gs-tool-btn.accent{background:rgba(78,187,129,.14);border-color:rgba(78,187,129,.4);color:var(--gs-l)}
+.gs-tool-btn.accent:hover{background:rgba(78,187,129,.24);border-color:var(--gs);color:var(--tw)}
+.gs-tool-btn.danger{background:rgba(224,96,90,.10);border-color:rgba(224,96,90,.32);color:var(--red)}
+.gs-tool-btn.danger:hover{background:rgba(224,96,90,.16);border-color:rgba(224,96,90,.45);color:var(--red)}
 /* rows hidden by filter or pagination */
 .tbl tbody tr.gs-filtered,.tbl tbody tr.gs-paged{display:none}
 /* bottom pager: count (left) + controls (right) */

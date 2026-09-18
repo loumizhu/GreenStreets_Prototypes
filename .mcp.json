@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "figwright": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@figwright/mcp@latest"]
+    }
+  }
+}
