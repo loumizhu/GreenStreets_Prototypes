@@ -100,11 +100,6 @@
           </span>
         </div>
         <div class="grp-body" style="padding:0">
-          <div id="rapkg-bulkbar" style="display:none;align-items:center;gap:12px;padding:8px 14px;background:rgba(78,187,129,.08);border-bottom:1px solid rgba(78,187,129,.22);font-size:12px;font-weight:600;color:#4ebb81">
-            <span id="rapkg-bulkcount"></span>
-            <button class="act-mini act-view" onclick="rapkgExportSelected()">Export selected</button>
-            <button class="act-mini" onclick="rapkgClearAll()">Clear selection</button>
-          </div>
           <table class="tbl" id="pt-table-rapkg">
           <colgroup><col width="3%"><col width="12%"><col width="20%"><col width="13%"><col width="12%"><col width="6%"><col width="6%"><col width="6%"><col width="11%"><col width="11%"></colgroup>
           <thead><tr>
@@ -145,7 +140,7 @@
     </div>
   </div>
 </div>
-<script src="js/retailer-admin.js?v=37"></script>
+<script src="js/retailer-admin.js?v=38"></script>
 <script>
 /* ── Packagings page: checkbox, compact, columns, export ── */
 function rapkgSelectAll(checked){
@@ -157,10 +152,43 @@ function rapkgCheckChange(){
   var checked = cbs.filter(function(c){ return c.checked; });
   var allCb = document.getElementById('rapkg-all-cb');
   if(allCb){ allCb.checked = checked.length === cbs.length && cbs.length > 0; allCb.indeterminate = checked.length > 0 && checked.length < cbs.length; }
-  var bar = document.getElementById('rapkg-bulkbar');
-  var cnt = document.getElementById('rapkg-bulkcount');
-  if(bar){ bar.style.display = checked.length > 0 ? 'flex' : 'none'; }
-  if(cnt) cnt.textContent = checked.length + ' selected';
+  rapkgUpdateSel(checked.length);
+}
+/* The selection actions live IN the sticky filter toolbar (.ftb-sel) — the same place the generic
+   data-grid toolkit (gsAddBulk) and the Products listing (raProdEnsureInline) put them — instead of
+   on their own strip above the table, which scrolled away with the rows it acted on. */
+function rapkgEnsureSel(){
+  var tb = document.querySelector('.filter-toolbar');
+  if(!tb) return null;
+  var sel = tb.querySelector('.ftb-sel');
+  if(sel) return sel;
+  var ic = 'width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"';
+  sel = document.createElement('div');
+  sel.className = 'ftb-sel';
+  /* .gs-tool-btn is the toolbar's own button component; .accent = primary, .danger = destructive */
+  sel.innerHTML =
+    '<span class="ftb-sel-count"><b class="ftb-sel-n">0</b> selected</span>' +
+    '<button type="button" class="gs-tool-btn accent" title="Export the selected packaging components" onclick="rapkgExportSelected()">' +
+      '<svg ' + ic + ' stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>Export</span></button>' +
+    '<button type="button" class="gs-tool-btn danger" title="Clear selection" aria-label="Clear selection" onclick="rapkgClearAll()">' +
+      '<svg ' + ic + ' stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg><span>Clear</span></button>';
+  tb.appendChild(sel);
+  return sel;
+}
+function rapkgUpdateSel(n){
+  var sel = rapkgEnsureSel();
+  if(!sel) return;
+  var c = sel.querySelector('.ftb-sel-n');
+  if(c && n > 0) c.textContent = n;   /* keep the last count through the retract animation */
+  var tb = sel.parentNode;
+  if(window.GSToolbarSelect){ window.GSToolbarSelect(tb, n > 0); }
+  else if(n > 0){ tb.classList.remove('ftb-sel-off'); tb.classList.add('ftb-sel-on'); }
+  else if(tb.classList.contains('ftb-sel-on')){
+    tb.classList.remove('ftb-sel-on'); tb.classList.add('ftb-sel-off');
+    clearTimeout(tb._ftbSelT);
+    tb._ftbSelT = setTimeout(function(){ tb.classList.remove('ftb-sel-off'); }, 440);
+  }
+  if(window.GSFitToolbar) window.GSFitToolbar(tb);
 }
 function rapkgClearAll(){
   document.querySelectorAll('.rapkg-cb').forEach(function(cb){ cb.checked=false; });

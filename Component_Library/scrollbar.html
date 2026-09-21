@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>GreenStreets — Scrollbar</title>
+<meta name="description" content="The scroll bar on the PPWR Compliance listing — arrow button, track, thumb, arrow button — measured pixel for pixel from the staging screenshot.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<!-- The REAL portal stylesheets, in the same order a portal page loads them. -->
+<link rel="stylesheet" href="css/greenstreets-theme.css?v=1">
+<link rel="stylesheet" href="css/supplier-portal.css?v=1">
+<link rel="stylesheet" href="css/portal-extras.css?v=1">
+<link rel="stylesheet" href="css/greenstreets-light.css?v=1">
+<link rel="stylesheet" href="css/portal-extras-light.css?v=1">
+<!-- ...and the gallery chrome (everything prefixed cx-) -->
+<link rel="stylesheet" href="css/components-page.css?v=23">
+
+<style>
+/* ══ THE COMPONENT ═══════════════════════════════════════════════════════
+   Scrollbar — as it renders on the PPWR Compliance listing. Four parts, top
+   to bottom: an UP ARROW BUTTON, the track, the thumb, a DOWN ARROW BUTTON.
+
+   Every value below was measured off the screenshot of that page, not read
+   off the stylesheet: the stylesheet's own ::-webkit-scrollbar rules never
+   take effect, because the same rule set also declares `scrollbar-color`, and
+   once Chrome sees that it hands the bar back to the browser — which is why
+   the real page shows a 14px bar WITH arrow buttons instead of the 6px
+   button-less one the CSS appears to describe.
+
+   This component draws those four parts itself, through the pseudo-elements,
+   rather than leaning on the browser's recolour — so the arrows are there on
+   every Chrome/Edge/Safari, including machines set to overlay scrollbars,
+   where the native bar has no buttons at all. `scrollbar-color` is kept for
+   Firefox only, gated, since setting it would switch Chrome back to the
+   native bar.                                                              */
+
+:root{
+  --gs-sb-w:14px;                     /* gutter, measured x1494–1507 */
+  --gs-sb-thumb-w:9px;                /* thumb, measured x1496–1504 */
+  --gs-sb-thumb:#94b4e642;            /* #94b4e6 @ 26% — solved from the pixels */
+  --gs-sb-arrow-w:9px;                /* triangle base */
+  --gs-sb-arrow-h:5px;                /* triangle height */
+  --gs-sb-track:transparent;
+  /* the arrows carry the SAME colour as the thumb */
+  --gs-sb-up:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='5'%3E%3Cpath d='M4.5 0 9 5H0z' fill='%2394b4e6' fill-opacity='.26'/%3E%3C/svg%3E");
+  --gs-sb-down:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='5'%3E%3Cpath d='M0 0h9L4.5 5z' fill='%2394b4e6' fill-opacity='.26'/%3E%3C/svg%3E");
+}
+body.lt,
+.gs-scroll--ink{                      /* the light twin, on a light surface */
+  --gs-sb-thumb:#33415c47;            /* the ink token at 28% */
+  --gs-sb-up:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='5'%3E%3Cpath d='M4.5 0 9 5H0z' fill='%2333415c' fill-opacity='.28'/%3E%3C/svg%3E");
+  --gs-sb-down:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='5'%3E%3Cpath d='M0 0h9L4.5 5z' fill='%2333415c' fill-opacity='.28'/%3E%3C/svg%3E");
+}
+
+.gs-scroll{ overflow:auto; }
+
+/* Chrome · Edge · Safari — the four parts, drawn to the measured sizes. */
+.gs-scroll::-webkit-scrollbar{ width:var(--gs-sb-w); height:var(--gs-sb-w); }
+.gs-scroll::-webkit-scrollbar-track{ background:var(--gs-sb-track); }
+.gs-scroll::-webkit-scrollbar-thumb{
+  background:var(--gs-sb-thumb);
+  border-radius:99px;
+  /* 9px of paint inside a 14px gutter */
+  border:calc((var(--gs-sb-w) - var(--gs-sb-thumb-w)) / 2) solid transparent;
+  background-clip:padding-box;
+}
+.gs-scroll::-webkit-scrollbar-button:single-button{
+  display:block;
+  height:var(--gs-sb-w);
+  background:var(--gs-sb-track) no-repeat center;
+  background-size:var(--gs-sb-arrow-w) var(--gs-sb-arrow-h);
+}
+.gs-scroll::-webkit-scrollbar-button:single-button:vertical:decrement{ background-image:var(--gs-sb-up); }
+.gs-scroll::-webkit-scrollbar-button:single-button:vertical:increment{ background-image:var(--gs-sb-down); }
+/* Chrome will otherwise pair a second button at each end — the screenshot has
+   exactly one, so suppress the doubles and the horizontal set. */
+.gs-scroll::-webkit-scrollbar-button:double-button,
+.gs-scroll::-webkit-scrollbar-button:horizontal{ display:none; }
+
+/* Firefox only — it has no scrollbar pseudo-elements, and no arrow buttons
+   to draw. Gated, because in Chrome this declaration would replace
+   everything above with the browser's own bar. */
+@supports (-moz-appearance:none){
+  .gs-scroll{ scrollbar-width:auto; scrollbar-color:var(--gs-sb-thumb) var(--gs-sb-track); }
+}
+
+/* ══ SHEET CHROME (not part of the component) ════════════════════════════ */
+.sb-wrap{max-width:980px}
+.sb-cells{display:flex;gap:18px;flex-wrap:wrap;margin:0 0 22px;align-items:flex-start}
+.sb-cell{flex:1 1 300px;min-width:280px}
+.sb-cap{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--tw2,#8fa3c4);margin:0 0 8px}
+.sb-demo{
+  height:230px;padding:14px 4px 14px 16px;border-radius:12px;
+  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);
+}
+body.lt .sb-demo{background:rgba(0,0,0,.02);border-color:rgba(0,0,0,.08)}
+.sb-demo p{margin:0 0 10px;font-size:13px;line-height:1.6;color:var(--tw2,#a9bcd8)}
+.sb-anat{display:flex;gap:16px;align-items:center;margin:0 0 26px}
+.sb-anat-fig{flex:0 0 auto}
+.sb-anat ol{margin:0;padding-left:18px;font-size:13px;line-height:1.9;color:var(--tw2,#a9bcd8)}
+.sb-anat b{color:var(--tw,#dbe6f6)}
+body.lt .sb-anat b{color:#33415c}
+.sb-code{position:relative;margin:0 0 26px}
+.sb-code pre{
+  margin:0;padding:16px 18px;border-radius:12px;overflow:auto;
+  background:var(--cx-code-bg,rgba(8,14,28,.6));border:1px solid rgba(255,255,255,.08);
+  font:12px/1.65 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  color:var(--tw,#dbe6f6);white-space:pre;
+}
+body.lt .sb-code pre{border-color:rgba(0,0,0,.1);color:#33415c}
+.sb-copy{position:absolute;top:10px;right:10px}
+.sb-tbl{width:100%;border-collapse:collapse;font-size:13px;margin:0 0 26px}
+.sb-tbl th,.sb-tbl td{text-align:left;padding:9px 12px;border-bottom:1px solid rgba(255,255,255,.08)}
+body.lt .sb-tbl th,body.lt .sb-tbl td{border-bottom-color:rgba(0,0,0,.08)}
+.sb-tbl th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--tw2,#8fa3c4);font-weight:600}
+.sb-tbl code{font-size:12px}
+.sb-swatch{display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:-1px;margin-right:6px;border:1px solid rgba(255,255,255,.14)}
+</style>
+</head>
+<body class="cx-body">
+
+<main class="cx-main" id="cx-main">
+
+  <header class="cx-hero sb-wrap">
+    <div class="cx-hero-eyebrow">Developer handoff · single component</div>
+    <h1>Scrollbar</h1>
+    <p>The scroll bar on the right of the PPWR Compliance listing, reproduced from the screenshot of
+      that page: an <b>up arrow button</b>, an invisible track, a rounded thumb, and a
+      <b>down arrow button</b>. Every measurement below was read off the screenshot pixels, and the
+      thumb and both arrows resolve to the same tint. Nothing else on this page.</p>
+    <div class="cx-hero-facts">
+      <div class="cx-fact"><b>14px</b><span>Gutter</span></div>
+      <div class="cx-fact"><b>9px</b><span>Thumb</span></div>
+      <div class="cx-fact"><b>2</b><span>Arrow buttons</span></div>
+      <div class="cx-fact"><b>26%</b><span>Tint</span></div>
+    </div>
+  </header>
+
+  <section class="cx-sec sb-wrap">
+    <div class="cx-sec-hdr">
+      <h2>Anatomy</h2>
+      <p>Drawn to the measured sizes — the figure below is an SVG at 1:1, so it can be compared
+        against the screenshot directly.</p>
+    </div>
+
+    <div class="sb-anat">
+      <div class="sb-anat-fig">
+        <svg width="84" height="230" viewBox="0 0 84 230" role="img" aria-label="Scrollbar anatomy: up arrow button, track, thumb, down arrow button">
+          <!-- gutter -->
+          <rect x="35" y="0" width="14" height="230" fill="#94b4e6" fill-opacity=".06"/>
+          <!-- up arrow button box -->
+          <rect x="35" y="0" width="14" height="14" fill="#94b4e6" fill-opacity=".04"/>
+          <path d="M42 4.5 46.5 9.5h-9z" fill="#94b4e6" fill-opacity=".26"/>
+          <!-- thumb -->
+          <rect x="37.5" y="60" width="9" height="110" rx="4.5" fill="#94b4e6" fill-opacity=".26"/>
+          <!-- down arrow button box -->
+          <rect x="35" y="216" width="14" height="14" fill="#94b4e6" fill-opacity=".04"/>
+          <path d="M37.5 220.5h9L42 225.5z" fill="#94b4e6" fill-opacity=".26"/>
+          <!-- callouts -->
+          <g stroke="#94b4e6" stroke-opacity=".35" stroke-width="1">
+            <path d="M49 7h12M49 40h12M49 115h12M49 223h12"/>
+          </g>
+          <g fill="#94b4e6" fill-opacity=".8" font-family="Inter,sans-serif" font-size="9">
+            <text x="64" y="10">1</text><text x="64" y="43">2</text>
+            <text x="64" y="118">3</text><text x="64" y="226">4</text>
+          </g>
+        </svg>
+      </div>
+      <ol>
+        <li><b>Up arrow button</b> — 14&times;14 box, a solid 9&times;5 triangle, apex up.</li>
+        <li><b>Track</b> — transparent. The card behind it shows straight through.</li>
+        <li><b>Thumb</b> — 9px wide, centred in the 14px gutter, fully rounded ends.</li>
+        <li><b>Down arrow button</b> — the same box and triangle, mirrored.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="cx-sec sb-wrap">
+    <div class="cx-sec-hdr">
+      <h2>Specimen</h2>
+      <p>Live, in both themes. The two buttons, the track and the thumb are all drawn by the
+        component itself, so they appear even on a machine set to overlay scrollbars.</p>
+    </div>
+
+    <div class="sb-cells">
+      <div class="sb-cell">
+        <p class="sb-cap">Dark · #94b4e6 at 26%</p>
+        <div class="gs-scroll sb-demo">
+          <p>Scrollable region. The arrow button sits at the top of the gutter, the thumb below it,
+            the second arrow button at the bottom.</p>
+          <p>The track never paints — what reads as a channel is the card surface behind it.</p>
+          <p>The thumb is 9&nbsp;pixels wide inside a 14&nbsp;pixel gutter, so it clears each edge by
+            2.5&nbsp;pixels, with fully rounded ends.</p>
+          <p>Both arrows carry the same tint as the thumb, at the same opacity — solved from the
+            screenshot pixels, all three landing on 26%.</p>
+          <p>Nothing is hover-gated: the bar is painted at rest, as in the screenshot.</p>
+          <p>Scroll this panel to watch the thumb travel between the two buttons.</p>
+        </div>
+      </div>
+
+      <div class="sb-cell">
+        <p class="sb-cap">Light · the ink twin</p>
+        <div class="gs-scroll gs-scroll--ink sb-demo" style="background:rgba(255,255,255,.92);border-color:rgba(0,0,0,.1)">
+          <p style="color:#5a6a85">The same component with <code>--gs-sb-thumb</code> and the two
+            arrow images swapped to the light-theme ink.</p>
+          <p style="color:#5a6a85">Geometry is identical — only the two colour tokens change.</p>
+          <p style="color:#5a6a85">The staging build has no light variant of this bar, so the value
+            here is the ink token at 28%, matched to the dark bar's contrast against its card.</p>
+          <p style="color:#5a6a85">Check it against a real light screen before shipping.</p>
+          <p style="color:#5a6a85">Everything else is inherited.</p>
+          <p style="color:#5a6a85">Scroll to see the thumb move.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="sb-code">
+      <button class="btn-g-sm sb-copy" type="button" data-copy-target="sbCss">Copy</button>
+      <pre id="sbCss">/* Scrollbar — up arrow button, track, thumb, down arrow button.
+   Measured from the PPWR Compliance listing. */
+:root{
+  --gs-sb-w:14px;            /* gutter */
+  --gs-sb-thumb-w:9px;       /* thumb paint width */
+  --gs-sb-thumb:#94b4e642;   /* #94b4e6 @ 26% */
+  --gs-sb-arrow-w:9px;       /* triangle base */
+  --gs-sb-arrow-h:5px;       /* triangle height */
+  --gs-sb-track:transparent;
+  /* the arrows carry the same colour as the thumb */
+  --gs-sb-up:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='5'%3E%3Cpath d='M4.5 0 9 5H0z' fill='%2394b4e6' fill-opacity='.26'/%3E%3C/svg%3E");
+  --gs-sb-down:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='5'%3E%3Cpath d='M0 0h9L4.5 5z' fill='%2394b4e6' fill-opacity='.26'/%3E%3C/svg%3E");
+}
+
+.gs-scroll{ overflow:auto; }
+
+/* Chrome · Edge · Safari */
+.gs-scroll::-webkit-scrollbar{ width:var(--gs-sb-w); height:var(--gs-sb-w); }
+.gs-scroll::-webkit-scrollbar-track{ background:var(--gs-sb-track); }
+.gs-scroll::-webkit-scrollbar-thumb{
+  background:var(--gs-sb-thumb);
+  border-radius:99px;
+  border:calc((var(--gs-sb-w) - var(--gs-sb-thumb-w)) / 2) solid transparent;
+  background-clip:padding-box;
+}
+.gs-scroll::-webkit-scrollbar-button:single-button{
+  display:block;
+  height:var(--gs-sb-w);
+  background:var(--gs-sb-track) no-repeat center;
+  background-size:var(--gs-sb-arrow-w) var(--gs-sb-arrow-h);
+}
+.gs-scroll::-webkit-scrollbar-button:single-button:vertical:decrement{ background-image:var(--gs-sb-up); }
+.gs-scroll::-webkit-scrollbar-button:single-button:vertical:increment{ background-image:var(--gs-sb-down); }
+.gs-scroll::-webkit-scrollbar-button:double-button,
+.gs-scroll::-webkit-scrollbar-button:horizontal{ display:none; }
+
+/* Firefox only — no pseudo-elements, no arrow buttons. Gated: in Chrome this
+   would replace everything above with the browser's own bar. */
+@supports (-moz-appearance:none){
+  .gs-scroll{ scrollbar-width:auto; scrollbar-color:var(--gs-sb-thumb) var(--gs-sb-track); }
+}</pre>
+    </div>
+
+    <div class="sb-code">
+      <button class="btn-g-sm sb-copy" type="button" data-copy-target="sbHtml">Copy</button>
+      <pre id="sbHtml">&lt;div class="gs-scroll"&gt;&hellip;&lt;/div&gt;</pre>
+    </div>
+  </section>
+
+  <section class="cx-sec sb-wrap">
+    <div class="cx-sec-hdr">
+      <h2>Measurements</h2>
+      <p>Read off the screenshot at 1:1. The pixel columns and rows are given so any value can be
+        re-checked against the same image.</p>
+    </div>
+    <table class="sb-tbl">
+      <thead><tr><th>Part</th><th>Value</th><th>Read from</th></tr></thead>
+      <tbody>
+        <tr><td>Gutter width</td><td>14px</td><td>columns x1494&ndash;1507</td></tr>
+        <tr><td>Thumb width</td><td>9px, centred (2.5px clearance each side)</td><td>columns x1496&ndash;1504</td></tr>
+        <tr><td>Thumb ends</td><td>Fully rounded (pill)</td><td>rows y245 and y433 taper 5&rarr;9px</td></tr>
+        <tr><td>Thumb length</td><td>189px in this sample</td><td>rows y245&ndash;y433</td></tr>
+        <tr><td>Arrow triangle</td><td>9px base &times; 5px tall, solid</td><td>rows y13&ndash;y17 (up), y595&ndash;y599 (down)</td></tr>
+        <tr><td>Arrow button box</td><td>14&times;14, one at each end</td><td>gutter width, arrow centred</td></tr>
+        <tr><td>Thumb colour</td><td><span class="sb-swatch" style="background:#94b4e6;opacity:.7"></span><code>#94b4e6</code> @ 26%</td><td>solved &alpha; = .275 / .272 / .281</td></tr>
+        <tr><td>Arrow colour</td><td><span class="sb-swatch" style="background:#94b4e6;opacity:.7"></span>identical to the thumb</td><td>solved &alpha; = .262 / .273 / .288</td></tr>
+        <tr><td>Track</td><td>Transparent</td><td>track pixels equal the card behind them</td></tr>
+      </tbody>
+    </table>
+
+    <div class="cx-note">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5b9cf6" stroke-width="2" style="flex-shrink:0;margin-top:2px"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      <div><b>Why the arrows exist.</b> The staging stylesheet declares both
+        <code>scrollbar-color</code> and a set of <code>::-webkit-scrollbar</code> rules (a 6px bar
+        with no buttons). Once Chrome sees <code>scrollbar-color</code> it hands the bar back to the
+        browser — rendering the <em>native</em> scrollbar recoloured, arrow buttons included, and
+        ignoring the pseudo-elements entirely. That is why the real page shows a 14px bar with
+        arrows rather than the 6px one the CSS appears to describe. The screenshot is the truth, so
+        this component draws those four parts explicitly instead of relying on the recolour, which
+        would produce a button-less bar on any machine set to overlay scrollbars.</div>
+    </div>
+
+    <div class="cx-note">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5b9cf6" stroke-width="2" style="flex-shrink:0;margin-top:2px"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      <div><b>One caveat for the port.</b> Firefox has no scrollbar pseudo-elements and no arrow
+        buttons at all — <code>scrollbar-color</code> recolours track and thumb and nothing more, and
+        no stylesheet can add the triangles. Its declaration is gated behind
+        <code>@supports&nbsp;(-moz-appearance:none)</code>, because setting it unconditionally would
+        switch Chrome back to the native bar and undo everything above. If the arrows must be
+        identical in all three engines, the only route is a custom JS scrollbar overlaying a hidden
+        native one.</div>
+    </div>
+  </section>
+
+</main>
+
+<button class="hdr-theme-fixed" type="button" id="sbTheme" aria-pressed="false">Light theme</button>
+
+<script>
+document.querySelectorAll('[data-copy-target]').forEach(function(b){
+  b.addEventListener('click', function(){
+    var el = document.getElementById(b.dataset.copyTarget);
+    navigator.clipboard.writeText(el.innerText).then(function(){
+      var t = b.textContent; b.textContent = 'Copied';
+      setTimeout(function(){ b.textContent = t; }, 1200);
+    });
+  });
+});
+var sbT = document.getElementById('sbTheme');
+sbT.addEventListener('click', function(){
+  var lt = document.body.classList.toggle('lt');
+  sbT.setAttribute('aria-pressed', lt ? 'true' : 'false');
+  sbT.textContent = lt ? 'Dark theme' : 'Light theme';
+});
+</script>
+</body>
+</html>

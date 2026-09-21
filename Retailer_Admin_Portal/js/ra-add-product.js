@@ -25,7 +25,15 @@
   var LEVELS = ['Primary', 'Secondary', 'Tertiary'];
   var MATERIALS = ['Recycled card', 'Corrugated card', 'FSC paper', 'Recycled plastic', 'LDPE plastic', 'PET plastic', 'Woven polyester', 'Wood', 'Glass', 'Aluminium', 'Other'];
   var RECYCLE = ['Widely recyclable', 'Check locally', 'Not currently recyclable'];
-  var CATEGORIES = ['Apparel', 'Footwear', 'Accessories', 'Homeware', 'Beauty', 'Electronics'];
+  /* The retailer's own category list — js/ra-categories.js owns it. This page used to
+     carry its own hardcoded copy ('Apparel', 'Homeware', 'Electronics'…) which matched
+     neither the catalogue nor the Products filter bar. The fallback is only for a page
+     that somehow loads without that script. */
+  function CATEGORIES() {
+    return (typeof window.raCats === 'function' && window.raCats()) ||
+      ['Tops', 'Bottoms', 'Dresses', 'Outerwear', 'Footwear', 'Accessories'];
+  }
+  var newCat = false;   /* the Category field is showing its "new category" input */
   var SUPPLIERS = ['Indotex Manufacturing', 'Luntai Packaging Co.', 'EcoPack GmbH', 'Nordic Materials AB', 'Verdepak S.A.', 'Hangzhou TextilePack'];
 
   function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
@@ -303,7 +311,19 @@
 
     var draftPill = '<span class="pill" style="font-size:11px;background:rgba(245,166,35,.14);color:#f5a623;border:1px solid rgba(245,166,35,.32)">Draft</span>';
 
-    var catOpts = '<option value="">Select a category…</option>' + CATEGORIES.map(function (x) { return '<option' + (x === PROD.cat ? ' selected' : '') + '>' + esc(x) + '</option>'; }).join('');
+    /* "+ New category…" is the ONLY category management offered mid-form — adding is the
+       one action whose trigger is genuinely "I am part-way through a product". Renaming
+       and removing are catalogue-wide and live on the Categories page. */
+    /* "+ New category…" sits at the TOP of the list, straight after the placeholder —
+       it is an action, not one of the values, so it belongs where it is seen first and
+       does not drift down as the list grows. (The placeholder has to stay first: with
+       nothing chosen a browser selects option 1, and that must not be the action.) */
+    var catOpts = '<option value="">Select a category…</option>' +
+      '<option value="__new">+ New category…</option>' +
+      CATEGORIES().map(function (x) { return '<option' + (x === PROD.cat ? ' selected' : '') + '>' + esc(x) + '</option>'; }).join('');
+    var catField = (newCat && window.gsCatInlineField)
+      ? window.gsCatInlineField('nap')
+      : '<select class="fi" onchange="napPickCat(this)">' + catOpts + '</select>';
     var supOpts = '<option value="">Unassigned</option>' + SUPPLIERS.map(function (x) { return '<option' + (x === PROD.supplier ? ' selected' : '') + '>' + esc(x) + '</option>'; }).join('');
 
     var topCard =
@@ -330,7 +350,7 @@
             '<div class="rap-f"><label>Product name <span class="req">*</span></label><input class="fi" id="nap-name" value="' + esc(PROD.name) + '" placeholder="e.g. Black Crew Neck Sweatshirt" oninput="napName(this.value)"></div>' +
             '<div class="rap-f"><label>SKU <span class="nap-sku-hint">· auto-generated</span></label><input class="fi nap-sku" id="nap-sku" value="' + esc(PROD.sku) + '" readonly title="Generated automatically from the product name"></div>' +
             '<div class="rap-f"><label>Description</label><input class="fi" value="' + esc(PROD.desc) + '" placeholder="Short description" oninput="napEditProd(\'desc\',this.value)"></div>' +
-            '<div class="rap-f"><label>Category</label><select class="fi" onchange="napEditProd(\'cat\',this.value)">' + catOpts + '</select></div>' +
+            '<div class="rap-f"><label>Category</label>' + catField + '</div>' +
             '<div class="rap-f"><label>Assigned supplier</label><select class="fi" onchange="napEditProd(\'supplier\',this.value)">' + supOpts + '</select></div>' +
             '<div class="rap-f"><label>Units per Case</label><div><input class="fi" type="number" value="' + esc(PROD.unitsPerCase) + '" onchange="napEditProd(\'unitsPerCase\',this.value)"></div></div>' +
             '<div class="rap-f"><label>Cases per Pallet</label><div><input class="fi" type="number" value="' + esc(PROD.casesPerPallet) + '" onchange="napEditProd(\'casesPerPallet\',this.value)"></div></div>' +
@@ -380,6 +400,13 @@
 
     root.innerHTML = topCard + expCard + actCard;
 
+    /* render() emits plain <select>/<input type=number>s — re-apply the theme's
+       enhancements, or a re-render leaves OS-drawn controls behind. */
+    if (window.GSEnhanceSelects) window.GSEnhanceSelects(root);
+    if (window.GSEnhanceNumbers) window.GSEnhanceNumbers(root);
+
+    if (newCat) { var nc = document.getElementById('gs-newcat'); if (nc) nc.focus(); }
+
     flushHighlight();
   }
 
@@ -395,6 +422,33 @@
     if (idName) idName.textContent = PROD.name || 'Name it below — the SKU is generated for you';
   };
   window.napEditProd = function (key, v) { PROD[key] = v; };
+
+  /* ---- category ----------------------------------------------------------- */
+  window.napPickCat = function (sel) {
+    if (sel.value === '__new') { newCat = true; render(); return; }
+    PROD.cat = sel.value;
+  };
+  window.napNewCatCancel = function () { newCat = false; render(); };
+  window.napNewCatKey = function (e) {
+    if (e.key === 'Enter') { e.preventDefault(); window.napNewCatApply(); }
+    else if (e.key === 'Escape') { e.preventDefault(); window.napNewCatCancel(); }
+  };
+  window.napNewCatApply = function () {
+    var inp = document.getElementById('gs-newcat'); if (!inp) return;
+    var name = (inp.value || '').trim();
+    if (!name) { if (window.gsShake) window.gsShake(inp); inp.focus(); toast('Type a category name first'); return; }
+    var existing = CATEGORIES().filter(function (x) { return x.trim().toLowerCase() === name.toLowerCase(); })[0];
+    if (existing) {
+      /* not an error — they asked for one that is already there, so just select it */
+      PROD.cat = existing; newCat = false; render();
+      toast('“' + existing + '” already exists — selected it');
+      return;
+    }
+    var added = (typeof window.raCatCreate === 'function') ? window.raCatCreate(name) : '';
+    if (!added) { if (window.gsShake) window.gsShake(inp); inp.focus(); return; }
+    PROD.cat = added; newCat = false; render();
+    toast('“' + added + '” added to your categories');
+  };
 
   /* ---- component edits ---------------------------------------------------- */
   window.napToggle = function (i) { openIdx = (openIdx === i ? -1 : i); render(); };

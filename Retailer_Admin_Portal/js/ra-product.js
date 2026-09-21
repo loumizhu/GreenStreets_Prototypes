@@ -13,6 +13,7 @@
   var LEVELS = ['Primary', 'Secondary', 'Tertiary'];
   var MATERIALS = ['Recycled card', 'Corrugated card', 'FSC paper', 'Recycled plastic', 'LDPE plastic', 'PET plastic', 'Woven polyester', 'Wood', 'Glass', 'Aluminium', 'Other'];
   var RECYCLE = ['Widely recyclable', 'Check locally', 'Not currently recyclable'];
+  var newCat = false;   /* the Category field is showing its "new category" input */
   var COMP_POOL = ['Swing Tag', 'Box / Carton', 'Hanger', 'Poly Bag', 'Tissue Paper', 'Header Card', 'Shipping Carton', 'Pallet Wrap', 'Care Label'];
 
   function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
@@ -363,9 +364,22 @@
 
     var deadlineTag = '<span class="pill pill-grey" style="font-size:11px;color:var(--tw2)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;vertical-align:-2px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' + PROD.deadline + '</span>';
 
-    var cats = ['Apparel', 'Footwear', 'Accessories', 'Homeware', 'Beauty', 'Electronics'];
-    var catOpts = cats.map(function(c){ return '<option' + (c===PROD.cat?' selected':'') + '>' + c + '</option>'; }).join('');
+    /* The retailer's own category list — js/ra-categories.js owns it. This page used to
+       carry its own hardcoded copy ('Apparel', 'Homeware', 'Electronics'…) which matched
+       neither the catalogue nor the Products filter bar. */
+    var cats = (typeof window.raCats === 'function' && window.raCats()) ||
+      ['Tops', 'Bottoms', 'Dresses', 'Outerwear', 'Footwear', 'Accessories'];
+    /* "+ New category…" sits at the TOP of the list — it is an action, not one of the
+       values, so it belongs where it is seen first and does not drift down as the list
+       grows. Adding is the only category action offered mid-form; rename and remove are
+       catalogue-wide and live on the Categories page. */
+    var catOpts = '<option value="__new">+ New category…</option>' +
+      cats.map(function(c){ return '<option' + (c===PROD.cat?' selected':'') + '>' + esc(c) + '</option>'; }).join('');
+    /* a product may still carry a category that was renamed away under it */
     if (cats.indexOf(PROD.cat) === -1) catOpts += '<option selected>' + esc(PROD.cat) + '</option>';
+    var catField = (newCat && window.gsCatInlineField)
+      ? window.gsCatInlineField('rap')
+      : '<select class="fi" onchange="rapPickCat(this)">' + catOpts + '</select>';
 
     var sups = ['Supplier Ltd (HK)', 'GreenStreets', 'Primark', 'Next', 'Zara'];
     var supOpts = sups.map(function(s){ return '<option' + (s===PROD.supplier?' selected':'') + '>' + s + '</option>'; }).join('');
@@ -394,7 +408,7 @@
           '<div>Define the packaging components you expect for this product. Once every component has been provided by the supplier, you can approve the product. Use <b>Send reminder</b> to nudge the supplier on any component still outstanding.</div></div>' +
           '<div class="rap-grid" style="margin:0;grid-template-columns:1fr 1fr 1fr;gap:20px">' +
             '<div class="rap-f"><label>SKU</label><input class="fi" value="' + esc(PROD.sku) + '"></div>' +
-            '<div class="rap-f"><label>Category</label><select class="fi" onchange="window.rapUpdateProd(\'cat\',this.value)">' + catOpts + '</select></div>' +
+            '<div class="rap-f"><label>Category</label>' + catField + '</div>' +
             '<div class="rap-f"><label>Assigned supplier</label><select class="fi" onchange="window.rapUpdateProd(\'supplier\',this.value)">' + supOpts + '</select></div>' +
             '<div class="rap-f"><label>Units per Case</label><div><input class="fi" type="number" value="' + PROD.unitsPerCase + '" onchange="window.rapUpdateProd(\'unitsPerCase\',this.value)"></div></div>' +
             '<div class="rap-f"><label>Cases per Pallet</label><div><input class="fi" type="number" value="' + PROD.casesPerPallet + '" onchange="window.rapUpdateProd(\'casesPerPallet\',this.value)"></div></div>' +
@@ -441,11 +455,46 @@
 
     root.innerHTML = topCard + expCard + actCard;
 
+    /* render() emits plain <select>/<input type=number>s — re-apply the theme's
+       enhancements, or a re-render leaves OS-drawn controls behind. */
+    if (window.GSEnhanceSelects) window.GSEnhanceSelects(root);
+    if (window.GSEnhanceNumbers) window.GSEnhanceNumbers(root);
+
+    if (newCat) { var nc = document.getElementById('gs-newcat'); if (nc) nc.focus(); }
+
     flushHighlight();
   }
 
   /* ---- actions ---- */
   window.rapUpdateProd = function (key, val) { PROD[key] = val; };
+
+  /* ---- category ----------------------------------------------------------- */
+  window.rapPickCat = function (sel) {
+    if (sel.value === '__new') { newCat = true; render(); return; }
+    PROD.cat = sel.value;
+  };
+  window.rapNewCatCancel = function () { newCat = false; render(); };
+  window.rapNewCatKey = function (e) {
+    if (e.key === 'Enter') { e.preventDefault(); window.rapNewCatApply(); }
+    else if (e.key === 'Escape') { e.preventDefault(); window.rapNewCatCancel(); }
+  };
+  window.rapNewCatApply = function () {
+    var inp = document.getElementById('gs-newcat'); if (!inp) return;
+    var name = (inp.value || '').trim();
+    if (!name) { if (window.gsShake) window.gsShake(inp); inp.focus(); toast('Type a category name first'); return; }
+    var all = (typeof window.raCats === 'function' && window.raCats()) || [];
+    var existing = all.filter(function (x) { return x.trim().toLowerCase() === name.toLowerCase(); })[0];
+    if (existing) {
+      /* not an error — they asked for one that is already there, so just select it */
+      PROD.cat = existing; newCat = false; render();
+      toast('“' + existing + '” already exists — selected it');
+      return;
+    }
+    var added = (typeof window.raCatCreate === 'function') ? window.raCatCreate(name) : '';
+    if (!added) { if (window.gsShake) window.gsShake(inp); inp.focus(); return; }
+    PROD.cat = added; newCat = false; render();
+    toast('“' + added + '” added to your categories');
+  };
   window.rapToggle = function (i) { openIdx = (openIdx === i ? -1 : i); render(); };
   window.rapEditName = function (key, i, val) { var L = list(key); if (L[i]) L[i].name = (val || '').replace(/\n/g, ' '); };
   window.rapTitleKey = function (e) { if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); } };

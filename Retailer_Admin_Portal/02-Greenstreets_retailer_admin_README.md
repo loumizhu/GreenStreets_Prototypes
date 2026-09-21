@@ -32,6 +32,7 @@ css/
 js/
   greenstreets-theme.js     ← shared behaviour (focus ring, selects, ripple, data-grid…)
   retailer-admin.js         ← THIS prototype's logic (extracted once, see below)
+  ra-categories.js          ← the category store + the Categories page (see below)
 img/
   greenstreets-logo.png     ← extracted from the old inline base64 blob
   swoosh.png, BackgroundGreenStreets.jpg
@@ -55,6 +56,7 @@ file (browsers cache them aggressively).
 | `Validate-Import` | `ra4_validate` | CSV import preview |
 | `Supplier-Detail` | `ra_supdetail` | Supplier detail (packaging components, timeline, proof docs) |
 | `Products` | `ra6` | Products list (paginated table) |
+| `Categories` | `ra_cats` | Product categories — the retailer's own list (add / rename / reorder / remove) |
 | `Packagings` | `ra5` | Packagings (list/grid) |
 | `Product-Detail` | `ra_product` | Product detail + add-packaging modal |
 | `Users` | `ra7` | Users |
@@ -99,3 +101,34 @@ The operator **sidebar** markup is still repeated inside each screen page (as it
 original). If this moves toward a real app, the natural next step is to make the sidebar
 (and the top nav) a shared component — a framework partial/include, or a small JS mount —
 rather than duplicated HTML. Left as-is here to keep the prototype faithful.
+
+## Product categories
+
+The categories belong to the **retailer's own catalogue**, so this portal owns the list
+outright. `js/ra-categories.js` is the single source of it (`window.raCats()`, kept in
+`sessionStorage`) — it replaced the copies that had drifted apart: the Products filter bar
+and the seeded catalogue carried `Tops/Bottoms/…` while the Add-product dropdown carried an
+unrelated `Apparel/Homeware/Electronics` list.
+
+Three ways in, by design:
+
+1. **Products list → `Categories` button** in the page header — the primary route, because
+   that is where you notice the taxonomy is wrong.
+2. **Products list → the category filter → `Manage categories…`** (its last entry).
+3. **Add product / Product detail → the Category dropdown → `+ New category…`** — adding
+   only, and it sits at the **top** of the dropdown (straight after the `Select a
+   category…` placeholder on Add product, which has to stay first so a browser does not
+   auto-select the action when nothing is chosen). It is an action, not one of the values,
+   so it belongs where it is seen first and does not drift down as the list grows. Rename
+   and remove are catalogue-wide (a rename re-labels every product carrying the category),
+   so they are deliberately **not** reachable from a form about one product.
+
+   Both pages render the same inline control — `window.gsCatInlineField(prefix)` in
+   `ra-categories.js`, wired to each page's own render loop (`nap*` / `rap*`).
+
+The Categories page (`ra_cats`) keeps **Products** highlighted in the sidebar — it is a
+sub-view of Products, not a seventh top-level destination, and taxonomy editing is rare.
+
+Because `PRODUCTS_RA` is regenerated from a seed on every page load, a rename or a removal
+is also written to a `ra_cat_remap` map that `retailer-admin.js` replays when it builds the
+catalogue — otherwise the edit would be undone by the next click.
