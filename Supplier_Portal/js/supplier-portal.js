@@ -3871,11 +3871,36 @@ function gsOnbRenderWelcome(){
     }
   }
 
+  /* The selection actions sit IN the docs control row (tagged .ftb-host), right of the filters —
+     the same cluster the Products and Packaging listings use (gsPkgBuildBulkBar / gsProdBuildBulkBar),
+     rather than the separate banner this page used to push above the table. */
+  function docsSelHost(){
+    var p=document.getElementById('tab-panel-docs');
+    return (p&&p.querySelector('.ftb-host'))||document.querySelector('.ftb-host');
+  }
+  function docsBuildSelCluster(){
+    var host=docsSelHost();
+    if(!host||host.querySelector('.ftb-sel')) return host;
+    var sel=document.createElement('div');
+    sel.className='ftb-sel';
+    sel.innerHTML=
+      '<span class="ftb-sel-count"><b class="ftb-sel-n">0</b> selected</span>'+
+      '<button type="button" class="gs-tool-btn" title="Download the selected documents" onclick="docsBulkDownload()">'+
+        '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>Download</span></button>'+
+      '<button type="button" class="gs-tool-btn danger docs-bulk-del-btn" title="Delete the selected documents" onclick="docsAskBulkDelete(this)">'+
+        '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg><span>Delete</span></button>'+
+      '<button type="button" class="gs-tool-btn" title="Clear selection" onclick="docsBulkClear()">'+
+        '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg><span>Clear</span></button>';
+    host.appendChild(sel);
+    return host;
+  }
   function docsUpdateBulkBar(){
     var n=Object.keys(_docsSelected).length;
-    var bar=document.getElementById('docs-bulk-bar'), cnt=document.getElementById('docs-bulk-count');
-    if(bar) bar.classList.toggle('visible',n>0);
-    if(cnt) cnt.textContent=n+' selected';
+    var host=docsBuildSelCluster(); if(!host) return;
+    var lbl=host.querySelector('.ftb-sel-n');
+    if(lbl&&n>0) lbl.textContent=n;   /* hold the last count through the retract animation */
+    if(typeof gsSpSelToggle==='function') gsSpSelToggle(host,n>0);
+    if(!n) docsCloseDelPop();          /* the anchor button is going away — take its popover with it */
   }
 
   function docsUpdateSelectAll(){
@@ -3935,22 +3960,31 @@ function gsOnbRenderWelcome(){
   /* ── Inline delete confirmation (a small popover next to the button) ── */
   function docsCloseDelPop(){
     var p=document.getElementById('doc-del-pop'); if(p) p.remove();
-    document.querySelectorAll('.doc-del-btn.confirming,.docs-thumb-del-btn.confirming').forEach(function(b){ b.classList.remove('confirming'); });
+    document.querySelectorAll('.doc-del-btn.confirming,.docs-thumb-del-btn.confirming,.docs-bulk-del-btn.confirming').forEach(function(b){ b.classList.remove('confirming'); });
   }
   window.docsCloseDelPop=docsCloseDelPop;
-  window.docsAskDelete=function(id,btn){
+  /* One confirmation component for every delete on this page — the row/tile buttons and the
+     toolbar's bulk Delete all open the same .doc-del-pop anchored to whatever was clicked. */
+  function docsOpenDelPop(btn,key,msg,yesAttr){
     var open=document.getElementById('doc-del-pop');
     docsCloseDelPop();
-    if(open && open.dataset.id===String(id)) return;   // toggle closed if same button
+    if(open && open.dataset.id===String(key)) return;   // toggle closed if same button
     btn.classList.add('confirming');
-    var pop=document.createElement('div'); pop.className='doc-del-pop'; pop.id='doc-del-pop'; pop.dataset.id=id;
-    pop.innerHTML='<div class="doc-del-pop-msg"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Delete this document?</div>'
-      +'<div class="doc-del-pop-btns"><button class="doc-del-pop-cancel" onclick="docsCloseDelPop()">Cancel</button><button class="doc-del-pop-yes" onclick="docsDoDelete('+id+')">Delete</button></div>';
+    var pop=document.createElement('div'); pop.className='doc-del-pop'; pop.id='doc-del-pop'; pop.dataset.id=key;
+    pop.innerHTML='<div class="doc-del-pop-msg"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'+msg+'</div>'
+      +'<div class="doc-del-pop-btns"><button class="doc-del-pop-cancel" onclick="docsCloseDelPop()">Cancel</button><button class="doc-del-pop-yes" onclick="'+yesAttr+'">Delete</button></div>';
     document.body.appendChild(pop);
     var r=btn.getBoundingClientRect(), pw=pop.offsetWidth||188, ph=pop.offsetHeight||78;
     var left=Math.max(8, Math.min(r.right-pw, window.innerWidth-pw-8));
     var top=r.bottom+6; if(top+ph>window.innerHeight-8) top=r.top-ph-6;
     pop.style.left=left+'px'; pop.style.top=Math.max(8,top)+'px';
+  }
+  window.docsAskDelete=function(id,btn){
+    docsOpenDelPop(btn,id,'Delete this document?','docsDoDelete('+id+')');
+  };
+  window.docsAskBulkDelete=function(btn){
+    var n=Object.keys(_docsSelected).length; if(!n) return;
+    docsOpenDelPop(btn,'bulk','Delete '+n+' document'+(n!==1?'s':'')+'?','docsBulkDelete()');
   };
   window.docsDoDelete=function(id){
     docsCloseDelPop();
@@ -3959,7 +3993,7 @@ function gsOnbRenderWelcome(){
     if(typeof gsToast==='function') gsToast('Document deleted');
     docsRender();
   };
-  document.addEventListener('click',function(e){ if(!e.target.closest('.doc-del-pop') && !e.target.closest('.doc-del-btn') && !e.target.closest('.docs-thumb-del-btn')) docsCloseDelPop(); });
+  document.addEventListener('click',function(e){ if(!e.target.closest('.doc-del-pop') && !e.target.closest('.doc-del-btn') && !e.target.closest('.docs-thumb-del-btn') && !e.target.closest('.docs-bulk-del-btn')) docsCloseDelPop(); });
   window.addEventListener('scroll',docsCloseDelPop,true);
 
   /* ── Document preview (prototype: a mocked page/sheet render) ── */
@@ -3998,8 +4032,10 @@ function gsOnbRenderWelcome(){
   function docsPreviewEsc(e){ if(e.key==='Escape') docsClosePreview(); }
   window.docsClosePreview=function(){ var el=document.getElementById('docs-preview'); if(el) el.remove(); document.body.style.overflow=''; document.removeEventListener('keydown',docsPreviewEsc); };
   window.docsBulkDownload=function(){ alert('Download would start — files not available in prototype.'); };
+  window.docsBulkClear=function(){ _docsSelected={}; docsRender(); };
   window.docsBulkDelete=function(){
     var ids=Object.keys(_docsSelected).map(Number); if(!ids.length) return;
+    docsCloseDelPop();
     DOCS_DATA=DOCS_DATA.filter(function(d){return ids.indexOf(d.id)<0;});
     _docsSelected={};
     ids.forEach(function(id){clearTimeout(_docConfirmTimers[id]);delete _docConfirmTimers[id];});

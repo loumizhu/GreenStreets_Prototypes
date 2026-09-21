@@ -25,8 +25,8 @@
     <input type="file" style="display:none" multiple onchange="docsHandleUpload(this.files)">
   </label>
 </div>
-<!-- Docs toolbar: search + filter + view toggle -->
-<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+<!-- Docs toolbar: search + filter + view toggle (.ftb-host = sticky control row that also hosts the selection cluster) -->
+<div class="ftb-host" style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap">
   <div class="search-wrap" style="flex:1;min-width:170px;max-width:260px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="position:absolute;left:10px;top:50%;transform:translateY(-50%)"><use href="#gsi-2"/></svg><input class="fi fi-search" id="docs-search" placeholder="Search documents, components…" oninput="docsApplyFilters()" style="width:100%;padding-left:30px"></div>
   <select class="pkg-tbl-filter" id="docs-type-filter" onchange="docsApplyFilters()" style="flex-shrink:0"><option value="all">All types</option><option value="Certification">Certification</option><option value="Declaration">Declaration</option><option value="Test Report">Test Report</option></select>
   <!-- View toggle -->
@@ -45,12 +45,6 @@
     <input type="range" class="docs-thumb-size-slider" min="40" max="240" step="10" value="70" oninput="docsSetThumbVSize(this.value)" title="Tile height" aria-label="Tile height">
   </div>
   <span id="docs-count-lbl" style="font-size:11px;color:rgba(255,255,255,.4);margin-left:auto;white-space:nowrap">6 documents</span>
-</div>
-<!-- Bulk action bar (hidden until ≥1 row checked) -->
-<div class="docs-bulk-bar" id="docs-bulk-bar">
-  <span class="docs-bulk-count" id="docs-bulk-count">0 selected</span>
-  <button class="docs-bulk-act docs-bulk-dl" onclick="docsBulkDownload()"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><use href="#gsi-10"/></svg>Download</button>
-  <button class="docs-bulk-act docs-bulk-del" onclick="docsBulkDelete()"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><use href="#gsi-16"/></svg>Delete selected</button>
 </div>
 <!-- List view -->
 <div id="docs-list-view" style="overflow-x:auto">
@@ -81,7 +75,7 @@
 </div></div>
 </div></div></div></div></div></div></div>
 <script src="js/gs-schema.js?v=2"></script>
-<script src="js/supplier-portal.js?v=61"></script>
+<script src="js/supplier-portal.js?v=62"></script>
 <script src="js/supplier-shell.js?v=1"></script>
 <script src="js/gs-tour.js?v=11"></script>
 <script src="js/greenstreets-theme.js?v=32"></script>
