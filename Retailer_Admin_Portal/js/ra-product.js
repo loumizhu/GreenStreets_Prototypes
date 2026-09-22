@@ -16,6 +16,23 @@
   var newCat = false;   /* the Category field is showing its "new category" input */
   var COMP_POOL = ['Swing Tag', 'Box / Carton', 'Hanger', 'Poly Bag', 'Tissue Paper', 'Header Card', 'Shipping Carton', 'Pallet Wrap', 'Care Label'];
 
+  /* This engine page is hosted in BOTH portals. The Retailer Admin is a single tenant —
+     every product belongs to it, so naming the retailer there is noise. The Super Admin
+     sees every tenant's catalogue, so it needs to know which retailer a product is under.
+     Detected from the path because the page renders at parse time, before any inline
+     bridge script on the host page could set a flag. */
+  var IS_SA = /GreenStreets_Super_Admin/i.test(location.pathname);
+  /* Same list, same order, as the Super Admin Products listing (PRODUCTS_S11 in
+     super-admin.js) — that dataset is not loaded on this page, so the retailer is
+     re-derived from the SKU's index and the two stay in agreement. */
+  var RETAILERS = ['Primark Stores Ltd', 'H&M Group', 'Next plc', 'Zara / Inditex', 'M&S Group', 'Dunnes Stores', 'New Look'];
+  function retailerForSku(sku) {
+    var m = /-(\d+)-/.exec(String(sku || ''));
+    var i = m ? (parseInt(m[1], 10) - 1) : 0;
+    if (!(i >= 0)) i = 0;
+    return RETAILERS[i % RETAILERS.length];
+  }
+
   function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 
   /* pick the product */
@@ -32,6 +49,7 @@
     p.casesPerPallet = p.casesPerPallet || 40;
     p.totalWeight = p.totalWeight || 350;
     p.deadline = p.deadline || 'Due in 14 days';
+    p.retailer = p.retailer || retailerForSku(p.sku);
 
     return p;
   }
@@ -381,6 +399,13 @@
       ? window.gsCatInlineField('rap')
       : '<select class="fi" onchange="rapPickCat(this)">' + catOpts + '</select>';
 
+    var retOpts = RETAILERS.map(function(r){ return '<option' + (r===PROD.retailer?' selected':'') + '>' + esc(r) + '</option>'; }).join('');
+    if (RETAILERS.indexOf(PROD.retailer) === -1) retOpts += '<option selected>' + esc(PROD.retailer) + '</option>';
+    /* Super Admin only — see IS_SA above. */
+    var retField = IS_SA
+      ? '<div class="rap-f"><label>Retailer</label><select class="fi" title="The retailer tenant this product belongs to" onchange="window.rapUpdateProd(\'retailer\',this.value)">' + retOpts + '</select></div>'
+      : '';
+
     var sups = ['Supplier Ltd (HK)', 'GreenStreets', 'Primark', 'Next', 'Zara'];
     var supOpts = sups.map(function(s){ return '<option' + (s===PROD.supplier?' selected':'') + '>' + s + '</option>'; }).join('');
     if (sups.indexOf(PROD.supplier) === -1) supOpts += '<option selected>' + esc(PROD.supplier) + '</option>';
@@ -410,6 +435,7 @@
             '<div class="rap-f"><label>SKU</label><input class="fi" value="' + esc(PROD.sku) + '"></div>' +
             '<div class="rap-f"><label>Category</label>' + catField + '</div>' +
             '<div class="rap-f"><label>Assigned supplier</label><select class="fi" onchange="window.rapUpdateProd(\'supplier\',this.value)">' + supOpts + '</select></div>' +
+            retField +
             '<div class="rap-f"><label>Units per Case</label><div><input class="fi" type="number" value="' + PROD.unitsPerCase + '" onchange="window.rapUpdateProd(\'unitsPerCase\',this.value)"></div></div>' +
             '<div class="rap-f"><label>Cases per Pallet</label><div><input class="fi" type="number" value="' + PROD.casesPerPallet + '" onchange="window.rapUpdateProd(\'casesPerPallet\',this.value)"></div></div>' +
             '<div class="rap-f"><label>Total Product Weight (g)</label><div><input class="fi" type="number" value="' + PROD.totalWeight + '" onchange="window.rapUpdateProd(\'totalWeight\',this.value)"></div></div>' +

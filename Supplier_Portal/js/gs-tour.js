@@ -257,9 +257,9 @@ var _PKG_TOUR_STEPS = [
     title: 'Watch the compliance status',
     body:  'This is the <strong>most important thing to keep an eye on</strong>. The ' +
            '<strong>Status</strong> column shows whether each component is ready: a green ' +
-           '<strong>Compliant</strong> is done, while this <strong>Review needed</strong> one ' +
+           '<strong>Complete</strong> is done, while this <strong>Review needed</strong> one ' +
            '(and any <strong>Incomplete</strong> rows) still need you. ' +
-           'Focus on the packagings that are <strong>not compliant</strong> first — they\'re what could hold up your submission.',
+           'Focus on the packagings that are <strong>not complete</strong> first — they\'re what could hold up your submission.',
     targetFn: function(){ return document.querySelector('#pkg-lib-tbody .pkg-status-pill.review') || document.querySelector('#pkg-lib-tbody .pkg-status-pill'); },
     position: 'left',
     onShow: function(){

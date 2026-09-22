@@ -603,8 +603,14 @@ tr.prod-row-complete-flash>td{animation:prodRowCompleteFlash 1.2s cubic-bezier(.
 .gs-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .pd-fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:13px 16px}
 .pd-field{display:flex;flex-direction:column;gap:4px;min-width:0}
-.pd-flabel{font-size:10px;color:var(--tw3);text-transform:uppercase;letter-spacing:.04em;font-weight:600}
-.pd-input{font-family:"Inter",sans-serif;font-size:13px;color:#fff;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);border-radius:7px;padding:7px 9px;width:100%;transition:border-color .12s,background .12s}
+/* Labels wrap to 1, 2 or 3 lines, so a grid row's controls used to start at
+   three different heights. The label takes the slack (grid items stretch to the
+   tallest field in the row), which bottom-aligns every control on the row. */
+.pd-flabel{font-size:10px;color:var(--tw3);text-transform:uppercase;letter-spacing:.04em;font-weight:600;flex:1 0 auto}
+/* line-height is pinned so a <select> and an <input> are the same height —
+   with line-height:normal the select rendered 34px against the input's 32px,
+   so side-by-side controls in a row never lined up. */
+.pd-input{font-family:"Inter",sans-serif;font-size:13px;line-height:18px;color:#fff;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);border-radius:7px;padding:7px 9px;width:100%;transition:border-color .12s,background .12s}
 .pd-input:hover{border-color:rgba(255,255,255,.28)}
 .pd-input:focus{outline:none;border-color:var(--gs);background:rgba(78,187,129,.08)}
 select.pd-input{cursor:pointer}
@@ -658,12 +664,17 @@ select.pd-input option{background:#16294a;color:#fff}
 /* Dynamic materials inside a packaging card */
 .pd-mat-block{margin-top:10px}
 .pd-mat-list{display:flex;flex-direction:column;gap:10px}
-.pd-mat-row{display:grid;grid-template-columns:1fr 200px 30px;gap:12px;align-items:end}
+/* start-aligned so the material name and the % number input share one top edge —
+   end-aligned, the % slider stacked under its input pushed that input up out of
+   line with the name field. The delete button is nudged down by the label height
+   (12px) + the field gap (4px) + half the input/button height difference (2px)
+   so it centres on the inputs rather than on the taller % column. */
+.pd-mat-row{display:grid;grid-template-columns:1fr 200px 30px;gap:12px;align-items:start}
 .pd-mat-pct .pd-pct{display:flex;flex-direction:column;gap:6px}
 .pd-pct-range{-webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:3px;background:linear-gradient(90deg,var(--gs),rgba(78,187,129,.25));outline:none;cursor:pointer}
 .pd-pct-range::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:15px;height:15px;border-radius:50%;background:#fff;border:3px solid var(--gs);cursor:pointer}
 .pd-pct-range::-moz-range-thumb{width:15px;height:15px;border-radius:50%;background:#fff;border:3px solid var(--gs);cursor:pointer}
-.pd-mat-del{align-self:center;width:30px;height:30px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border-radius:7px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.04);color:rgba(255,255,255,.5);cursor:pointer;transition:all .12s}
+.pd-mat-del{align-self:start;margin-top:18px;width:30px;height:30px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border-radius:7px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.04);color:rgba(255,255,255,.5);cursor:pointer;transition:all .12s}
 .pd-mat-del:hover{border-color:rgba(248,113,113,.5);color:#f87171;background:rgba(248,113,113,.1)}
 .pd-mat-add{margin-top:12px;display:inline-flex;align-items:center;gap:7px;background:rgba(59,130,246,.14);border:1px solid rgba(59,130,246,.4);color:#93b4f5;font-family:"Inter",sans-serif;font-size:12px;font-weight:700;padding:8px 14px;border-radius:8px;cursor:pointer;transition:all .12s}
 .pd-mat-add:hover{background:rgba(59,130,246,.24)}
