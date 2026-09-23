@@ -1,0 +1,167 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   rs-switcher.css — Retailer ⇄ Supplier mode switcher (demo)
+   Two entry points, one behaviour (see rs-switcher.js):
+     1. .rs-logo-switch — hovering the sidebar logo turns it into a
+        "Switch to / <Other> Mode  →" control with a revolving-door cursor.
+     2. .rs-menu — clicking the account block (bottom-left) opens a Slack-style
+        workspace menu: the current portal (active) + the other one.
+   Colours come from the portals' own tokens (--gs, --bl, --tw*, --line*);
+   body.lt blocks re-assert them for the -Light twins.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root{
+  --rs-retailer:var(--bl,#5b9cf6);
+  --rs-supplier:var(--gs,#4ebb81);
+  --rs-ease:cubic-bezier(.34,1.3,.64,1);
+}
+
+/* ── 1. Logo hover switch ─────────────────────────────────────────────── */
+.sb-logo-zone.rs-has-switch{position:relative}
+.sb-logo-zone.rs-has-switch .sb-logo{transition:opacity .2s ease,transform .25s var(--rs-ease),filter .2s ease}
+.sb-logo-zone.rs-has-switch:hover .sb-logo,
+.sb-logo-zone.rs-has-switch:focus-within .sb-logo{opacity:.1;transform:scale(.94);filter:blur(1.5px)}
+
+.rs-logo-switch{
+  position:absolute;inset:6px 8px;z-index:5;
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  padding:0 12px;border-radius:10px;
+  font-family:inherit;font-size:11.5px;font-weight:600;line-height:1.2;letter-spacing:.01em;
+  color:var(--gs-l,#8fe3b6);
+  background:rgba(78,187,129,.10);
+  border:1px solid rgba(143,227,182,.38);
+  box-shadow:0 6px 18px rgba(0,0,0,.28),inset 0 0 0 1px rgba(255,255,255,.04);
+  opacity:0;transform:translateY(3px) scale(.98);
+  transition:opacity .18s ease,transform .22s var(--rs-ease),background .18s ease;
+  white-space:nowrap;overflow:hidden;
+}
+.rs-logo-switch[data-to="retailer"]{color:var(--bl-l,#9dc4ff);background:rgba(91,156,246,.10);border-color:rgba(157,196,255,.4)}
+.sb-logo-zone.rs-has-switch:hover .rs-logo-switch,
+.rs-logo-switch:focus-visible{opacity:1;transform:none}
+.rs-logo-switch:focus-visible{outline:2px solid var(--field-stroke-color,var(--gs));outline-offset:2px}
+.rs-logo-switch .rs-lbl{display:flex;flex-direction:column;align-items:flex-start;text-align:left;line-height:1.25}
+.rs-logo-switch .rs-lbl-1{font-size:10.5px;font-weight:500;opacity:.8}
+.rs-logo-switch .rs-lbl-2{font-size:13px;font-weight:700}
+.rs-logo-switch .rs-arrow{flex-shrink:0;display:flex;transition:transform .25s var(--rs-ease)}
+.sb-logo-zone.rs-has-switch:hover .rs-logo-switch .rs-arrow{animation:rsNudge 1.1s ease-in-out .2s infinite}
+@keyframes rsNudge{0%,100%{transform:translateX(0)}50%{transform:translateX(4px)}}
+
+/* collapsed rail: arrow only */
+.sidebar.sb-collapsed .rs-logo-switch{inset:6px;padding:0;gap:0}
+.sidebar.sb-collapsed .rs-logo-switch .rs-lbl{display:none}
+.sidebar.sb-collapsed .sb-logo-zone.rs-has-switch:hover::after{opacity:.1}
+
+/* ── 2. Avatar trigger ─────────────────────────────────────────────────── */
+.sb-user:has(.rs-avatar){cursor:pointer}
+.sb-avatar.rs-avatar{position:relative;cursor:pointer;transition:transform .18s var(--rs-ease),box-shadow .18s ease}
+.sb-user:hover .sb-avatar.rs-avatar,.sb-avatar.rs-avatar:hover{transform:scale(1.06);box-shadow:0 0 0 3px rgba(143,227,182,.35)}
+.sb-avatar.rs-avatar[aria-expanded="true"]{box-shadow:0 0 0 3px rgba(143,227,182,.55)}
+.sb-avatar.rs-avatar:focus-visible{outline:2px solid var(--field-stroke-color,var(--gs));outline-offset:2px}
+/* the current portal's mark sits on the avatar, like Slack's workspace tile */
+.rs-av-mode{
+  position:absolute;right:-4px;bottom:-4px;width:17px;height:17px;border-radius:5px;
+  display:flex;align-items:center;justify-content:center;color:#fff;
+  box-shadow:0 0 0 2px var(--rs-av-ring,#0e1c34);
+}
+.rs-av-mode[data-mode="retailer"]{background:var(--rs-retailer)}
+.rs-av-mode[data-mode="supplier"]{background:var(--rs-supplier)}
+
+/* ── 2b. Workspace menu ────────────────────────────────────────────────── */
+.rs-menu{
+  position:fixed;z-index:9000;width:300px;max-width:calc(100vw - 24px);
+  padding:6px;border-radius:12px;
+  background:rgba(14,28,52,.98);border:1px solid var(--line-2,rgba(148,180,230,.26));
+  box-shadow:0 18px 44px rgba(0,0,0,.5);
+  backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);
+  color:var(--tw,#fff);font-family:inherit;
+  transform-origin:bottom left;animation:rsMenuIn .2s var(--rs-ease);
+}
+.rs-menu[hidden]{display:none}
+@keyframes rsMenuIn{from{opacity:0;transform:translateY(6px) scale(.97)}to{opacity:1;transform:none}}
+
+.rs-m-who{display:flex;align-items:center;gap:10px;padding:8px 8px 10px;border-bottom:1px solid var(--line,rgba(148,180,230,.16));margin-bottom:4px}
+.rs-m-who .rs-m-av{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#04160e;background:linear-gradient(135deg,var(--gs,#4ebb81),var(--teal,#3fb8b0))}
+.rs-m-name{font-size:12.5px;font-weight:600}
+.rs-m-meta{font-size:10.5px;color:var(--tw3,rgba(255,255,255,.62));margin-top:1px}
+
+.rs-m-sec{font-size:9.5px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--tw4,rgba(255,255,255,.58));padding:8px 8px 4px}
+
+.rs-m-item{
+  width:100%;display:flex;align-items:center;gap:10px;padding:8px;border-radius:9px;
+  background:none;border:1px solid transparent;color:inherit;font:inherit;text-align:left;cursor:pointer;
+  transition:background .14s ease,border-color .14s ease;
+}
+.rs-m-item:hover,.rs-m-item:focus-visible{background:rgba(255,255,255,.06);border-color:var(--line,rgba(148,180,230,.16));outline:none}
+.rs-m-item.rs-current{cursor:default;background:rgba(78,187,129,.08);border-color:rgba(143,227,182,.28)}
+.rs-m-item.rs-current[data-mode="retailer"]{background:rgba(91,156,246,.08);border-color:rgba(157,196,255,.3)}
+
+.rs-tile{width:34px;height:34px;border-radius:9px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff}
+.rs-tile[data-mode="retailer"]{background:var(--rs-retailer)}
+.rs-tile[data-mode="supplier"]{background:var(--rs-supplier)}
+.rs-m-txt{flex:1;min-width:0}
+.rs-m-org{font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rs-m-mode{font-size:10.5px;color:var(--tw3,rgba(255,255,255,.62));margin-top:2px}
+.rs-m-mode b{font-weight:600;color:var(--tw2,rgba(255,255,255,.74))}
+.rs-m-pend{display:inline-block;margin-top:4px;font-size:10px;font-weight:600;color:#f5c26b;background:rgba(245,166,35,.13);border:1px solid rgba(245,166,35,.3);border-radius:10px;padding:1px 7px}
+.rs-m-active{font-size:10px;font-weight:600;color:var(--gs-l,#8fe3b6);display:inline-flex;align-items:center;gap:4px;flex-shrink:0}
+.rs-m-go{flex-shrink:0;color:var(--tw3,rgba(255,255,255,.62));transition:transform .4s var(--rs-ease),color .14s ease}
+.rs-m-item:hover .rs-m-go,.rs-m-item:focus-visible .rs-m-go{transform:rotate(180deg);color:var(--tw,#fff)}
+
+.rs-m-div{height:1px;background:var(--line,rgba(148,180,230,.16));margin:6px 4px}
+.rs-m-link{
+  width:100%;display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:8px;
+  background:none;border:0;color:var(--tw2,rgba(255,255,255,.74));font:inherit;font-size:12px;text-align:left;cursor:pointer;
+}
+.rs-m-link:hover,.rs-m-link:focus-visible{background:rgba(255,255,255,.06);color:var(--tw,#fff);outline:none}
+.rs-m-link svg{flex-shrink:0;opacity:.8}
+
+/* ── 3. Switch transition + arrival toast ──────────────────────────────── */
+.rs-transit{
+  position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;
+  background:rgba(6,14,28,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  animation:rsFade .18s ease;
+}
+@keyframes rsFade{from{opacity:0}to{opacity:1}}
+.rs-transit-card{display:flex;flex-direction:column;align-items:center;gap:12px;padding:26px 34px;border-radius:16px;
+  background:rgba(14,28,52,.96);border:1px solid var(--line-2,rgba(148,180,230,.26));box-shadow:0 20px 50px rgba(0,0,0,.5);color:var(--tw,#fff);text-align:center}
+.rs-transit-card .rs-tile{width:52px;height:52px;border-radius:14px}
+.rs-transit-card .rs-tile svg{animation:rsSpin .6s var(--rs-ease) both}
+@keyframes rsSpin{from{transform:rotate(-180deg) scale(.7)}to{transform:none}}
+.rs-transit-t{font-size:14px;font-weight:600}
+.rs-transit-s{font-size:11.5px;color:var(--tw3,rgba(255,255,255,.62))}
+
+.rs-toast{
+  position:fixed;left:16px;bottom:16px;z-index:9500;display:flex;align-items:center;gap:10px;
+  padding:10px 12px;border-radius:12px;max-width:360px;
+  background:rgba(14,28,52,.98);border:1px solid var(--line-2,rgba(148,180,230,.26));
+  box-shadow:0 14px 34px rgba(0,0,0,.45);color:var(--tw,#fff);font-family:inherit;
+  animation:rsToastIn .28s var(--rs-ease);
+}
+.rs-toast.rs-out{opacity:0;transform:translateY(8px);transition:opacity .2s ease,transform .2s ease}
+@keyframes rsToastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.rs-toast .rs-tile{width:30px;height:30px;border-radius:8px}
+.rs-toast-t{font-size:12.5px;font-weight:600}
+.rs-toast-s{font-size:10.5px;color:var(--tw3,rgba(255,255,255,.62))}
+.rs-toast-back{margin-left:6px;flex-shrink:0;height:28px;padding:0 10px;border-radius:7px;font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;
+  color:var(--gs-l,#8fe3b6);background:rgba(78,187,129,.12);border:1px solid rgba(143,227,182,.35)}
+.rs-toast-back:hover{background:rgba(78,187,129,.2)}
+.rs-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ── Light twins ───────────────────────────────────────────────────────── */
+body.lt{--rs-av-ring:#fff}
+body.lt .rs-logo-switch{color:var(--lt-accent-ink,#1f7a4c);background:rgba(78,187,129,.12);border-color:rgba(47,156,98,.35);box-shadow:0 6px 16px rgba(53,72,110,.14)}
+body.lt .rs-logo-switch[data-to="retailer"]{color:#2c5fae;background:rgba(91,156,246,.12);border-color:rgba(55,102,176,.32)}
+body.lt .rs-menu,body.lt .rs-toast,body.lt .rs-transit-card{
+  background:#fff;border-color:var(--lt-line-2,#d7deea);color:var(--lt-ink,#33415c);
+  box-shadow:0 18px 44px rgba(53,72,110,.18);backdrop-filter:none;-webkit-backdrop-filter:none}
+body.lt .rs-transit{background:rgba(236,241,248,.6)}
+body.lt .rs-m-who,body.lt .rs-m-div{border-color:var(--lt-line,#e3e8f0)}
+body.lt .rs-m-div{background:var(--lt-line,#e3e8f0)}
+body.lt .rs-m-meta,body.lt .rs-m-mode,body.lt .rs-m-go,body.lt .rs-toast-s,body.lt .rs-transit-s{color:var(--lt-ink-3,#6b7890)}
+body.lt .rs-m-mode b{color:var(--lt-ink-2,#4a5872)}
+body.lt .rs-m-sec{color:var(--lt-ink-3,#6b7890)}
+body.lt .rs-m-link{color:var(--lt-ink-2,#4a5872)}
+body.lt .rs-m-item:hover,body.lt .rs-m-item:focus-visible,body.lt .rs-m-link:hover,body.lt .rs-m-link:focus-visible{background:var(--lt-surface-2,#f3f6fa);border-color:var(--lt-line,#e3e8f0);color:var(--lt-ink,#33415c)}
+body.lt .rs-m-item:hover .rs-m-go{color:var(--lt-ink,#33415c)}
+body.lt .rs-m-active{color:var(--lt-accent-ink,#1f7a4c)}
+body.lt .rs-m-pend{color:#9a5d00;background:rgba(245,166,35,.14);border-color:rgba(214,138,20,.35)}
+body.lt .rs-toast-back{color:var(--lt-accent-ink,#1f7a4c);background:rgba(78,187,129,.12);border-color:rgba(47,156,98,.35)}

@@ -6,7 +6,7 @@
 <title>Greenstreets — Supplier Portal · Packaging Components</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/greenstreets-theme.css?v=48">
-<link rel="stylesheet" href="css/supplier-portal.css?v=54">
+<link rel="stylesheet" href="css/supplier-portal.css?v=60">
 <link rel="stylesheet" href="css/greenstreets-light.css?v=7">
 </head>
 <body class="lt">
@@ -35,9 +35,9 @@
     <button class="pkg-level-filter-btn" data-level="Secondary" style="--lvl-color:#6bbf59" onclick="setPkgTblFilter('Secondary',this)">Secondary</button>
     <button class="pkg-level-filter-btn" data-level="Tertiary" style="--lvl-color:#d65fc4" onclick="setPkgTblFilter('Tertiary',this)">Tertiary</button>
   </div>
-  <select class="pkg-tbl-filter" id="pkg-tbl-status" onchange="setPkgTblStatus(this.value)" style="flex-shrink:0"><option value="all">All statuses</option><option value="Complete">Complete</option><option value="Review needed">Review needed</option><option value="Incomplete">Incomplete</option></select>
-  <select class="pkg-tbl-filter" id="pkg-tbl-material" onchange="setPkgTblMaterial(this.value)" style="flex-shrink:0"><option value="all">All materials</option></select>
-  <select class="pkg-tbl-filter" id="pkg-tbl-recycled" onchange="setPkgTblRecycled(this.value)" style="flex-shrink:0"><option value="all">All recycled %</option><option value="0">0% (none)</option><option value="low">1–49%</option><option value="high">50%+</option></select>
+  <select class="fi fi-select pkg-tbl-filter" id="pkg-tbl-status" onchange="setPkgTblStatus(this.value)" style="flex-shrink:0"><option value="all">All statuses</option><option value="Complete">Complete</option><option value="Review needed">Review needed</option><option value="Incomplete">Incomplete</option></select>
+  <select class="fi fi-select pkg-tbl-filter" id="pkg-tbl-material" onchange="setPkgTblMaterial(this.value)" style="flex-shrink:0"><option value="all">All materials</option></select>
+  <select class="fi fi-select pkg-tbl-filter" id="pkg-tbl-recycled" onchange="setPkgTblRecycled(this.value)" style="flex-shrink:0"><option value="all">All recycled %</option><option value="0">0% (none)</option><option value="low">1–49%</option><option value="high">50%+</option></select>
   <span id="pkg-tbl-count" style="font-size:11px;color:var(--tw3);margin-left:auto;white-space:nowrap">16 components</span>
 </div>
 <div class="pkg-active-filters" id="pkg-active-filters" style="display:none"></div>
@@ -52,17 +52,17 @@
 <div class="pkg-tbl-pagination" id="pkg-tbl-pagination">
   <button class="pkg-pg-btn" id="pkg-pg-prev" onclick="pkgGotoPrev()" disabled><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg> Prev</button>
   <span class="pkg-pg-lbl">Page</span>
-  <select class="pkg-pg-jump" id="pkg-pg-jump" onchange="pkgGotoPage(+this.value)"><option value="0">1</option></select>
+  <select class="fi fi-select pkg-pg-jump" id="pkg-pg-jump" onchange="pkgGotoPage(+this.value)"><option value="0">1</option></select>
   <span class="pkg-pg-of" id="pkg-pg-of">of 1</span>
   <button class="pkg-pg-btn" id="pkg-pg-next" onclick="pkgGotoNext()">Next <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
   <span id="pg-info" style="font-size:11px;color:var(--tw4);margin-left:6px" id="pkg-pg-info"></span>
 </div>
 </div></div></div></div></div></div></div></div></div>
 <script src="js/gs-schema.js?v=2"></script>
-<script src="js/supplier-portal.js?v=63"></script>
+<script src="js/supplier-portal.js?v=66"></script>
 <script src="js/supplier-shell.js?v=1"></script>
 <script src="js/gs-tour.js?v=12"></script>
-<script src="js/greenstreets-theme.js?v=32"></script>
+<script src="js/greenstreets-theme.js?v=34"></script>
 <script src="js/gs-appearance.js?v=7"></script>
 <script src="js/greenstreets-light.js?v=1"></script>
 </body>

@@ -43,10 +43,6 @@
       <div class="pg-hdr-bar">
         <div><div class="pg-title">Products</div><div class="pg-sub">Product catalogue and packaging coverage across your SKUs</div></div>
         <div class="pg-actions" style="display:flex;gap:8px">
-          <button class="btn-g" onclick="go('ra_cats')" title="Add, rename, reorder or remove the categories your catalogue is classified by" style="height:36px;padding:0 16px;font-size:12px;display:inline-flex;align-items:center;gap:6px">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-            Categories
-          </button>
           <button class="btn-g" onclick="go('ra_addproduct')" style="height:36px;padding:0 16px;font-size:12px;display:inline-flex;align-items:center;gap:6px">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-16"/></svg>
             Add product
@@ -72,8 +68,8 @@
         <select class="fi fi-select" onchange="ptFilter('ra','status', this.value)">
           <option value="all">All statuses</option><option>Complete</option><option>Incomplete</option><option>Pending</option>
         </select>
-        <!-- options are filled from the category store by js/ra-categories.js -->
-        <select class="fi fi-select" id="ra-cat-filter" onchange="raCatFilterChange(this)">
+        <!-- options are filled from the one category list by js/ra-categories.js -->
+        <select class="fi fi-select" id="ra-cat-filter" onchange="ptFilter('ra','cat', this.value)">
           <option value="all">All categories</option>
         </select>
         <select class="fi fi-select" onchange="ptFilter('ra','supplier', this.value)">
@@ -123,8 +119,8 @@
     </div>
   </div>
 </div>
-<script src="js/retailer-admin.js?v=38"></script>
-<script src="js/ra-categories.js?v=2"></script>
+<script src="js/retailer-admin.js?v=39"></script>
+<script src="js/ra-categories.js?v=3"></script>
 <script src="js/greenstreets-theme.js?v=30"></script>
 <script src="js/ra-tour.js?v=11"></script>
 <script src="js/gs-appearance.js?v=9"></script>

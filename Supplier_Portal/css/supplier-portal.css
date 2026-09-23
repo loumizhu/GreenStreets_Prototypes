@@ -198,7 +198,9 @@ html,body{height:100%;font-family:"Inter",sans-serif;color:var(--tw)}
 .product-card-menu-hdr{font-size:10px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.05em;padding:9px 12px 6px;position:sticky;top:0;background:#16294a}
 .comp-menu-search-wrap{position:relative;padding:0 10px 8px;flex-shrink:0}
 .comp-menu-search-wrap svg{position:absolute;z-index:1;left:18px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,.35);pointer-events:none}
-.comp-menu-search{width:100%;padding:6px 10px 6px 26px;font-size:11px;border:1px solid rgba(255,255,255,.14);border-radius:6px;background:rgba(255,255,255,.06);color:#fff;font-family:"Inter",sans-serif;outline:none}
+/* Density modifier on the shared "input field with icon" component (.fi + .fi-search
+   inside a wrapper that positions the magnifier) - not a second search-field style. */
+.comp-menu-search{padding:6px 10px 6px 26px;font-size:11px;border-radius:6px}
 .comp-menu-search:focus{border-color:var(--gs)}
 .comp-menu-search::placeholder{color:rgba(255,255,255,.3)}
 .comp-menu-items{overflow-y:auto;flex:1}
@@ -319,7 +321,7 @@ html,body{height:100%;font-family:"Inter",sans-serif;color:var(--tw)}
 .pkg-doc-dl-btn{display:inline-flex;align-items:center;gap:4px;height:26px;padding:0 10px;background:var(--gs);border:none;color:#fff;border-radius:6px;cursor:pointer;font-family:"Inter",sans-serif;font-size:11px;font-weight:700;white-space:nowrap;flex-shrink:0}
 .pkg-doc-dl-btn:hover{filter:brightness(1.1)}
 /* Pagination */
-.pkg-tbl-pagination{display:flex;align-items:center;gap:4px;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.08)}
+.pkg-tbl-pagination{display:flex;align-items:center;justify-content:flex-end;gap:4px;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.08)}
 .pg-btn{height:28px;min-width:28px;border-radius:6px;border:1px solid rgba(255,255,255,.12);background:transparent;color:rgba(255,255,255,.5);font-family:"Inter",sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all .12s;padding:0 6px}
 .pg-btn:hover{border-color:rgba(255,255,255,.3);color:#fff}
 .pg-btn.active{background:var(--gs);border-color:var(--gs);color:#fff}
@@ -331,6 +333,17 @@ html,body{height:100%;font-family:"Inter",sans-serif;color:var(--tw)}
 .pkg-detail-feat-select{font-size:13px;color:#fff;font-weight:500;background:rgba(255,255,255,.07);border:1px solid rgba(91,156,246,.4);border-radius:5px;padding:3px 6px;margin:-3px -6px;font-family:"Inter",sans-serif;width:100%;display:none}
 .pkg-detail-feat-select option{background:#1a2f4a}
 .pkg-sec-edit-mode .pkg-detail-feat-select{display:block}
+/* Longer picklists are upgraded to the SHARED themed dropdown (see gsEnhanceFeat):
+   the real <select> is hidden by the enhancer and a .cs-trigger takes its place,
+   carrying the .pkg-detail-feat-select class so it keeps this compact field look.
+   The `display` half of that class has to be undone on the trigger, and the whole
+   .cs-wrap follows the same view/edit gate the raw select had. */
+.pkg-detail-feat .cs-wrap{display:none}
+.pkg-sec-edit-mode .pkg-detail-feat .cs-wrap{display:block}
+.cs-trigger.pkg-detail-feat-select{display:flex;margin:0;width:100%}
+.cs-trigger.pkg-detail-feat-select .cs-caret{color:rgba(91,156,246,.9)}
+/* a field replaced by a toggle / segmented control / typeable combo has no dropdown */
+.gs-combo-sel .cs-wrap,.gs-has-toggle .cs-wrap,.gs-has-seg .cs-wrap{display:none!important}
 .pkg-sec-edit-mode .pkg-detail-feat-input{display:none}
 .pkg-sec-edit-mode .pkg-detail-feat-input.editable-text{display:block;background:rgba(255,255,255,.07);border-color:rgba(91,156,246,.4);cursor:text}
 .pkg-sec-edit-mode .pkg-detail-feat-input.editable-text:focus{outline:none;border-color:var(--gs);background:rgba(78,187,129,.08)}
@@ -503,6 +516,11 @@ select.cpkg-inp option{background:#1a2f4a}
 .pcmp-req-inp:focus{outline:none;border-color:var(--gs);background:rgba(78,187,129,.1);color:#fff}
 .pcmp-count.pcmp-count-met .pcmp-count-num{background:rgba(78,187,129,.28);border-color:var(--gs);color:#eafff3}
 .pcmp-count.pcmp-count-met .pcmp-req-inp{border-color:rgba(78,187,129,.5);color:var(--gs)}
+/* The required-count field gets arrows like every other number field; at this
+   size they are the chip's own .pcmp-step micro-buttons, not .gs-num-steppers. */
+.pcmp-req-wrap{display:inline-flex;align-items:center;gap:3px}
+.pcmp-req-wrap .pcmp-step{width:14px;height:14px;border-radius:3px}
+.pcmp-req-wrap .pcmp-step svg{width:8px;height:8px}
 /* Product row action cluster: Mark complete + Submit side by side */
 .prod-actions{display:inline-flex;align-items:center;gap:7px;justify-content:flex-end}
 .prod-markcomplete-btn{display:inline-flex;align-items:center;gap:5px;height:30px;padding:0 11px;border-radius:8px;border:1px solid rgba(78,187,129,.45);background:rgba(78,187,129,.13);color:var(--gs);font-family:"Inter",sans-serif;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .12s}
@@ -610,9 +628,14 @@ tr.prod-row-complete-flash>td{animation:prodRowCompleteFlash 1.2s cubic-bezier(.
 /* line-height is pinned so a <select> and an <input> are the same height —
    with line-height:normal the select rendered 34px against the input's 32px,
    so side-by-side controls in a row never lined up. */
-.pd-input{font-family:"Inter",sans-serif;font-size:13px;line-height:18px;color:#fff;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);border-radius:7px;padding:7px 9px;width:100%;transition:border-color .12s,background .12s}
+/* .pd-input is a DENSITY modifier on the shared .fi field - not a second field
+   style. The look (background, border, radius, focus glow) comes from .fi in
+   greenstreets-theme.css so the product-detail controls are the same components
+   as everywhere else; only the compact padding/line-height is local. */
+.pd-input{line-height:18px;padding:7px 9px;border-radius:7px}
 .pd-input:hover{border-color:rgba(255,255,255,.28)}
-.pd-input:focus{outline:none;border-color:var(--gs);background:rgba(78,187,129,.08)}
+.pd-input:focus{border-color:var(--gs);background:rgba(78,187,129,.08)}
+.cs-trigger.pd-input{padding:7px 9px}
 select.pd-input{cursor:pointer}
 select.pd-input option{background:#16294a;color:#fff}
 .pd-textarea{resize:vertical;line-height:1.45}
@@ -669,11 +692,12 @@ select.pd-input option{background:#16294a;color:#fff}
    line with the name field. The delete button is nudged down by the label height
    (12px) + the field gap (4px) + half the input/button height difference (2px)
    so it centres on the inputs rather than on the taller % column. */
-.pd-mat-row{display:grid;grid-template-columns:1fr 200px 30px;gap:12px;align-items:start}
-.pd-mat-pct .pd-pct{display:flex;flex-direction:column;gap:6px}
-.pd-pct-range{-webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:3px;background:linear-gradient(90deg,var(--gs),rgba(78,187,129,.25));outline:none;cursor:pointer}
-.pd-pct-range::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:15px;height:15px;border-radius:50%;background:#fff;border:3px solid var(--gs);cursor:pointer}
-.pd-pct-range::-moz-range-thumb{width:15px;height:15px;border-radius:50%;background:#fff;border:3px solid var(--gs);cursor:pointer}
+.pd-mat-row{display:grid;grid-template-columns:1fr 260px 30px;gap:12px;align-items:start}
+/* The % field uses the shared .gs-pct control (slider + themed number stepper),
+   the same one the packaging-detail pages use. .gs-pct is display:none until a
+   section enters edit mode there; the product-detail cards are always editable,
+   so .gs-pct-open opts out of that gate. */
+.pd-mat-pct .gs-pct-open{display:flex}
 .pd-mat-del{align-self:start;margin-top:18px;width:30px;height:30px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border-radius:7px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.04);color:rgba(255,255,255,.5);cursor:pointer;transition:all .12s}
 .pd-mat-del:hover{border-color:rgba(248,113,113,.5);color:#f87171;background:rgba(248,113,113,.1)}
 .pd-mat-add{margin-top:12px;display:inline-flex;align-items:center;gap:7px;background:rgba(59,130,246,.14);border:1px solid rgba(59,130,246,.4);color:#93b4f5;font-family:"Inter",sans-serif;font-size:12px;font-weight:700;padding:8px 14px;border-radius:8px;cursor:pointer;transition:all .12s}
@@ -681,7 +705,7 @@ select.pd-input option{background:#16294a;color:#fff}
 .pd-mat-sum{display:flex;align-items:center;gap:16px;margin-top:12px;font-size:11.5px;color:rgba(255,255,255,.62);flex-wrap:wrap}
 .pd-mat-sum b{color:#fff;font-weight:700}
 .pd-mat-warn{color:#f5a623;font-weight:600}
-@media(max-width:640px){.pd-mat-row{grid-template-columns:1fr 110px 30px}}
+@media(max-width:640px){.pd-mat-row{grid-template-columns:1fr 190px 30px}.pd-mat-pct .gs-pct{gap:8px}.pd-mat-pct .gs-pct-slider{min-width:70px}.pd-mat-pct .gs-pct-num{width:96px}}
 .pd-collapse{height:32px;padding:0 14px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:transparent;color:rgba(255,255,255,.65);font-family:"Inter",sans-serif;font-size:12px;font-weight:600;cursor:pointer}
 .pd-collapse:hover{color:#fff;border-color:rgba(255,255,255,.3)}
 .pkg-back-btn{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border:1px solid rgba(255,255,255,.16);border-radius:7px;background:rgba(255,255,255,.06);color:rgba(255,255,255,.65);cursor:pointer;transition:all .14s;flex-shrink:0;padding:0}
@@ -719,7 +743,7 @@ select.pd-input option{background:#16294a;color:#fff}
 .ph-back-btn:hover{background:rgba(78,187,129,.15);border-color:rgba(78,187,129,.4);color:var(--gs)}
 
 /* ── Packaging table: improved pagination with prev/next/jump ── */
-.pkg-tbl-pagination{display:flex;align-items:center;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.08);flex-wrap:wrap}
+.pkg-tbl-pagination{display:flex;align-items:center;justify-content:flex-end;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.08);flex-wrap:wrap}
 .pkg-pg-btn{height:28px;padding:0 12px;border-radius:6px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:rgba(255,255,255,.75);font-family:"Inter",sans-serif;font-size:11px;cursor:pointer;transition:all .12s;display:flex;align-items:center;gap:4px;white-space:nowrap}
 .pkg-pg-btn:hover:not(:disabled){background:rgba(78,187,129,.15);border-color:rgba(78,187,129,.4);color:#fff}
 .pkg-pg-btn:disabled{opacity:.35;cursor:not-allowed}

@@ -13,9 +13,9 @@
      • a product belongs to a RETAILER, so the operator picks one — and the SKU
        prefix comes from it (Primark Stores Ltd → PRK-065-BLA), matching the
        catalogue's own SKUs;
-     • the category list is the PLATFORM taxonomy (window.SA_CATEGORIES), and its
-       dropdown carries "Manage categories…" as its first entry — the Super Admin
-       owns that list, so it is editable from here (js/sa-category-manager.js);
+     • the category list is the PLATFORM taxonomy (window.SA_CATEGORIES) — the
+       dropdown only SELECTS from it. Managing that list was removed for now; the
+       window that did it is kept as js/sa-category-manager_backup.js;
      • finishing returns to the Products catalogue (s11).
    ========================================================================== */
 (function () {
@@ -25,8 +25,8 @@
   var LEVELS = ['Primary', 'Secondary', 'Tertiary'];
   var MATERIALS = ['Recycled card', 'Corrugated card', 'FSC paper', 'Recycled plastic', 'LDPE plastic', 'PET plastic', 'Woven polyester', 'Wood', 'Glass', 'Aluminium', 'Other'];
   var RECYCLE = ['Widely recyclable', 'Check locally', 'Not currently recyclable'];
-  /* The platform category list lives on window so js/sa-category-manager.js can
-     add / rename / remove / reorder entries and this page re-renders from it. */
+  /* The platform category list — seeded on the page, read-only from here.
+     (Editing it was removed for now; see js/sa-category-manager_backup.js.) */
   var CATEGORIES = (window.SA_CATEGORIES && window.SA_CATEGORIES.length)
     ? window.SA_CATEGORIES
     : ['Tops', 'Bottoms', 'Dresses', 'Outerwear', 'Footwear', 'Accessories'];
@@ -340,10 +340,7 @@
 
     var draftPill = '<span class="pill" style="font-size:11px;background:rgba(245,166,35,.14);color:#f5a623;border:1px solid rgba(245,166,35,.32)">Draft</span>';
 
-    /* the platform taxonomy is the Super Admin's to edit, so the list opens with
-       the entry that manages it (js/sa-category-manager.js supplies the window) */
     var catOpts =
-      (typeof window.saOpenCategoryManager === 'function' ? '<option value="__manage__">⚙︎  Manage categories…</option>' : '') +
       '<option value=""' + (PROD.cat ? '' : ' selected') + '>Select a category…</option>' +
       CATEGORIES.map(function (x) { return '<option' + (x === PROD.cat ? ' selected' : '') + '>' + esc(x) + '</option>'; }).join('');
     var retOpts = '<option value=""' + (PROD.retailer ? '' : ' selected') + '>Select a retailer…</option>' +
@@ -450,27 +447,7 @@
     if (idSku) { idSku.textContent = PROD.sku || 'New product'; idSku.classList.toggle('sap-id-empty', !PROD.sku); }
   };
 
-  /* Category select — its first entry opens the category manager instead of
-     selecting a value, so the control has to put itself back. */
-  var catBusy = false;
-  window.sapCatChange = function (sel) {
-    if (catBusy) return;
-    if (sel.value === '__manage__') {
-      catBusy = true;
-      sel.value = PROD.cat || '';
-      try { sel.dispatchEvent(new Event('change', { bubbles: true })); } catch (e) {}
-      catBusy = false;
-      if (typeof window.saOpenCategoryManager === 'function') window.saOpenCategoryManager();
-      return;
-    }
-    PROD.cat = sel.value;
-  };
-
-  /* Hooks for js/sa-category-manager.js */
-  window.sapRender = render;
-  window.sapToast = toast;
-  window.sapGetCat = function () { return PROD.cat; };
-  window.sapSetCat = function (v) { PROD.cat = v; };
+  window.sapCatChange = function (sel) { PROD.cat = sel.value; };
 
   /* ---- component edits ---------------------------------------------------- */
   window.sapToggle = function (i) { openIdx = (openIdx === i ? -1 : i); render(); };

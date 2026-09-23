@@ -97,6 +97,17 @@
 
     var trigger=document.createElement('div');
     trigger.className='fi cs-trigger';
+    /* Carry the select's OWN classes onto the trigger. A page styles its selects with a
+       context class (.pd-input density, .pkg-tbl-filter chrome, .prod-jump sizing); the
+       real <select> is hidden, so without this the themed trigger loses that styling and
+       the control looks foreign next to the fields around it. Structural classes are
+       skipped - `fi-select` is the opt-in marker, and a class that hides the select
+       (e.g. a detail page's edit-mode gate) must not hide the trigger too. */
+    Array.prototype.forEach.call(sel.classList,function(c){
+      if(c==='fi'||c==='fi-select'||c==='cs-trigger') return;
+      if(sel.dataset.csSkipClass && sel.dataset.csSkipClass.split(/\s+/).indexOf(c)>-1) return;
+      trigger.classList.add(c);
+    });
     trigger.tabIndex=sel.disabled?-1:0;
     var val=document.createElement('span'); val.className='cs-val';
     var caret=document.createElement('span'); caret.className='cs-caret';
@@ -196,10 +207,18 @@
     });
     document.addEventListener('click',function(e){ if(!wrap.contains(e.target) && !menu.contains(e.target)) close(); });
     sel.addEventListener('change',sync);   // keep the themed label in sync when value is set programmatically
+    /* Pagination "Go to" pickers and data-driven filters rebuild their <option> list at
+       runtime (innerHTML='' + appendChild) and set the selection WITHOUT firing `change`,
+       which left the themed trigger showing a page/filter that no longer existed. Watch the
+       option list and re-read the selection whenever it is rebuilt. */
+    try{ new MutationObserver(sync).observe(sel,{childList:true,subtree:true}); }catch(_){}
+    sel._gsSync = sync;   // window.gsSyncSelect(sel) after setting .value programmatically
 
     sync();
   }
   function enhanceSelects(root){ (root||document).querySelectorAll('select.fi').forEach(buildSelect); }
+  /* Call after setting a themed select's .value in code without dispatching `change`. */
+  window.gsSyncSelect=function(sel){ if(sel && typeof sel._gsSync==='function') sel._gsSync(); };
 
   /* ── Input micro-interactions ────────────────────────────────────────────────────────────────
      Shake-on-error: window.gsShake(el) plays a quick horizontal shake + red border (call it on invalid

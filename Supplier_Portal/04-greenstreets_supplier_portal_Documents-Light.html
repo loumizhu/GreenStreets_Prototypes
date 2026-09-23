@@ -6,7 +6,7 @@
 <title>Greenstreets — Supplier Portal · Supporting Documents</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/greenstreets-theme.css?v=48">
-<link rel="stylesheet" href="css/supplier-portal.css?v=54">
+<link rel="stylesheet" href="css/supplier-portal.css?v=60">
 <link rel="stylesheet" href="css/greenstreets-light.css?v=7">
 </head>
 <body class="lt">
@@ -29,7 +29,7 @@
 <!-- Docs toolbar: search + filter + view toggle (.ftb-host = sticky control row that also hosts the selection cluster) -->
 <div class="ftb-host" style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap">
   <div class="search-wrap" style="flex:1;min-width:170px;max-width:260px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="position:absolute;left:10px;top:50%;transform:translateY(-50%)"><use href="#gsi-2"/></svg><input class="fi fi-search" id="docs-search" placeholder="Search documents, components…" oninput="docsApplyFilters()" style="width:100%;padding-left:30px"></div>
-  <select class="pkg-tbl-filter" id="docs-type-filter" onchange="docsApplyFilters()" style="flex-shrink:0"><option value="all">All types</option><option value="Certification">Certification</option><option value="Declaration">Declaration</option><option value="Test Report">Test Report</option></select>
+  <select class="fi fi-select pkg-tbl-filter" id="docs-type-filter" onchange="docsApplyFilters()" style="flex-shrink:0"><option value="all">All types</option><option value="Certification">Certification</option><option value="Declaration">Declaration</option><option value="Test Report">Test Report</option></select>
   <!-- View toggle -->
   <div class="docs-view-toggle-wrap" title="Switch view">
     <button class="docs-vbtn active" id="docs-vbtn-list" title="List view" onclick="docsSetView('list')">
@@ -69,17 +69,17 @@
   <span class="docs-foot-count" id="docs-foot-count"></span>
   <button class="dpg-btn" id="dpg-prev" onclick="docsGotoPrev()" disabled><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg> Prev</button>
   <span class="dpg-lbl">Page</span>
-  <select class="dpg-jump" id="dpg-jump" onchange="docsGotoPage(+this.value)"><option value="0">1</option></select>
+  <select class="fi fi-select dpg-jump" id="dpg-jump" onchange="docsGotoPage(+this.value)"><option value="0">1</option></select>
   <span class="dpg-of" id="dpg-of">of 1</span>
   <button class="dpg-btn" id="dpg-next" onclick="docsGotoNext()">Next <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
 </div>
 </div></div>
 </div></div></div></div></div></div></div>
 <script src="js/gs-schema.js?v=2"></script>
-<script src="js/supplier-portal.js?v=63"></script>
+<script src="js/supplier-portal.js?v=66"></script>
 <script src="js/supplier-shell.js?v=1"></script>
 <script src="js/gs-tour.js?v=12"></script>
-<script src="js/greenstreets-theme.js?v=32"></script>
+<script src="js/greenstreets-theme.js?v=34"></script>
 <script src="js/gs-appearance.js?v=7"></script>
 <script src="js/greenstreets-light.js?v=1"></script>
 </body>

@@ -404,6 +404,14 @@ function prodReq(p){
   if(p.req!=null) return p.req;
   return (p.type==='complete'||p.type==='submitted') ? p.comps.length : (p.expected ? p.expected.length : p.comps.length);
 }
+/* The "required components" number is a field with arrows, like every other
+   number field in the portal - but it lives inside a 17px chip, so it uses the
+   chip's own .pcmp-step micro-stepper rather than the full-size .gs-num-steppers
+   the shared GSEnhanceNumbers() injects into a .fi field. */
+function prodStepReq(id,d){
+  var p=PRODUCTS.filter(function(x){return x.id===id;})[0]; if(!p) return;
+  prodSetReq(id, Math.max(0, (parseInt(prodReq(p),10)||0) + d));
+}
 function prodSetReq(pi,val){
   var p = PRODUCTS.filter(function(x){return x.id===pi;})[0]; if(!p) return;
   var n = parseInt(val,10); p.req = (isNaN(n)||n<0) ? 0 : n;
@@ -472,7 +480,11 @@ function prodCompCell(p){
   var count = '<div class="pcmp-count'+(n?'':' pcmp-count-empty')+(met?' pcmp-count-met':'')+'" onclick="event.stopPropagation()">'
     + '<span class="pcmp-count-num">'+n+'</span> <span class="pcmp-count-lbl">'+(n===1?'component':'components')+'</span>'
     + '<span class="pcmp-count-slash">/</span>'
-    + '<input class="pcmp-req-inp" type="number" min="0" step="1" value="'+req+'" title="Components required by the retailer — a suggestion you can change" onclick="event.stopPropagation()" onkeydown="if(event.key===&quot;Enter&quot;)this.blur()" onchange="prodSetReq('+p.id+',this.value)">'
+    + '<span class="pcmp-req-wrap">'
+    +   '<button class="pcmp-step pcmp-step-minus" title="Fewer components required"'+(req<=0?' disabled':'')+' onclick="event.stopPropagation();prodStepReq('+p.id+',-1)"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>'
+    +   '<input class="pcmp-req-inp" type="number" min="0" step="1" value="'+req+'" title="Components required by the retailer — a suggestion you can change" onclick="event.stopPropagation()" onkeydown="if(event.key===&quot;Enter&quot;)this.blur()" onchange="prodSetReq('+p.id+',this.value)">'
+    +   '<button class="pcmp-step pcmp-step-plus" title="More components required" onclick="event.stopPropagation();prodStepReq('+p.id+',1)"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>'
+    + '</span>'
     + '</div>';
   var suggPills = (p.sugg && p.sugg.length) ? p.sugg.map(function(name,si){
     return '<span class="pcmp-pill pcmp-pill-sugg" title="Suggested by retailer — click to choose a component or create one" data-pi="'+p.id+'" data-si="'+si+'" onclick="event.stopPropagation();suggListClick(this,'+p.id+','+si+')">'
@@ -580,7 +592,7 @@ function compMenuHTML(pi, addFn, createFn){
       + '<div class="comp-lib-info"><div class="comp-lib-name">'+c.name+'</div><div class="comp-lib-ref">'+lvl+'</div></div></div>';
   }).join('');
   return '<div class="product-card-menu-hdr">Add a saved component</div>'
-    + '<div class="comp-menu-search-wrap"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input class="comp-menu-search" placeholder="Search components..." onclick="event.stopPropagation()" oninput="filterCompMenu(this)"></div>'
+    + '<div class="comp-menu-search-wrap"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input class="fi fi-search comp-menu-search" placeholder="Search components..." onclick="event.stopPropagation()" oninput="filterCompMenu(this)"></div>'
     + '<div class="comp-menu-items">'+libItems+'</div>'
     + '<button class="comp-menu-create-new" onclick="event.stopPropagation();'+createFn+'('+pi+')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Create a new component</button>';
 }
@@ -762,6 +774,24 @@ function buildPkgData(name){
   });
   return rec0;
 }
+/* Upgrade every control the product-detail screen just rendered to the shared
+   component set: themed dropdown (GSEnhanceSelects), number field with the
+   themed stepper arrows (GSEnhanceNumbers) and the editable material-name
+   dropdown (gsAttachCombo). The page builds its markup with innerHTML after
+   greenstreets-theme.js has already run its one-time pass, so without this call
+   the controls fall back to the OS-drawn native ones. */
+function pdEnhanceControls(scope){
+  if(!scope) return;
+  try{ if(window.gsDropOrphanCombos) window.gsDropOrphanCombos(); }catch(_){}
+  try{ if(window.GSEnhanceSelects) window.GSEnhanceSelects(scope); }catch(_){}
+  try{ if(window.GSEnhanceNumbers) window.GSEnhanceNumbers(scope); }catch(_){}
+  try{
+    if(typeof gsAttachCombo==='function' && typeof PD_MAT_OPTIONS!=='undefined' && PD_MAT_OPTIONS.length){
+      scope.querySelectorAll('input.pd-mat-name').forEach(function(inp){ gsAttachCombo(inp, PD_MAT_OPTIONS, null); });
+    }
+  }catch(_){}
+  try{ if(window.GSKeyboardEnable) window.GSKeyboardEnable(scope); }catch(_){}
+}
 function openProductDetail(pi){
   var p = PRODUCTS.filter(function(x){return x.id===pi;})[0]; if(!p) return;
   if(!p._pkgs) p._pkgs = p.comps.map(function(n){ return buildPkgData(n); });
@@ -775,11 +805,13 @@ function pdFieldHTML(pi,pk,gi,fi,field){
   var lbl = '<div class="pd-flabel">'+pdEsc(field.k)+(field.req?' <span class="pd-req">*</span>':'')+'</div>';
   var ctrl;
   if(field.type==='select'){
-    ctrl = '<select class="pd-input" onchange="'+h+'">'+field.opt.map(function(o){return '<option'+(o===field.v?' selected':'')+'>'+pdEsc(o)+'</option>';}).join('')+'</select>';
+    ctrl = '<select class="fi fi-select pd-input" onchange="'+h+'">'+field.opt.map(function(o){return '<option'+(o===field.v?' selected':'')+'>'+pdEsc(o)+'</option>';}).join('')+'</select>';
   } else if(field.type==='textarea'){
-    ctrl = '<textarea class="pd-input pd-textarea" rows="2" oninput="'+h+'" placeholder="—">'+pdEsc(field.v)+'</textarea>';
+    ctrl = '<textarea class="fi pd-input pd-textarea" rows="2" oninput="'+h+'" placeholder="—">'+pdEsc(field.v)+'</textarea>';
   } else {
-    ctrl = '<input type="'+(field.type==='number'?'number':'text')+'" class="pd-input" value="'+pdEsc(field.v)+'" oninput="'+h+'" placeholder="—">';
+    ctrl = (field.type==='number')
+      ? '<div class="fi-wrap"><input type="number" class="fi pd-input" value="'+pdEsc(field.v)+'" oninput="'+h+'" placeholder="—"></div>'
+      : '<input type="text" class="fi pd-input" value="'+pdEsc(field.v)+'" oninput="'+h+'" placeholder="—">';
   }
   return '<div class="pd-field'+(missing?' pd-field-missing':'')+'"'+(field.req?' data-req="1"':'')+'>'+lbl+ctrl+'</div>';
 }
@@ -845,10 +877,10 @@ function renderProductDetail(pi){
     +     '</div></div>'
     +   '<div class="pd-group-t">Packing &amp; palletisation</div>'
     +   '<div class="pd-fgrid">'
-    +     '<div class="pd-field"><div class="pd-flabel">Packing Method</div><select class="pd-input" onchange="pdEditProduct('+pi+',\'packing\',this.value)">'+packOpts.map(function(o){return '<option'+(o===p.packing?' selected':'')+'>'+o+'</option>';}).join('')+'</select></div>'
-    +     '<div class="pd-field"><div class="pd-flabel">Singles / Each per Case</div><input type="number" class="pd-input" value="'+(p.uc==null?'':p.uc)+'" oninput="pdEditProduct('+pi+',\'uc\',this.value)" placeholder="—"></div>'
-    +     '<div class="pd-field"><div class="pd-flabel">Cases / Boxes per Pallet</div><input type="number" class="pd-input" value="'+(p.cp==null?'':p.cp)+'" oninput="pdEditProduct('+pi+',\'cp\',this.value)" placeholder="—"></div>'
-    +     '<div class="pd-field"><div class="pd-flabel">Units per Pallet</div><div class="pd-input pd-readonly" id="pd-up-'+pi+'">'+up+'</div></div>'
+    +     '<div class="pd-field"><div class="pd-flabel">Packing Method</div><select class="fi fi-select pd-input" onchange="pdEditProduct('+pi+',\'packing\',this.value)">'+packOpts.map(function(o){return '<option'+(o===p.packing?' selected':'')+'>'+o+'</option>';}).join('')+'</select></div>'
+    +     '<div class="pd-field"><div class="pd-flabel">Singles / Each per Case</div><div class="fi-wrap"><input type="number" class="fi pd-input" value="'+(p.uc==null?'':p.uc)+'" oninput="pdEditProduct('+pi+',\'uc\',this.value)" placeholder="—"></div></div>'
+    +     '<div class="pd-field"><div class="pd-flabel">Cases / Boxes per Pallet</div><div class="fi-wrap"><input type="number" class="fi pd-input" value="'+(p.cp==null?'':p.cp)+'" oninput="pdEditProduct('+pi+',\'cp\',this.value)" placeholder="—"></div></div>'
+    +     '<div class="pd-field"><div class="pd-flabel">Units per Pallet</div><div class="fi pd-input pd-readonly" id="pd-up-'+pi+'">'+up+'</div></div>'
     +   '</div>'
     + '</div>';
 
@@ -891,8 +923,10 @@ function renderProductDetail(pi){
     + '<div class="pd-comp-list">'+cards+'</div>'
     + '<button class="pd-add-card" id="pd-addcard-'+pi+'" onclick="event.stopPropagation();pdToggleAddMenu(this,'+pi+')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>Add packaging component</button>';
 
-  var matDL = '<datalist id="pd-mat-opts">'+PD_MAT_OPTIONS.map(function(o){return '<option value="'+pdEsc(o)+'"></option>';}).join('')+'</datalist>';
-  document.getElementById('pd-body').innerHTML = '<div class="pd-wrap">'+matDL+head+noteBanner+comp+'</div>';
+  /* (the old native <datalist> for material names is gone - the material field is
+     now the shared editable dropdown, wired in pdEnhanceControls) */
+  document.getElementById('pd-body').innerHTML = '<div class="pd-wrap">'+head+noteBanner+comp+'</div>';
+  pdEnhanceControls(document.getElementById('pd-body'));
   if(typeof gsBuildBreadcrumb==='function') gsBuildBreadcrumb();
 }
 /* ── Dynamic materials inside a product-detail packaging card ──────────────
@@ -911,14 +945,34 @@ function pdMats(pi,pk){
   return p._pkgs[pk].materials;
 }
 function pdMatRowHTML(pi,pk,idx,m){
+  var pct = (m.pct==null||m.pct==='') ? '' : m.pct;
+  var pctN = parseFloat(pct)||0;
   return '<div class="pd-mat-row" data-idx="'+idx+'">'
     + '<div class="pd-field"><div class="pd-flabel">Material '+(idx+1)+' name</div>'
-    +   '<input class="pd-input" list="pd-mat-opts" value="'+pdEsc(m.name||'')+'" placeholder="Type or pick a material" oninput="pdMatEdit('+pi+','+pk+','+idx+',\'name\',this.value)"></div>'
+    +   '<input class="fi pd-input pd-mat-name" value="'+pdEsc(m.name||'')+'" placeholder="Type or pick a material" oninput="pdMatEdit('+pi+','+pk+','+idx+',\'name\',this.value)" onchange="pdMatEdit('+pi+','+pk+','+idx+',\'name\',this.value)"></div>'
     + '<div class="pd-field pd-mat-pct"><div class="pd-flabel">% Material '+(idx+1)+'</div>'
-    +   '<div class="pd-pct"><input type="number" min="0" max="100" class="pd-input" value="'+(m.pct==null?'':m.pct)+'" oninput="var r=this.parentNode.querySelector(\'.pd-pct-range\');if(r)r.value=this.value||0;pdMatEdit('+pi+','+pk+','+idx+',\'pct\',this.value)">'
-    +   '<input type="range" min="0" max="100" step="1" value="'+(parseFloat(m.pct)||0)+'" class="pd-pct-range" oninput="var n=this.parentNode.querySelector(\'input[type=number]\');if(n)n.value=this.value;pdMatEdit('+pi+','+pk+','+idx+',\'pct\',this.value)"></div></div>'
+    +   '<div class="gs-pct gs-pct-open">'
+    +     '<input type="range" min="0" max="100" step="1" value="'+pctN+'" class="gs-pct-slider" style="--gs-pct:'+pctN+'%" oninput="pdPctSync(this,'+pi+','+pk+','+idx+')">'
+    +     '<div class="gs-pct-numwrap"><input type="number" min="0" max="100" class="gs-pct-num fi" value="'+pct+'" oninput="pdPctSync(this,'+pi+','+pk+','+idx+')"><span class="fi-unit">%</span></div>'
+    +   '</div></div>'
     + '<button class="pd-mat-del" title="Remove material" onclick="pdMatDelRow('+pi+','+pk+','+idx+')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>'
     + '</div>';
+}
+/* Keep the % slider and the number field in step, whichever was moved, and write
+   the value back to the model. */
+function pdPctSync(el,pi,pk,idx){
+  var row = el.closest('.gs-pct'); if(!row) return;
+  var slider = row.querySelector('.gs-pct-slider');
+  var num    = row.querySelector('.gs-pct-num');
+  var v = el.value;
+  if(el===num){
+    var n = Math.max(0, Math.min(100, parseFloat(v)||0));
+    if(slider){ slider.value = n; slider.style.setProperty('--gs-pct', n+'%'); }
+  } else {
+    if(num) num.value = v;
+    slider.style.setProperty('--gs-pct', (parseFloat(v)||0)+'%');
+  }
+  pdMatEdit(pi,pk,idx,'pct',v);
 }
 function pdMatListHTML(pi,pk){
   return pdMats(pi,pk).map(function(m,idx){ return pdMatRowHTML(pi,pk,idx,m); }).join('');
@@ -950,14 +1004,14 @@ function pdMatEdit(pi,pk,idx,field,val){
 function pdMatAddRow(pi,pk){
   pdMats(pi,pk).push({name:'',pct:0});
   var list=document.getElementById('pd-mat-'+pi+'-'+pk);
-  if(list){ list.innerHTML=pdMatListHTML(pi,pk); var rows=list.querySelectorAll('.pd-mat-row'); var last=rows[rows.length-1]; var inp=last&&last.querySelector('.pd-input'); if(inp){try{inp.focus()}catch(_){}} }
+  if(list){ list.innerHTML=pdMatListHTML(pi,pk); pdEnhanceControls(list); var rows=list.querySelectorAll('.pd-mat-row'); var last=rows[rows.length-1]; var inp=last&&last.querySelector('.pd-input'); if(inp){try{inp.focus()}catch(_){}} }
   pdMatUpdateSum(pi,pk);
 }
 function pdMatDelRow(pi,pk,idx){
   var ms=pdMats(pi,pk); if(idx<0||idx>=ms.length) return;
   ms.splice(idx,1); if(!ms.length) ms.push({name:'',pct:0});
   var list=document.getElementById('pd-mat-'+pi+'-'+pk);
-  if(list) list.innerHTML=pdMatListHTML(pi,pk);
+  if(list){ list.innerHTML=pdMatListHTML(pi,pk); pdEnhanceControls(list); }
   pdMatUpdateSum(pi,pk);
 }
 /* ── Supporting Documents on a product-detail packaging card (Additional
@@ -977,7 +1031,7 @@ function pdDocsBlockHTML(pi,pk){
       + '<button class="pd-doc-x" title="Remove document" onclick="pdDocDel('+pi+','+pk+','+i+')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></span>';
   }).join('');
   var avail=GS_DOC_LIBRARY.filter(function(d){return docs.indexOf(d)===-1;});
-  var pick='<select class="pd-input pd-doc-pick" onchange="pdDocPick('+pi+','+pk+',this)"><option value="" selected disabled hidden>Select an existing document…</option>'+avail.map(function(d){return '<option>'+pdEsc(d)+'</option>';}).join('')+'</select>';
+  var pick='<select class="fi fi-select pd-input pd-doc-pick" onchange="pdDocPick('+pi+','+pk+',this)"><option value="" selected disabled hidden>Select an existing document…</option>'+avail.map(function(d){return '<option>'+pdEsc(d)+'</option>';}).join('')+'</select>';
   return '<div class="pd-docs-block"><div class="pd-flabel" style="margin-bottom:6px">Supporting Documents</div>'
     + '<div class="pd-doc-chips">'+(chips||'<span class="pd-doc-empty">No documents linked yet</span>')+'</div>'
     + '<div class="pd-doc-actions">'+pick+'<button class="pd-doc-add" onclick="pdDocNew('+pi+','+pk+')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M12 5v14M5 12h14"/></svg>Add new document</button></div></div>';
@@ -985,7 +1039,7 @@ function pdDocsBlockHTML(pi,pk){
 function pdDocsRefresh(pi,pk){
   var card=document.getElementById('pd-card-'+pi+'-'+pk);
   var block=card&&card.querySelector('.pd-docs-block');
-  if(block){ block.outerHTML=pdDocsBlockHTML(pi,pk); if(typeof window.GSEnhanceSelects==='function'){ try{ window.GSEnhanceSelects(card); }catch(e){} } }
+  if(block){ block.outerHTML=pdDocsBlockHTML(pi,pk); pdEnhanceControls(card); }
 }
 function pdDocPick(pi,pk,sel){ if(!sel.value) return; var d=pdDocs(pi,pk); if(d.indexOf(sel.value)===-1) d.push(sel.value); pdDocsRefresh(pi,pk); }
 function pdDocNew(pi,pk){ var n=prompt('Name of the new supporting document (e.g. Test_Report.pdf):'); if(n&&n.trim()){ pdDocs(pi,pk).push(n.trim()); pdDocsRefresh(pi,pk); } }
@@ -1527,7 +1581,7 @@ function addPackaging(pi) {
     + '<span class="pkg-pill-remove" onclick="event.stopPropagation();removePackaging(' + pi + ',' + newIdx + ')" title="Remove"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>'
     + '</button>'
     + '<div class="step-chip-menu" id="pkgcard-menu-' + pi + '-' + newIdx + '"><div class="product-card-menu-hdr">Choose a saved component</div>'
-    + '<div class="comp-menu-search-wrap"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input class="comp-menu-search" placeholder="Search components..." onclick="event.stopPropagation()" oninput="filterCompMenu(this)"></div>'
+    + '<div class="comp-menu-search-wrap"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input class="fi fi-search comp-menu-search" placeholder="Search components..." onclick="event.stopPropagation()" oninput="filterCompMenu(this)"></div>'
     + '<div class="comp-menu-items">' + menuItems + '</div>'
     + '<button class="comp-menu-create-new" onclick="event.stopPropagation();go(' + String.fromCharCode(39) + 's_2_' + pi + String.fromCharCode(39) + ')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Create a new package</button>'
     + '</div>';
@@ -1671,7 +1725,7 @@ function renderPkgActiveFilters() {
 }
 function clearPkgFilters() {
   _pkgTblStatus = 'all'; _pkgTblMaterial = 'all'; _pkgTblRecycled = 'all';
-  ['pkg-tbl-status', 'pkg-tbl-material', 'pkg-tbl-recycled'].forEach(function(id){ var s = document.getElementById(id); if (s) s.value = 'all'; });
+  ['pkg-tbl-status', 'pkg-tbl-material', 'pkg-tbl-recycled'].forEach(function(id){ var s = document.getElementById(id); if (s){ s.value = 'all'; if(window.gsSyncSelect) window.gsSyncSelect(s); } });
   setPkgTblFilter('all');
 }
 
@@ -2241,6 +2295,7 @@ function gsAttachCombo(input, values, sel){
 
   var menu = document.createElement('div');
   menu.className = 'cs-menu gs-ecombo-menu';
+  menu._gsOwner = input;   /* so gsDropOrphanCombos() can bin it if the field is re-rendered away */
   document.body.appendChild(menu);
   var open = false, hi = -1, shown = [];
 
@@ -2331,6 +2386,16 @@ function gsAttachCombo(input, values, sel){
   window.addEventListener('resize', function(){ if(open) position(); });
 }
 
+/* The combo's menu is a body-level portal, so a list that re-renders its rows
+   (product-detail materials, packaging "Add material") leaves the old menus
+   behind. Bin any whose input is no longer in the document. */
+function gsDropOrphanCombos(){
+  document.querySelectorAll('.gs-ecombo-menu').forEach(function(m){
+    if(!m._gsOwner || !document.contains(m._gsOwner)) m.remove();
+  });
+}
+window.gsDropOrphanCombos = gsDropOrphanCombos;
+
 /* Material-name free-text field → typeable combobox (datalist). */
 function gsEnsureMaterialDatalist(){
   if(document.getElementById('gs-mat-datalist')) return;
@@ -2370,7 +2435,14 @@ function gsEnhanceFeat(feat){
     var texts = opts.map(function(o){ return o.text.trim(); });
     if(gsIsYesNo(texts)){ gsBuildToggle(feat, sel, input); }
     else if(opts.length<=4 && label.toLowerCase().indexOf('no. of materials')<0){ gsBuildSegmented(feat, sel, input, texts); }
-    /* else: leave as the themed dropdown */
+    else {
+      /* Longer vocabularies stay a dropdown - make it the SHARED themed one
+         (select.fi -> .cs-wrap/.cs-trigger/.cs-menu). Without this the field fell
+         back to the browser's own OS-drawn popup, which is the one control on
+         these pages that did not match the rest of the portal. */
+      sel.classList.add('fi','fi-select');
+      if(window.GSEnhanceSelects){ try{ window.GSEnhanceSelects(feat); }catch(_){} }
+    }
   } else if(input){
     if(/%/.test(label) || /\bpercent/i.test(label)){ gsBuildPct(feat, input); }
     else if(gsIsMaterialNameFeat(feat, label)){ gsBuildCombobox(input); }

@@ -494,7 +494,7 @@ function fieldHTML(f){
   if(f.type==='select'){
     const ph=f.value?'':'<option value="" disabled selected>Select…</option>';
     const opts=f.options.map(o=>`<option${o===f.value?' selected':''}>${esc(o)}</option>`).join('');
-    return `<div class="tf-field" data-req="${f.req?1:0}"><span class="lbl">${esc(f.label)}${req}</span><select class="fi">${ph}${opts}</select>${hint}</div>`;
+    return `<div class="tf-field" data-req="${f.req?1:0}"><span class="lbl">${esc(f.label)}${req}</span><select class="fi fi-select">${ph}${opts}</select>${hint}</div>`;
   }
   if(f.type==='combo'){
     /* Typeable dropdown: type freely OR pick from the list — same cs-menu/cs-opt look as
@@ -1173,7 +1173,7 @@ setTimeout(function(){
   };
 })();
 </script>
-<script src="js/greenstreets-theme.js?v=32"></script>
+<script src="js/greenstreets-theme.js?v=34"></script>
 <script src="js/gs-appearance.js?v=7"></script>
 </body>
 </html>

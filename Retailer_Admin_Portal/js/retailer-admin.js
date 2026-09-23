@@ -22,7 +22,6 @@ var GS_PAGES = {
   'ra4_validate':    '02-Greenstreets_retailer_admin_Validate-Import.html',
   'ra4_importdone':  '02-Greenstreets_retailer_admin_Import-Suppliers-Done.html',
   'ra6':             '02-Greenstreets_retailer_admin_Products.html',
-  'ra_cats':         '02-Greenstreets_retailer_admin_Categories.html',
   'ra_addproduct':   '02-Greenstreets_retailer_admin_Add-Product.html',
   'ra_importproducts':  '02-Greenstreets_retailer_admin_Import-Products.html',
   'ra6_validate':    '02-Greenstreets_retailer_admin_Validate-Products-Import.html',
@@ -343,14 +342,8 @@ var PRODUCTS_RA = (function(){
   var statuses = ['Complete','Incomplete','Incomplete','Pending'];
   var pills = {Complete:'pill-green', Incomplete:'pill-amber', Pending:'pill-grey'};
   var list = [];
-  /* Category edits made on the Categories page are replayed here: the catalogue is
-     regenerated on every page load, so without this a rename would be undone by the
-     next click. '' = the category was removed, leaving the product without one. */
-  var remap = {};
-  try { remap = JSON.parse(sessionStorage.getItem('ra_cat_remap')) || {}; } catch(e){}
   for (var i=0;i<64;i++){
     var cat = cats[i % cats.length];
-    if (remap[cat] !== undefined) cat = remap[cat];
     var adj = adjs[i % adjs.length];
     var item = items[i % items.length];
     var status = statuses[i % statuses.length];
