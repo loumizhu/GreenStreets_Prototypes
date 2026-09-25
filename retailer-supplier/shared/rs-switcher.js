@@ -4,11 +4,9 @@
    One person, one sign-in, two workspaces. Loaded LAST by the four demo pages
    (retailer/ + supplier/, dark + -Light). Everything the demo shows is in CFG.
 
-   Entry points (both do the same switch):
-     1. Sidebar logo (top-left). On hover the logo gives way to
-        "Switch to / <Other> Mode →" and the cursor becomes a revolving door.
-        Click → switch.
-     2. Account block (bottom-left: avatar, name, role). Click → Slack-style workspace menu: who you are,
+   Entry: login/Login → login/Choose-Portal (or straight into the saved
+   default portal) → a portal page. Inside a portal, the switch is:
+     Account block (bottom-left: avatar, name, role). Click → Slack-style workspace menu: who you are,
         the CURRENT portal (icon + mode + "Active") and the OTHER portal
         (icon + mode + pending work). Pick it → switch. Esc / outside click
         closes; ↑/↓ move between items.
@@ -33,7 +31,7 @@
         pending: '4 new notifications', pendingCount: 4
       },
       supplier: {
-        mode: 'Supplier', org: 'Luntai Packaging Co.', role: 'Supplier Admin',
+        mode: 'Supplier', org: 'Primark', role: 'Supplier Admin',
         page: '../supplier/04-greenstreets_supplier_portal_Products',
         portal: '../../Supplier_Portal/', localId: 'sp2',
         pending: '3 requests · due 26 Jul', pendingCount: 3
@@ -65,18 +63,9 @@
   };
   function tile(mode, w){ return '<span class="rs-tile" data-mode="'+mode+'">'+ICON[mode](w||16)+'</span>'; }
 
-  /* the cursor over the logo: the revolving door in a round badge */
-  function doorCursor(){
-    var ring = OTHER === 'retailer' ? '#9dc4ff' : '#8fe3b6';
-    var fill = LIGHT ? '#ffffff' : (OTHER === 'retailer' ? '#15294a' : '#163a2b');
-    var ink  = LIGHT ? (OTHER === 'retailer' ? '#2c5fae' : '#1f7a4c') : ring;
-    var s = '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">'+
-      '<circle cx="16" cy="16" r="14" fill="'+fill+'" stroke="'+ring+'" stroke-width="2"/>'+
-      '<g transform="translate(6 6) scale(.8333)" fill="none" stroke="'+ink+'" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">'+DOOR+'</g></svg>';
-    return 'url("data:image/svg+xml,'+encodeURIComponent(s)+'") 16 16, pointer';
-  }
-
   function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function loginUrl(){ return '../login/Login' + (LIGHT ? '-Light' : '') + '.html'; }
+  function getDefault(){ try{ return localStorage.getItem('rsDefaultPortal'); }catch(e){ return null; } }
   function targetUrl(key){ return W[key].page + (LIGHT ? '-Light' : '') + '.html'; }
 
   /* ── keep the real portal's sidebar links working from the demo folder ── */
@@ -87,6 +76,8 @@
       if(id === ws.localId) return;                      // Products stays local
       if(map[id].indexOf('/') < 0) map[id] = ws.portal + map[id];
     });
+    /* both portals' login screens are the demo's one front door */
+    map[CUR === 'retailer' ? 'ra_login' : 'sp1'] = loginUrl();
   }
 
   /* ── the switch itself ─────────────────────────────────────────────────── */
@@ -108,24 +99,6 @@
     setTimeout(function(){ location.href = url; }, 560);
   }
 
-  /* ── 1. logo hover switch (top-left) ───────────────────────────────────── */
-  function mountLogo(zone){
-    if(zone.querySelector('.rs-logo-switch')) return;
-    zone.classList.add('rs-has-switch');
-    var b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'rs-logo-switch';
-    b.setAttribute('data-to', OTHER);
-    b.setAttribute('aria-label', 'Switch to '+W[OTHER].mode+' mode — '+W[OTHER].org);
-    b.title = 'Switch to '+W[OTHER].mode+' mode · '+W[OTHER].org;
-    b.innerHTML = '<span class="rs-lbl"><span class="rs-lbl-1">Switch to</span>'+
-      '<b class="rs-lbl-2">'+W[OTHER].mode+' Mode</b></span>'+
-      '<span class="rs-arrow">'+ICON.arrow(24)+'</span>';
-    b.style.cursor = doorCursor();
-    b.addEventListener('click', function(e){ e.stopPropagation(); switchTo(OTHER); });
-    zone.appendChild(b);
-  }
-
   /* ── 2. avatar workspace menu (bottom-left) ────────────────────────────── */
   var menu, avatar, userRow;
   function personalise(user){
@@ -137,10 +110,13 @@
        onclick went to the real portal's Settings page, which read as
        "switched to the wrong page". Settings is in the menu instead. */
     user.removeAttribute('onclick');
+    var out = user.querySelector('.sb-logout');   /* its inline onclick stops propagation, so bind it directly */
+    if(out){ out.removeAttribute('onclick'); out.title = 'Log out';
+      out.addEventListener('click', function(e){ e.stopPropagation(); location.href = loginUrl(); }); }
     user.title = 'Switch portal';
     user.addEventListener('click', function(e){
-      if(e.target.closest('.sb-logout')) return;           // log out keeps its own action
-      e.stopPropagation(); toggleMenu();
+      e.stopPropagation();
+      toggleMenu();
     });
   }
 
@@ -194,18 +170,24 @@
         '<span class="rs-m-go">'+ICON.door(16)+'</span></button>'+
       '<div class="rs-m-div" role="separator"></div>'+
       '<button type="button" class="rs-m-link" data-newtab="'+OTHER+'" role="menuitem" tabindex="-1">'+ICON.newtab()+'Open '+o.mode+' mode in a new tab</button>'+
+      '<button type="button" class="rs-m-link rs-m-pref" data-act="default" role="menuitemcheckbox" aria-checked="false" tabindex="-1">'+
+        '<span class="rs-m-check" aria-hidden="true">'+ICON.check(11)+'</span>'+
+        '<span class="rs-m-pref-txt">Open '+c.mode+' portal at sign-in<small></small></span></button>'+
       '<button type="button" class="rs-m-link" data-act="settings" role="menuitem" tabindex="-1">'+ICON.settings()+'Account settings</button>'+
       '<button type="button" class="rs-m-link" data-act="logout" role="menuitem" tabindex="-1">'+ICON.logout()+'Log out</button>';
     document.body.appendChild(menu);
+    syncDefault();
 
     menu.addEventListener('click', function(e){
       e.stopPropagation();
       var t = e.target.closest('[data-switch],[data-newtab],[data-act]'); if(!t) return;
       if(t.hasAttribute('data-switch')) return switchTo(t.getAttribute('data-switch'));
       if(t.hasAttribute('data-newtab')) return switchTo(t.getAttribute('data-newtab'), true);
-      closeMenu();
       var act = t.getAttribute('data-act');
-      if(typeof window.go === 'function') window.go(act === 'settings' ? (CUR === 'retailer' ? 'ra_config' : 'sp_settings') : (CUR === 'retailer' ? 'ra_login' : 'sp1'));
+      if(act === 'default'){ toggleDefault(t); return; }                 // stays open: it is a setting
+      closeMenu();
+      if(act === 'logout'){ location.href = loginUrl(); return; }
+      if(typeof window.go === 'function') window.go(CUR === 'retailer' ? 'ra_config' : 'sp_settings');
     });
     menu.addEventListener('keydown', function(e){
       var items = [].slice.call(menu.querySelectorAll('[role^="menuitem"]'));
@@ -217,6 +199,23 @@
       else if(e.key === 'Escape'){ e.preventDefault(); closeMenu(true); }
       else if(e.key === 'Tab'){ closeMenu(); }
     });
+  }
+
+  /* "Open <this> portal at sign-in" — the same preference the chooser's
+     "Always open the portal I choose" box writes */
+  function syncDefault(){
+    var row = menu.querySelector('[data-act="default"]'); if(!row) return;
+    var def = getDefault(), on = def === CUR;
+    row.setAttribute('aria-checked', on ? 'true' : 'false');
+    row.querySelector('small').textContent = on ? 'On · sign-in skips the portal choice'
+      : def ? W[def].mode + ' portal opens now' : 'Off · you choose at each sign-in';
+  }
+  function toggleDefault(){
+    try{
+      if(getDefault() === CUR) localStorage.removeItem('rsDefaultPortal');
+      else localStorage.setItem('rsDefaultPortal', CUR);
+    }catch(e){}
+    syncDefault();
   }
 
   function place(){
@@ -252,24 +251,26 @@
     t.className = 'rs-toast';
     t.setAttribute('role', 'status');
     t.setAttribute('aria-live', 'polite');
+    var login = d.kind === 'login';
+    var title = login ? 'Signed in · '+W[CUR].mode+' portal' : 'Now in '+W[CUR].mode+' mode';
+    var sub = esc(W[CUR].org)+' · '+esc(W[CUR].role) + (login && getDefault() === CUR ? ' · your default' : '');
+    var back = login ? 'Switch to '+W[OTHER].mode : 'Switch back';
     t.innerHTML = tile(CUR, 15)+
-      '<div><div class="rs-toast-t">Now in '+W[CUR].mode+' mode</div>'+
-      '<div class="rs-toast-s">'+esc(W[CUR].org)+' · '+esc(W[CUR].role)+'</div></div>'+
-      '<button type="button" class="rs-toast-back">Switch back</button>';
+      '<div><div class="rs-toast-t">'+title+'</div>'+
+      '<div class="rs-toast-s">'+sub+'</div></div>'+
+      '<button type="button" class="rs-toast-back">'+back+'</button>';
     var sb = document.querySelector('.sidebar');
     if(sb) t.style.left = (sb.getBoundingClientRect().right + 16) + 'px';
     document.body.appendChild(t);
-    t.querySelector('.rs-toast-back').addEventListener('click', function(){ switchTo(d.from); });
+    t.querySelector('.rs-toast-back').addEventListener('click', function(){ switchTo(login ? OTHER : d.from); });
     setTimeout(function(){ t.classList.add('rs-out'); setTimeout(function(){ t.remove(); }, 250); }, 5200);
   }
 
   /* ── boot: the Supplier sidebar is injected by supplier-shell.js, so wait for it ── */
   function boot(tries){
-    var zone = document.querySelector('.sidebar .sb-logo-zone');
     var user = document.querySelector('.sidebar .sb-user');
-    if(!zone || !user){ if(tries < 40) setTimeout(function(){ boot(tries+1); }, 50); return; }
+    if(!user){ if(tries < 40) setTimeout(function(){ boot(tries+1); }, 50); return; }
     repointPages();
-    mountLogo(zone);
     mountAvatar(user);
     arrivalToast();
   }

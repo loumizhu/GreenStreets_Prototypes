@@ -1,0 +1,108 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   rs-chooser.css — "Hello, Keith · Log in as?" (login/Choose-Portal[-Light])
+
+   The portal picker a dual-role user sees right after sign-in. It is the
+   login card, widened: same glass zones (.login-logo-zone / .login-form-zone),
+   same glowing contour, same background. Centered: logo, "Hello, Keith",
+   "Log in as?", the two choices, then the "always open" preference. It reads as the next step of
+   the same door, not a new page. Retailer = blue + storefront, Supplier =
+   green + factory: the same mapping as the avatar switcher inside the portals.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root{
+  --rsp-ret:var(--bl,#5b9cf6);  --rsp-ret-l:var(--bl-l,#9dc4ff);  --rsp-ret-rgb:91,156,246;
+  --rsp-sup:var(--gs,#4ebb81);  --rsp-sup-l:var(--gs-l,#8fe3b6);  --rsp-sup-rgb:78,187,129;
+  --rsp-ease:cubic-bezier(.16,1,.3,1);
+}
+
+/* ── card shell ─────────────────────────────────────────────────────────── */
+.login-card.rs-pick{width:min(660px,100%)}
+.rs-pick-top{display:flex;align-items:center;justify-content:center;padding:22px 26px 18px;text-align:center}
+.login-logo.rs-pick-logo{width:170px;margin:0 auto}
+
+.rs-pick-body{padding:30px 30px 24px}
+.rs-pick-title{margin:0 0 6px;text-align:center;font-size:24px;font-weight:700;letter-spacing:-.015em;line-height:1.2;color:var(--tw,#fff);text-wrap:balance}
+.rs-pick-q{margin:0 0 22px;text-align:center;font-size:14px;font-weight:500;color:var(--tw2,rgba(255,255,255,.74))}
+
+/* ── "always open" preference ───────────────────────────────────────────── */
+.rs-always{display:flex;align-items:flex-start;gap:11px;width:fit-content;max-width:100%;margin:18px auto 0;padding:11px 16px;border-radius:10px;cursor:pointer;
+  border:1px solid var(--line,rgba(148,180,230,.16));background:rgba(255,255,255,.025);transition:border-color .18s ease,background .18s ease}
+.rs-always:hover{border-color:var(--line-2,rgba(148,180,230,.26));background:rgba(255,255,255,.045)}
+.rs-always input{position:absolute;opacity:0;width:1px;height:1px}
+.rs-always-box{flex-shrink:0;width:18px;height:18px;margin-top:1px;border-radius:5px;display:flex;align-items:center;justify-content:center;
+  border:1.5px solid var(--line-2,rgba(148,180,230,.4));color:transparent;background:rgba(0,0,0,.15);
+  transition:background .18s ease,border-color .18s ease,color .18s ease,transform .25s var(--rsp-ease)}
+.rs-always input:checked + .rs-always-box{background:var(--gs,#4ebb81);border-color:var(--gs,#4ebb81);color:#04160e;transform:scale(1.06)}
+.rs-always input:focus-visible + .rs-always-box{outline:2px solid var(--field-stroke-color,var(--gs));outline-offset:2px}
+.rs-always-txt{display:flex;flex-direction:column;gap:2px;font-size:12.5px;line-height:1.4}
+.rs-always-txt b{font-weight:600;color:var(--tw,#fff)}
+.rs-always-txt span{font-size:11px;color:var(--tw3,rgba(255,255,255,.62))}
+
+/* ── the two choices ────────────────────────────────────────────────────── */
+.rs-choices{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.rs-choice{
+  --h:var(--rsp-ret);--hl:var(--rsp-ret-l);--hr:var(--rsp-ret-rgb);
+  position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;
+  padding:24px 20px 16px;border-radius:14px;text-align:center;cursor:pointer;font:inherit;color:var(--tw,#fff);
+  background:linear-gradient(165deg,rgba(var(--hr),.13),rgba(var(--hr),.035) 60%);
+  border:1px solid rgba(var(--hr),.26);
+  box-shadow:0 1px 0 rgba(255,255,255,.04) inset,0 6px 18px -10px rgba(0,0,0,.5);
+  transition:transform .35s var(--rsp-ease),border-color .2s ease,box-shadow .35s var(--rsp-ease),opacity .3s ease,filter .3s ease;
+  animation:rspIn .6s var(--rsp-ease) both;
+}
+.rs-choice[data-portal="supplier"]{--h:var(--rsp-sup);--hl:var(--rsp-sup-l);--hr:var(--rsp-sup-rgb);animation-delay:.08s}
+@keyframes rspIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.rs-choice:hover{transform:translateY(-3px);border-color:rgba(var(--hr),.6);
+  box-shadow:0 1px 0 rgba(255,255,255,.05) inset,0 16px 32px -14px rgba(var(--hr),.55)}
+.rs-choice:focus-visible{outline:2px solid var(--hl);outline-offset:3px}
+
+.rs-choice-art{width:84px;height:84px;margin-bottom:14px;border-radius:22px;display:flex;align-items:center;justify-content:center;color:#fff;
+  background:linear-gradient(145deg,var(--h),rgba(var(--hr),.62));
+  box-shadow:0 10px 22px -10px rgba(var(--hr),.9),inset 0 1px 0 rgba(255,255,255,.25);
+  transition:transform .45s var(--rsp-ease)}
+.rs-choice:hover .rs-choice-art{transform:translateY(-2px) scale(1.04)}
+.rs-choice-name{font-size:18px;font-weight:700;letter-spacing:-.01em}
+.rs-choice-org{font-size:11.5px;font-weight:600;color:var(--hl)}
+.rs-choice-desc{margin-top:6px;font-size:12px;line-height:1.5;color:var(--tw2,rgba(255,255,255,.74))}
+.rs-choice-pend{display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;
+  color:var(--tw2,rgba(255,255,255,.8));background:rgba(255,255,255,.06);border:1px solid var(--line,rgba(148,180,230,.18))}
+.rs-choice-pend.rs-due{color:#f5c26b;background:rgba(245,166,35,.12);border-color:rgba(245,166,35,.32)}
+.rs-choice-go{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:16px;padding-top:12px;
+  border-top:1px solid rgba(var(--hr),.2);font-size:12.5px;font-weight:600;color:var(--hl)}
+.rs-choice-go svg{transition:transform .35s var(--rsp-ease)}
+.rs-choice:hover .rs-choice-go svg,.rs-choice:focus-visible .rs-choice-go svg{transform:translateX(4px)}
+
+/* picked: the choice locks in, the other steps back */
+.rs-choices.rs-picking .rs-choice{pointer-events:none}
+.rs-choice.rs-chosen{transform:translateY(-3px) scale(1.015);border-color:var(--h);
+  box-shadow:0 0 0 1px var(--h),0 18px 36px -14px rgba(var(--hr),.7)}
+.rs-choice.rs-dim{opacity:.35;filter:saturate(.4);transform:scale(.98)}
+
+.rs-pick-out{display:block;margin-top:18px;text-align:center;font-size:11.5px;color:var(--tw3,rgba(255,255,255,.62));text-decoration:none;text-underline-offset:3px}
+.rs-pick-out:hover{color:var(--tw,#fff);text-decoration:underline}
+.rs-pick-out:focus-visible{outline:2px solid var(--field-stroke-color,var(--gs));outline-offset:3px;border-radius:4px}
+.rs-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.rs-pick ::selection{background:rgba(78,187,129,.35)}
+
+@media (max-width:620px){
+  .rs-choices{grid-template-columns:1fr}
+  .rs-pick-body{padding:24px 20px 20px}
+}
+
+/* ── Light twin ─────────────────────────────────────────────────────────── */
+body.lt .rs-pick-title,body.lt .rs-always-txt b{color:var(--lt-ink,#33415c)}
+body.lt .rs-pick-q{color:var(--lt-ink-2,#4a5872)}
+body.lt .rs-always-txt span,body.lt .rs-pick-out{color:var(--lt-ink-3,#6b7890)}
+body.lt .rs-pick-out:hover{color:var(--lt-ink,#33415c)}
+body.lt .rs-always{border-color:var(--lt-line,#e3e8f0);background:var(--lt-surface-2,#f6f8fb)}
+body.lt .rs-always:hover{border-color:var(--lt-line-2,#d7deea)}
+body.lt .rs-always-box{background:#fff;border-color:var(--lt-line-2,#c9d2e0)}
+body.lt .rs-always input:checked + .rs-always-box{color:#fff;background:var(--lt-accent,#2f9c62);border-color:var(--lt-accent,#2f9c62)}
+body.lt .rs-choice{--hl:#2c5fae;color:var(--lt-ink,#33415c);
+  background:linear-gradient(165deg,rgba(var(--hr),.11),rgba(var(--hr),.03) 60%),#fff;border-color:rgba(var(--hr),.3);
+  box-shadow:0 6px 18px -12px rgba(53,72,110,.3)}
+body.lt .rs-choice[data-portal="supplier"]{--hl:#1f7a4c}
+body.lt .rs-choice:hover{box-shadow:0 16px 30px -16px rgba(var(--hr),.6)}
+body.lt .rs-choice-desc{color:var(--lt-ink-2,#4a5872)}
+body.lt .rs-choice-pend{color:var(--lt-ink-2,#4a5872);background:var(--lt-surface-2,#f3f6fa);border-color:var(--lt-line,#e3e8f0)}
+body.lt .rs-choice-pend.rs-due{color:#9a5d00;background:rgba(245,166,35,.12);border-color:rgba(214,138,20,.35)}

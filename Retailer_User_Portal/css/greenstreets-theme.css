@@ -958,3 +958,20 @@ mark.gs-hl{background:rgba(245,205,90,.32);color:inherit;border-radius:3px;paddi
 .gs-theme-seg{display:inline-flex;gap:2px;padding:3px;border-radius:9px;background:rgba(255,255,255,.05);border:1px solid var(--line-2);flex-shrink:0}
 .gs-seg-btn{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;padding:5px 15px;border:none;border-radius:7px;background:transparent;color:var(--tw3);cursor:pointer;transition:background .15s,color .15s}
 .gs-seg-btn:hover{color:var(--tw)}
+
+/* ── Search field: icon + clear (×) button ──
+   The input's frosted fill (backdrop-filter) forms its own stacking context and, coming after the
+   icon in the DOM, painted OVER it — the icon read as blurred or vanished. Lift the icon above it.
+   Direct-child only, so icons inside the autocomplete list (.gs-ac) stay in normal flow. */
+.search-wrap>svg{z-index:2}
+.search-wrap .gs-ac svg{position:static}
+.search-wrap.gs-has-val>input{padding-right:30px}
+.gs-search-clear{position:absolute;z-index:2;right:7px;top:50%;transform:translateY(-50%);
+  width:20px;height:20px;padding:0;border:0;border-radius:50%;display:none;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.08);color:var(--tw2);cursor:pointer;transition:background .15s,color .15s}
+.search-wrap.gs-has-val>.gs-search-clear{display:inline-flex}
+.gs-search-clear:hover{background:rgba(255,255,255,.16);color:var(--tw)}
+.gs-search-clear:active{transform:translateY(-50%) scale(.9)}
+.gs-search-clear svg{position:static;display:block}
+body.lt .gs-search-clear{background:rgba(51,65,92,.08);color:#5b6882}
+body.lt .gs-search-clear:hover{background:rgba(51,65,92,.16);color:#33415c}

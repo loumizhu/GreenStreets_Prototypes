@@ -710,6 +710,7 @@
   function fxButton(el){
     if(!el || !el.closest) return null;
     if(el.closest('.gs-num-steppers')) return null;   // number steppers are micro-controls — no burst
+    if(el.closest('.gs-search-clear')) return null;
     return el.closest(FX_BTN);
   }
   function dropAfterAnim(el){
@@ -914,4 +915,43 @@ window.GS_LIGHT_PRESET_KEY = 'gs-ru-light-preset';
     initLightSettings();
   }
   if(document.readyState!=='loading') run(); else document.addEventListener('DOMContentLoaded', run);
+})();
+
+/* ── Search-field clear (×) button ─────────────────────────────────────────
+   Every `.search-wrap` text input gets a small × on its right edge while it
+   holds text. Clicking it empties the field and dispatches bubbling `input` +
+   `change`, so whatever filters the listing (gsFilterToolbar, ptInit search,
+   page-specific oninput handlers) re-runs exactly as if the user deleted the
+   text. Delegated + MutationObserver-safe for runtime-rendered search boxes. */
+(function(){
+  var X='<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';
+  function inputOf(wrap){ return wrap.querySelector(':scope>input:not([type=checkbox]):not([type=radio]):not([type=hidden])'); }
+  function sync(wrap){ var i=inputOf(wrap); if(i) wrap.classList.toggle('gs-has-val', !!i.value); }
+  function enhance(root){
+    (root||document).querySelectorAll('.search-wrap').forEach(function(wrap){
+      if(wrap._gsClr || !inputOf(wrap)) return; wrap._gsClr=true;
+      var b=document.createElement('button'); b.type='button'; b.className='gs-search-clear';
+      b.setAttribute('aria-label','Clear search'); b.title='Clear'; b.innerHTML=X;
+      b.addEventListener('mousedown',function(e){ e.preventDefault(); });   // keep focus in the field
+      b.addEventListener('click',function(e){
+        e.stopPropagation();
+        var i=inputOf(wrap); if(!i) return;
+        i.value=''; sync(wrap);
+        i.dispatchEvent(new Event('input',{bubbles:true}));
+        i.dispatchEvent(new Event('change',{bubbles:true}));
+        i.focus();
+      });
+      wrap.appendChild(b); sync(wrap);
+    });
+  }
+  window.GSEnhanceSearchClear=enhance;
+  document.addEventListener('input',function(e){ var w=e.target&&e.target.closest&&e.target.closest('.search-wrap'); if(w) sync(w); },true);
+  document.addEventListener('change',function(e){ var w=e.target&&e.target.closest&&e.target.closest('.search-wrap'); if(w) sync(w); },true);
+  function run(){
+    enhance(document);
+    try{ new MutationObserver(function(muts){
+      for(var k=0;k<muts.length;k++){ if(muts[k].addedNodes.length){ enhance(document); return; } }
+    }).observe(document.body,{childList:true,subtree:true}); }catch(_){}
+  }
+  if(document.readyState!=='loading') run(); else document.addEventListener('DOMContentLoaded',run);
 })();

@@ -147,6 +147,10 @@ body.lt .cs-trigger{background:#fff;border:1px solid var(--lt-line-2);color:var(
 body.lt .cs-menu{background:#fff;border:1px solid var(--lt-line-2);box-shadow:var(--sh-2)}
 body.lt .cs-opt{color:var(--lt-ink-2)}
 body.lt .cs-opt:hover,body.lt .cs-opt.cs-active{background:rgba(110,168,254,.12);color:var(--lt-accent-ink)}
+body.lt .gs-ac{background:#fff;border:1px solid var(--lt-line-2);box-shadow:var(--sh-2)}
+body.lt .gs-ac-opt{color:var(--lt-ink-2)}
+body.lt .gs-ac-opt:hover,body.lt .gs-ac-opt.active{background:rgba(110,168,254,.12);color:var(--lt-ink)}
+body.lt .gs-ac-opt b{color:var(--lt-accent-ink)}
 
 /* ── stat chips ────────────────────────────────────────────────────────────── */
 body.lt .stat-mini{background:var(--lt-surface-2);border:1px solid var(--lt-line);box-shadow:none}

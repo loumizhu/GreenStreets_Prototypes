@@ -1596,7 +1596,11 @@ function gsAcCandidates(input){
       Array.prototype.forEach.call(body.rows,function(row){
         Array.prototype.forEach.call(row.cells,function(c){
           if(c.querySelector('button,input')) return;   // skip action / control cells
-          add(c.textContent);
+          // a cell stacking several blocks (name over domain) is several values — joining its
+          // textContent glued them into one ("Primark Stores Ltdprimark.greenstreets.ie")
+          var kids=Array.prototype.filter.call(c.children,function(k){ return k.textContent.trim(); });
+          if(kids.length>1) kids.forEach(function(k){ add(k.textContent); });
+          else add(c.textContent);
         });
       });
     }

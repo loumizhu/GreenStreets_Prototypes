@@ -1213,3 +1213,20 @@ table[data-gs-grid] tbody tr.gs-kbd-row{ outline:2px solid var(--field-stroke-co
 /* Super-admin shield badge on the page title */
 .pg-badge{display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;margin-left:9px;width:23px;height:23px;border-radius:7px;color:var(--gs-l);background:rgba(143,227,182,.14);box-shadow:inset 0 0 0 1px rgba(143,227,182,.3);position:relative;top:-2px}
 .pg-badge svg{width:14px;height:14px}
+
+/* ── Search field: icon + clear (×) button ──
+   The input's frosted fill (backdrop-filter) forms its own stacking context and, coming after the
+   icon in the DOM, painted OVER it — the icon read as blurred or vanished. Lift the icon above it.
+   Direct-child only, so icons inside the autocomplete list (.gs-ac) stay in normal flow. */
+.search-wrap>svg{z-index:2}
+.search-wrap .gs-ac svg{position:static}
+.search-wrap.gs-has-val>input{padding-right:30px}
+.gs-search-clear{position:absolute;z-index:2;right:7px;top:50%;transform:translateY(-50%);
+  width:20px;height:20px;padding:0;border:0;border-radius:50%;display:none;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.08);color:var(--tw2);cursor:pointer;transition:background .15s,color .15s}
+.search-wrap.gs-has-val>.gs-search-clear{display:inline-flex}
+.gs-search-clear:hover{background:rgba(255,255,255,.16);color:var(--tw)}
+.gs-search-clear:active{transform:translateY(-50%) scale(.9)}
+.gs-search-clear svg{position:static;display:block}
+body.lt .gs-search-clear{background:rgba(51,65,92,.08);color:#5b6882}
+body.lt .gs-search-clear:hover{background:rgba(51,65,92,.16);color:#33415c}

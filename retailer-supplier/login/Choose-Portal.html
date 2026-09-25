@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Greenstreets — Choose your portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../Retailer_Admin_Portal/css/greenstreets-theme.css?v=52">
+<link rel="stylesheet" href="../../Retailer_Admin_Portal/css/retailer-admin.css?v=31">
+<link rel="stylesheet" href="../shared/rs-chooser.css?v=2">
+</head>
+<body>
+<div class="screen on" id="rs_choose">
+  <div class="login-wrap">
+    <main class="login-card rs-pick" aria-labelledby="rsPickTitle">
+      <div class="login-logo-zone rs-pick-top">
+        <img class="gs-logo-img login-logo rs-pick-logo" src="" alt="Greenstreets">
+      </div>
+
+      <div class="login-form-zone rs-pick-body">
+        <h1 class="rs-pick-title" id="rsPickTitle">Hello, Keith</h1>
+        <p class="rs-pick-q">Log in as?</p>
+
+
+        <div class="rs-choices" role="group" aria-label="Portals">
+          <button type="button" class="rs-choice" data-portal="retailer" aria-describedby="rsRetDesc rsRetPend">
+            <span class="rs-choice-art" aria-hidden="true">
+              <svg width="52" height="52" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 19 9.5 8h29L42 19"/>
+                <path d="M6 19a4.5 4.5 0 0 0 9 0 4.5 4.5 0 0 0 9 0 4.5 4.5 0 0 0 9 0 4.5 4.5 0 0 0 9 0"/>
+                <path d="M9 24v16h30V24"/>
+                <path d="M20.5 40v-9h7v9"/>
+                <path d="M12.5 29h4.5v4.5h-4.5zM31 29h4.5v4.5H31z"/>
+                <path d="M4 40h40"/>
+              </svg>
+            </span>
+            <span class="rs-choice-name">Retailer</span>
+            <span class="rs-choice-org">Primark · Retailer Admin</span>
+            <span class="rs-choice-desc" id="rsRetDesc">Track suppliers, products and Declarations of Conformity.</span>
+            <span class="rs-choice-pend" id="rsRetPend">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              4 new notifications
+            </span>
+            <span class="rs-choice-go">Open Retailer portal
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+            </span>
+          </button>
+
+          <button type="button" class="rs-choice" data-portal="supplier" aria-describedby="rsSupDesc rsSupPend">
+            <span class="rs-choice-art" aria-hidden="true">
+              <svg width="52" height="52" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 40V25l9 5.5V25l9 5.5V25l9 5.5V11h6v29"/>
+                <path d="M33 11h6"/>
+                <path d="M36 7.5c0-1.6 1.6-1.6 1.6-3.2"/>
+                <path d="M11 35h3M18.5 35h3M26 35h3"/>
+                <path d="M4 40h40"/>
+              </svg>
+            </span>
+            <span class="rs-choice-name">Supplier</span>
+            <span class="rs-choice-org">Primark · Supplier Admin</span>
+            <span class="rs-choice-desc" id="rsSupDesc">Answer retailer requests and complete packaging data.</span>
+            <span class="rs-choice-pend rs-due" id="rsSupPend">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+              3 requests due 26 Jul
+            </span>
+            <span class="rs-choice-go">Open Supplier portal
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+            </span>
+          </button>
+        </div>
+
+        <label class="rs-always">
+          <input type="checkbox" id="rsAlways">
+          <span class="rs-always-box" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.2 4.2L19 7"/></svg></span>
+          <span class="rs-always-txt"><b>Always open the portal I choose</b><span>Skips this screen at sign-in. Change it from your profile menu.</span></span>
+        </label>
+
+        <a class="rs-pick-out" href="Login.html">Not Keith? Sign in with another account</a>
+        <div class="rs-sr" aria-live="polite" id="rsPickLive"></div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="../../Retailer_Admin_Portal/js/retailer-admin.js?v=39"></script>
+<script src="../../Retailer_Admin_Portal/js/greenstreets-theme.js?v=31"></script>
+<script src="../../Retailer_Admin_Portal/js/gs-appearance.js?v=9"></script>
+<script src="../shared/rs-chooser.js?v=1"></script>
+</body>
+</html>
