@@ -1,0 +1,168 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   gs-upsell.css — EXPLORATION ONLY. The "Library Pro" upsell layer.
+   Every rule is prefixed `up-` so nothing here can restyle a portal class.
+   Tone: one soft premium tint (gold) used for the Pro chip and nothing else;
+   cards otherwise reuse the portal's glass surface. No red, no timers.
+   ══════════════════════════════════════════════════════════════════════════ */
+:root{
+  --up-pro:#e3bd66;               /* premium tint — chip, sparkle, meter fill */
+  --up-pro-bg:rgba(227,189,102,.12);
+  --up-pro-line:rgba(227,189,102,.34);
+  --up-card:rgba(255,255,255,.045);
+  --up-card-line:rgba(255,255,255,.1);
+  --up-ink:#fff;
+  --up-ink-2:rgba(255,255,255,.62);
+  --up-ink-3:rgba(255,255,255,.42);
+  --up-shade:rgba(4,12,24,.62);
+  --up-panel:#0f2138;
+}
+body.lt{
+  --up-pro:#a8791a;
+  --up-pro-bg:rgba(191,140,40,.1);
+  --up-pro-line:rgba(168,121,26,.3);
+  --up-card:#fff;
+  --up-card-line:rgba(51,65,92,.12);
+  --up-ink:#1f2a3d;
+  --up-ink-2:rgba(31,42,61,.68);
+  --up-ink-3:rgba(31,42,61,.48);
+  --up-shade:rgba(20,30,48,.28);
+  --up-panel:#fbfcfe;
+}
+
+/* ── Pro chip ─────────────────────────────────────────────────────────── */
+.up-chip{display:inline-flex;align-items:center;gap:3px;height:16px;padding:0 6px;border-radius:99px;
+  background:var(--up-pro-bg);border:1px solid var(--up-pro-line);color:var(--up-pro);
+  font-size:9.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;line-height:1;white-space:nowrap;vertical-align:middle}
+.up-chip svg{width:9px;height:9px}
+
+/* ── Buttons ──────────────────────────────────────────────────────────── */
+.up-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 13px;border-radius:7px;
+  font-family:inherit;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;
+  background:var(--up-card);border:1px solid var(--up-card-line);color:var(--up-ink)}
+.up-btn:hover{border-color:var(--up-pro-line)}
+.up-btn-pro{background:linear-gradient(135deg,#e3bd66,#c99a3c);border:none;color:#1d1504}
+.up-btn-pro:hover{filter:brightness(1.06)}
+.up-link{background:none;border:none;padding:0;font:inherit;font-size:11.5px;color:var(--up-ink-3);cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.up-link:hover{color:var(--up-ink-2)}
+
+/* ── Inline value card (Confirmation, Packaging banner) ───────────────── */
+.up-card{position:relative;display:flex;gap:12px;align-items:flex-start;text-align:left;
+  background:var(--up-card);border:1px solid var(--up-card-line);border-radius:10px;padding:13px 14px;
+  animation:upIn .45s cubic-bezier(.2,.7,.2,1) both}
+.up-card-ic{flex:0 0 32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+  background:var(--up-pro-bg);color:var(--up-pro)}
+.up-card-t{font-size:12.5px;font-weight:600;color:var(--up-ink);margin-bottom:3px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.up-card-s{font-size:11.5px;color:var(--up-ink-2);line-height:1.55}
+.up-card-act{display:flex;align-items:center;gap:12px;margin-top:10px;flex-wrap:wrap}
+.up-x{position:absolute;top:8px;right:8px;width:22px;height:22px;border-radius:6px;border:none;background:none;
+  color:var(--up-ink-3);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.up-x:hover{background:var(--up-card-line);color:var(--up-ink)}
+@keyframes upIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* readiness bar inside cards / sidebar */
+.up-meter{height:4px;border-radius:99px;background:var(--up-card-line);overflow:hidden;margin-top:7px}
+.up-meter>i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--gs),var(--up-pro))}
+
+/* ── Sidebar library meter (passive, always on) ───────────────────────── */
+.up-sb{margin:10px 10px 4px;padding:10px 11px;border-radius:9px;border:1px solid var(--up-card-line);
+  background:var(--up-card);cursor:pointer;transition:border-color .15s}
+.up-sb:hover{border-color:var(--up-pro-line)}
+.up-sb-top{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:10.5px;color:var(--up-ink-3);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.up-sb-n{font-size:12.5px;color:var(--up-ink);font-weight:600;margin-top:5px}
+.up-sb-s{font-size:10.5px;color:var(--up-ink-3);margin-top:2px}
+
+/* ── Drawer (export preview) + modal (plans) ──────────────────────────── */
+.up-shade{position:fixed;inset:0;background:var(--up-shade);z-index:5000;opacity:0;transition:opacity .2s}
+.up-shade.on{opacity:1}
+.up-drawer{position:fixed;top:0;right:0;bottom:0;width:min(520px,100vw);z-index:5001;background:var(--up-panel);
+  border-left:1px solid var(--up-card-line);box-shadow:-24px 0 60px rgba(0,0,0,.35);display:flex;flex-direction:column;
+  transform:translateX(100%);transition:transform .28s cubic-bezier(.2,.7,.2,1)}
+.up-drawer.on{transform:none}
+.up-d-hdr{padding:18px 20px 14px;border-bottom:1px solid var(--up-card-line);display:flex;gap:10px;align-items:flex-start}
+.up-d-hdr h2{font-size:16px;font-weight:700;color:var(--up-ink);margin:0 0 3px;display:flex;align-items:center;gap:8px}
+.up-d-hdr p{font-size:12px;color:var(--up-ink-2);margin:0;line-height:1.5}
+.up-d-body{flex:1;overflow:auto;padding:16px 20px;display:flex;flex-direction:column;gap:16px}
+.up-d-foot{padding:14px 20px;border-top:1px solid var(--up-card-line);display:flex;flex-direction:column;gap:9px}
+.up-d-foot .up-btn{height:38px;font-size:12.5px}
+.up-h{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--up-ink-3);margin-bottom:8px}
+.up-fine{font-size:11px;color:var(--up-ink-3);text-align:center;line-height:1.5}
+
+/* file tree of the pack */
+.up-tree{border:1px solid var(--up-card-line);border-radius:9px;background:var(--up-card);padding:10px 12px;
+  font-size:12px;color:var(--up-ink);font-family:ui-monospace,Consolas,monospace}
+.up-tree div{display:flex;align-items:center;gap:7px;padding:3px 0}
+.up-tree .in{padding-left:18px;color:var(--up-ink-2)}
+.up-tree .sz{margin-left:auto;color:var(--up-ink-3);font-size:11px}
+
+/* sheet preview — first rows real, the rest blurred until Pro */
+.up-sheet{border:1px solid var(--up-card-line);border-radius:9px;overflow:hidden;position:relative}
+.up-sheet table{width:100%;border-collapse:collapse;font-size:11px}
+.up-sheet th{text-align:left;padding:7px 9px;background:var(--up-card-line);color:var(--up-ink-2);font-weight:600;white-space:nowrap}
+.up-sheet td{padding:6px 9px;border-top:1px solid var(--up-card-line);color:var(--up-ink);white-space:nowrap}
+.up-sheet tr.bl td{filter:blur(3.5px);user-select:none}
+.up-sheet-more{position:absolute;left:0;right:0;bottom:0;padding:22px 12px 10px;text-align:center;font-size:11.5px;color:var(--up-ink-2);
+  background:linear-gradient(180deg,transparent,var(--up-panel) 62%)}
+
+/* "share with" recipients */
+.up-recip{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.up-recip div{border:1px solid var(--up-card-line);background:var(--up-card);border-radius:9px;padding:10px 11px;font-size:11.5px;color:var(--up-ink-2);line-height:1.45}
+.up-recip b{display:block;color:var(--up-ink);font-size:12px;margin-bottom:2px}
+
+/* benefit list */
+.up-ben{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.up-ben li{display:flex;gap:9px;font-size:12px;color:var(--up-ink-2);line-height:1.5}
+.up-ben li b{color:var(--up-ink);font-weight:600}
+.up-ben svg{flex:0 0 14px;margin-top:2px;color:var(--gs)}
+
+/* plans modal */
+.up-modal{position:fixed;left:50%;top:50%;z-index:5001;width:min(680px,calc(100vw - 32px));max-height:calc(100vh - 40px);overflow:auto;
+  background:var(--up-panel);border:1px solid var(--up-card-line);border-radius:14px;box-shadow:0 30px 80px rgba(0,0,0,.45);
+  transform:translate(-50%,-46%);opacity:0;transition:transform .25s cubic-bezier(.2,.7,.2,1),opacity .2s;padding:22px}
+.up-modal.on{transform:translate(-50%,-50%);opacity:1}
+.up-plans{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.up-plan{border:1px solid var(--up-card-line);border-radius:11px;padding:16px;background:var(--up-card);display:flex;flex-direction:column;gap:10px}
+.up-plan.pro{border-color:var(--up-pro-line);box-shadow:0 0 0 3px var(--up-pro-bg)}
+.up-plan-n{font-size:13px;font-weight:700;color:var(--up-ink);display:flex;align-items:center;gap:7px}
+.up-plan-p{font-size:22px;font-weight:700;color:var(--up-ink)}
+.up-plan-p small{font-size:11.5px;font-weight:500;color:var(--up-ink-3)}
+.up-plan .up-ben li{font-size:11.5px}
+.up-plan .off svg{color:var(--up-ink-3)}
+.up-plan .off{color:var(--up-ink-3)}
+
+/* Settings "Plan & billing" rows */
+.up-set-row{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.up-set-plan{font-size:14px;font-weight:700;color:var(--up-ink);display:flex;align-items:center;gap:8px}
+.up-set-s{font-size:11.5px;color:var(--up-ink-2);margin-top:3px}
+.up-hist{margin-top:14px;padding-top:12px;border-top:1px solid var(--up-card-line);font-size:11.5px;color:var(--up-ink-3)}
+
+/* small inline hint (AI upload, detail pages) */
+.up-hint{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:10px;font-size:11.5px;color:var(--up-ink-3)}
+.up-hint button{background:none;border:none;padding:0;font:inherit;color:var(--up-ink-2);cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+
+/* share popover on detail pages */
+.up-pop{position:absolute;z-index:4000;width:300px;background:var(--up-panel);border:1px solid var(--up-card-line);border-radius:11px;
+  box-shadow:0 18px 50px rgba(0,0,0,.4);padding:14px;animation:upIn .2s ease both}
+.up-pop-row{display:flex;gap:10px;align-items:flex-start;padding:9px;border-radius:8px;cursor:pointer}
+.up-pop-row:hover{background:var(--up-card-line)}
+.up-pop-row b{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--up-ink);margin-bottom:2px}
+.up-pop-row span{font-size:11px;color:var(--up-ink-2);line-height:1.45}
+.up-pop-row svg{flex:0 0 16px;color:var(--up-ink-2);margin-top:1px}
+
+/* toast */
+.up-toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);opacity:0;z-index:5100;display:flex;align-items:center;gap:12px;
+  background:var(--up-panel);border:1px solid var(--up-card-line);border-radius:10px;padding:10px 14px;box-shadow:0 14px 40px rgba(0,0,0,.4);
+  font-size:12px;color:var(--up-ink);transition:transform .25s,opacity .25s;max-width:calc(100vw - 32px)}
+.up-toast.on{transform:translate(-50%,0);opacity:1}
+
+/* Welcome — optional 4th step, visibly separate from the required three */
+.up-onb{margin-top:6px;border-style:dashed !important;opacity:.92}
+.up-onb .onb-num{background:var(--up-pro-bg) !important;color:var(--up-pro) !important;border-color:var(--up-pro-line) !important}
+
+/* ── Demo control (reviewer aid, not product UI) ──────────────────────── */
+.up-demo{position:fixed;right:12px;bottom:12px;z-index:5200;font-size:11px;color:var(--up-ink-2);
+  background:var(--up-panel);border:1px dashed var(--up-pro-line);border-radius:10px;padding:8px 10px;display:flex;align-items:center;gap:8px;
+  box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.up-demo b{color:var(--up-pro);font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-size:9.5px}
+.up-demo button{height:22px;padding:0 8px;border-radius:6px;border:1px solid var(--up-card-line);background:var(--up-card);color:var(--up-ink);font:inherit;font-size:10.5px;cursor:pointer}
+.up-demo button.on{border-color:var(--up-pro);color:var(--up-pro)}
+body:has(.up-drawer.on) .up-demo,body:has(.up-modal.on) .up-demo{opacity:0;pointer-events:none}

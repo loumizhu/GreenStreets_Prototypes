@@ -74,6 +74,19 @@
         </div>
       </div>
       <div class="grp" style="margin-bottom:var(--sp-4)">
+        <div class="grp-hdr">Activity timeline</div>
+        <div class="grp-body">
+          <div class="timeline">
+            <div class="tl-item"><div class="tl-dot tl-dot-green"></div><div><div class="tl-action">Swing tag data updated</div><div class="tl-meta">2 hours ago · via supplier portal</div></div></div>
+            <div class="tl-item"><div class="tl-dot tl-dot-green"></div><div><div class="tl-action">FSC certificate uploaded</div><div class="tl-meta">Yesterday · Box/carton</div></div></div>
+            <div class="tl-item"><div class="tl-dot tl-dot-blue"></div><div><div class="tl-action">Portal accessed</div><div class="tl-meta">2 days ago · Last login</div></div></div>
+            <div class="tl-item"><div class="tl-dot tl-dot-amber"></div><div><div class="tl-action">Reminder sent (Day 14)</div><div class="tl-meta">5 days ago · Automated</div></div></div>
+            <div class="tl-item"><div class="tl-dot tl-dot-blue"></div><div><div class="tl-action">Invitation accepted</div><div class="tl-meta">14 Jun 2026 · Account created</div></div></div>
+            <div class="tl-item"><div class="tl-dot tl-dot-grey"></div><div><div class="tl-action">Invitation sent by Keith O'Sullivan</div><div class="tl-meta">10 Jun 2026 · via Retailer Admin</div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="grp" style="margin-bottom:var(--sp-4)">
         <div class="grp-hdr">
           Packaging components
           <div style="display:flex;align-items:center;gap:8px">
@@ -131,41 +144,26 @@
           <div class="tbl-footer" style="padding:9px 12px">Showing 5 of 15 packaging components</div>
         </div>
       </div>
-      <div class="grids">
-        <div class="grp">
-          <div class="grp-hdr">Activity timeline</div>
-          <div class="grp-body">
-            <div class="timeline">
-              <div class="tl-item"><div class="tl-dot tl-dot-green"></div><div><div class="tl-action">Swing tag data updated</div><div class="tl-meta">2 hours ago · via supplier portal</div></div></div>
-              <div class="tl-item"><div class="tl-dot tl-dot-green"></div><div><div class="tl-action">FSC certificate uploaded</div><div class="tl-meta">Yesterday · Box/carton</div></div></div>
-              <div class="tl-item"><div class="tl-dot tl-dot-blue"></div><div><div class="tl-action">Portal accessed</div><div class="tl-meta">2 days ago · Last login</div></div></div>
-              <div class="tl-item"><div class="tl-dot tl-dot-amber"></div><div><div class="tl-action">Reminder sent (Day 14)</div><div class="tl-meta">5 days ago · Automated</div></div></div>
-              <div class="tl-item"><div class="tl-dot tl-dot-blue"></div><div><div class="tl-action">Invitation accepted</div><div class="tl-meta">14 Jun 2026 · Account created</div></div></div>
-              <div class="tl-item"><div class="tl-dot tl-dot-grey"></div><div><div class="tl-action">Invitation sent by Keith O'Sullivan</div><div class="tl-meta">10 Jun 2026 · via Retailer Admin</div></div></div>
-            </div>
+      <div class="grp">
+        <div class="grp-hdr">Proof documents<span style="font-size:11px;color:var(--tw3);font-weight:400">9 provided · 2 missing</span></div>
+        <div class="grp-body" style="padding:0">
+          <div class="filter-toolbar">
+            <div class="search-wrap"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-17"/></svg><input class="fi fi-search" placeholder="Search documents…" oninput="gsFilterToolbar(this)"></div>
+            <select class="fi fi-select" onchange="gsFilterToolbar(this)"><option value="all">All types</option><option value="certificate">Certificate</option><option value="declaration">Declaration</option><option value="report">Test report</option></select>
+            <select class="fi fi-select" onchange="gsFilterToolbar(this)"><option value="all">All statuses</option><option value="provided">Provided</option><option value="missing">Missing</option></select>
           </div>
-        </div>
-        <div class="grp">
-          <div class="grp-hdr">Proof documents<span style="font-size:11px;color:var(--tw3);font-weight:400">9 provided · 2 missing</span></div>
-          <div class="grp-body" style="padding:0">
-            <div class="filter-toolbar">
-              <div class="search-wrap"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-17"/></svg><input class="fi fi-search" placeholder="Search documents…" oninput="gsFilterToolbar(this)"></div>
-              <select class="fi fi-select" onchange="gsFilterToolbar(this)"><option value="all">All types</option><option value="certificate">Certificate</option><option value="declaration">Declaration</option><option value="report">Test report</option></select>
-              <select class="fi fi-select" onchange="gsFilterToolbar(this)"><option value="all">All statuses</option><option value="provided">Provided</option><option value="missing">Missing</option></select>
-            </div>
-            <table class="tbl" style="table-layout:fixed">
-              <colgroup><col width="38%"><col width="22%"><col width="18%"><col width="22%"></colgroup>
-              <thead><tr><th>Document</th><th>Type</th><th>Valid until</th><th>Status</th></tr></thead>
-              <tbody>
-                <tr><td><div class="tbl-name" style="font-size:11px">FSC Chain of Custody</div><div class="tbl-sub">Box / carton</div></td><td><span class="pill pill-grey" style="font-size:9px">Certificate</span></td><td class="tbl-muted">Dec 2026</td><td><span class="pill pill-green">Provided</span></td></tr>
-                <tr><td><div class="tbl-name" style="font-size:11px">Recycled content cert.</div><div class="tbl-sub">Swing tag</div></td><td><span class="pill pill-grey" style="font-size:9px">Certificate</span></td><td class="tbl-muted">Mar 2027</td><td><span class="pill pill-green">Provided</span></td></tr>
-                <tr><td><div class="tbl-name" style="font-size:11px">REACH test report</div><div class="tbl-sub">Poly bag</div></td><td><span class="pill pill-grey" style="font-size:9px">Test report</span></td><td class="tbl-muted">Jun 2026</td><td><span class="pill pill-amber">Expiring soon</span></td></tr>
-                <tr><td><div class="tbl-name" style="font-size:11px">MSDS — Poly bag</div><div class="tbl-sub">Poly bag</div></td><td><span class="pill pill-grey" style="font-size:9px">Safety sheet</span></td><td class="tbl-muted">—</td><td><span class="pill pill-red">Missing</span></td></tr>
-                <tr><td><div class="tbl-name" style="font-size:11px">PCR content declaration</div><div class="tbl-sub">Hanger</div></td><td><span class="pill pill-grey" style="font-size:9px">Declaration</span></td><td class="tbl-muted">—</td><td><span class="pill pill-red">Missing</span></td></tr>
-              </tbody>
-            </table>
-            <div class="tbl-footer" style="padding:9px 12px">9 of 11 required documents provided</div>
-          </div>
+          <table class="tbl" style="table-layout:fixed">
+            <colgroup><col width="38%"><col width="22%"><col width="18%"><col width="22%"></colgroup>
+            <thead><tr><th>Document</th><th>Type</th><th>Valid until</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td><div class="tbl-name" style="font-size:11px">FSC Chain of Custody</div><div class="tbl-sub">Box / carton</div></td><td><span class="pill pill-grey" style="font-size:9px">Certificate</span></td><td class="tbl-muted">Dec 2026</td><td><span class="pill pill-green">Provided</span></td></tr>
+              <tr><td><div class="tbl-name" style="font-size:11px">Recycled content cert.</div><div class="tbl-sub">Swing tag</div></td><td><span class="pill pill-grey" style="font-size:9px">Certificate</span></td><td class="tbl-muted">Mar 2027</td><td><span class="pill pill-green">Provided</span></td></tr>
+              <tr><td><div class="tbl-name" style="font-size:11px">REACH test report</div><div class="tbl-sub">Poly bag</div></td><td><span class="pill pill-grey" style="font-size:9px">Test report</span></td><td class="tbl-muted">Jun 2026</td><td><span class="pill pill-amber">Expiring soon</span></td></tr>
+              <tr><td><div class="tbl-name" style="font-size:11px">MSDS — Poly bag</div><div class="tbl-sub">Poly bag</div></td><td><span class="pill pill-grey" style="font-size:9px">Safety sheet</span></td><td class="tbl-muted">—</td><td><span class="pill pill-red">Missing</span></td></tr>
+              <tr><td><div class="tbl-name" style="font-size:11px">PCR content declaration</div><div class="tbl-sub">Hanger</div></td><td><span class="pill pill-grey" style="font-size:9px">Declaration</span></td><td class="tbl-muted">—</td><td><span class="pill pill-red">Missing</span></td></tr>
+            </tbody>
+          </table>
+          <div class="tbl-footer" style="padding:9px 12px">9 of 11 required documents provided</div>
         </div>
       </div>
     </div>
