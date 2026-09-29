@@ -18,42 +18,48 @@
   .idx-card:hover{background:rgba(78,187,129,.1);border-color:var(--gs)}
   .idx-id{font-size:11px;color:var(--tw3);font-family:monospace}
   .idx-name{font-size:15px;font-weight:600;color:var(--tw)}
+  .idx-star{color:#e3bd66;margin-left:6px;font-size:13px;cursor:help}
+  .idx-legend{font-size:12px;color:var(--tw3);margin:-16px 0 18px}
+  .idx-legend b{color:#e3bd66;font-weight:600}
 </style>
 </head>
 <body>
   <div class="idx-wrap">
     <div class="idx-h">Greenstreets — Supplier Portal · <span style="color:#e3bd66">Library Pro upsell exploration</span></div>
-    <div class="idx-sub">28 screens, one HTML file each. Click a screen to open it. In-app navigation is via each page's buttons and rows.</div>
+    <div class="idx-sub">30 screens, one HTML file each. Click a screen to open it. In-app navigation is via each page's buttons and rows.</div>
     <button type="button" id="idx-theme-btn" onclick="idxToggleTheme()" style="margin-bottom:18px;height:32px;padding:0 14px;border-radius:8px;border:1px solid var(--stroke);background:rgba(255,255,255,.04);color:var(--tw2);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer">Switch to light mode</button>
+    <div class="idx-legend"><b>★</b> = page with an upsell touchpoint (hover the star for details). The sidebar library card appears on every page that has the sidebar.</div>
     <div class="idx-grid">
       <a class="idx-card" href="04-greenstreets_supplier_portal_Login.html"><span class="idx-id">sp1</span><span class="idx-name">Login</span></a>
       <a class="idx-card" href="04-greenstreets_supplier_portal_Products.html"><span class="idx-id">sp2</span><span class="idx-name">Products</span></a>
-      <a class="idx-card" href="04-greenstreets_supplier_portal_Packaging.html"><span class="idx-id">sp2_pkg</span><span class="idx-name">Packaging Components</span></a>
-      <a class="idx-card" href="04-greenstreets_supplier_portal_Documents.html"><span class="idx-id">sp2_docs</span><span class="idx-name">Supporting Documents</span></a>
-      <a class="idx-card" href="04-greenstreets_supplier_portal_AI-Upload.html"><span class="idx-id">s_upload_0</span><span class="idx-name">AI Upload</span></a>
+      <a class="idx-card" href="04-greenstreets_supplier_portal_Packaging.html"><span class="idx-id">sp2_pkg</span><span class="idx-name">Packaging Components<span class="idx-star" title="Upsell touchpoint: Export library button, Export in the selection bar, readiness banner, toast after a wizard save">★</span></span></a>
+      <a class="idx-card" href="04-greenstreets_supplier_portal_Documents.html"><span class="idx-id">sp2_docs</span><span class="idx-name">Supporting Documents<span class="idx-star" title="Upsell touchpoint: Hint under the upload area">★</span></span></a>
+      <a class="idx-card" href="04-greenstreets_supplier_portal_Welcome.html"><span class="idx-id">sp_welcome</span><span class="idx-name">Welcome<span class="idx-star" title="Upsell touchpoint: Optional + step after the three required steps">★</span></span></a>
+      <a class="idx-card" href="04-greenstreets_supplier_portal_Settings.html"><span class="idx-id">sp_settings</span><span class="idx-name">Settings<span class="idx-star" title="Upsell touchpoint: Plan &amp; billing card">★</span></span></a>
+      <a class="idx-card" href="04-greenstreets_supplier_portal_AI-Upload.html"><span class="idx-id">s_upload_0</span><span class="idx-name">AI Upload<span class="idx-star" title="Upsell touchpoint: Hint under Download blank template">★</span></span></a>
       <a class="idx-card" href="04-greenstreets_supplier_portal_AI-Processing.html"><span class="idx-id">sp_ai</span><span class="idx-name">AI Processing</span></a>
       <a class="idx-card" href="04-greenstreets_supplier_portal_AI-Review-1.html"><span class="idx-id">air-0</span><span class="idx-name">AI Review 1 of 3</span></a>
       <a class="idx-card" href="04-greenstreets_supplier_portal_AI-Review-2.html"><span class="idx-id">air-1</span><span class="idx-name">AI Review 2 of 3</span></a>
       <a class="idx-card" href="04-greenstreets_supplier_portal_AI-Review-3.html"><span class="idx-id">air-2</span><span class="idx-name">AI Review 3 of 3</span></a>
-      <a class="idx-card" href="04-greenstreets_supplier_portal_Confirmation.html"><span class="idx-id">sp9</span><span class="idx-name">Confirmation</span></a>
+      <a class="idx-card" href="04-greenstreets_supplier_portal_Confirmation.html"><span class="idx-id">sp9</span><span class="idx-name">Confirmation<span class="idx-star" title="Upsell touchpoint: Card under the success message">★</span></span></a>
       <a class="idx-card" href="04-greenstreets_supplier_portal_Product-Detail.html"><span class="idx-id">proddetail</span><span class="idx-name">Product detail</span></a>
       <a class="idx-card" href="04-greenstreets_supplier_portal_Component-Wizard.html"><span class="idx-id">wiz5</span><span class="idx-name">Component wizard</span></a>
-      <a class="idx-card" href="04-greenstreets_supplier_portal_Packaging-Swing-Tag.html"><span class="idx-id">pkgdetail-swing_tag</span><span class="idx-name">Swing Tag</span></a>
-      <a class="idx-card" href="04-greenstreets_supplier_portal_Packaging-Hanger.html"><span class="idx-id">pkgdetail-hanger</span><span class="idx-name">Hanger</span></a>
-      <a class="idx-card" href="04-greenstreets_supplier_portal_Packaging-Poly-Bag.html"><span class="idx-id">pkgdetail-poly_bag</span><span class="idx-name">Poly Bag</span></a>
-      <a class="idx-card" href="04-greenstreets_supplier_portal_Packaging-Display-Box.html"><span class="idx-id">pkgdetail-display_box</span><span class="idx-name">Display Box</span></a>
-      <a class="idx-card" href="04-greenstreets_supplier_portal_Packaging-Wrap-Band.html"><span class="idx-id">pkgdetail-wrap_band</span><span class="idx-name">Wrap Band</span></a>
-      <a class="idx-card" href="04-greenstreets_supplier_portal_Packaging-Tissue-Paper.html"><span class="idx-id">pkgdetail-tissue_paper</span><span class="idx-name">Tissue Paper</span></a>
-      <a class="idx-card" href="04-greenstreets_supplier_portal_Packaging-Shipping-Carton.html"><span class="idx-id">pkgdetail-shipping_carton</span><span class="idx-name">Shipping Carton</span></a>
-      <a class="idx-card" href="04-greenstreets_supplier_portal_Packaging-Shelf-Tray.html"><span class="idx-id">pkgdetail-shelf_tray</span><span class="idx-name">Shelf-Ready Tray</span></a>
-      <a class="idx-card" href="04-greenstreets_supplier_portal_Packaging-Carton-Divider.html"><span class="idx-id">pkgdetail-carton_divider</span><span class="idx-name">Carton Divider</span></a>
-      <a class="idx-card" href="04-greenstreets_supplier_portal_Packaging-Padding.html"><span class="idx-id">pkgdetail-padding</span><span class="idx-name">Padding</span></a>
-      <a class="idx-card" href="04-greenstreets_supplier_portal_Packaging-Goh-Polybag.html"><span class="idx-id">pkgdetail-goh_polybag</span><span class="idx-name">GOH Polybag</span></a>
-      <a class="idx-card" href="04-greenstreets_supplier_portal_Packaging-Cdu.html"><span class="idx-id">pkgdetail-cdu</span><span class="idx-name">CDU Display Unit</span></a>
-      <a class="idx-card" href="04-greenstreets_supplier_portal_Packaging-Pallet.html"><span class="idx-id">pkgdetail-pallet</span><span class="idx-name">Pallet</span></a>
-      <a class="idx-card" href="04-greenstreets_supplier_portal_Packaging-Pallet-Wrap.html"><span class="idx-id">pkgdetail-pallet_wrap</span><span class="idx-name">Pallet Wrap / Stretch</span></a>
-      <a class="idx-card" href="04-greenstreets_supplier_portal_Packaging-Pallet-Label.html"><span class="idx-id">pkgdetail-pallet_label</span><span class="idx-name">Pallet Label</span></a>
-      <a class="idx-card" href="04-greenstreets_supplier_portal_Packaging-Fastener.html"><span class="idx-id">pkgdetail-fastener</span><span class="idx-name">Fastener</span></a>
+      <a class="idx-card" href="04-greenstreets_supplier_portal_Packaging-Swing-Tag.html"><span class="idx-id">pkgdetail-swing_tag</span><span class="idx-name">Swing Tag<span class="idx-star" title="Upsell touchpoint: Share spec button next to Download DoC">★</span></span></a>
+      <a class="idx-card" href="04-greenstreets_supplier_portal_Packaging-Hanger.html"><span class="idx-id">pkgdetail-hanger</span><span class="idx-name">Hanger<span class="idx-star" title="Upsell touchpoint: Share spec button next to Download DoC">★</span></span></a>
+      <a class="idx-card" href="04-greenstreets_supplier_portal_Packaging-Poly-Bag.html"><span class="idx-id">pkgdetail-poly_bag</span><span class="idx-name">Poly Bag<span class="idx-star" title="Upsell touchpoint: Share spec button next to Download DoC">★</span></span></a>
+      <a class="idx-card" href="04-greenstreets_supplier_portal_Packaging-Display-Box.html"><span class="idx-id">pkgdetail-display_box</span><span class="idx-name">Display Box<span class="idx-star" title="Upsell touchpoint: Share spec button next to Download DoC">★</span></span></a>
+      <a class="idx-card" href="04-greenstreets_supplier_portal_Packaging-Wrap-Band.html"><span class="idx-id">pkgdetail-wrap_band</span><span class="idx-name">Wrap Band<span class="idx-star" title="Upsell touchpoint: Share spec button next to Download DoC">★</span></span></a>
+      <a class="idx-card" href="04-greenstreets_supplier_portal_Packaging-Tissue-Paper.html"><span class="idx-id">pkgdetail-tissue_paper</span><span class="idx-name">Tissue Paper<span class="idx-star" title="Upsell touchpoint: Share spec button next to Download DoC">★</span></span></a>
+      <a class="idx-card" href="04-greenstreets_supplier_portal_Packaging-Shipping-Carton.html"><span class="idx-id">pkgdetail-shipping_carton</span><span class="idx-name">Shipping Carton<span class="idx-star" title="Upsell touchpoint: Share spec button next to Download DoC">★</span></span></a>
+      <a class="idx-card" href="04-greenstreets_supplier_portal_Packaging-Shelf-Tray.html"><span class="idx-id">pkgdetail-shelf_tray</span><span class="idx-name">Shelf-Ready Tray<span class="idx-star" title="Upsell touchpoint: Share spec button next to Download DoC">★</span></span></a>
+      <a class="idx-card" href="04-greenstreets_supplier_portal_Packaging-Carton-Divider.html"><span class="idx-id">pkgdetail-carton_divider</span><span class="idx-name">Carton Divider<span class="idx-star" title="Upsell touchpoint: Share spec button next to Download DoC">★</span></span></a>
+      <a class="idx-card" href="04-greenstreets_supplier_portal_Packaging-Padding.html"><span class="idx-id">pkgdetail-padding</span><span class="idx-name">Padding<span class="idx-star" title="Upsell touchpoint: Share spec button next to Download DoC">★</span></span></a>
+      <a class="idx-card" href="04-greenstreets_supplier_portal_Packaging-Goh-Polybag.html"><span class="idx-id">pkgdetail-goh_polybag</span><span class="idx-name">GOH Polybag<span class="idx-star" title="Upsell touchpoint: Share spec button next to Download DoC">★</span></span></a>
+      <a class="idx-card" href="04-greenstreets_supplier_portal_Packaging-Cdu.html"><span class="idx-id">pkgdetail-cdu</span><span class="idx-name">CDU Display Unit<span class="idx-star" title="Upsell touchpoint: Share spec button next to Download DoC">★</span></span></a>
+      <a class="idx-card" href="04-greenstreets_supplier_portal_Packaging-Pallet.html"><span class="idx-id">pkgdetail-pallet</span><span class="idx-name">Pallet<span class="idx-star" title="Upsell touchpoint: Share spec button next to Download DoC">★</span></span></a>
+      <a class="idx-card" href="04-greenstreets_supplier_portal_Packaging-Pallet-Wrap.html"><span class="idx-id">pkgdetail-pallet_wrap</span><span class="idx-name">Pallet Wrap / Stretch<span class="idx-star" title="Upsell touchpoint: Share spec button next to Download DoC">★</span></span></a>
+      <a class="idx-card" href="04-greenstreets_supplier_portal_Packaging-Pallet-Label.html"><span class="idx-id">pkgdetail-pallet_label</span><span class="idx-name">Pallet Label<span class="idx-star" title="Upsell touchpoint: Share spec button next to Download DoC">★</span></span></a>
+      <a class="idx-card" href="04-greenstreets_supplier_portal_Packaging-Fastener.html"><span class="idx-id">pkgdetail-fastener</span><span class="idx-name">Fastener<span class="idx-star" title="Upsell touchpoint: Share spec button next to Download DoC">★</span></span></a>
     </div>
   </div>
 <script>

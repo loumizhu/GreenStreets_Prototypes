@@ -90,10 +90,11 @@ html,body{height:100%;font-family:'Inter',sans-serif;color:var(--tw);background:
 .pg-sub{font-size:11px;color:var(--tw3);margin-top:3px}
 .pg-tags{display:flex;align-items:center;gap:6px;margin-top:5px;flex-wrap:wrap}
 .pg-actions{display:flex;gap:8px;flex-shrink:0;margin-top:2px}
-.breadcrumb{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--tw3);margin-bottom:10px}
+.breadcrumb{display:flex;align-items:center;gap:8px;font-size:15px;color:var(--tw3);margin-bottom:10px;flex-wrap:wrap}
 .bc-link{color:var(--gs-l);text-decoration:none;cursor:pointer}
 .bc-link:hover{text-decoration:underline}
-.bc-sep,.bc-cur{color:var(--tw3)}
+.bc-sep{color:var(--tw3)}
+.bc-cur{font-weight:600;color:var(--tw2)}
 
 /* ── ONBOARDING PROGRESS BAR (persists across provision steps) ── */
 .ob-bar{background:linear-gradient(160deg,#0e1e38,#122540);border:1px solid var(--stroke);border-radius:var(--rl);padding:12px 20px;margin-bottom:14px}
@@ -136,7 +137,7 @@ html,body{height:100%;font-family:'Inter',sans-serif;color:var(--tw);background:
 .filter-group{display:contents}
 .search-wrap{position:relative;display:flex;align-items:center}
 .search-wrap svg{position:absolute;left:9px;color:var(--tw3);pointer-events:none}
-.fi-search{padding-left:30px;width:100%;min-width:0}
+.fi.fi-search{padding-left:30px;width:100%;min-width:0}
 .fi-select{width:100%;min-width:0}
 
 /* ── TABLES ── */
@@ -456,6 +457,13 @@ html,body{height:100%;font-family:'Inter',sans-serif;color:var(--tw);background:
 .gs-id-text{font-size:11.5px;letter-spacing:.02em;white-space:nowrap;line-height:1}
 .gs-id-dim{color:var(--tw3);font-weight:400}
 .gs-id-key{color:var(--gs-l);font-weight:700}
+/* Packagings listing — Product (SKU) cell: SKU chip and product name side by side on one line.
+   A long name wraps inside its own column (never under the chip); chip and first text line share
+   the same 18px line box so they stay vertically centred on each other. */
+.rapkg-prod{display:flex;align-items:flex-start;gap:6px}
+.rapkg-prod .gs-id{flex-shrink:0;height:18px}
+.rapkg-prod-sep{flex-shrink:0;line-height:18px;opacity:.6}
+.rapkg-prod-name{min-width:0;line-height:18px}
 
 /* Dashboard header notification bell + floating menu */
 .ra-notif-menu{position:absolute;top:calc(100% + 8px);right:0;width:308px;background:linear-gradient(150deg,#0f2340 0%,#112850 100%);border:1px solid var(--line-2);border-radius:12px;box-shadow:0 24px 60px -18px rgba(0,0,0,.7);z-index:300;overflow:hidden;display:none}

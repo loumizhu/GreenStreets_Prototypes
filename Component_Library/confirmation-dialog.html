@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>GreenStreets — Confirmation dialog</title>
+<meta name="description" content="The one confirmation dialog used for approve / cancel-approval actions: live demo, copyable markup and the exact pages that use it.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<!-- The REAL portal stylesheets, in the same order a portal page loads them. -->
+<link rel="stylesheet" href="css/greenstreets-theme.css?v=1">
+<link rel="stylesheet" href="css/supplier-portal.css?v=1">
+<link rel="stylesheet" href="css/portal-extras.css?v=1">
+<link rel="stylesheet" href="css/greenstreets-light.css?v=1">
+<link rel="stylesheet" href="css/portal-extras-light.css?v=1">
+<style>
+body{margin:0;padding:32px 24px 64px;min-height:100vh;font-family:Inter,system-ui,sans-serif}
+.cd-wrap{max-width:1040px;margin:0 auto}
+.cd-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:24px}
+.cd-h1{font-size:24px;font-weight:600;margin:0 0 6px;color:var(--tw)}
+.cd-lead{font-size:13px;line-height:1.6;color:var(--tw2);max-width:680px;margin:0}
+.cd-sec{margin-top:28px}
+.cd-sec>h2{font-size:14px;font-weight:600;color:var(--tw);margin:0 0 10px}
+.cd-card{border:1px solid var(--line,rgba(255,255,255,.1));border-radius:12px;padding:18px;background:rgba(255,255,255,.03)}
+.cd-btns{display:flex;flex-wrap:wrap;gap:10px}
+.cd-note{font-size:12px;color:var(--tw3);line-height:1.6;margin:10px 0 0}
+.cd-static{display:flex;justify-content:center;padding:26px 12px;border-radius:10px;background:rgba(0,0,0,.25)}
+.cd-static .modal-box{margin:0}
+.cd-code{position:relative;margin:0;padding:14px 16px;border-radius:10px;background:rgba(0,0,0,.35);color:#cfe0f5;font:12px/1.55 ui-monospace,Consolas,monospace;overflow:auto;white-space:pre}
+.cd-copy{position:absolute;top:8px;right:8px}
+.cd-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+.cd-tbl th{text-align:left;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--tw3);padding:8px 10px;border-bottom:1px solid var(--line,rgba(255,255,255,.1))}
+.cd-tbl td{padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.06);color:var(--tw2);vertical-align:top}
+.cd-tbl td:first-child{color:var(--tw);font-weight:600;white-space:nowrap}
+.cd-tbl code{font-size:11.5px;color:var(--gs-l)}
+.cd-tbl a{color:var(--gs-l);text-decoration:none}
+.cd-tbl a:hover{text-decoration:underline}
+.cd-tag{display:inline-block;font-size:10.5px;padding:1px 7px;border-radius:99px;border:1px solid rgba(255,255,255,.15);margin-left:6px;color:var(--tw3);font-weight:500}
+body.lt .cd-card{background:#fff}
+body.lt .cd-static{background:rgba(51,65,92,.08)}
+body.lt .cd-code{background:#f1f4fa;color:#33415c}
+body.lt .cd-tbl td{border-bottom-color:rgba(51,65,92,.1)}
+</style>
+</head>
+<body>
+<div class="cd-wrap">
+  <div class="cd-top">
+    <div>
+      <h1 class="cd-h1">Confirmation dialog</h1>
+      <p class="cd-lead">One dialog for every approve / cancel-approval action in the portals. It is not a per-page component: a page supplies a <b>title</b>, a <b>body</b>, an <b>OK label</b> and a <b>callback</b>; the surface, buttons and behaviour never change. Do not build a new one — reuse this.</p>
+    </div>
+    <button class="btn-g" id="cd-theme" onclick="cdTheme()">Light theme</button>
+  </div>
+
+  <div class="cd-sec">
+    <h2>Live demo</h2>
+    <div class="cd-card">
+      <div class="cd-btns">
+        <button class="btn-p" onclick="cdAsk('Approve product?','Approving “Black crew neck sweatshirt” (PRK-001-BLA) confirms every packaging component is correct. You can re-open it later if something changes.','Approve')">Approve product</button>
+        <button class="btn-g" onclick="cdAsk('Cancel approval?','Cancel the approval of “Swing Tag”? The product will be re-opened for review. You can approve it again afterwards.','Cancel approval')">Cancel component approval</button>
+        <button class="btn-g" onclick="cdAsk('Approve this document?','Declaration_2024.pdf was previously marked Not Approved. Approving it now will mark it as compliant.','Approve')">Approve document</button>
+        <button class="btn-g" onclick="cdAsk('Cancel approval?','Declaration_2024.pdf will be sent back to Pending Approval and will need to be re-approved.','Cancel approval')">Cancel document approval</button>
+      </div>
+      <p class="cd-note" id="cd-result">Open one, then Cancel or confirm. Esc and a click on the backdrop also dismiss it.</p>
+    </div>
+  </div>
+
+  <div class="cd-sec">
+    <h2>Anatomy</h2>
+    <div class="cd-static">
+      <div class="modal-box">
+        <div style="font-size:15px;font-weight:600;margin-bottom:8px">Cancel approval?</div>
+        <div style="font-size:12.5px;color:var(--tw2);margin-bottom:18px;line-height:1.5">Swing Tag will be sent back to Pending Approval and will need to be re-approved.</div>
+        <div style="display:flex;justify-content:flex-end;gap:8px">
+          <button class="btn-g">Cancel</button>
+          <button class="btn-p">Cancel approval</button>
+        </div>
+      </div>
+    </div>
+    <p class="cd-note">Surface <code>.modal-overlay</code> &gt; <code>.modal-box</code> · title 15px / 600 · body 12.5px in <code>--tw2</code> · footer right-aligned: secondary <code>.btn-g</code> “Cancel” + primary <code>.btn-p</code> with the action label. Overlay id is <code>ra-confirm-modal</code> (Retailer Admin) / <code>sa-confirm-modal</code> (Super Admin).</p>
+  </div>
+
+  <div class="cd-sec">
+    <h2>Markup</h2>
+    <pre class="cd-code"><button class="btn-g-sm cd-copy" onclick="cdCopy(this)">Copy</button>&lt;div class="modal-overlay" id="ra-confirm-modal"&gt;
+  &lt;div class="modal-box"&gt;
+    &lt;div style="font-size:15px;font-weight:600;margin-bottom:8px" id="ra-confirm-title"&gt;Confirm&lt;/div&gt;
+    &lt;div style="font-size:12.5px;color:var(--tw2);margin-bottom:18px;line-height:1.5" id="ra-confirm-body"&gt;Are you sure?&lt;/div&gt;
+    &lt;div style="display:flex;justify-content:flex-end;gap:8px"&gt;
+      &lt;button class="btn-g" onclick="raConfirmCancel()"&gt;Cancel&lt;/button&gt;
+      &lt;button class="btn-p" id="ra-confirm-ok" onclick="raConfirmOk()"&gt;Approve&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+// usage
+raShowConfirm('Cancel approval?', 'Swing Tag will be sent back…', 'Cancel approval', function () { /* do it */ });</pre>
+  </div>
+
+  <div class="cd-sec">
+    <h2>Where it appears</h2>
+    <div class="cd-card" style="padding:6px 10px">
+      <table class="cd-tbl">
+        <thead><tr><th>Portal</th><th>Page (dark · light)</th><th>Triggered by</th></tr></thead>
+        <tbody>
+          <tr><td>Retailer Admin</td><td><a href="../Retailer_Admin_Portal/02-Greenstreets_retailer_admin_Product-Detail.html">Product-Detail</a> · <a href="../Retailer_Admin_Portal/02-Greenstreets_retailer_admin_Product-Detail-Light.html">Light</a></td><td>“Approve product” button; “Approved” → “Cancel approval” on each component card<span class="cd-tag">ra-product.js</span></td></tr>
+          <tr><td>Retailer Admin</td><td><a href="../Retailer_Admin_Portal/02-Greenstreets_retailer_admin_Documents.html">Documents</a> · <a href="../Retailer_Admin_Portal/02-Greenstreets_retailer_admin_Documents-Light.html">Light</a></td><td>“Approve” on a previously Not Approved document; “Cancel approval” on an Approved one<span class="cd-tag">ra-documents-list.js</span></td></tr>
+          <tr><td>Super Admin</td><td><a href="../GreenStreets_Super_Admin/01-greenstreets_super_admin_Product-Detail.html">Product-Detail</a> · <a href="../GreenStreets_Super_Admin/01-greenstreets_super_admin_Product-Detail-Light.html">Light</a></td><td>Same as Retailer Admin Product-Detail (loads the Retailer Admin <code>ra-product.js</code>)</td></tr>
+          <tr><td>Super Admin</td><td><a href="../GreenStreets_Super_Admin/01-greenstreets_super_admin_Documents.html">Documents</a> · <a href="../GreenStreets_Super_Admin/01-greenstreets_super_admin_Documents-Light.html">Light</a></td><td>Same as Retailer Admin Documents<span class="cd-tag">sa-documents-list.js</span></td></tr>
+          <tr><td>Retailer User</td><td colspan="2">Not used — no page has this dialog.</td></tr>
+          <tr><td>Supplier</td><td colspan="2">Not used. The only confirmation is a native browser <code>confirm()</code> when bulk-removing library components (<code>supplier-portal.js</code>) — a candidate to migrate to this dialog.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- The dialog itself (identical to the portals'). -->
+<div class="modal-overlay" id="cd-modal" onclick="if(event.target===this)cdClose()">
+  <div class="modal-box">
+    <div style="font-size:15px;font-weight:600;margin-bottom:8px" id="cd-title">Confirm</div>
+    <div style="font-size:12.5px;color:var(--tw2);margin-bottom:18px;line-height:1.5" id="cd-body">Are you sure?</div>
+    <div style="display:flex;justify-content:flex-end;gap:8px">
+      <button class="btn-g" onclick="cdClose('Cancelled — nothing changed.')">Cancel</button>
+      <button class="btn-p" id="cd-ok" onclick="cdClose('Confirmed: ' + this.textContent)">Approve</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function cdAsk(t,b,ok){document.getElementById('cd-title').textContent=t;document.getElementById('cd-body').textContent=b;document.getElementById('cd-ok').textContent=ok;document.getElementById('cd-modal').classList.add('open');}
+function cdClose(msg){document.getElementById('cd-modal').classList.remove('open');if(msg)document.getElementById('cd-result').textContent=msg;}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')cdClose();});
+function cdTheme(){var lt=document.body.classList.toggle('lt');document.getElementById('cd-theme').textContent=lt?'Dark theme':'Light theme';}
+function cdCopy(btn){var t=btn.parentNode.textContent.replace(/^Copy/,'');try{navigator.clipboard.writeText(t);}catch(e){}btn.textContent='Copied';setTimeout(function(){btn.textContent='Copy';},1200);}
+</script>
+</body>
+</html>

@@ -6,7 +6,7 @@
 <title>Greenstreets — Retailer Admin · Supplier detail</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/greenstreets-theme.css?v=52">
-<link rel="stylesheet" href="css/retailer-admin.css?v=31">
+<link rel="stylesheet" href="css/retailer-admin.css?v=35">
 <link rel="stylesheet" href="css/greenstreets-light.css?v=12">
 </head>
 <body class="lt">
@@ -47,17 +47,8 @@
       </div>
       <div class="pg-hdr-bar">
         <div>
-          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-            <div class="pg-title" id="ra-sup-name">Indotex Manufacturing</div>
-            <span class="pill pill-green" id="ra-sup-status">Retailer Approved</span>
-            <span class="pill pill-grey" id="ra-sup-tier">Tier 1</span>
-            <span class="pill pill-grey" id="ra-sup-region">APAC</span>
-          </div>
-          <div style="font-size:11px;color:var(--tw3);margin-top:6px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
-            <span id="ra-sup-email">indotex@supplier.ie</span><span>·</span>
-            <span>Last active: <strong style="color:var(--tw2)">2 hours ago</strong></span><span>·</span>
-            <span>Invited: 14 Jun 2026</span>
-          </div>
+          <div class="pg-title" style="display:flex;align-items:center;gap:9px"><span id="ra-sup-name">Indotex Manufacturing</span><span class="pill pill-green" id="ra-sup-status" style="font-size:11px;padding:4px 10px">Retailer Approved</span></div>
+          <div class="pg-sub"><span id="ra-sup-email">indotex@supplier.ie</span> · <span id="ra-sup-tier">Tier 1</span> · <span id="ra-sup-region">APAC</span> · Last active 2 hours ago · Invited 14 Jun 2026</div>
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px">
           <div class="hdr-stat-row" style="display:flex">
@@ -178,7 +169,6 @@
     var setTxt=function(id,v){ var el=document.getElementById(id); if(el) el.textContent=v; };
     setTxt('ra-sup-name', name);
     setTxt('ra-sup-crumb', name);
-    document.title = 'Greenstreets — Retailer Admin · '+name;
     /* light-touch demo variants so each supplier reads differently */
     var meta={
       'EcoPack GmbH':          {status:'In Progress', pill:'pill-blue', tier:'Tier 1', region:'EU',   email:'ops@ecopack.de'},
@@ -193,7 +183,7 @@
   }
 })();
 </script>
-<script src="js/retailer-admin.js?v=39"></script>
+<script src="js/retailer-admin.js?v=41"></script>
 <script src="js/greenstreets-theme.js?v=31"></script>
 <script src="js/ra-tour.js?v=11"></script>
 <script src="js/gs-appearance.js?v=9"></script>

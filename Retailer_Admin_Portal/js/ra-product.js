@@ -192,6 +192,9 @@
       '.rap-qty-val{font-size:12px;font-weight:700;color:var(--tw);min-width:18px;text-align:center}' +
       '.rap-btn-approve{background:rgba(78,187,129,.12)!important;border-color:rgba(78,187,129,.35)!important;color:#4ebb81!important}' +
       '.rap-btn-approve:hover{background:rgba(78,187,129,.25)!important;border-color:var(--gs)!important;color:#fff!important}' +
+      '.rap-btn-toggle{cursor:pointer!important}.rap-btn-toggle{display:inline-grid!important}.rap-btn-toggle>span{grid-area:1/1;text-align:center}.rap-btn-toggle .rap-t-off{visibility:hidden}' +
+      '.rap-btn-toggle:hover,.rap-btn-toggle:focus-visible{background:rgba(224,96,90,.14)!important;border-color:rgba(224,96,90,.55)!important;color:#e0605a!important}' +
+      '.rap-btn-toggle:hover .rap-t-on,.rap-btn-toggle:focus-visible .rap-t-on{visibility:hidden}.rap-btn-toggle:hover .rap-t-off,.rap-btn-toggle:focus-visible .rap-t-off{visibility:visible}' +
       '.rap-btn-approved{background:rgba(78,187,129,.18)!important;border-color:rgba(78,187,129,.5)!important;color:#4ebb81!important;cursor:default!important}' +
       '.rap-btn-view{background:rgba(91,156,246,.1)!important;border-color:rgba(91,156,246,.3)!important;color:#5b9cf6!important}' +
       '.rap-btn-view:hover{background:rgba(91,156,246,.22)!important;color:#fff!important}' +
@@ -309,12 +312,10 @@
       var viewBtn = '<button type="button" class="rap-btn-view" title="View packaging detail" onclick="rapViewPkg(\'' + esc(c.name) + '\')">→ Detail</button>';
 
       var appBtn = '';
-      if (c.status === 'Provided' && !APPROVED) {
-        appBtn = c.approved
-          ? '<button type="button" class="rap-btn-remove" style="color:var(--tw2)!important;background:rgba(255,255,255,.08)!important;border-color:rgba(255,255,255,.15)!important" onclick="rapCancelApproveComp(' + i + ')">Cancel Approval</button>'
+      if (c.status === 'Provided') {
+        appBtn = c.approved || APPROVED
+          ? '<button type="button" class="rap-btn-approved rap-btn-toggle" title="Cancel approval" onclick="rapCancelApproveComp(' + i + ')"><span class="rap-t-on">Approved</span><span class="rap-t-off">Cancel</span></button>'
           : '<button type="button" class="rap-btn-approve" onclick="rapApproveComp(' + i + ')">Approve</button>';
-      } else if (c.status === 'Provided' && APPROVED) {
-        appBtn = '<button type="button" class="rap-btn-approved" disabled>Approved</button>';
       }
 
       var ttHtml = '';
@@ -364,6 +365,9 @@
     var crumb = document.getElementById('ra-prod-crumb'); if (crumb) crumb.textContent = PROD.sku;
     var awaiting = awaitingCount();
     var canApprove = !APPROVED && ACTUAL.length > 0 && awaiting === 0;
+    var approveTip = canApprove ? 'Approve this product — you will be asked to confirm'
+      : (ACTUAL.length === 0 ? 'Add at least one component before approving'
+        : awaiting + ' component' + (awaiting > 1 ? 's' : '') + ' still awaiting the supplier — approval unlocks once all are provided');
 
     var idIcon = (typeof window.gsIdenticon === 'function')
       ? '<span class="gs-id-ic" style="width:32px;height:32px;border-radius:8px">' + window.gsIdenticon(PROD.sku, 32) + '</span>'
@@ -374,7 +378,7 @@
         (APPROVED
           ? '<button class="rap-doc-btn" onclick="rapGenerateDoC()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Generate DoC</button>' +
             '<button class="btn-g" onclick="rapReopen()">Re-open</button>'
-          : '<button class="btn-p" ' + (canApprove ? '' : 'disabled style="opacity:.45;cursor:not-allowed"') + ' onclick="rapApprove()"><span class="btn-c"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" style="vertical-align:-2px;margin-right:5px"><polyline points="20 6 9 17 4 12"/></svg>Approve product</span></button>');
+          : '<span title="' + approveTip + '" style="display:inline-flex"><button class="btn-p" ' + (canApprove ? '' : 'disabled style="opacity:.45;cursor:not-allowed"') + ' onclick="rapApprove()"><span class="btn-c"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" style="vertical-align:-2px;margin-right:5px"><polyline points="20 6 9 17 4 12"/></svg>Approve product</span></button></span>');
 
     var providedCount = ACTUAL.filter(function(c){return c.status === 'Provided';}).length;
     var progHtml = '<div style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--tw2)"><div style="width:80px;height:6px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden"><div style="height:100%;background:var(--gs);width:' + (ACTUAL.length ? (providedCount/ACTUAL.length)*100 : 0) + '%"></div></div>' + providedCount + ' / ' + ACTUAL.length + '</div>';
@@ -509,9 +513,11 @@
   /* cancel approve individual component */
   window.rapCancelApproveComp = function (i) {
     var c = ACTUAL[i]; if (!c) return;
-    c.approved = false;
-    render();
-    toast('Approval cancelled for "' + c.name + '"');
+    showConfirm('Cancel approval?', 'Cancel the approval of "' + c.name + '"?' + (APPROVED ? ' The product will be re-opened for review.' : '') + ' You can approve it again afterwards.', 'Cancel approval', function () {
+      c.approved = false; APPROVED = false;
+      render();
+      toast('Approval cancelled for "' + c.name + '"');
+    });
   };
   /* ---- image upload + lightbox ---- */
   window.rapUploadImg = function (key, i) {
@@ -702,8 +708,33 @@
   window.rapApprove = function () {
     if (ACTUAL.length === 0) { toast('Add at least one component first'); return; }
     if (awaitingCount() > 0) { toast('All components must be provided by the supplier first'); return; }
-    APPROVED = true; render(); toast('Product approved ✅');
+    showConfirm('Approve product?', 'Approving "' + PROD.desc + '" (' + PROD.sku + ') confirms every packaging component is correct. You can re-open it later if something changes.', 'Approve', function () {
+      APPROVED = true; render(); toast('Product approved ✅');
+    });
   };
+  /* Same confirmation dialog as the Documents page (.modal-overlay / .modal-box, #ra-confirm-modal) —
+     injected here because this page doesn't ship the markup. Kept identical so the control stays standard. */
+  var confirmCb = null;
+  function showConfirm(title, body, okLabel, cb) {
+    var m = document.getElementById('ra-confirm-modal');
+    if (!m) {
+      m = document.createElement('div'); m.className = 'modal-overlay'; m.id = 'ra-confirm-modal';
+      m.innerHTML = '<div class="modal-box"><div style="font-size:15px;font-weight:600;margin-bottom:8px" id="ra-confirm-title">Confirm</div>' +
+        '<div style="font-size:12.5px;color:var(--tw2);margin-bottom:18px;line-height:1.5" id="ra-confirm-body">Are you sure?</div>' +
+        '<div style="display:flex;justify-content:flex-end;gap:8px"><button class="btn-g" onclick="raConfirmCancel()">Cancel</button>' +
+        '<button class="btn-p" id="ra-confirm-ok" onclick="raConfirmOk()">Approve</button></div></div>';
+      document.body.appendChild(m);
+    }
+    if (!window.raConfirmOk) {
+      window.raConfirmOk = function () { document.getElementById('ra-confirm-modal').classList.remove('open'); var f = confirmCb; confirmCb = null; if (f) f(); };
+      window.raConfirmCancel = function () { document.getElementById('ra-confirm-modal').classList.remove('open'); confirmCb = null; };
+    }
+    document.getElementById('ra-confirm-title').textContent = title;
+    document.getElementById('ra-confirm-body').textContent = body;
+    document.getElementById('ra-confirm-ok').textContent = okLabel;
+    confirmCb = cb;
+    m.classList.add('open');
+  }
   /* Opens the Generate DoC page (ra12) rather than faking a download. */
   window.rapGenerateDoC = function () {
     try { sessionStorage.setItem('ra_doc_sku', PROD.sku); } catch (e) {}

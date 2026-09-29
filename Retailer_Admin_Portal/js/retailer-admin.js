@@ -713,7 +713,7 @@ if (typeof ptInit === 'function') ptInit('rapkg', PACKAGINGS_RA, {
     return '<tr class="gs-row-check-row" style="cursor:pointer" onclick="openPackagingRA(\''+r.id+'\')">' +
       '<td class="gs-check-col" onclick="event.stopPropagation()"><input type="checkbox" class="rapkg-cb" data-id="'+r.id+'" onchange="rapkgCheckChange()"></td>' +
       '<td><div class="tbl-name">'+r.type+'</div></td>' +
-      '<td class="tbl-muted"><span class="gs-id-cell">'+r.sku+'</span> · '+r.desc+'</td>' +
+      '<td class="tbl-muted"><div class="rapkg-prod"><span class="gs-id-cell">'+r.sku+'</span><span class="rapkg-prod-sep">·</span><span class="rapkg-prod-name">'+r.desc+'</span></div></td>' +
       '<td class="tbl-muted">'+r.supplier+'</td>' +
       '<td class="tbl-muted">'+mat+'</td>' +
       '<td'+(r.weight?'':' class="tbl-muted"')+'>'+wt+'</td>' +
