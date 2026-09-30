@@ -420,11 +420,11 @@ function saProdSelectedRows() {
 
 function saProdBulkApprove() {
   var rows = saProdSelectedRows();
-  var eligible = rows.filter(function(r){ return r.status !== 'Complete'; });
+  var eligible = rows.filter(function(r){ return r.status === 'Pending approval'; });
   rows.forEach(function(r){ if (r.status !== 'Complete'){ r.status = 'Complete'; r.pill = 'pill-green'; r.pkg = 'Approved'; } });
   ptRender('s11');
   saProdClearSel();
-  saProdMiniToast(eligible.length ? eligible.length + ' product' + (eligible.length>1?'s':'') + ' approved' : 'Selected products are already complete');
+  saProdMiniToast(eligible.length ? eligible.length + ' product' + (eligible.length>1?'s':'') + ' approved' : 'No selected products are awaiting approval');
 }
 
 function saProdBulkRemind() {
@@ -453,9 +453,29 @@ function saDownloadDoc(sku) {
 }
 function saApproveProduct(sku, btn) {
   var rec = (window.PRODUCTS_S11 || []).filter(function(r){ return r.sku === sku; })[0];
-  if (rec) { rec.status = 'Complete'; rec.pill = 'pill-green'; rec.pkg = 'Approved'; ptRender('s11'); }
+  if (rec) { rec._prev = { status: rec.status, pill: rec.pill, pkg: rec.pkg }; rec.status = 'Complete'; rec.pill = 'pill-green'; rec.pkg = 'Approved'; ptRender('s11'); }
   else if (btn) { btn.textContent = 'Approved'; btn.style.pointerEvents = 'none'; btn.style.opacity = '0.5'; }
   saProdMiniToast('Product ' + sku + ' approved — DoC now available');
+}
+function saCancelApproval(sku) {
+  var rec = (window.PRODUCTS_S11 || []).filter(function(r){ return r.sku === sku; })[0];
+  if (!rec) return;
+  var m = document.createElement('div'); m.className = 'modal-overlay open';
+  m.innerHTML = '<div class="modal-box"><div style="font-size:15px;font-weight:600;margin-bottom:8px">Cancel approval?</div>' +
+    '<div style="font-size:12.5px;color:var(--tw2);margin-bottom:18px;line-height:1.5">The approval of ' + sku + ' will be withdrawn and its Declaration of Conformity will be unavailable until you approve it again.</div>' +
+    '<div style="display:flex;justify-content:flex-end;gap:8px"><button class="btn-g" data-a="keep">Keep approved</button><button class="btn-p" data-a="ok">Cancel approval</button></div></div>';
+  m.addEventListener('click', function(e){
+    var a = e.target.closest && e.target.closest('[data-a]');
+    if (!a && e.target !== m) return;
+    m.remove();
+    if (a && a.getAttribute('data-a') === 'ok') {
+      var p = rec._prev || { status: 'Pending approval', pill: 'pill-blue', pkg: rec.pkg };
+      rec.status = p.status; rec.pill = p.pill; rec.pkg = p.pkg; rec._prev = null;
+      ptRender('s11');
+      saProdMiniToast('Approval of ' + sku + ' cancelled');
+    }
+  });
+  document.body.appendChild(m);
 }
 function saSendReminder(sku) {
   saProdMiniToast('Reminder sent to supplier for ' + sku);
@@ -474,11 +494,11 @@ ptInit('s11',PRODUCTS_S11,{
     var docBtn = isComplete
       ? '<button class="btn-p" title="Generate Declaration of Conformity" onclick="event.stopPropagation();saDownloadDoc(\''+r.sku+'\')" style="height:24px;display:inline-flex;align-items:center;vertical-align:middle;box-sizing:border-box;font-size:11px;padding:0 10px;margin-right:6px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="margin-right:4px;position:relative;top:-1px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>DoC</button>'
       : '';
-    /* Pending approval → prominent primary Approve; Incomplete → plain Approve */
+    /* Pending approval → primary Approve (Incomplete = supplier data not finished, so not approvable) (green + swoosh); Complete (approved) → DoC above + secondary Cancel approval */
     var approveBtn = r.status === 'Pending approval'
-      ? '<button class="btn-p" title="Approve product" onclick="event.stopPropagation();saApproveProduct(\''+r.sku+'\',this)" tabindex="-1" data-approved="false" style="height:24px;display:inline-flex;align-items:center;vertical-align:middle;box-sizing:border-box;font-size:11px;padding:0 10px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" style="margin-right:4px;position:relative;top:-1px"><polyline points="20 6 9 17 4 12"></polyline></svg>Approve</button>'
-      : (r.status === 'Incomplete'
-          ? '<button class="act-mini" title="Approve product" onclick="event.stopPropagation();saApproveProduct(\''+r.sku+'\',this)" tabindex="-1" data-approved="false" style="height:24px;display:inline-flex;align-items:center;vertical-align:middle;box-sizing:border-box">Approve</button>'
+      ? '<button class="btn-p" title="Approve product" onclick="event.stopPropagation();saApproveProduct(\''+r.sku+'\',this)" tabindex="-1" data-approved="false" style="height:24px;display:inline-flex;align-items:center;vertical-align:middle;box-sizing:border-box;font-size:11px;padding:0 10px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" style="margin-right:4px;position:relative;top:-1px"><polyline points="20 6 9 17 4 12"></polyline></svg> Approve</button>'
+      : (isComplete
+          ? '<button class="btn-g-sm" title="Cancel approval" onclick="event.stopPropagation();saCancelApproval(\''+r.sku+'\')" tabindex="-1" style="height:24px;display:inline-flex;align-items:center;vertical-align:middle;box-sizing:border-box">Cancel approval</button>'
           : '');
     var reminderBtn = (r.status === 'Incomplete' || r.status === 'Pending')
       ? '<button class="act-mini" title="Send reminder" onclick="event.stopPropagation();saSendReminder(\''+r.sku+'\')" tabindex="-1" style="height:24px;display:inline-flex;align-items:center;vertical-align:middle;box-sizing:border-box;margin-right:6px">Send reminder</button>'
@@ -1703,4 +1723,64 @@ try{ window.gsIdenticon=gsIdenticon; window.gsEnhanceIds=gsEnhanceIds; }catch(_)
   function run(){ try{ if(typeof gsEnhanceIds==='function') gsEnhanceIds(document, '.gs-id-cell'); }catch(_){ } }
   if(document.readyState!=='loading') setTimeout(run,0);
   else document.addEventListener('DOMContentLoaded', run);
+})();
+
+/* ── Packagings listing (static rows): Approve → DoC + Cancel approval ──
+   Shares the gs_pkg_approved flag map (keyed by component, e.g. swing_tag) with the packaging detail pages (gs-approval.js).
+   Rows that ship as "Retailer Approved" are seeded into the map once so the two views agree. */
+(function(){
+  var KEY = 'gs_pkg_approved', SEED = 'gs_pkg_sa_seeded';
+  var CHK = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" style="margin-right:4px;position:relative;top:-1px"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+  var DL = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="margin-right:4px;position:relative;top:-1px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>';
+  var ST = 'height:24px;display:inline-flex;align-items:center;vertical-align:middle;box-sizing:border-box;font-size:11px;padding:0 10px;margin-right:6px';
+  function load(){ try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; } }
+  function save(m){ try { localStorage.setItem(KEY, JSON.stringify(m)); } catch (e) {} }
+  function keyOf(tr){ var m = (tr.getAttribute('onclick') || '').match(/Packaging-([A-Za-z-]+)\.html/); return m ? m[1].toLowerCase().replace(/-/g, '_') : null; }
+  function label(k){ return k.replace(/_/g, ' ').replace(/^./, function(c){ return c.toUpperCase(); }); }
+  function toast(m){ if (typeof gsToast === 'function') gsToast(m); }
+  function rows(){ return Array.prototype.slice.call(document.querySelectorAll('#su-pkg-tbody tr')); }
+
+  function paint(tr, m){
+    var k = keyOf(tr); if (!k) return;
+    var orig = tr.getAttribute('data-orig') || tr.getAttribute('data-status'); tr.setAttribute('data-orig', orig);
+    var pill = tr.children[9] && tr.children[9].querySelector('.pill');
+    if (pill && !pill.getAttribute('data-orig-cls')) { pill.setAttribute('data-orig-cls', pill.className); pill.setAttribute('data-orig-txt', pill.textContent); tr.setAttribute('data-orig-ord', tr.getAttribute('data-status-ord')); }
+    var on = !!m[k];
+    tr.setAttribute('data-status', on ? 'approved' : orig); tr.setAttribute('data-status-ord', on ? '0' : tr.getAttribute('data-orig-ord'));
+    if (pill) { pill.className = on ? 'pill pill-green' : pill.getAttribute('data-orig-cls'); pill.textContent = on ? 'Retailer Approved' : pill.getAttribute('data-orig-txt'); }
+    if (!on && orig !== 'pending') return;                /* Incomplete: supplier data not finished — cannot be approved */
+    var cell = tr.querySelector('.act-cell'); if (!cell) return;
+    var old = cell.querySelectorAll('[data-sa-appr]'); for (var i = 0; i < old.length; i++) old[i].remove();
+    var edit = cell.querySelector('.act-view'); if (!edit) return;
+    var h = on
+      ? '<button class="btn-p" data-sa-appr="1" title="Download Declaration of Conformity" onclick="saPkgDoc()" style="' + ST + '">' + DL + 'DoC</button>' +
+        '<button class="btn-g-sm" data-sa-appr="1" title="Cancel approval" onclick="saPkgCancel(\'' + k + '\')" style="height:24px;margin-right:6px">Cancel approval</button>'
+      : '<button class="btn-p" data-sa-appr="1" title="Approve component" onclick="saPkgApprove(\'' + k + '\')" style="' + ST + '">' + CHK + 'Approve</button>';
+    edit.insertAdjacentHTML('beforebegin', h);
+  }
+  function repaint(){ var m = load(); rows().forEach(function(tr){ paint(tr, m); }); if (typeof suPkgFilter === 'function') suPkgFilter(); }
+
+  window.saPkgDoc = function(){ toast('Declaration of Conformity downloaded'); };
+  window.saPkgApprove = function(k){ var m = load(); m[k] = true; save(m); repaint(); toast(label(k) + ' approved — DoC now available'); };
+  window.saPkgCancel = function(k){
+    var ov = document.createElement('div'); ov.className = 'modal-overlay open';
+    ov.innerHTML = '<div class="modal-box"><div style="font-size:15px;font-weight:600;margin-bottom:8px">Cancel approval?</div>' +
+      '<div style="font-size:12.5px;color:var(--tw2);margin-bottom:18px;line-height:1.5">The approval of this ' + label(k).toLowerCase() + ' will be withdrawn and its Declaration of Conformity will be unavailable until you approve it again.</div>' +
+      '<div style="display:flex;justify-content:flex-end;gap:8px"><button class="btn-g" data-a="keep">Keep approved</button><button class="btn-p" data-a="ok">Cancel approval</button></div></div>';
+    ov.addEventListener('click', function(e){
+      var a = e.target.closest && e.target.closest('[data-a]');
+      if (!a && e.target !== ov) return;
+      ov.remove();
+      if (a && a.getAttribute('data-a') === 'ok') { var m = load(); delete m[k]; save(m); repaint(); toast('Approval cancelled'); }
+    });
+    document.body.appendChild(ov);
+  };
+
+  function init(){
+    if (!document.getElementById('su-pkg-tbody')) return;
+    var m = load();
+    try { if (!localStorage.getItem(SEED)) { rows().forEach(function(tr){ var k = keyOf(tr); if (k && tr.getAttribute('data-status') === 'approved') m[k] = true; }); save(m); localStorage.setItem(SEED, '1'); } } catch (e) {}
+    repaint();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();

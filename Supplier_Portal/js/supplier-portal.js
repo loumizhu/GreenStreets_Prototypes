@@ -2622,7 +2622,7 @@ function gsPkgBulkDownload(){
   var rows = gsPkgSelectedRows();
   if(!rows.length) return;
   if(typeof gsToast==='function') gsToast('Downloading '+rows.length+' Declaration'+(rows.length>1?'s':'')+' of Conformity');
-  rows.forEach(function(r){ var k=gsPkgRowKey(r); if(k && typeof downloadDoC==='function'){ try{ downloadDoC(k); }catch(_){} } });
+  rows.forEach(function(r){ var k=gsPkgRowKey(r); if(k && typeof downloadDoC==='function' && (typeof gsPkgApproved!=='function' || gsPkgApproved(k))){ try{ downloadDoC(k); }catch(_){} } });
 }
 function gsPkgBulkRemove(){
   var rows = gsPkgSelectedRows();

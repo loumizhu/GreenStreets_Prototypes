@@ -323,6 +323,34 @@
       '<div class="rpk-grid">' + inner + '</div></div>';
   }
 
+  /* ---- approval: Approve (primary) → Download DoC + Cancel approval ---- */
+  var APPR_KEY = 'ra_pkg_approved';
+  function apprId() { return String(ROW.sku) + '|' + String(ROW.type); }
+  function apprLoad() { try { return JSON.parse(localStorage.getItem(APPR_KEY) || '{}') || {}; } catch (e) { return {}; } }
+  function isApproved() { var v = apprLoad()[apprId()]; return v === undefined ? ROW.status === 'Retailer Approved' : !!v; }
+  function apprSet(on) { var m = apprLoad(); m[apprId()] = !!on; try { localStorage.setItem(APPR_KEY, JSON.stringify(m)); } catch (e) {} }
+  function approvalBtns() {
+    if (!isApproved()) {
+      return '<button class="btn-p" title="Approve this component to unlock its Declaration of Conformity" onclick="rpkApprove()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" style="margin-right:5px;vertical-align:-2px"><polyline points="20 6 9 17 4 12"/></svg>Approve</button>';
+    }
+    return '<button class="btn-g" onclick="rpkDownloadDoC()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-14"/></svg>Download DoC</button>' +
+      '<button class="btn-g" title="Cancel approval" onclick="rpkCancelApproval()">Cancel approval</button>';
+  }
+  window.rpkApprove = function () { apprSet(true); render(); toast('Packaging approved — Declaration of Conformity now available'); };
+  window.rpkCancelApproval = function () {
+    var m = document.createElement('div'); m.className = 'modal-overlay open';
+    m.innerHTML = '<div class="modal-box"><div style="font-size:15px;font-weight:600;margin-bottom:8px">Cancel approval?</div>' +
+      '<div style="font-size:12.5px;color:var(--tw2);margin-bottom:18px;line-height:1.5">The approval of this ' + esc(ROW.type) + ' will be withdrawn and its Declaration of Conformity will be unavailable until you approve it again.</div>' +
+      '<div style="display:flex;justify-content:flex-end;gap:8px"><button class="btn-g" data-a="keep">Keep approved</button><button class="btn-p" data-a="ok">Cancel approval</button></div></div>';
+    m.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('[data-a]');
+      if (!a && e.target !== m) return;
+      m.remove();
+      if (a && a.getAttribute('data-a') === 'ok') { apprSet(false); render(); toast('Approval cancelled'); }
+    });
+    document.body.appendChild(m);
+  };
+
   /* ---- render ---- */
   function render() {
     injectCss();
@@ -339,7 +367,7 @@
         '<div style="display:flex;gap:8px;margin-top:8px">' + levelPill + statusPill + '</div>' +
       '</div><div class="rpk-head-actions">' +
         '<button class="btn-g" onclick="rpkDuplicate()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Duplicate</button>' +
-        '<button class="btn-g" onclick="rpkDownloadDoC()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-14"/></svg>Download DoC</button>' +
+        approvalBtns() +
       '</div></div>';
 
     var body = SECTIONS.map(section).join('');

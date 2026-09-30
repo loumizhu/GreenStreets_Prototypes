@@ -381,9 +381,12 @@ ptInit('ra', PRODUCTS_RA, {
     var docBtn = isComplete
       ? '<button class="btn-p" title="Generate Declaration of Conformity" onclick="event.stopPropagation();raDownloadDoc(\''+r.sku+'\')" style="height:24px;display:inline-flex;align-items:center;vertical-align:middle;box-sizing:border-box;font-size:11px;padding:0 10px;margin-right:6px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="margin-right:4px;position:relative;top:-1px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>DoC</button>'
       : '';
-    var approveBtn = r.status === 'Incomplete'
-      ? '<button class="act-mini" title="Approve product" onclick="event.stopPropagation();raApproveProduct(\''+r.sku+'\',this)" tabindex="-1" data-approved="false" style="height:24px;display:inline-flex;align-items:center;vertical-align:middle;box-sizing:border-box">Approve</button>'
-      : '';
+    /* Pending → primary Approve (green + swoosh; Incomplete = supplier data not finished, not approvable); Complete (approved) → DoC above + secondary Cancel approval */
+    var approveBtn = r.status === 'Pending'
+      ? '<button class="btn-p" title="Approve product" onclick="event.stopPropagation();raApproveProduct(\''+r.sku+'\',this)" tabindex="-1" data-approved="false" style="height:24px;display:inline-flex;align-items:center;vertical-align:middle;box-sizing:border-box;font-size:11px;padding:0 10px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" style="margin-right:4px;position:relative;top:-1px"><polyline points="20 6 9 17 4 12"></polyline></svg> Approve</button>'
+      : (isComplete
+          ? '<button class="btn-g-sm" title="Cancel approval" onclick="event.stopPropagation();raCancelApproval(\''+r.sku+'\')" tabindex="-1" style="height:24px;display:inline-flex;align-items:center;vertical-align:middle;box-sizing:border-box">Cancel approval</button>'
+          : '');
     var reminderBtn = (r.status === 'Incomplete' || r.status === 'Pending')
       ? '<button class="act-mini" title="Send reminder" onclick="event.stopPropagation();raSendReminder(\''+r.sku+'\')" tabindex="-1" style="height:24px;display:inline-flex;align-items:center;vertical-align:middle;box-sizing:border-box;margin-right:6px">Send reminder</button>'
       : '';
@@ -569,11 +572,11 @@ function raProdSelectedRows() {
 
 function raProdBulkApprove() {
   var rows = raProdSelectedRows();
-  var eligible = rows.filter(function(r){ return r.status !== 'Complete'; });
+  var eligible = rows.filter(function(r){ return r.status === 'Pending'; });
   rows.forEach(function(r){ if (r.status !== 'Complete'){ r.status = 'Complete'; r.pill = 'pill-green'; r.pkg = 'Approved'; } });
   ptRender('ra');
   raProdClearSel();
-  raProdMiniToast(eligible.length ? eligible.length + ' product' + (eligible.length>1?'s':'') + ' approved' : 'Selected products are already complete');
+  raProdMiniToast(eligible.length ? eligible.length + ' product' + (eligible.length>1?'s':'') + ' approved' : 'No selected products are awaiting approval');
 }
 
 function raProdBulkRemind() {
@@ -619,6 +622,7 @@ function raApproveProduct(sku, btn) {
   t.textContent = already ? 'Product '+sku+' is already approved' : 'Product ' + sku + ' approved — DoC now available';
   t.className = 'show';
   if (!already && rec) {
+    rec._prev = { status: rec.status, pill: rec.pill, pkg: rec.pkg };
     rec.status = 'Complete'; rec.pill = 'pill-green'; rec.pkg = 'Approved';
     if (typeof ptRender === 'function') ptRender('ra');
   } else if (!already && btn) {
@@ -630,6 +634,29 @@ function raApproveProduct(sku, btn) {
   }
   clearTimeout(raApproveProduct._t);
   raApproveProduct._t = setTimeout(function(){ t.className=''; }, 2600);
+}
+function raCancelApproval(sku) {
+  var rec = (window.PRODUCTS_RA || []).filter(function(r){ return r.sku === sku; })[0];
+  if (!rec) return;
+  var m = document.createElement('div'); m.className = 'modal-overlay open';
+  m.innerHTML = '<div class="modal-box"><div style="font-size:15px;font-weight:600;margin-bottom:8px">Cancel approval?</div>' +
+    '<div style="font-size:12.5px;color:var(--tw2);margin-bottom:18px;line-height:1.5">The approval of ' + sku + ' will be withdrawn and its Declaration of Conformity will be unavailable until you approve it again.</div>' +
+    '<div style="display:flex;justify-content:flex-end;gap:8px"><button class="btn-g" data-a="keep">Keep approved</button><button class="btn-p" data-a="ok">Cancel approval</button></div></div>';
+  m.addEventListener('click', function(e){
+    var a = e.target.closest && e.target.closest('[data-a]');
+    if (!a && e.target !== m) return;
+    m.remove();
+    if (a && a.getAttribute('data-a') === 'ok') {
+      var p = rec._prev || { status: 'Pending', pill: 'pill-grey', pkg: rec.pkg };
+      rec.status = p.status; rec.pill = p.pill; rec.pkg = p.pkg; rec._prev = null;
+      if (typeof ptRender === 'function') ptRender('ra');
+      var t = document.getElementById('ra-toast');
+      if (!t) { t = document.createElement('div'); t.id = 'ra-toast'; document.body.appendChild(t); }
+      t.textContent = 'Approval of ' + sku + ' cancelled'; t.className = 'show';
+      clearTimeout(raApproveProduct._t); raApproveProduct._t = setTimeout(function(){ t.className=''; }, 2600);
+    }
+  });
+  document.body.appendChild(m);
 }
 function raSendReminder(sku) {
   var t = document.getElementById('ra-toast');
@@ -722,11 +749,46 @@ if (typeof ptInit === 'function') ptInit('rapkg', PACKAGINGS_RA, {
       '<td><span class="pill '+r.pill+'">'+r.status+'</span></td>' +
       '<td class="act-cell" onclick="event.stopPropagation()" style="white-space:nowrap">' +
         '<button class="act-mini act-view" onclick="openPackagingRA(\''+r.id+'\')">→ Edit</button> ' +
+        (r.status === 'Pending'
+          ? '<button class="btn-p" title="Approve component" onclick="raApprovePackaging(\''+r.id+'\')" style="height:24px;display:inline-flex;align-items:center;vertical-align:middle;box-sizing:border-box;font-size:11px;padding:0 10px;margin-right:6px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" style="margin-right:4px;position:relative;top:-1px"><polyline points="20 6 9 17 4 12"></polyline></svg> Approve</button>'
+          : (r.status === 'Retailer Approved'
+              ? '<button class="btn-p" title="Download Declaration of Conformity" onclick="raPkgDoc()" style="height:24px;display:inline-flex;align-items:center;vertical-align:middle;box-sizing:border-box;font-size:11px;padding:0 10px;margin-right:6px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="margin-right:4px;position:relative;top:-1px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> DoC</button>' +
+                '<button class="btn-g-sm" title="Cancel approval" onclick="raCancelPackagingApproval(\''+r.id+'\')" style="height:24px;margin-right:6px">Cancel approval</button>'
+              : '')) +
         '<button class="act-mini act-remove" onclick="raRemovePackaging(\''+r.id+'\');">Remove</button>' +
       '</td>' +
     '</tr>';
   }
 });
+
+/* Approve / cancel a packaging component. Shares the localStorage flag the packaging detail page reads (ra_pkg_approved, keyed sku|type). */
+function raPkgApprFlag(rec, v){ try { var m = JSON.parse(localStorage.getItem('ra_pkg_approved') || '{}') || {}; m[rec.sku + '|' + rec.type] = v; localStorage.setItem('ra_pkg_approved', JSON.stringify(m)); } catch (e) {} }
+function raPkgToast(msg){
+  var t = document.getElementById('ra-toast');
+  if (!t) { t = document.createElement('div'); t.id = 'ra-toast'; document.body.appendChild(t); }
+  t.textContent = msg; t.className = 'show';
+  clearTimeout(raPkgToast._t); raPkgToast._t = setTimeout(function(){ t.className=''; }, 2600);
+}
+function raPkgDoc(){ raPkgToast('Declaration of Conformity downloaded'); }
+function raApprovePackaging(id){
+  var rec = PACKAGINGS_RA.filter(function(r){ return r.id === id; })[0]; if (!rec) return;
+  rec.status = 'Retailer Approved'; rec.pill = 'pill-green'; raPkgApprFlag(rec, true);
+  ptRender('rapkg'); raPkgToast(rec.type + ' approved — DoC now available');
+}
+function raCancelPackagingApproval(id){
+  var rec = PACKAGINGS_RA.filter(function(r){ return r.id === id; })[0]; if (!rec) return;
+  var m = document.createElement('div'); m.className = 'modal-overlay open';
+  m.innerHTML = '<div class="modal-box"><div style="font-size:15px;font-weight:600;margin-bottom:8px">Cancel approval?</div>' +
+    '<div style="font-size:12.5px;color:var(--tw2);margin-bottom:18px;line-height:1.5">The approval of this ' + rec.type + ' will be withdrawn and its Declaration of Conformity will be unavailable until you approve it again.</div>' +
+    '<div style="display:flex;justify-content:flex-end;gap:8px"><button class="btn-g" data-a="keep">Keep approved</button><button class="btn-p" data-a="ok">Cancel approval</button></div></div>';
+  m.addEventListener('click', function(e){
+    var a = e.target.closest && e.target.closest('[data-a]');
+    if (!a && e.target !== m) return;
+    m.remove();
+    if (a && a.getAttribute('data-a') === 'ok') { rec.status = 'Pending'; rec.pill = 'pill-grey'; raPkgApprFlag(rec, false); ptRender('rapkg'); raPkgToast('Approval cancelled'); }
+  });
+  document.body.appendChild(m);
+}
 
 /* Remove a packaging row from the catalogue and re-render the table. */
 function raRemovePackaging(id){
