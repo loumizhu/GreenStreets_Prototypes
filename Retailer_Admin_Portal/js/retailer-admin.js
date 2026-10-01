@@ -693,8 +693,8 @@ var PACKAGINGS_RA = (function(){
     {type:'Tissue paper',    level:'Primary',   matGroup:'paper',      material:'FSC paper'},
     {type:'Shipping carton', level:'Tertiary',  matGroup:'corrugated', material:'Corrugated card'}
   ];
-  var statuses = ['Retailer Approved','Incomplete','Pending'];
-  var pillMap  = {'Retailer Approved':'pill-green','Incomplete':'pill-amber','Pending':'pill-grey'};
+  var statuses = ['Complete','Incomplete','Review Needed','Needs Changing'];
+  var pillMap  = {'Complete':'pill-green','Incomplete':'pill-amber','Review Needed':'pill-amber','Needs Changing':'pill-red'};
   var recGrades = ['A','B','A','C'];
   var list = [], id = 1;
   for (var p=0; p<products.length; p++){
@@ -702,8 +702,8 @@ var PACKAGINGS_RA = (function(){
     for (var c=0; c<n; c++){
       var comp = comps[(p+c) % comps.length];
       var status = statuses[(p+c) % statuses.length];
-      var provided = status === 'Retailer Approved';
-      var shownMat = (status === 'Pending') ? '' : comp.material;
+      var provided = status === 'Complete';
+      var shownMat = (status === 'Incomplete') ? '' : comp.material;
       list.push({
         id:       'pk-' + String(id).padStart(3,'0'),
         type:     comp.type,
@@ -749,9 +749,9 @@ if (typeof ptInit === 'function') ptInit('rapkg', PACKAGINGS_RA, {
       '<td><span class="pill '+r.pill+'">'+r.status+'</span></td>' +
       '<td class="act-cell" onclick="event.stopPropagation()" style="white-space:nowrap">' +
         '<button class="act-mini act-view" onclick="openPackagingRA(\''+r.id+'\')">→ Edit</button> ' +
-        (r.status === 'Pending'
+        (r.status === 'Review Needed'
           ? '<button class="btn-p" title="Approve component" onclick="raApprovePackaging(\''+r.id+'\')" style="height:24px;display:inline-flex;align-items:center;vertical-align:middle;box-sizing:border-box;font-size:11px;padding:0 10px;margin-right:6px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" style="margin-right:4px;position:relative;top:-1px"><polyline points="20 6 9 17 4 12"></polyline></svg> Approve</button>'
-          : (r.status === 'Retailer Approved'
+          : (r.status === 'Complete'
               ? '<button class="btn-p" title="Download Declaration of Conformity" onclick="raPkgDoc()" style="height:24px;display:inline-flex;align-items:center;vertical-align:middle;box-sizing:border-box;font-size:11px;padding:0 10px;margin-right:6px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="margin-right:4px;position:relative;top:-1px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> DoC</button>' +
                 '<button class="btn-g-sm" title="Cancel approval" onclick="raCancelPackagingApproval(\''+r.id+'\')" style="height:24px;margin-right:6px">Cancel approval</button>'
               : '')) +
@@ -772,7 +772,7 @@ function raPkgToast(msg){
 function raPkgDoc(){ raPkgToast('Declaration of Conformity downloaded'); }
 function raApprovePackaging(id){
   var rec = PACKAGINGS_RA.filter(function(r){ return r.id === id; })[0]; if (!rec) return;
-  rec.status = 'Retailer Approved'; rec.pill = 'pill-green'; raPkgApprFlag(rec, true);
+  rec.status = 'Complete'; rec.pill = 'pill-green'; raPkgApprFlag(rec, true);
   ptRender('rapkg'); raPkgToast(rec.type + ' approved — DoC now available');
 }
 function raCancelPackagingApproval(id){
@@ -785,7 +785,7 @@ function raCancelPackagingApproval(id){
     var a = e.target.closest && e.target.closest('[data-a]');
     if (!a && e.target !== m) return;
     m.remove();
-    if (a && a.getAttribute('data-a') === 'ok') { rec.status = 'Pending'; rec.pill = 'pill-grey'; raPkgApprFlag(rec, false); ptRender('rapkg'); raPkgToast('Approval cancelled'); }
+    if (a && a.getAttribute('data-a') === 'ok') { rec.status = 'Review Needed'; rec.pill = 'pill-amber'; raPkgApprFlag(rec, false); ptRender('rapkg'); raPkgToast('Approval cancelled'); }
   });
   document.body.appendChild(m);
 }

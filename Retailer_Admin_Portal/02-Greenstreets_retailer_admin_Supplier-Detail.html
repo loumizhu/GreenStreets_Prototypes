@@ -89,7 +89,7 @@
           <div class="filter-toolbar">
             <div class="search-wrap"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-17"/></svg><input class="fi fi-search" placeholder="Search components…" oninput="gsFilterToolbar(this)"></div>
             <select class="fi fi-select" onchange="gsFilterToolbar(this)"><option value="all">All materials</option><option value="paper">Paper / card</option><option value="plastic">Plastic</option><option value="corrugated">Corrugated</option></select>
-            <select class="fi fi-select" onchange="gsFilterToolbar(this)"><option value="all">All statuses</option><option value="complete">Complete</option><option value="incomplete">Incomplete</option></select>
+            <select class="fi fi-select" onchange="gsFilterToolbar(this)"><option value="all">All statuses</option><option value="complete">Complete</option><option value="incomplete">Incomplete</option><option value="review needed">Review Needed</option><option value="needs changing">Needs Changing</option></select>
           </div>
           <table class="tbl" style="table-layout:fixed">
             <colgroup><col width="17%"><col width="13%"><col width="10%"><col width="9%"><col width="8%"><col width="11%"><col width="12%"><col width="12%"><col width="8%"></colgroup>
@@ -99,21 +99,21 @@
                 <td><div class="tbl-name">Swing tag</div></td><td class="tbl-muted">PRK-001-SW-BLK</td><td class="tbl-muted">Paper</td><td>2.4</td><td>80%</td>
                 <td><span class="pill pill-green" style="font-size:9px">A</span></td>
                 <td><span style="color:var(--gs-l);font-size:12px;font-weight:600">2</span><span style="color:var(--tw3);font-size:11px"> / 2</span></td>
-                <td><span class="pill pill-green">Approved</span></td>
+                <td><span class="pill pill-green">Complete</span></td>
                 <td class="chev-cell"><div class="chev-btn" onclick="openPackagingRA('PRK-001-SW-BLK')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></div></td>
               </tr>
               <tr>
                 <td><div class="tbl-name">Box / carton</div></td><td class="tbl-muted">PRK-001-BX-KFT</td><td class="tbl-muted">Corrugated</td><td>45.0</td><td>65%</td>
                 <td><span class="pill pill-green" style="font-size:9px">A</span></td>
                 <td><span style="color:var(--gs-l);font-size:12px;font-weight:600">3</span><span style="color:var(--tw3);font-size:11px"> / 3</span></td>
-                <td><span class="pill pill-green">Approved</span></td>
+                <td><span class="pill pill-green">Complete</span></td>
                 <td class="chev-cell"><div class="chev-btn" onclick="openPackagingRA('PRK-001-BX-KFT')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></div></td>
               </tr>
               <tr>
                 <td><div class="tbl-name">Poly bag</div></td><td class="tbl-muted">PRK-002-PB-BLU</td><td class="tbl-muted">LDPE</td><td>8.1</td><td>0%</td>
                 <td><span class="pill pill-amber" style="font-size:9px">D</span></td>
                 <td><span style="color:var(--amber);font-size:12px;font-weight:600">1</span><span style="color:var(--tw3);font-size:11px"> / 2</span></td>
-                <td><span class="pill pill-amber">In review</span></td>
+                <td><span class="pill pill-amber">Review Needed</span></td>
                 <td class="chev-cell"><div class="chev-btn" onclick="openPackagingRA('PRK-002-PB-BLU')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></div></td>
               </tr>
               <tr style="background:rgba(224,96,90,.05)">
@@ -130,28 +130,38 @@
                 <td><span class="pill pill-red">Incomplete</span></td>
                 <td class="chev-cell"><div class="chev-btn" onclick="openPackagingRA('PRK-004-TP-KHK')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></div></td>
               </tr>
-            </tbody>
+                          <tr>
+                <td><div class="tbl-name">Shipping carton</div></td><td class="tbl-muted">PRK-005-SC-WHT</td><td class="tbl-muted">LDPE</td><td>8.1</td><td>0%</td>
+                <td><span class="pill pill-amber" style="font-size:9px">D</span></td>
+                <td><span style="color:var(--amber);font-size:12px;font-weight:600">1</span><span style="color:var(--tw3);font-size:11px"> / 2</span></td>
+                <td><span class="pill pill-red">Needs Changing</span></td>
+                <td class="chev-cell"><div class="chev-btn" onclick="openPackagingRA('PRK-005-SC-WHT')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></div></td>
+              </tr>
+</tbody>
           </table>
           <div class="tbl-footer" style="padding:9px 12px">Showing 5 of 15 packaging components</div>
         </div>
       </div>
       <div class="grp">
-        <div class="grp-hdr">Proof documents<span style="font-size:11px;color:var(--tw3);font-weight:400">9 provided · 2 missing</span></div>
+        <div class="grp-hdr">Proof documents<span style="font-size:11px;color:var(--tw3);font-weight:400">9 approved · 2 missing</span></div>
         <div class="grp-body" style="padding:0">
           <div class="filter-toolbar">
             <div class="search-wrap"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-17"/></svg><input class="fi fi-search" placeholder="Search documents…" oninput="gsFilterToolbar(this)"></div>
             <select class="fi fi-select" onchange="gsFilterToolbar(this)"><option value="all">All types</option><option value="certificate">Certificate</option><option value="declaration">Declaration</option><option value="report">Test report</option></select>
-            <select class="fi fi-select" onchange="gsFilterToolbar(this)"><option value="all">All statuses</option><option value="provided">Provided</option><option value="missing">Missing</option></select>
+            <select class="fi fi-select" onchange="gsFilterToolbar(this)"><option value="all">All statuses</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="not approved">Not Approved</option><option value="expired">Expired</option><option value="missing">Missing</option></select>
           </div>
           <table class="tbl" style="table-layout:fixed">
             <colgroup><col width="38%"><col width="22%"><col width="18%"><col width="22%"></colgroup>
             <thead><tr><th>Document</th><th>Type</th><th>Valid until</th><th>Status</th></tr></thead>
             <tbody>
-              <tr><td><div class="tbl-name" style="font-size:11px">FSC Chain of Custody</div><div class="tbl-sub">Box / carton</div></td><td><span class="pill pill-grey" style="font-size:9px">Certificate</span></td><td class="tbl-muted">Dec 2026</td><td><span class="pill pill-green">Provided</span></td></tr>
-              <tr><td><div class="tbl-name" style="font-size:11px">Recycled content cert.</div><div class="tbl-sub">Swing tag</div></td><td><span class="pill pill-grey" style="font-size:9px">Certificate</span></td><td class="tbl-muted">Mar 2027</td><td><span class="pill pill-green">Provided</span></td></tr>
-              <tr><td><div class="tbl-name" style="font-size:11px">REACH test report</div><div class="tbl-sub">Poly bag</div></td><td><span class="pill pill-grey" style="font-size:9px">Test report</span></td><td class="tbl-muted">Jun 2026</td><td><span class="pill pill-amber">Expiring soon</span></td></tr>
+              <tr><td><div class="tbl-name" style="font-size:11px">FSC Chain of Custody</div><div class="tbl-sub">Box / carton</div></td><td><span class="pill pill-grey" style="font-size:9px">Certificate</span></td><td class="tbl-muted">Dec 2026</td><td><span class="pill pill-green">Approved</span></td></tr>
+              <tr><td><div class="tbl-name" style="font-size:11px">Recycled content cert.</div><div class="tbl-sub">Swing tag</div></td><td><span class="pill pill-grey" style="font-size:9px">Certificate</span></td><td class="tbl-muted">Mar 2027</td><td><span class="pill pill-green">Approved</span></td></tr>
+              <tr><td><div class="tbl-name" style="font-size:11px">REACH test report</div><div class="tbl-sub">Poly bag</div></td><td><span class="pill pill-grey" style="font-size:9px">Test report</span></td><td class="tbl-muted">Jun 2026</td><td><span class="pill pill-green">Approved</span></td></tr>
               <tr><td><div class="tbl-name" style="font-size:11px">MSDS — Poly bag</div><div class="tbl-sub">Poly bag</div></td><td><span class="pill pill-grey" style="font-size:9px">Safety sheet</span></td><td class="tbl-muted">—</td><td><span class="pill pill-red">Missing</span></td></tr>
               <tr><td><div class="tbl-name" style="font-size:11px">PCR content declaration</div><div class="tbl-sub">Hanger</div></td><td><span class="pill pill-grey" style="font-size:9px">Declaration</span></td><td class="tbl-muted">—</td><td><span class="pill pill-red">Missing</span></td></tr>
+              <tr><td><div class="tbl-name" style="font-size:11px">Lab test report</div><div class="tbl-sub">Hanger</div></td><td><span class="pill pill-grey" style="font-size:9px">Test report</span></td><td class="tbl-muted">Sep 2026</td><td><span class="pill pill-amber">Pending</span></td></tr>
+              <tr><td><div class="tbl-name" style="font-size:11px">Weight verification</div><div class="tbl-sub">Box / carton</div></td><td><span class="pill pill-grey" style="font-size:9px">Test report</span></td><td class="tbl-muted">Feb 2027</td><td><span class="pill pill-red">Not Approved</span></td></tr>
+              <tr><td><div class="tbl-name" style="font-size:11px">SDS — Box / carton</div><div class="tbl-sub">Box / carton</div></td><td><span class="pill pill-grey" style="font-size:9px">Safety sheet</span></td><td class="tbl-muted">Jan 2026</td><td><span class="pill pill-red">Expired</span></td></tr>
             </tbody>
           </table>
           <div class="tbl-footer" style="padding:9px 12px">9 of 11 required documents provided</div>

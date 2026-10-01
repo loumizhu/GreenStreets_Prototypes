@@ -1,11 +1,11 @@
 /* ==========================================================================
    ra-documents-list.js — Retailer Admin Documents listing (row-level status
    actions). Each row's Status column + the primary action button next to
-   Download stay in sync: Pending Approval/Not Approved -> Approve, Approved
+   Download stay in sync: Pending/Not Approved -> Approve, Approved
    -> Cancel approval, Expired -> Send reminder. Not Approved requires a
    confirmation dialog since the document was previously rejected; Cancel
    approval also confirms since it reverts an Approved document back to
-   Pending Approval. Approving a Pending Approval document is a single click
+   Pending. Approving a Pending document is a single click
    with no confirmation.
    Depends on the .doc-status-cell / .doc-action-slot markup baked into each
    row and the shared #ra-confirm-modal on this page.
@@ -22,12 +22,12 @@
   }
 
   function statusPillHtml(status) {
-    var map = { 'Approved': 'pill-green', 'Pending Approval': 'pill-blue', 'Not Approved': 'pill-red', 'Expired': 'pill-red', 'Superseded': 'pill-grey' };
+    var map = { 'Approved': 'pill-green', 'Pending': 'pill-amber', 'Not Approved': 'pill-red', 'Expired': 'pill-red' };
     return '<span class="pill ' + (map[status] || 'pill-grey') + '">' + status + '</span>';
   }
 
   function actionSlotHtml(status) {
-    if (status === 'Pending Approval' || status === 'Not Approved') {
+    if (status === 'Pending' || status === 'Not Approved') {
       var handler = status === 'Not Approved' ? 'raRowApproveConfirm' : 'raRowApprove';
       return '<button class="btn-p" style="height:26px;padding:0 10px;font-size:11px" onclick="event.stopPropagation();' + handler + '(this)">Approve</button>';
     }
@@ -85,9 +85,9 @@
     var label = name ? name.textContent.trim() : 'this document';
     raShowConfirm(
       'Cancel approval?',
-      label + ' will be sent back to Pending Approval and will need to be re-approved.',
+      label + ' will be sent back to Pending and will need to be re-approved.',
       'Cancel approval',
-      function () { setRowStatus(tr, 'Pending Approval'); toast('Approval cancelled — back to pending review'); }
+      function () { setRowStatus(tr, 'Pending'); toast('Approval cancelled — back to pending review'); }
     );
   };
   window.raRowSendReminder = function (btn) {
@@ -103,7 +103,7 @@
      table's row order on window load — so the toolkit's pager/sort-reset also treats this
      as the "original" order. */
   function sortTablesByStatusPriority() {
-    var PRIORITY = { 'Expired': 0, 'Not Approved': 1, 'Pending Approval': 2, 'Approved': 3, 'Superseded': 4 };
+    var PRIORITY = { 'Expired': 0, 'Not Approved': 1, 'Pending': 2, 'Approved': 3 };
     var tables = document.querySelectorAll('table.tbl');
     for (var t = 0; t < tables.length; t++) {
       var tbody = tables[t].querySelector('tbody');

@@ -191,7 +191,8 @@
     var s = (status || '').toLowerCase();
     if (s.indexOf('complete') === 0) return 'pill-green';
     if (s.indexOf('incomplete') === 0) return 'pill-red';
-    if (s.indexOf('pending') === 0) return 'pill-amber';
+    if (s.indexOf('pending') === 0 || s.indexOf('review needed') === 0) return 'pill-amber';
+    if (s.indexOf('needs changing') === 0) return 'pill-red';
     return 'pill-grey';
   }
 
@@ -204,7 +205,7 @@
 
     var lvl = PKG.packagingLevel;
     var levelPill = '<span class="pill ' + (lvl === 'Primary' ? 'pill-blue' : (lvl === 'Secondary' ? 'pill-green' : 'pill-grey')) + '">' + esc(lvl || 'Primary') + '</span>';
-    var statusPill = '<span class="pill ' + statusMeta(row.status) + '">' + esc(row.status || 'Pending') + '</span>';
+    var statusPill = '<span class="pill ' + statusMeta(row.status) + '">' + esc(row.status || 'Incomplete') + '</span>';
 
     var head =
       '<div class="rpk-head"><div>' +

@@ -65,7 +65,7 @@
     try { id = sessionStorage.getItem('ra_pkg'); } catch (e) {}
     var row = null;
     if (id) row = list.filter(function (x) { return x.id === id; })[0];
-    return row || list[0] || { id: 'pk-000', type: 'Packaging', level: 'Primary', matGroup: 'paper', sku: '—', desc: 'Product', supplier: '—', material: '', weight: '', pcr: '', recycle: '', status: 'Pending', pill: 'pill-grey' };
+    return row || list[0] || { id: 'pk-000', type: 'Packaging', level: 'Primary', matGroup: 'paper', sku: '—', desc: 'Product', supplier: '—', material: '', weight: '', pcr: '', recycle: '', status: 'Review Needed', pill: 'pill-amber' };
   }
   /* listing shorthand → GS_VOCAB.packagingType */
   var TYPE_MAP = { 'Swing tag': 'Swing Tag', 'Box / carton': 'Box/Carton', 'Poly bag': 'Bag (Poly)', 'Hanger': 'Hanger (Plastic Hanger)', 'Tissue paper': 'Paper Sheet', 'Shipping carton': 'Shipper' };
@@ -327,7 +327,7 @@
   var APPR_KEY = 'ra_pkg_approved';
   function apprId() { return String(ROW.sku) + '|' + String(ROW.type); }
   function apprLoad() { try { return JSON.parse(localStorage.getItem(APPR_KEY) || '{}') || {}; } catch (e) { return {}; } }
-  function isApproved() { var v = apprLoad()[apprId()]; return v === undefined ? ROW.status === 'Retailer Approved' : !!v; }
+  function isApproved() { var v = apprLoad()[apprId()]; return v === undefined ? ROW.status === 'Complete' : !!v; }
   function apprSet(on) { var m = apprLoad(); m[apprId()] = !!on; try { localStorage.setItem(APPR_KEY, JSON.stringify(m)); } catch (e) {} }
   function approvalBtns() {
     if (!isApproved()) {
@@ -357,7 +357,7 @@
     var root = document.getElementById('ra-pkg-root');
     var crumb = document.getElementById('ra-pkg-crumb'); if (crumb) crumb.textContent = ROW.type;
 
-    var statusPill = '<span class="pill ' + (ROW.pill || 'pill-grey') + '">' + esc(ROW.status || 'Pending') + '</span>';
+    var statusPill = '<span class="pill ' + (ROW.pill || 'pill-amber') + '">' + esc(ROW.status || 'Review Needed') + '</span>';
     var levelPill = '<span class="pill ' + (PKG.packagingLevel === 'Primary' ? 'pill-blue' : 'pill-grey') + '">' + esc(PKG.packagingLevel || 'Primary') + '</span>';
 
     var head =

@@ -62,8 +62,15 @@
     else if (/not started/i.test(p.pkg || '')) { total = 3; done = 0; }
     if (p.status === 'Complete') done = total;
     var comps = [];
+    /* Requirement-field status per component (display label). Logic still keys off status
+       (Provided/Awaiting) + approved; `req` only picks which workflow label is shown, so a
+       product's components read as a realistic mix of the seven requirement statuses. */
+    var sn = parseInt((/-(\d+)-/.exec(p.sku || '') || [])[1], 10) || 0;
+    var PROV_REQ = ['Submitted', 'Pending Review', 'Approved'];
+    var AWAIT_REQ = p.status === 'Pending' ? ['Awaiting Supplier', 'Draft', 'Not Required'] : ['Awaiting Supplier', 'Draft', 'Changes Requested', 'Awaiting Supplier'];
     for (var i = 0; i < total; i++) {
       var provided = i < done;
+      var req = provided ? (p.status === 'Complete' ? 'Approved' : PROV_REQ[(i + sn) % PROV_REQ.length]) : AWAIT_REQ[(i + sn) % AWAIT_REQ.length];
       var rems = [];
       if (!provided) {
         rems.push({ type: 'Automated', date: 'Oct 1, 10:00 AM' });
@@ -78,8 +85,9 @@
         recycle: provided ? RECYCLE[i % RECYCLE.length] : '',
         notes: '',
         status: provided ? 'Provided' : 'Awaiting',
+        req: req,
         qty: 1,
-        approved: p.status === 'Complete' && provided, /* seed approved for already-complete products */
+        approved: (p.status === 'Complete' && provided) || req === 'Approved', /* seed approved for already-complete products */
         reminders: rems
       });
     }
@@ -137,19 +145,28 @@
   }
 
   /* ---- derived product state ---- */
-  function awaitingCount() { return ACTUAL.filter(function (c) { return c.status !== 'Provided'; }).length; }
+  function awaitingCount() { return ACTUAL.filter(function (c) { return c.status !== 'Provided' && c.req !== 'Not Required'; }).length; }
   function approvedCount() { return ACTUAL.filter(function (c) { return c.approved; }).length; }
   function allApproved() { return ACTUAL.length > 0 && approvedCount() === ACTUAL.length; }
   function statusPill() {
-    if (APPROVED) return '<span class="pill pill-green">Retailer approved</span>';
-    if (ACTUAL.length === 0) return '<span class="pill pill-grey">No components</span>';
-    if (awaitingCount() === 0) return '<span class="pill pill-blue">Ready to approve</span>';
-    return '<span class="pill" style="background:rgba(245,166,35,.14);color:#f5a623;border:1px solid rgba(245,166,35,.32)">Awaiting supplier</span>';
+    if (APPROVED) return '<span class="pill pill-green">Complete</span>';
+    if (ACTUAL.length === 0) return '<span class="pill pill-amber">Incomplete</span>';
+    if (awaitingCount() === 0) return '<span class="pill pill-grey">Pending</span>';
+    return '<span class="pill" style="background:rgba(245,166,35,.14);color:#f5a623;border:1px solid rgba(245,166,35,.32)">Incomplete</span>';
   }
   function compStatusPill(c) {
     if (c.approved) return '<span class="pill pill-green" style="font-size:9px">✅ Approved</span>';
-    if (c.status === 'Provided') return '<span class="pill" style="font-size:9px;background:rgba(91,156,246,.14);color:#5b9cf6;border:1px solid rgba(91,156,246,.32)">Provided</span>';
-    return '<span class="pill" style="font-size:9px;background:rgba(245,166,35,.14);color:#f5a623;border:1px solid rgba(245,166,35,.32)">Awaiting supplier</span>';
+    if (c.status === 'Provided') return '<span class="pill" style="font-size:9px;background:rgba(91,156,246,.14);color:#5b9cf6;border:1px solid rgba(91,156,246,.32)">Submitted</span>';
+    return '<span class="pill pill-grey" style="font-size:9px">Awaiting Supplier</span>';
+  }
+  /* Requirement-field status pill: seeded `req` label wins when it still matches the component's real state. */
+  function compReqPill(c) {
+    var r = c.req;
+    if (!c.approved && c.status === 'Provided' && r === 'Pending Review') return '<span class="pill pill-amber" style="font-size:9px">Pending Review</span>';
+    if (c.status !== 'Provided' && r === 'Draft') return '<span class="pill pill-grey" style="font-size:9px">Draft</span>';
+    if (c.status !== 'Provided' && r === 'Changes Requested') return '<span class="pill pill-red" style="font-size:9px">Changes Requested</span>';
+    if (c.status !== 'Provided' && r === 'Not Required') return '<span class="pill pill-grey" style="font-size:9px">Not Required</span>';
+    return compStatusPill(c);
   }
 
   /* ---- inject styles ---- */
@@ -281,12 +298,12 @@
   /* ---- component card (single line: image + details summary + row actions) ---- */
   function compCard(c, i, key) {
     var isExpected = key === 'expected';
-    var missingHint = c.status !== 'Provided';
+    var missingHint = c.status !== 'Provided' && c.req !== 'Not Required';
     var sum = isExpected
       ? 'Expected component — awaiting actual packaging data'
       : (c.status === 'Provided'
           ? esc((c.material || '—') + ' · ' + (c.weight || '—') + ' g · ' + (c.pcr || '0') + '% PCR')
-          : 'Awaiting supplier — details not yet provided');
+          : (c.req === 'Not Required' ? 'Not required for this product' : 'Awaiting supplier — details not yet provided'));
 
     /* qty stepper */
     var qty = c.qty || 1;
@@ -307,7 +324,7 @@
       actionBtns = qtyHtml + noteBtn + removeBtn;
     } else {
       /* Actual: green stroke, full supplier/approve workflow. */
-      midCol = '<span class="pill ' + (c.level === 'Primary' ? 'pill-blue' : 'pill-grey') + '" style="font-size:9px">' + esc(c.level) + '</span>' + compStatusPill(c);
+      midCol = '<span class="pill ' + (c.level === 'Primary' ? 'pill-blue' : 'pill-grey') + '" style="font-size:9px">' + esc(c.level) + '</span>' + compReqPill(c);
 
       var viewBtn = '<button type="button" class="rap-btn-view" title="View packaging detail" onclick="rapViewPkg(\'' + esc(c.name) + '\')">→ Detail</button>';
 
@@ -504,7 +521,7 @@
   /* approve individual component (ACTUAL only) */
   window.rapApproveComp = function (i) {
     var c = ACTUAL[i]; if (!c) return;
-    if (c.status !== 'Provided') { toast('Component must be "Provided" before it can be approved'); return; }
+    if (c.status !== 'Provided') { toast('Component must be "Submitted" before it can be approved'); return; }
     c.approved = true;
     render();
     if (allApproved()) toast('All components approved — you can now approve the product ✅');

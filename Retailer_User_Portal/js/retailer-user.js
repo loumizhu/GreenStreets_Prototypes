@@ -116,7 +116,7 @@ function insertPkgRow(targetScope, name, level, material){
   var lvlPill = level === 'Primary' ? 'pill-blue' : 'pill-grey';
   var tr = document.createElement('tr');
   tr.style.background = 'rgba(78,187,129,.08)';
-  tr.innerHTML = '<td class="tbl-name">'+name+'</td><td><span class="pill '+lvlPill+'">'+level+'</span></td><td class="tbl-muted">'+material+'</td><td class="tbl-muted">—</td><td class="tbl-muted">—</td><td><span class="pill pill-grey">Pending</span></td><td style="display:flex;gap:4px;padding:6px 11px"><button class="btn-g-sm" onclick="go(\'ru5\')">Edit</button><button class="btn-g-sm" onclick="this.closest(\'tr\').remove()">Remove</button></td>';
+  tr.innerHTML = '<td class="tbl-name">'+name+'</td><td><span class="pill '+lvlPill+'">'+level+'</span></td><td class="tbl-muted">'+material+'</td><td class="tbl-muted">—</td><td class="tbl-muted">—</td><td><span class="pill pill-red">Incomplete</span></td><td style="display:flex;gap:4px;padding:6px 11px"><button class="btn-g-sm" onclick="go(\'ru5\')">Edit</button><button class="btn-g-sm" onclick="this.closest(\'tr\').remove()">Remove</button></td>';
   tbody.appendChild(tr);
 }
 

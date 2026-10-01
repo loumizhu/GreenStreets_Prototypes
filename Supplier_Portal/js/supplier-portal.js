@@ -390,7 +390,7 @@ function prodStatusMeta(t){
     incomplete:{cls:"prod-status-incomplete", lbl:"Incomplete",   st:"st-incomplete", enabled:false, btn:"Submit"},
     complete:  {cls:"prod-status-complete",   lbl:"Complete",     st:"st-complete",   enabled:true,  btn:"Submit"},
     submitted: {cls:"prod-status-submitted",  lbl:"Submitted",    st:"st-complete",   enabled:true,  btn:"Resubmit"},
-    none:      {cls:"prod-status-none",       lbl:"Not started",  st:"st-none",       enabled:false, btn:"Submit"},
+    none:      {cls:"prod-status-none",       lbl:"Pending",      st:"st-none",       enabled:false, btn:"Submit"},
     delisted:  {cls:"prod-status-delisted",   lbl:"Delisted",     st:"st-delisted",   enabled:false, btn:"Submit"}
   })[t];
 }
@@ -719,13 +719,13 @@ function prodToggleCompMenu(pi){
 var _pdOpen = null;
 function pdEsc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function pdLevelColor(l){ return {Primary:'#3aa8d8',Secondary:'#6bbf59',Tertiary:'#d65fc4'}[l] || '#3aa8d8'; }
-function pdStatusCls(s){ return s==='Complete'?'compliant':(s==='Incomplete'?'incomplete':'review'); }
+function pdStatusCls(s){ return s==='Complete'?'compliant':((s==='Incomplete'||s==='Needs Changing')?'incomplete':'review'); }
 function fval(pkg, label){ for(var g=0;g<pkg.groups.length;g++){var fs=pkg.groups[g].fields;for(var f=0;f<fs.length;f++){ if(fs[f].k===label) return fs[f].v; }} return ''; }
 function pkgStatus(pkg){
   var mat=fval(pkg,'Base Material'), cert=fval(pkg,'Certification'), rec=fval(pkg,'Recycled Content');
   if(!String(mat).trim()) return 'Incomplete';
   if(cert && cert!=='None' && rec==='Yes') return 'Complete';
-  return 'Review needed';
+  return 'Review Needed';
 }
 /* Build the full editable field model for a packaging component (spreadsheet sections 3–11). */
 /* Build the editable field model for a packaging component from the CANONICAL
@@ -1623,7 +1623,7 @@ function pkgWeightGrams(txt) {
 }
 function pkgRecycledPct(txt) { var m = (txt || '').match(/([\d.]+)\s*%/); return m ? parseFloat(m[1]) : 0; }
 var PKG_LEVEL_ORDER = { 'Primary': 1, 'Secondary': 2, 'Tertiary': 3 };
-var PKG_STATUS_ORDER = { 'Complete': 1, 'Review needed': 2, 'Incomplete': 3 };
+var PKG_STATUS_ORDER = { 'Complete': 1, 'Review Needed': 2, 'Needs Changing': 3, 'Incomplete': 4 };
 
 function filterPkgTblSearch() {
   _pkgTblSearch = (document.getElementById('pkg-tbl-search').value || '').toLowerCase();
