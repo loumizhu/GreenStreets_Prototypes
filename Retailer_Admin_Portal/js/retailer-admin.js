@@ -253,7 +253,7 @@ function insertPkgRow(targetScope, name, level, material){
   var lvlPill = level === 'Primary' ? 'pill-blue' : 'pill-grey';
   var tr = document.createElement('tr');
   tr.style.background = 'rgba(78,187,129,.08)';
-  tr.innerHTML = '<td class="tbl-name">'+name+'</td><td><span class="pill '+lvlPill+'">'+level+'</span></td><td class="tbl-muted">'+material+'</td><td class="tbl-muted">—</td><td class="tbl-muted">—</td><td><span class="pill pill-grey">Pending</span></td><td style="display:flex;gap:4px;padding:6px 11px"><button class="btn-g-sm">Edit</button><button class="btn-g-sm" onclick="this.closest(\'tr\').remove()">Remove</button></td>';
+  tr.innerHTML = '<td class="tbl-name">'+name+'</td><td><span class="pill '+lvlPill+'">'+level+'</span></td><td class="tbl-muted">'+material+'</td><td class="tbl-muted">—</td><td class="tbl-muted">—</td><td><span class="pill pill-grey">Incomplete</span></td><td style="display:flex;gap:4px;padding:6px 11px"><button class="btn-g-sm">Edit</button><button class="btn-g-sm" onclick="this.closest(\'tr\').remove()">Remove</button></td>';
   tbody.appendChild(tr);
 }
 
@@ -340,7 +340,7 @@ var PRODUCTS_RA = (function(){
   var adjs = ['Black','Blue','Red','Khaki','White','Grey','Navy','Olive','Beige','Pink','Green','Cream','Charcoal','Rust','Teal'];
   var items = ['Crew Neck Sweatshirt','Slim Fit Jeans','Midi Dress','Utility Jacket','Essential T-Shirt','Zip Hoodie','Chino Trousers','Puffer Coat','Knit Jumper','Cargo Shorts','Pleated Skirt','Denim Jacket','Trainers','Canvas Belt','Wool Scarf'];
   var statuses = ['Complete','Incomplete','Incomplete','Pending'];
-  var pills = {Complete:'pill-green', Incomplete:'pill-amber', Pending:'pill-grey'};
+  var pills = {Complete:'pill-green', Incomplete:'pill-grey', Pending:'pill-amber'};
   var list = [];
   for (var i=0;i<64;i++){
     var cat = cats[i % cats.length];
@@ -351,7 +351,6 @@ var PRODUCTS_RA = (function(){
     var done = status==='Complete' ? comps : (status==='Incomplete' ? Math.max(0, comps - 1 - (i % comps)) : 0);
     var pkgText = status==='Complete' ? (comps+' components') : (status==='Pending' ? 'Not started' : (done+' of '+comps+' done'));
     var pill = pills[status];
-    if (status==='Incomplete' && done===0) pill = 'pill-red';
     list.push({
       sku: 'PRK-'+String(i+1).padStart(3,'0')+'-'+adj.slice(0,3).toUpperCase(),
       desc: adj+' '+item,
@@ -647,7 +646,7 @@ function raCancelApproval(sku) {
     if (!a && e.target !== m) return;
     m.remove();
     if (a && a.getAttribute('data-a') === 'ok') {
-      var p = rec._prev || { status: 'Pending', pill: 'pill-grey', pkg: rec.pkg };
+      var p = rec._prev || { status: 'Pending', pill: 'pill-amber', pkg: rec.pkg };
       rec.status = p.status; rec.pill = p.pill; rec.pkg = p.pkg; rec._prev = null;
       if (typeof ptRender === 'function') ptRender('ra');
       var t = document.getElementById('ra-toast');
@@ -694,7 +693,7 @@ var PACKAGINGS_RA = (function(){
     {type:'Shipping carton', level:'Tertiary',  matGroup:'corrugated', material:'Corrugated card'}
   ];
   var statuses = ['Complete','Incomplete','Review Needed','Needs Changing'];
-  var pillMap  = {'Complete':'pill-green','Incomplete':'pill-amber','Review Needed':'pill-amber','Needs Changing':'pill-red'};
+  var pillMap  = {'Complete':'pill-green','Incomplete':'pill-grey','Review Needed':'pill-amber','Needs Changing':'pill-red'};
   var recGrades = ['A','B','A','C'];
   var list = [], id = 1;
   for (var p=0; p<products.length; p++){

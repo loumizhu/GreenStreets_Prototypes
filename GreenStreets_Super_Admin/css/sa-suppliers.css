@@ -1,0 +1,46 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Super Admin — Suppliers & Outreach group (sa-suppliers.css)
+   Ports of the Retailer Admin supplier pages need a few tokens + classes that RA
+   keeps in retailer-admin.css (not linked by SA). Defined here, once, so every page
+   in the group (Suppliers, Suppliers-Hub, Tracker, Import wizard, DoC request,
+   Send/Custom invite) shares them. Dark by default; body.lt overrides below.
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root{--bw:rgba(255,255,255,.08);--nv2:#0e1c30;--stroke:rgba(69,125,195,.35)}
+body.lt{--bw:var(--lt-line,rgba(30,50,80,.12));--nv2:#fff;--stroke:var(--lt-line-2,rgba(30,50,80,.18))}
+
+/* Row-level action chips (RA: .act-primary = status-contextual, .act-view = neutral "View") */
+.act-mini.act-view{color:var(--tw);background:rgba(255,255,255,.07);border-color:var(--line-2);padding:5px 11px;border-radius:8px;font-size:11px}
+.act-mini.act-view:hover{background:rgba(143,227,182,.16);border-color:rgba(143,227,182,.45);color:var(--gs-l)}
+.act-mini.act-primary{color:var(--gs-l);background:rgba(143,227,182,.12);border-color:rgba(143,227,182,.38);font-weight:600}
+.act-mini.act-primary:hover{background:rgba(143,227,182,.22);border-color:rgba(143,227,182,.6);color:#eafff4}
+.act-sep{width:1px;align-self:stretch;min-height:18px;background:rgba(255,255,255,.14);margin:0 3px}
+body.lt .act-mini.act-view{color:var(--lt-ink,#33415c);background:#fff;border-color:var(--lt-line-2,rgba(30,50,80,.18))}
+body.lt .act-mini.act-view:hover{background:rgba(78,187,129,.12);border-color:#8fd0b6;color:#2f9c62}
+body.lt .act-mini.act-primary{color:#2f9c62;background:rgba(78,187,129,.12);border-color:#8fd0b6}
+body.lt .act-mini.act-primary:hover{background:rgba(78,187,129,.22);color:#1f7a49}
+body.lt .act-sep{background:var(--lt-line-2,rgba(30,50,80,.18))}
+
+/* Import wizard step markers */
+.step{flex:1;text-align:center;position:relative;z-index:1}
+.step-nav{cursor:pointer;transition:opacity .15s,transform .15s}
+.step-nav:hover{opacity:.72}
+.step-nav:active{transform:scale(.94)}
+.step-dot{width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;background:var(--nv2);border:2px solid var(--bw);color:var(--tw3)}
+.step-lbl{font-size:10px;margin-top:4px;color:var(--tw3)}
+.step.is-current .step-dot{border-color:var(--gs);color:var(--gs)}
+.step.is-current .step-lbl{color:var(--gs)}
+.step.is-done .step-dot{border-color:var(--gs);color:#fff;background:var(--gs)}
+.step.is-done .step-lbl{color:var(--gs)}
+
+/* Inline row editing on the import-validation table */
+input.vu-in{height:34px;padding:6px 10px;font-size:12.5px}
+td .vu-in,td .cs-wrap{width:100%}
+td .cs-trigger{min-height:0;height:34px;padding:6px 30px 6px 10px;font-size:12.5px;display:flex;align-items:center}
+.vu-table .tbl td,table.vu-table td{padding-top:7px;padding-bottom:7px;vertical-align:middle}
+input.vu-bad{border-color:rgba(224,82,82,.55)!important;background:rgba(224,82,82,.06)!important}
+.cs-wrap:has(select.vu-bad) .cs-trigger{border-color:rgba(224,82,82,.55)!important;background:rgba(224,82,82,.06)!important}
+.vu-err{background:rgba(224,82,82,.045)}
+.vu-err td{border-bottom-color:rgba(224,82,82,.18)}
+
+/* DoC-request side panel (RA hard-codes a navy gradient inline; flip it in light) */
+body.lt [style*="#162847"]{background:#fff!important;border-color:var(--lt-line-2,rgba(30,50,80,.18))!important}

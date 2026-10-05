@@ -1,0 +1,176 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   SA · Dashboard / Users / Settings parity layer  (sa-dash-users.css)
+   Ports the Retailer-Admin-only rules the Super Admin copy of the theme lacks:
+   status colour aliases, the import-wizard stepper + row-validation styling,
+   the dashboard chart / expiring-docs / notification menu, and the
+   getting-started coach bubble. Dark rules first, then `body.lt` overrides.
+   Link AFTER greenstreets-theme.css (and before greenstreets-light.css).
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root{
+  --bw:rgba(255,255,255,.08);--nv2:#0e1c30;
+  --status-ok:var(--gs-l);--status-ok-strong:var(--gs);
+  --status-warn:var(--amber);--status-danger:var(--red);
+  --status-info:var(--bl-l);--status-info-strong:var(--bl-d);
+}
+body.lt{--bw:var(--lt-line,rgba(30,50,80,.12));--nv2:#fff}
+
+/* ── Import wizard stepper + inline row validation ─────────────────────── */
+.step{flex:1;text-align:center;position:relative;z-index:1}
+.step-nav{cursor:pointer;transition:opacity .15s,transform .15s}
+.step-nav:hover{opacity:.72}
+.step-nav:active{transform:scale(.94)}
+.step-dot{width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;background:var(--nv2);border:2px solid var(--bw);color:var(--tw3)}
+.step-lbl{font-size:10px;margin-top:4px;color:var(--tw3)}
+.step.is-current .step-dot{border-color:var(--gs);color:var(--gs)}
+.step.is-current .step-lbl{color:var(--gs)}
+.step.is-done .step-dot{border-color:var(--gs);color:#fff;background:var(--gs)}
+.step.is-done .step-lbl{color:var(--gs)}
+input.vu-in{height:34px;padding:6px 10px;font-size:12.5px}
+td .vu-in,td .cs-wrap{width:100%}
+td .cs-trigger{min-height:0;height:34px;padding:6px 30px 6px 10px;font-size:12.5px;display:flex;align-items:center}
+.vu-tbl td{padding-top:7px;padding-bottom:7px;vertical-align:middle}
+input.vu-bad{border-color:rgba(224,82,82,.55)!important;background:rgba(224,82,82,.06)!important}
+.cs-wrap:has(select.vu-bad) .cs-trigger{border-color:rgba(224,82,82,.55)!important;background:rgba(224,82,82,.06)!important}
+.vu-err{background:rgba(224,82,82,.045)}
+.vu-err td{border-bottom-color:rgba(224,82,82,.18)}
+.vu-drop{border:1.5px dashed rgba(78,187,129,.35);border-radius:10px;padding:34px 28px;text-align:center;margin-bottom:14px;background:rgba(78,187,129,.04)}
+
+/* ── Row-action buttons / reminder (RA-only look) ──────────────────────── */
+.act-mini.act-view{color:var(--tw);background:rgba(255,255,255,.07);border-color:var(--line-2);padding:5px 11px;border-radius:8px;font-size:11px}
+.act-mini.act-view:hover{background:rgba(143,227,182,.16);border-color:rgba(143,227,182,.45);color:var(--gs-l)}
+body.lt .act-mini.act-view{color:var(--lt-ink);background:#fff;border-color:var(--lt-line-2)}
+body.lt .act-mini.act-view:hover{background:rgba(78,187,129,.12);border-color:#8fd0b6;color:#2f9c62}
+.btn-reminder-urgent{background:rgba(224,82,82,.12);border-color:rgba(224,82,82,.3);color:#ff9c96}
+.btn-reminder-urgent:hover{background:rgba(224,82,82,.2)}
+body.lt .btn-reminder-urgent{background:#fdeceb;border-color:#f6cfcc;color:#cf5751}
+body.lt .btn-reminder-urgent:hover{background:#fadedc}
+
+/* ── Dashboard: weekly chart + expiring documents + notification menu ─── */
+.wk-chart{display:flex;gap:7px}
+.wk-yaxis{display:flex;flex-direction:column;justify-content:space-between;height:140px;font-size:10px;color:var(--tw2);font-variant-numeric:tabular-nums;text-align:right;min-width:16px;padding-bottom:1px}
+.wk-plotcol{flex:1;display:flex;flex-direction:column;gap:6px;min-width:0}
+.wk-plot{position:relative;height:140px}
+.wk-hline{position:absolute;left:0;right:0;height:0;border-top:1px dashed rgba(255,255,255,.12)}
+.wk-vline{position:absolute;top:0;bottom:0;width:0;border-left:1px dashed rgba(255,255,255,.06)}
+.wk-hline2{position:absolute;left:0;right:0;height:0;border-top:1px dotted rgba(255,255,255,.055)}
+.wk-vline2{position:absolute;top:0;bottom:0;width:0;border-left:1px dotted rgba(255,255,255,.05)}
+.wk-bars-row{position:absolute;inset:0;display:flex;align-items:flex-end;gap:2px;z-index:1}
+.wk-col{flex:1;display:flex;align-items:flex-end;justify-content:center;gap:2px;height:100%}
+.wk-bar{width:28%;min-height:3px;border-radius:4px 4px 1px 1px;transition:opacity .15s,filter .12s,height .35s ease;cursor:pointer}
+.wk-bar:hover{filter:brightness(1.18)}
+.wk-approved{background:#8ad2ac}
+.wk-submitted{background:#3f6fd1}
+.wk-halftone{background:#16224a;outline:1px solid rgba(120,150,220,.28);outline-offset:-1px}
+.wk-bar.wk-approved{box-shadow:0 0 7px rgba(138,210,172,.45)}
+.wk-bar.wk-submitted{box-shadow:0 0 8px rgba(63,111,209,.4)}
+.wk-bar.wk-halftone{box-shadow:0 0 8px rgba(22,34,74,.5)}
+.wk-days{display:flex;gap:2px}
+.wk-day{flex:1;text-align:center;font-size:12px;font-weight:600;color:var(--tw2)}
+.wk-day span{font-size:10px;font-weight:400;color:var(--tw3)}
+.wk-legend{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;margin-top:12px}
+.wk-key{display:inline-flex;align-items:center;gap:6px;font-size:10px;color:var(--tw2);background:none;border:1px solid transparent;cursor:pointer;padding:4px 9px;border-radius:6px;transition:all .12s}
+.wk-key:hover{background:rgba(255,255,255,.05)}
+.wk-key.off{opacity:.42}
+.wk-key .wk-sw{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.wk-key.off .wk-sw{filter:grayscale(.85)}
+body.lt .wk-hline{border-top-color:rgba(30,50,80,.14)}
+body.lt .wk-vline{border-left-color:rgba(30,50,80,.08)}
+body.lt .wk-hline2{border-top-color:rgba(30,50,80,.07)}
+body.lt .wk-vline2{border-left-color:rgba(30,50,80,.06)}
+body.lt .wk-key:hover{background:rgba(30,50,80,.05)}
+.exp-remind{flex-shrink:0;height:26px;padding:0 9px;font-size:10px;display:inline-flex;align-items:center;gap:4px;border-radius:6px;border:1px solid rgba(69,125,195,.4);background:rgba(69,125,195,.12);color:var(--status-info);cursor:pointer;transition:background .12s,border-color .12s}
+.exp-remind:hover{background:rgba(69,125,195,.22);border-color:rgba(69,125,195,.6)}
+.exp-remind.exp-remind-sent{background:rgba(78,187,129,.15);border-color:rgba(78,187,129,.35);color:var(--status-ok);cursor:default}
+.exp-remind.exp-remind-sent:hover{background:rgba(78,187,129,.15);border-color:rgba(78,187,129,.35)}
+.exp-row{cursor:pointer;border-bottom:1px solid var(--bw)}
+.exp-row:has(+ #sa-exp-footer){border-bottom:none}
+.exp-row:hover{background:rgba(255,255,255,.03)}
+body.lt .exp-row:hover{background:rgba(110,168,254,.05)}
+#sa_dash .stat-val,#sa_dash .tbl td,#sa_dash .tbl-footer,#sa_dash .wk-day,#sa_dash .pg-sub,#sa_dash .exp-row .pill{font-variant-numeric:tabular-nums}
+#sa_dash .stat-val{letter-spacing:-.01em}
+#sa_dash .main>*{animation:none!important}
+html.gs-anim-armed #sa_dash .pg-hdr-bar,
+html.gs-anim-armed #sa_dash #sa-tour-metrics .stat,
+html.gs-anim-armed #sa_dash .grp{opacity:0}
+.sa-scope{display:inline-flex;align-items:center;gap:8px}
+.sa-scope .cs-wrap,.sa-scope .fi{min-width:200px}
+.sa-scope-lbl{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--tw3)}
+.sa-notif-wrap{position:relative}
+.sa-notif-menu{position:absolute;top:calc(100% + 8px);right:0;width:308px;background:linear-gradient(150deg,#0f2340 0%,#112850 100%);border:1px solid var(--line-2);border-radius:12px;box-shadow:0 24px 60px -18px rgba(0,0,0,.7);z-index:300;overflow:hidden;display:none}
+.sa-notif-menu.open{display:block;animation:saNotifIn .16s ease}
+@keyframes saNotifIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.sa-notif-hd{padding:11px 14px;border-bottom:1px solid var(--line);font-size:12px;font-weight:700;color:var(--tw);display:flex;align-items:center;justify-content:space-between}
+.sa-notif-item{display:flex;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.05);cursor:pointer;transition:background .12s;text-align:left;width:100%;background:none;border-left:0;border-right:0;border-top:0;font-family:inherit}
+.sa-notif-item:hover{background:rgba(255,255,255,.05)}
+.sa-notif-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.sa-notif-txt{font-size:11.5px;color:var(--tw2);line-height:1.5}
+.sa-notif-txt b{color:var(--tw);font-weight:600}
+.sa-notif-time{font-size:10px;color:var(--tw3);margin-top:2px}
+.sa-notif-foot{padding:10px 14px;text-align:center}
+body.lt .sa-notif-menu{background:#fff;border:1px solid var(--lt-line-2);box-shadow:var(--sh-2)}
+body.lt .sa-notif-hd{border-bottom-color:var(--lt-line);color:var(--lt-ink)}
+body.lt .sa-notif-item{border-bottom-color:var(--lt-line)}
+body.lt .sa-notif-item:hover{background:rgba(110,168,254,.07)}
+body.lt .sa-notif-txt{color:var(--lt-ink-2)}
+body.lt .sa-notif-txt b{color:var(--lt-ink)}
+body.lt .sa-notif-time{color:var(--lt-ink-3)}
+
+/* ── Users: confirm / role dialog helpers ──────────────────────────────── */
+.sa-confirm-title{font-size:15px;font-weight:600;margin-bottom:8px;color:var(--tw)}
+.sa-confirm-body{font-size:12.5px;color:var(--tw2);margin-bottom:18px;line-height:1.5}
+.sa-confirm-body b{color:var(--tw);font-weight:600}
+.sa-confirm-extra{margin-bottom:18px}
+.sa-danger-btn{border-color:rgba(224,96,90,.4)!important;color:#ff9c96!important}
+body.lt .sa-danger-btn{color:#cf5751!important}
+.btn-p.sa-danger-ok{background:linear-gradient(135deg,#e0605a,#c9423c)!important;color:#fff!important;border-color:transparent!important}
+body.lt .modal-overlay{background:rgba(60,90,140,.28)}
+body.lt .modal-box{background:#fff;border:1px solid var(--lt-line-2);box-shadow:var(--sh-2)}
+
+/* ── Getting-started coach bubble (sa-tour.js) ─────────────────────────── */
+.gst-overlay{position:fixed;inset:0;z-index:9000;pointer-events:none}
+.gst-backdrop{position:fixed;inset:0;background:rgba(6,14,28,.30);pointer-events:all}
+.gst-bubble{position:fixed;width:320px;max-width:calc(100vw - 28px);background:linear-gradient(145deg,#0f2340 0%,#112850 100%);border:1px solid rgba(78,187,129,.35);border-radius:16px;box-shadow:0 24px 64px rgba(0,0,0,.6),0 0 0 1px rgba(78,187,129,.12),0 0 40px -10px rgba(78,187,129,.18);pointer-events:all;opacity:0;transform:scale(.88);transform-origin:center center;transition:opacity .18s ease,transform .28s cubic-bezier(.34,1.56,.64,1)}
+.gst-bubble.gst-bubble-in{opacity:1;transform:scale(1)}
+.gst-overlay.gst-overlay-out .gst-bubble{opacity:0;transform:scale(.96);transition:opacity .22s ease,transform .22s ease}
+.gst-overlay.gst-overlay-out .gst-backdrop{opacity:0;transition:opacity .3s ease}
+.gst-bubble-inner{padding:18px 18px 14px}
+.gst-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.gst-close{width:26px;height:26px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:7px;color:rgba(255,255,255,.6);cursor:pointer;padding:0;transition:background .15s,color .15s}
+.gst-close:hover{background:rgba(255,255,255,.12);color:#fff}
+.gst-icon{font-size:28px;line-height:1;margin-bottom:8px;display:block}
+.gst-title{font-size:14px;font-weight:700;color:#fff;margin-bottom:6px;letter-spacing:-.2px}
+.gst-body{font-size:12.5px;line-height:1.65;color:rgba(255,255,255,.72);margin-bottom:16px}
+.gst-body strong{color:#fff;font-weight:600}
+.gst-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:12px;border-top:1px solid rgba(255,255,255,.07)}
+.gst-foot-right{display:flex;gap:6px}
+.gst-btn-skip{background:none;border:none;color:rgba(255,255,255,.4);font-family:inherit;font-size:11.5px;cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:3px;transition:color .15s}
+.gst-btn-skip:hover{color:rgba(255,255,255,.7)}
+.gst-btn-next{height:30px;padding:0 14px;font-size:11.5px;font-weight:700;font-family:inherit;background:var(--gs);border:none;color:#04130c;border-radius:8px;cursor:pointer;transition:filter .15s}
+.gst-btn-next:hover{filter:brightness(1.1)}
+.gst-arrow{position:absolute;width:13px;height:13px;background:inherit;border:inherit;pointer-events:none;transform:rotate(45deg)}
+.gst-arrow-top{top:-7px;clip-path:polygon(0 0,100% 0,0 100%);border-right:none;border-bottom:none}
+.gst-arrow-bottom{bottom:-7px;clip-path:polygon(0 100%,100% 100%,100% 0);border-top:none;border-left:none}
+.gst-arrow-left{left:-7px;clip-path:polygon(0 0,0 100%,100% 100%);border-right:none;border-top:none}
+.gst-arrow-right{right:-7px;clip-path:polygon(100% 0,0 0,100% 100%);border-left:none;border-bottom:none}
+.gst-highlight{position:relative;outline:2.5px solid var(--gs)!important;outline-offset:4px;border-radius:10px;box-shadow:0 0 0 5px rgba(78,187,129,.15),0 0 20px rgba(78,187,129,.12)!important;z-index:1;animation:gstHL 2s ease infinite}
+@keyframes gstHL{0%,100%{box-shadow:0 0 0 5px rgba(78,187,129,.15),0 0 20px rgba(78,187,129,.12)}50%{box-shadow:0 0 0 8px rgba(78,187,129,.22),0 0 30px rgba(78,187,129,.2)}}
+.gst-pulse-target{animation:gstPulse 1.1s ease infinite}
+@keyframes gstPulse{0%,100%{box-shadow:0 0 0 0 rgba(78,187,129,0)}50%{box-shadow:0 0 0 8px rgba(78,187,129,.35)}}
+.gst-pulse-btn{animation:gstPulse 1.1s ease infinite}
+.gst-nonblock .gst-backdrop{background:rgba(6,14,28,.10);pointer-events:none}
+.gst-hint{font-size:11.5px;line-height:1.5;margin:-6px 0 14px;display:flex;align-items:flex-start;gap:7px}
+.gst-hint svg{flex-shrink:0;margin-top:1px}
+.gst-wait-hint{color:#f5a623}
+.gst-done-hint{color:var(--gs-l,#8fe3b6)}
+.gst-steplabel{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gs-l,#8fe3b6)}
+body.lt .gst-backdrop{background:rgba(60,90,140,.20)}
+body.lt .gst-bubble{background:linear-gradient(145deg,#ffffff,#f6f9fe);border:1px solid var(--lt-line-2);box-shadow:0 24px 64px -18px rgba(60,90,140,.42),0 0 0 1px rgba(110,168,254,.08)}
+body.lt .gst-close{background:#eef1f6;border:1px solid var(--lt-line-2);color:var(--lt-ink-3)}
+body.lt .gst-close:hover{background:#e2e7f0;color:var(--lt-ink)}
+body.lt .gst-title{color:var(--lt-ink)}
+body.lt .gst-body{color:var(--lt-ink-2)}
+body.lt .gst-body strong{color:var(--lt-ink)}
+body.lt .gst-foot{border-top-color:var(--lt-line)}
+body.lt .gst-btn-skip{color:var(--lt-ink-3)}
+body.lt .gst-btn-skip:hover{color:var(--lt-ink)}
+body.lt .gst-steplabel{color:#2f9c62}

@@ -130,12 +130,50 @@
       audit: [
         { ts: '2026-08-10 13:00', who: 'Luntai (supplier)', action: 'Uploaded material certification v1' },
         { ts: '2026-08-11 09:15', who: 'Priya Shah', action: 'Rejected — illegible scan, supplier notified' }
+      ] },
+    'sup-weight': { name: 'Weight_Verification_Report.pdf', kind: 'Test report', kindPill: 'pill-amber', linkedTo: 'Box/carton', retailer: 'Aldi', supplier: 'Nordic Packaging', version: 'v1', versions: [
+        { v: 'v1', date: '2026-08-05', by: 'Nordic Packaging (supplier)', note: 'Rejected — weights do not match declared packaging spec' }
+      ], expiry: null, status: 'Not Approved', byLabel: 'Uploaded by', by: 'Nordic Packaging (supplier)',
+      evidence: [{ name: 'Weight_Verification_Report.pdf', type: 'Test report' }],
+      audit: [
+        { ts: '2026-08-05 11:40', who: 'Nordic Packaging (supplier)', action: 'Uploaded weight verification report v1' },
+        { ts: '2026-08-06 09:05', who: 'Dan Murphy', action: 'Rejected — weights do not match declared spec, supplier notified' }
+      ] },
+    'sup-reach2': { name: 'REACH_Test_Luntai.pdf', kind: 'Test report', kindPill: 'pill-amber', linkedTo: 'Hanger', retailer: 'Tesco', supplier: 'Luntai', version: 'v2', versions: [
+        { v: 'v1', date: '2025-11-02', by: 'Luntai (supplier)', note: 'Superseded' },
+        { v: 'v2', date: '2026-08-16', by: 'Luntai (supplier)', note: 'Awaiting admin review' }
+      ], expiry: null, status: 'Pending', byLabel: 'Uploaded by', by: 'Luntai (supplier)',
+      evidence: [{ name: 'REACH_Test_Luntai.pdf', type: 'Test report' }],
+      audit: [
+        { ts: '2025-11-02 08:30', who: 'Luntai (supplier)', action: 'Uploaded REACH test report v1' },
+        { ts: '2026-08-16 14:20', who: 'Luntai (supplier)', action: 'Uploaded REACH test report v2 — pending review' }
+      ] },
+    'sup-recy': { name: 'Recycled_Content_Cert_Verdepak.pdf', kind: 'Certificate', kindPill: 'pill-grey', linkedTo: 'Box/carton', retailer: 'Tesco', supplier: 'Verdepak', version: 'v1', versions: [
+        { v: 'v1', date: '2026-04-22', by: 'Verdepak (supplier)', note: 'Current — verified' }
+      ], expiry: null, status: 'Approved', byLabel: 'Uploaded by', by: 'Verdepak (supplier)',
+      evidence: [{ name: 'Recycled_Content_Cert_Verdepak.pdf', type: 'Certificate' }],
+      audit: [
+        { ts: '2026-04-22 10:15', who: 'Verdepak (supplier)', action: 'Uploaded recycled content certificate v1' },
+        { ts: '2026-04-23 09:00', who: 'Priya Shah', action: 'Reviewed and approved' }
+      ] },
+    'sup-fsc2': { name: 'FSC_CoC_Nordic.pdf', kind: 'Certificate', kindPill: 'pill-grey', linkedTo: 'Box/carton, Hanger', retailer: 'Primark', supplier: 'Nordic Packaging', version: 'v1', versions: [
+        { v: 'v1', date: '2026-03-05', by: 'Nordic Packaging (supplier)', note: 'Current — verified' }
+      ], expiry: { state: 'soon', text: 'Expires in 45 days' }, status: 'Approved', byLabel: 'Uploaded by', by: 'Nordic Packaging (supplier)',
+      evidence: [{ name: 'FSC_CoC_Nordic.pdf', type: 'Certificate' }],
+      audit: [
+        { ts: '2026-03-05 11:00', who: 'Nordic Packaging (supplier)', action: 'Uploaded FSC Chain of Custody certificate v1' },
+        { ts: '2026-03-06 09:30', who: "Keith O'Sullivan", action: 'Reviewed and approved' }
       ] }
   };
 
   var docId = null;
   try { docId = sessionStorage.getItem('sa_di'); } catch (e) {}
   var DOC = SA_DOCS[docId] || SA_DOCS['doc-001'];
+  /* "sup-*" rows come from the Technical Document listing — a certificate or test report
+     that IS a piece of supporting evidence, not a DoC that evidence was reviewed for.
+     Showing a "review supporting evidence" section on its own detail page would just point
+     the document back at itself, so that section is only rendered for DoC records. */
+  var isEvidenceDoc = /^sup-/.test(docId || '');
   var justNotified = false; /* shows the "supplier has been notified" banner right after a Refuse */
 
   function toast(msg) {
@@ -186,8 +224,8 @@
       '<div style="font-size:11px">' + esc(DOC.kind) + ' · ' + esc(DOC.version) + ' · full-page preview (prototype placeholder)</div>' +
       '</div></div></div>';
 
-    /* Review Supporting Evidence */
-    html += '<div class="grp" id="doc-sec-evidence"><div class="grp-hdr">Review supporting evidence</div><div class="grp-body">' +
+    /* Review Supporting Evidence — DoC records only (see isEvidenceDoc above) */
+    if (!isEvidenceDoc) html += '<div class="grp" id="doc-sec-evidence"><div class="grp-hdr">Review supporting evidence</div><div class="grp-body">' +
       '<div style="display:flex;flex-direction:column;gap:6px">' +
       DOC.evidence.map(function (ev) {
         return '<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--line-2);border-radius:8px">' +
@@ -200,7 +238,7 @@
     /* Generate DoC + Manual Correction */
     html += '<div class="grp" id="doc-sec-manual"><div class="grp-hdr">Admin actions</div><div class="grp-body">' +
       '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">' +
-      '<div style="border:1px solid var(--line-2);border-radius:8px;padding:12px"><div style="font-size:12px;font-weight:600;margin-bottom:4px">Generate DoC <span style="font-weight:400;color:var(--tw3)">(Admin only)</span></div><div style="font-size:11px;color:var(--tw3);margin-bottom:10px">Run the pre-generation checklist (PPWR Articles 6, 7, 9, 10, 11) and provide signatory details to produce the final PDF.</div><button class="btn-g" onclick="toastSaDoc(\'Opening the generation checklist for \' + \'' + esc(DOC.retailer) + '\' + \'…\')">Open generation checklist</button></div>' +
+      '<div style="border:1px solid var(--line-2);border-radius:8px;padding:12px"><div style="font-size:12px;font-weight:600;margin-bottom:4px">Generate DoC <span style="font-weight:400;color:var(--tw3)">(Admin only)</span></div><div style="font-size:11px;color:var(--tw3);margin-bottom:10px">Run the pre-generation checklist (PPWR Articles 6, 7, 9, 10, 11) and provide signatory details to produce the final PDF.</div><button class="btn-g" onclick="go(\'sa_gendoc\')">Generate DoC</button></div>' +
       '<div style="border:1px solid var(--line-2);border-radius:8px;padding:12px"><div style="font-size:12px;font-weight:600;margin-bottom:4px">Manual correction</div><div style="font-size:11px;color:var(--tw3);margin-bottom:10px">If the supplier can\'t use the portal, or a minor error needs fixing, edit the packaging component data directly.</div><button class="btn-g" onclick="toastSaDoc(\'Manual correction mode — edit packaging data directly\')">Edit component data</button></div>' +
       '</div></div></div>';
 

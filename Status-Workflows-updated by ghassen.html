@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Status Workflows — Backend Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  --bg: #F5F7FA;
+  --surface: #FFFFFF;
+  --ink: #18212E;
+  --muted: #5A6778;
+  --line: #D9E0E8;
+  --accent: #2B5C9E;
+  --accent-soft: #E7EEF8;
+  --code-bg: #EEF2F6;
+  --ok: #1F7A4D; --ok-bg: #E3F3EA;
+  --warn: #9A5B00; --warn-bg: #FBF0DD;
+  --bad: #A23B34; --bad-bg: #F9E6E4;
+  --neutral: #4B5563; --neutral-bg: #ECEFF3;
+  --info: #2B5C9E; --info-bg: #E7EEF8;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11161D; --surface: #18202A; --ink: #E6EBF1; --muted: #9AA7B6; --line: #2A3542;
+    --accent: #7FA8E0; --accent-soft: #1E2B3C; --code-bg: #212B37;
+    --ok: #6FCB9A; --ok-bg: #173226; --warn: #E9B35E; --warn-bg: #362A15;
+    --bad: #EC8F87; --bad-bg: #3A1F1D; --neutral: #B3BDC9; --neutral-bg: #26303B;
+    --info: #7FA8E0; --info-bg: #1E2B3C;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11161D; --surface: #18202A; --ink: #E6EBF1; --muted: #9AA7B6; --line: #2A3542;
+  --accent: #7FA8E0; --accent-soft: #1E2B3C; --code-bg: #212B37;
+  --ok: #6FCB9A; --ok-bg: #173226; --warn: #E9B35E; --warn-bg: #362A15;
+  --bad: #EC8F87; --bad-bg: #3A1F1D; --neutral: #B3BDC9; --neutral-bg: #26303B;
+  --info: #7FA8E0; --info-bg: #1E2B3C;
+}
+html { scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 16px); scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+*, *::before, *::after { box-sizing: inherit; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: var(--sans); font-size: 16px; line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+code, .mono { font-family: var(--mono); font-size: 0.86em; }
+code { background: var(--code-bg); padding: 0.1em 0.4em; border-radius: 4px; white-space: nowrap; }
+
+.layout { display: grid; grid-template-columns: 240px minmax(0, 1fr); max-width: 1180px; margin: 0 auto; }
+nav.toc {
+  position: sticky; top: env(safe-area-inset-top, 0px); align-self: start;
+  max-height: 100vh; overflow-y: auto; padding: 40px 24px; border-right: 1px solid var(--line); font-size: 0.9rem;
+}
+nav.toc .brand { font-weight: 700; margin-bottom: 28px; line-height: 1.3; }
+nav.toc .brand span { display: block; font-weight: 400; color: var(--muted); font-size: 0.85rem; }
+nav.toc h4 { margin: 20px 0 6px; font-size: 0.85rem; color: var(--ink); }
+nav.toc ul { list-style: none; margin: 0; padding: 0; }
+nav.toc li a { display: block; padding: 3px 0 3px 10px; color: var(--muted); text-decoration: none; border-left: 2px solid transparent; }
+nav.toc li a:hover { color: var(--ink); border-left-color: var(--line); }
+
+main { padding: 48px 56px 96px; min-width: 0; }
+header.page { margin-bottom: 56px; max-width: 72ch; }
+header.page h1 { font-size: 2.1rem; line-height: 1.15; margin: 0 0 12px; letter-spacing: -0.01em; }
+header.page p { color: var(--muted); margin: 0; }
+
+.workflow { margin-bottom: 80px; }
+.workflow-head { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; border-bottom: 2px solid var(--ink); padding-bottom: 10px; margin-bottom: 28px; }
+.workflow-head h2 { margin: 0; font-size: 1.6rem; letter-spacing: -0.01em; }
+.workflow-head .count { color: var(--muted); font-size: 0.9rem; }
+h3 { font-size: 1.1rem; margin: 40px 0 12px; }
+p.lead { max-width: 72ch; color: var(--muted); margin-top: 0; }
+
+.table-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
+table { border-collapse: collapse; width: 100%; font-size: 0.93rem; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-weight: 600; color: var(--muted); font-size: 0.82rem; background: var(--bg); }
+tr:last-child td { border-bottom: none; }
+td.arrow { color: var(--muted); padding-left: 0; padding-right: 0; text-align: center; width: 20px; }
+
+.pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.82rem; font-weight: 600; white-space: nowrap; }
+.s-neutral { background: var(--neutral-bg); color: var(--neutral); }
+.s-info { background: var(--info-bg); color: var(--info); }
+.s-warn { background: var(--warn-bg); color: var(--warn); }
+.s-ok { background: var(--ok-bg); color: var(--ok); }
+.s-bad { background: var(--bad-bg); color: var(--bad); }
+
+.actor { font-size: 0.85rem; white-space: nowrap; }
+.actor.system { font-family: var(--mono); font-size: 0.8rem; color: var(--muted); }
+
+ul.rules { list-style: none; padding: 0; margin: 0; max-width: 78ch; }
+ul.rules li { position: relative; padding: 10px 0 10px 22px; border-bottom: 1px solid var(--line); }
+ul.rules li:last-child { border-bottom: none; }
+ul.rules li::before { content: ""; position: absolute; left: 4px; top: 20px; width: 6px; height: 6px; background: var(--accent); border-radius: 1px; }
+
+.diagram { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 20px; overflow-x: auto; }
+.diagram pre.mermaid { margin: 0; display: flex; justify-content: center; background: none; }
+.diagram-note { font-size: 0.85rem; color: var(--muted); margin-top: 8px; }
+
+.notes { background: var(--warn-bg); border-left: 3px solid var(--warn); border-radius: 0 8px 8px 0; padding: 16px 20px; max-width: 78ch; }
+.notes h3 { margin-top: 0; color: var(--warn); }
+.notes ol { margin: 0; padding-left: 20px; }
+.notes li { margin-bottom: 8px; }
+.notes li:last-child { margin-bottom: 0; }
+
+footer { color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--line); padding-top: 20px; }
+
+@media (max-width: 860px) {
+  .layout { grid-template-columns: 1fr; }
+  nav.toc { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--line); padding: 24px 20px; }
+  nav.toc .groups { display: flex; gap: 32px; flex-wrap: wrap; }
+  main { padding: 32px 20px 72px; }
+  header.page h1 { font-size: 1.7rem; }
+}
+
+.workflow-head .num { font-family: var(--mono); color: var(--accent); font-size: 0.95rem; font-weight: 500; }
+td.num-cell { font-family: var(--mono); text-align: right; }
+.overview td .pill { margin: 2px 4px 2px 0; }
+.overview td a { font-weight: 600; text-decoration: none; }
+.overview td a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="layout">
+  <nav class="toc" aria-label="Contents">
+    <div class="brand">Status Workflows<span>Backend reference</span></div>
+    <div class="groups"><div><h4>Start here</h4><ul><li><a href="#overview">Overview</a></li></ul></div><div><h4>Invitations</h4><ul><li><a href="#supplier-invitation">Supplier Invitation</a></li><li><a href="#user-invitation">User Invitation</a></li></ul></div><div><h4>Compliance</h4><ul><li><a href="#document">Document</a></li></ul></div><div><h4>Products &amp; packaging</h4><ul><li><a href="#products-page">Products Page (Retailer Portal)</a></li><li><a href="#packaging-component">Packaging Component</a></li><li><a href="#packaging-field">Packaging Component Status Field</a></li></ul></div></div>
+  </nav>
+  <main>
+    <header class="page">
+      <h1>Status workflows</h1>
+      <p>Statuses, allowed transitions, actors and business rules for six platform workflows. Any transition not listed in a workflow's transition table should be rejected by the backend.</p>
+    </header>
+    <section class="workflow" id="overview">
+      <div class="workflow-head"><h2>Overview</h2></div>
+      <div class="table-wrap overview"><table><thead><tr><th>Workflow</th><th>Area</th><th>Statuses</th><th>Transitions</th><th>Status set</th></tr></thead><tbody><tr><td><a href="#supplier-invitation">Supplier Invitation</a></td><td>Invitations</td><td class="num-cell">4</td><td class="num-cell">4</td><td><span class="pill s-info">Invited</span> <span class="pill s-warn">In Progress</span> <span class="pill s-ok">Invitation Accepted</span> <span class="pill s-bad">Overdue</span></td></tr><tr><td><a href="#user-invitation">User Invitation</a></td><td>Invitations</td><td class="num-cell">6</td><td class="num-cell">7</td><td><span class="pill s-neutral">Draft</span> <span class="pill s-info">Invited</span> <span class="pill s-ok">Active</span> <span class="pill s-bad">Expired</span> <span class="pill s-info">Resend</span> <span class="pill s-bad">Deactivated</span></td></tr><tr><td><a href="#document">Document</a></td><td>Compliance</td><td class="num-cell">4</td><td class="num-cell">5</td><td><span class="pill s-warn">Pending</span> <span class="pill s-ok">Approved</span> <span class="pill s-bad">Not Approved</span> <span class="pill s-bad">Expired</span></td></tr><tr><td><a href="#products-page">Products Page (Retailer Portal)</a></td><td>Products &amp; packaging</td><td class="num-cell">3</td><td class="num-cell">3</td><td><span class="pill s-warn">Pending</span> <span class="pill s-neutral">Incomplete</span> <span class="pill s-ok">Complete</span></td></tr><tr><td><a href="#packaging-component">Packaging Component</a></td><td>Products &amp; packaging</td><td class="num-cell">4</td><td class="num-cell">5</td><td><span class="pill s-neutral">Incomplete</span> <span class="pill s-warn">Review Needed</span> <span class="pill s-ok">Complete</span> <span class="pill s-bad">Needs Changing</span></td></tr><tr><td><a href="#packaging-field">Packaging Component Status Field</a></td><td>Products &amp; packaging</td><td class="num-cell">7</td><td class="num-cell">11</td><td><span class="pill s-neutral">Awaiting Supplier</span> <span class="pill s-neutral">Draft</span> <span class="pill s-info">Submitted</span> <span class="pill s-warn">Pending Review</span> <span class="pill s-ok">Approved</span> <span class="pill s-bad">Changes Requested</span> <span class="pill s-neutral">Not Required</span></td></tr></tbody></table></div>
+    </section>
+    
+<section class="workflow" id="supplier-invitation">
+  <div class="workflow-head"><span class="num">01</span><h2>Supplier Invitation workflow</h2><span class="count">4 statuses · 4 transitions</span></div>
+  
+  <h3>Statuses</h3>
+  <div class="table-wrap"><table><thead><tr><th>Status</th><th>Description</th></tr></thead><tbody><tr><td><span class="pill s-info">Invited</span></td><td>The invitation has been sent to the supplier.</td></tr><tr><td><span class="pill s-warn">In Progress</span></td><td>The invitation is active and the system is waiting for the supplier to accept it.</td></tr><tr><td><span class="pill s-ok">Invitation Accepted</span></td><td>The supplier has accepted the invitation.</td></tr><tr><td><span class="pill s-bad">Overdue</span></td><td>The invitation has expired before being accepted.</td></tr></tbody></table></div>
+  <h3>Transition rules</h3>
+  <div class="table-wrap"><table><thead><tr><th>From</th><th></th><th>To</th><th>Performed by</th><th>Notes</th></tr></thead><tbody><tr><td><span class="pill s-info">Invited</span></td><td class="arrow">→</td><td><span class="pill s-warn">In Progress</span></td><td class="actor system">System</td><td>Invitation becomes active and awaits supplier action</td></tr><tr><td><span class="pill s-warn">In Progress</span></td><td class="arrow">→</td><td><span class="pill s-ok">Invitation Accepted</span></td><td class="actor">Supplier</td><td>Supplier accepts the invitation</td></tr><tr><td><span class="pill s-warn">In Progress</span></td><td class="arrow">→</td><td><span class="pill s-bad">Overdue</span></td><td class="actor system">System</td><td>Invitation expires before being accepted</td></tr><tr><td><span class="pill s-bad">Overdue</span></td><td class="arrow">→</td><td><span class="pill s-info">Invited</span></td><td class="actor">Retailer / Greenstreets</td><td>A new invitation is sent to replace the expired one</td></tr></tbody></table></div>
+  <h3>Business rules</h3>
+  <ul class="rules"><li>Suppliers cannot access the onboarding process until an invitation has been sent.</li><li>An invitation starts in <strong>Invited</strong> status and then moves to <strong>In Progress</strong> while awaiting supplier action.</li><li><strong>Overdue</strong> is applied automatically when the invitation expiry date is reached before the supplier accepts it.</li><li>An expired invitation cannot be accepted.</li><li>To continue after an invitation becomes <strong>Overdue</strong>, a new invitation must be sent.</li><li>Status changes generate both an in-app notification and an email notification to the relevant users.</li><li><strong>Invitation Accepted</strong> is the successful completion status for the invitation workflow.</li></ul>
+  <h3>Status flow</h3>
+  <div class="diagram"><pre class="mermaid">
+stateDiagram-v2
+    direction TB
+    [*] --&gt; Invited
+    Invited --&gt; InProgress: System
+    InProgress --&gt; InvitationAccepted: Supplier
+    InProgress --&gt; Overdue: System
+    Overdue --&gt; Invited: Retailer / Greenstreets
+    InvitationAccepted --&gt; [*]
+    InProgress: In Progress
+    InvitationAccepted: Invitation Accepted
+</pre></div>
+  
+</section>
+<section class="workflow" id="user-invitation">
+  <div class="workflow-head"><span class="num">02</span><h2>User Invitation workflow</h2><span class="count">6 statuses · 7 transitions</span></div>
+  
+  <h3>Statuses</h3>
+  <div class="table-wrap"><table><thead><tr><th>Status</th><th>Description</th></tr></thead><tbody><tr><td><span class="pill s-neutral">Draft</span></td><td>The user record has been created, but no invitation has been sent.</td></tr><tr><td><span class="pill s-info">Invited</span></td><td>The invitation has been sent to the user, but the invitation is still pending acceptance.</td></tr><tr><td><span class="pill s-ok">Active</span></td><td>The user has accepted the invitation and the account is active.</td></tr><tr><td><span class="pill s-bad">Expired</span></td><td>The user did not accept the invitation before the invitation expiry date.</td></tr><tr><td><span class="pill s-info">Resend</span></td><td>A new invitation has been sent after a previous invitation expired or was not accepted.</td></tr><tr><td><span class="pill s-bad">Deactivated</span></td><td>The user&#x27;s account has been deactivated and can no longer be used to access the platform.</td></tr></tbody></table></div>
+  <h3>Transition rules</h3>
+  <div class="table-wrap"><table><thead><tr><th>From</th><th></th><th>To</th><th>Performed by</th><th>Notes</th></tr></thead><tbody><tr><td><span class="pill s-neutral">Draft</span></td><td class="arrow">→</td><td><span class="pill s-info">Invited</span></td><td class="actor">Admin</td><td>Initial invitation is sent to the user</td></tr><tr><td><span class="pill s-info">Invited</span></td><td class="arrow">→</td><td><span class="pill s-ok">Active</span></td><td class="actor">User</td><td>User accepts the invitation</td></tr><tr><td><span class="pill s-info">Invited</span></td><td class="arrow">→</td><td><span class="pill s-bad">Expired</span></td><td class="actor system">System</td><td>Invitation expires before being accepted</td></tr><tr><td><span class="pill s-bad">Expired</span></td><td class="arrow">→</td><td><span class="pill s-info">Resend</span></td><td class="actor">Admin</td><td>A new invitation is sent</td></tr><tr><td><span class="pill s-info">Resend</span></td><td class="arrow">→</td><td><span class="pill s-ok">Active</span></td><td class="actor">User</td><td>User accepts the resent invitation</td></tr><tr><td><span class="pill s-info">Resend</span></td><td class="arrow">→</td><td><span class="pill s-bad">Expired</span></td><td class="actor system">System</td><td>Resent invitation expires before being accepted</td></tr><tr><td><span class="pill s-ok">Active</span></td><td class="arrow">→</td><td><span class="pill s-bad">Deactivated</span></td><td class="actor">Admin</td><td>User account is deactivated</td></tr></tbody></table></div>
+  <h3>Business rules</h3>
+  <ul class="rules"><li>Users cannot access the platform until they accept an invitation.</li><li>Invitations automatically move to <strong>Expired</strong> when the expiry date is reached.</li><li>Expired invitations cannot be accepted.</li><li>Administrators can resend an expired or unaccepted invitation.</li><li>When an invitation is resent, the status changes to <strong>Resend</strong>.</li><li>Status changes generate both an in-app notification and an email notification to the relevant users.</li><li><strong>Active</strong> is the successful completion status for the invitation process.</li><li><strong>Deactivated</strong> is a terminal status and prevents further access to the platform.</li></ul>
+  <h3>Status flow</h3>
+  <div class="diagram"><pre class="mermaid">
+stateDiagram-v2
+    direction TB
+    [*] --&gt; Draft
+    Draft --&gt; Invited: Admin
+    Invited --&gt; Active: User
+    Invited --&gt; Expired: System
+    Expired --&gt; Resend: Admin
+    Resend --&gt; Active: User
+    Resend --&gt; Expired: System
+    Active --&gt; Deactivated: Admin
+    Deactivated --&gt; [*]
+</pre></div>
+  
+</section>
+<section class="workflow" id="document">
+  <div class="workflow-head"><span class="num">03</span><h2>Document workflow</h2><span class="count">4 statuses · 5 transitions</span></div>
+  
+  <h3>Statuses</h3>
+  <div class="table-wrap"><table><thead><tr><th>Status</th><th>Description</th></tr></thead><tbody><tr><td><span class="pill s-warn">Pending</span></td><td>The document has been submitted and is waiting for approval from the Retailer Admin / Greenstreets team.</td></tr><tr><td><span class="pill s-ok">Approved</span></td><td>The document has been reviewed and approved by the Retailer Admin / Greenstreets team.</td></tr><tr><td><span class="pill s-bad">Not Approved</span></td><td>The document has been reviewed and was not approved. The document may require updates or replacement.</td></tr><tr><td><span class="pill s-bad">Expired</span></td><td>The document expired before it was approved.</td></tr></tbody></table></div>
+  <h3>Transition rules</h3>
+  <div class="table-wrap"><table><thead><tr><th>From</th><th></th><th>To</th><th>Performed by</th><th>Notes</th></tr></thead><tbody><tr><td><span class="pill s-warn">Pending</span></td><td class="arrow">→</td><td><span class="pill s-ok">Approved</span></td><td class="actor">Retailer Admin / Greenstreets</td><td>The document review is completed successfully.</td></tr><tr><td><span class="pill s-warn">Pending</span></td><td class="arrow">→</td><td><span class="pill s-bad">Not Approved</span></td><td class="actor">Retailer Admin / Greenstreets</td><td>The document review failed or additional information is required.</td></tr><tr><td><span class="pill s-warn">Pending</span></td><td class="arrow">→</td><td><span class="pill s-bad">Expired</span></td><td class="actor system">System</td><td>The document expiry date is reached before approval.</td></tr><tr><td><span class="pill s-bad">Not Approved</span></td><td class="arrow">→</td><td><span class="pill s-warn">Pending</span></td><td class="actor">Supplier</td><td>The supplier uploads an updated document for review.</td></tr><tr><td><span class="pill s-bad">Expired</span></td><td class="arrow">→</td><td><span class="pill s-warn">Pending</span></td><td class="actor">Supplier</td><td>The supplier uploads a renewed/replacement document for review.</td></tr></tbody></table></div>
+  <h3>Business rules</h3>
+  <ul class="rules"><li>Documents are initially created in <strong>Pending</strong> status.</li><li>Documents in <strong>Pending</strong> status are awaiting approval from the Retailer Admin / Greenstreets team.</li><li>A document moved to <strong>Not Approved</strong> should include a reason explaining why it was rejected.</li><li>A document automatically moves to <strong>Expired</strong> when the expiry date is reached before approval.</li><li>Suppliers can upload a replacement or updated document after a document becomes <strong>Not Approved</strong> or <strong>Expired</strong>.</li><li>Status changes generate both an in-app notification and an email notification to the relevant users.</li><li><strong>Approved</strong> is the final successful status in the workflow.</li><li>Documents in <strong>Approved</strong> status are considered valid and can be used for compliance purposes.</li><li>Documents in <strong>Not Approved</strong> or <strong>Expired</strong> status cannot be used for compliance purposes.</li></ul>
+  <h3>Status flow</h3>
+  <div class="diagram"><pre class="mermaid">
+stateDiagram-v2
+    direction TB
+    [*] --&gt; Pending
+    Pending --&gt; Approved: Retailer Admin / Greenstreets
+    Pending --&gt; NotApproved: Retailer Admin / Greenstreets
+    Pending --&gt; Expired: System
+    NotApproved --&gt; Pending: Supplier
+    Expired --&gt; Pending: Supplier
+    Approved --&gt; [*]
+    NotApproved: Not Approved
+</pre></div>
+  
+</section>
+<section class="workflow" id="products-page">
+  <div class="workflow-head"><span class="num">04</span><h2>Products Page (Retailer Portal) workflow</h2><span class="count">3 statuses · 3 transitions</span></div>
+  <p class="lead">This status is derived automatically from the statuses of the product's packaging components, so transitions are listed by trigger rather than by actor.</p>
+  <h3>Statuses</h3>
+  <div class="table-wrap"><table><thead><tr><th>Status</th><th>Description</th></tr></thead><tbody><tr><td><span class="pill s-warn">Pending</span></td><td>The supplier has not started providing any packaging component information.</td></tr><tr><td><span class="pill s-neutral">Incomplete</span></td><td>The supplier has started providing packaging component information, but one or more required packaging components are still missing or not yet approved.</td></tr><tr><td><span class="pill s-ok">Complete</span></td><td>All required packaging components have been provided and approved.</td></tr></tbody></table></div>
+  <h3>Transition rules</h3>
+  <div class="table-wrap"><table><thead><tr><th>From</th><th></th><th>To</th><th>Trigger</th><th>Notes</th></tr></thead><tbody><tr><td><span class="pill s-warn">Pending</span></td><td class="arrow">→</td><td><span class="pill s-neutral">Incomplete</span></td><td>Supplier starts providing packaging component information</td><td>At least one required packaging component has been created or submitted.</td></tr><tr><td><span class="pill s-neutral">Incomplete</span></td><td class="arrow">→</td><td><span class="pill s-ok">Complete</span></td><td>All required packaging components are approved</td><td>Every required packaging component for the product has reached the Approved status.</td></tr><tr><td><span class="pill s-ok">Complete</span></td><td class="arrow">→</td><td><span class="pill s-neutral">Incomplete</span></td><td>An approved packaging component is returned, cancelled, or no longer approved</td><td>The product can no longer be considered complete because a required component is no longer approved.</td></tr></tbody></table></div>
+  <h3>Business rules</h3>
+  <ul class="rules"><li>A product starts in <strong>Pending</strong> when no packaging component information has been provided by the supplier.</li><li>A product moves to <strong>Incomplete</strong> as soon as the supplier starts providing packaging component information.</li><li>A product remains <strong>Incomplete</strong> until all required packaging components are approved.</li><li>A product moves to <strong>Complete</strong> only when every required packaging component is in the <strong>Approved</strong> state.</li><li>If any approved packaging component is later changed, returned for updates, or loses its approval status, the product returns to <strong>Incomplete</strong>.</li><li>The product status is derived automatically from the status of its associated packaging components.</li></ul>
+  <h3>Status flow</h3>
+  <div class="diagram"><pre class="mermaid">
+stateDiagram-v2
+    direction TB
+    [*] --&gt; Pending
+    Pending --&gt; Incomplete: Supplier starts
+    Incomplete --&gt; Complete: All required approved
+    Complete --&gt; Incomplete: Component loses approval
+    Complete --&gt; [*]
+</pre></div>
+  
+</section>
+<section class="workflow" id="packaging-component">
+  <div class="workflow-head"><span class="num">05</span><h2>Packaging Component workflow</h2><span class="count">4 statuses · 5 transitions</span></div>
+  
+  <h3>Statuses</h3>
+  <div class="table-wrap"><table><thead><tr><th>Status</th><th>Description</th></tr></thead><tbody><tr><td><span class="pill s-neutral">Incomplete</span></td><td>The packaging component is missing required information or details.</td></tr><tr><td><span class="pill s-warn">Review Needed</span></td><td>The supplier has provided the packaging component details and the Retailer Admin/Greenstreets team must review and approve them.</td></tr><tr><td><span class="pill s-ok">Complete</span></td><td>The packaging component has been reviewed and approved by the Retailer Admin/Greenstreets team.</td></tr><tr><td><span class="pill s-bad">Needs Changing</span></td><td>The packaging component has been reviewed and requires updates before it can be approved.</td></tr></tbody></table></div>
+  <h3>Transition rules</h3>
+  <div class="table-wrap"><table><thead><tr><th>From</th><th></th><th>To</th><th>Performed by</th><th>Notes</th></tr></thead><tbody><tr><td><span class="pill s-neutral">Incomplete</span></td><td class="arrow">→</td><td><span class="pill s-warn">Review Needed</span></td><td class="actor">Supplier</td><td>All required component details have been provided and submitted for review.</td></tr><tr><td><span class="pill s-warn">Review Needed</span></td><td class="arrow">→</td><td><span class="pill s-ok">Complete</span></td><td class="actor">Retailer Admin / Greenstreets</td><td>The component has been reviewed and approved.</td></tr><tr><td><span class="pill s-warn">Review Needed</span></td><td class="arrow">→</td><td><span class="pill s-bad">Needs Changing</span></td><td class="actor">Retailer Admin / Greenstreets</td><td>The component requires updates. A reason should be provided.</td></tr><tr><td><span class="pill s-bad">Needs Changing</span></td><td class="arrow">→</td><td><span class="pill s-warn">Review Needed</span></td><td class="actor">Supplier</td><td>The supplier has updated the component and resubmitted it for review.</td></tr><tr><td><span class="pill s-ok">Complete</span></td><td class="arrow">→</td><td><span class="pill s-bad">Needs Changing</span></td><td class="actor">Retailer Admin / Greenstreets</td><td>An approved component requires further updates or corrections. (Exception path)</td></tr></tbody></table></div>
+  <h3>Business rules</h3>
+  <ul class="rules"><li>Suppliers can edit packaging components while they are in <strong>Incomplete</strong> or <strong>Needs Changing</strong> status.</li><li>Required validation rules must pass before a component can move to <strong>Review Needed</strong>.</li><li>A component in <strong>Review Needed</strong> can only be approved or returned for changes by the Retailer Admin/Greenstreets team.</li><li><strong>Needs Changing</strong> must include a reason explaining what requires correction.</li><li>When a component is moved to <strong>Needs Changing</strong>, the supplier receives both an in-app notification and an email notification.</li><li>Status changes generate both an in-app notification and an email notification to the relevant users.</li><li><strong>Complete</strong> is the final successful status unless the Retailer Admin/Greenstreets team later requires updates.</li></ul>
+  <h3>Status flow</h3>
+  <div class="diagram"><pre class="mermaid">
+stateDiagram-v2
+    direction TB
+    [*] --&gt; Incomplete
+    Incomplete --&gt; ReviewNeeded: Supplier
+    ReviewNeeded --&gt; Complete: Retailer Admin / Greenstreets
+    ReviewNeeded --&gt; NeedsChanging: Retailer Admin / Greenstreets
+    NeedsChanging --&gt; ReviewNeeded: Supplier
+    Complete --&gt; NeedsChanging: Retailer Admin / Greenstreets
+    Complete --&gt; [*]
+    ReviewNeeded: Review Needed
+    NeedsChanging: Needs Changing
+</pre></div>
+  <p class="diagram-note">Exception path: Complete → Needs Changing → Review Needed.</p>
+</section>
+<section class="workflow" id="packaging-field">
+  <div class="workflow-head"><span class="num">06</span><h2>Packaging Component Status Field workflow</h2><span class="count">7 statuses · 11 transitions</span></div>
+  
+  <h3>Statuses</h3>
+  <div class="table-wrap"><table><thead><tr><th>Status</th><th>Value</th><th>Description</th></tr></thead><tbody><tr><td><span class="pill s-neutral">Awaiting Supplier</span></td><td><code>awaiting_supplier</code> / <code>REQUESTED</code></td><td>The retailer has defined the expected packaging component requirement and is awaiting supplier fulfilment.</td></tr><tr><td><span class="pill s-neutral">Draft</span></td><td><code>draft</code></td><td>The supplier has started fulfilling the requirement (linking or creating data) but has not yet submitted it.</td></tr><tr><td><span class="pill s-info">Submitted</span></td><td><code>submitted</code></td><td>The supplier has fulfilled and submitted the packaging component specification.</td></tr><tr><td><span class="pill s-warn">Pending Review</span></td><td><code>pending_review</code></td><td>The submission is in the retailer/Greenstreets review queue awaiting evaluation.</td></tr><tr><td><span class="pill s-ok">Approved</span></td><td><code>approved</code> / <code>FULFILLED</code></td><td>The component details have been accepted by the retailer and confirmed for the product packaging version.</td></tr><tr><td><span class="pill s-bad">Changes Requested</span></td><td><code>changes_requested</code></td><td>The retailer has rejected/returned the component with a <code>returnReason</code> for correction.</td></tr><tr><td><span class="pill s-neutral">Not Required</span></td><td><code>not_required</code> / <code>CANCELLED</code></td><td>The retailer has marked the requirement as cancelled or no longer required.</td></tr></tbody></table></div>
+  <h3>Transition rules</h3>
+  <div class="table-wrap"><table><thead><tr><th>From</th><th></th><th>To</th><th>Performed by</th><th>Notes</th></tr></thead><tbody><tr><td><span class="pill s-neutral">Awaiting Supplier</span></td><td class="arrow">→</td><td><span class="pill s-neutral">Draft</span></td><td class="actor">Supplier</td><td>Supplier begins fulfilling the requirement</td></tr><tr><td><span class="pill s-neutral">Draft</span></td><td class="arrow">→</td><td><span class="pill s-info">Submitted</span></td><td class="actor">Supplier</td><td>Supplier completes the component and submits it</td></tr><tr><td><span class="pill s-info">Submitted</span></td><td class="arrow">→</td><td><span class="pill s-warn">Pending Review</span></td><td class="actor system">System</td><td>Submission enters the retailer review queue</td></tr><tr><td><span class="pill s-warn">Pending Review</span></td><td class="arrow">→</td><td><span class="pill s-ok">Approved</span></td><td class="actor">Retailer / Greenstreets</td><td>Review completed successfully</td></tr><tr><td><span class="pill s-warn">Pending Review</span></td><td class="arrow">→</td><td><span class="pill s-bad">Changes Requested</span></td><td class="actor">Retailer / Greenstreets</td><td>Return reason is required</td></tr><tr><td><span class="pill s-bad">Changes Requested</span></td><td class="arrow">→</td><td><span class="pill s-neutral">Draft</span></td><td class="actor">Supplier</td><td>Supplier updates the component and resubmits</td></tr><tr><td><span class="pill s-neutral">Awaiting Supplier</span></td><td class="arrow">→</td><td><span class="pill s-neutral">Not Required</span></td><td class="actor">Retailer / Greenstreets</td><td>Requirement is cancelled before completion</td></tr><tr><td><span class="pill s-neutral">Draft</span></td><td class="arrow">→</td><td><span class="pill s-neutral">Not Required</span></td><td class="actor">Retailer / Greenstreets</td><td>Requirement is cancelled while in progress</td></tr><tr><td><span class="pill s-info">Submitted</span></td><td class="arrow">→</td><td><span class="pill s-neutral">Not Required</span></td><td class="actor">Retailer / Greenstreets</td><td>Requirement is cancelled after submission</td></tr><tr><td><span class="pill s-warn">Pending Review</span></td><td class="arrow">→</td><td><span class="pill s-neutral">Not Required</span></td><td class="actor">Retailer / Greenstreets</td><td>Requirement is cancelled during review</td></tr><tr><td><span class="pill s-ok">Approved</span></td><td class="arrow">→</td><td><span class="pill s-neutral">Not Required</span></td><td class="actor">Retailer / Greenstreets</td><td>Approval is revoked and the requirement is cancelled</td></tr></tbody></table></div>
+  <h3>Business rules</h3>
+  <ul class="rules"><li>Suppliers can edit component data only while the component is in <strong>Draft</strong> status.</li><li>Required validation rules must pass before a component can move from <strong>Draft</strong> to <strong>Submitted</strong>.</li><li>A submission automatically moves from <strong>Submitted</strong> to <strong>Pending Review</strong>.</li><li>Retailer/Greenstreets reviewers can move a component from <strong>Pending Review</strong> to <strong>Approved</strong> or <strong>Changes Requested</strong>.</li><li><strong>Changes Requested</strong> must include a <code>returnReason</code>.</li><li>When a component is returned, the supplier receives both an in-app notification and an email notification.</li><li>Status changes generate both an in-app notification and an email notification to the relevant users.</li><li>Human approval is required before DoC generation.</li><li><strong>Approved</strong> is the final successful status in the workflow unless the retailer explicitly marks the requirement as <strong>Not Required</strong>.</li></ul>
+  <h3>Status flow</h3>
+  <div class="diagram"><pre class="mermaid">
+stateDiagram-v2
+    direction TB
+    [*] --&gt; AwaitingSupplier
+    AwaitingSupplier --&gt; Draft: Supplier
+    Draft --&gt; Submitted: Supplier
+    Submitted --&gt; PendingReview: System
+    PendingReview --&gt; Approved: Retailer / Greenstreets
+    PendingReview --&gt; ChangesRequested: Retailer / Greenstreets
+    ChangesRequested --&gt; Draft: Supplier
+    AwaitingSupplier --&gt; NotRequired
+    Draft --&gt; NotRequired
+    Submitted --&gt; NotRequired
+    PendingReview --&gt; NotRequired
+    Approved --&gt; NotRequired
+    Approved --&gt; [*]
+    NotRequired --&gt; [*]
+    AwaitingSupplier: Awaiting Supplier
+    PendingReview: Pending Review
+    ChangesRequested: Changes Requested
+    NotRequired: Not Required
+</pre></div>
+  <p class="diagram-note">All transitions into Not Required are performed by Retailer / Greenstreets.</p>
+</section>
+    <footer>Source documents: Supplier Invitation, User Invitation, Document, Products Page (Retailer Portal), Packaging Component, and Packaging Components Status Field Requirements workflows.</footer>
+  </main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true,theme:window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"default"});</script>
+</body>
+</html>

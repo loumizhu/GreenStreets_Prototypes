@@ -281,8 +281,8 @@ body.lt .wk-vline{border-left-color:rgba(60,90,140,.08)}
 body.lt .wk-hline2{border-top-color:rgba(60,90,140,.07)}
 body.lt .wk-vline2{border-left-color:rgba(60,90,140,.06)}
 body.lt .wk-approved{background:#8ad2ac;box-shadow:0 0 7px rgba(138,210,172,.45)}
-body.lt .wk-submitted{background:#3766b0;box-shadow:0 0 8px rgba(70,120,210,.49)}
-body.lt .wk-halftone{background:#16223f;box-shadow:0 0 8px rgba(70,120,210,.38)}
+body.lt .wk-submitted{background:#9aa5b8;box-shadow:0 0 8px rgba(120,132,153,.4)}
+body.lt .wk-halftone{background:#d9534f;box-shadow:0 0 8px rgba(217,83,79,.4)}
 body.lt .wk-key{color:var(--lt-ink-2)}
 body.lt .wk-key:hover{background:rgba(110,168,254,.08)}
 

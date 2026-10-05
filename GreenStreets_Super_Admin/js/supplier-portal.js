@@ -291,7 +291,7 @@ function prodStatusMeta(t){
     incomplete:{cls:"prod-status-incomplete", lbl:"Incomplete",   st:"st-incomplete", enabled:false, btn:"Submit"},
     complete:  {cls:"prod-status-complete",   lbl:"Complete",     st:"st-complete",   enabled:true,  btn:"Submit"},
     submitted: {cls:"prod-status-submitted",  lbl:"Submitted",    st:"st-complete",   enabled:true,  btn:"Resubmit"},
-    none:      {cls:"prod-status-none",       lbl:"Not started",  st:"st-none",       enabled:false, btn:"Submit"},
+    none:      {cls:"prod-status-none",       lbl:"Pending",      st:"st-none",       enabled:false, btn:"Submit"},
     delisted:  {cls:"prod-status-delisted",   lbl:"Delisted",     st:"st-delisted",   enabled:false, btn:"Submit"}
   })[t];
 }

@@ -308,7 +308,7 @@
     var totalComps = EXPECTED.length + ACTUAL.length;
     var progHtml = '<div style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--tw2)"><div style="width:80px;height:6px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden"><div style="height:100%;background:var(--gs);width:' + (totalComps ? (ACTUAL.length / totalComps) * 100 : 0) + '%"></div></div>' + ACTUAL.length + ' / ' + totalComps + ' entered</div>';
 
-    var draftPill = '<span class="pill" style="font-size:11px;background:rgba(245,166,35,.14);color:#f5a623;border:1px solid rgba(245,166,35,.32)">Draft</span>';
+    var draftPill = '<span class="pill pill-grey" style="font-size:11px">Draft</span>';
 
     var catOpts = '<option value="">Select a category…</option>' +
       CATEGORIES().map(function (x) { return '<option' + (x === PROD.cat ? ' selected' : '') + '>' + esc(x) + '</option>'; }).join('');

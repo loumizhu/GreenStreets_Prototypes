@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>GreenStreets Super Admin · Compliance</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/greenstreets-theme.css?v=167">
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true"><defs><symbol id="gsi-0" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></symbol><symbol id="gsi-1" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></symbol></defs></svg>
+<div class="screen on" id="sa_compliance">
+  <div class="app-body">
+    <div class="sidebar" data-active="sa_compliance"></div>
+    <div class="main">
+      <div class="pg-hdr-bar">
+        <div><div class="pg-title">Compliance <span class="pg-badge" title="Super Admin console" aria-label="Super Admin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9.5 12l1.8 1.8L15 10"/></svg></span></div><div class="pg-sub">Conformity status across all retailers — approve/reject submissions, generate DoCs</div></div>
+        <div class="pg-actions"><span class="pill pill-amber">Article 21 AI-flagged: 5 SKUs</span></div>
+      </div>
+      <div style="background:linear-gradient(135deg,rgba(78,187,129,.1),rgba(78,187,129,.04));border:1px solid rgba(78,187,129,.2);border-radius:10px;padding:12px 16px;margin-bottom:12px;display:flex;align-items:center;gap:14px">
+        <div style="flex:1"><div style="font-size:11px;color:var(--tw3);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em;font-weight:600">Overall conformity completion rate · all retailers</div><div class="prog" style="width:100%;max-width:360px;height:6px"><div class="prog-f" style="width:62%"></div></div></div>
+        <div style="font-size:28px;font-weight:700;color:var(--gs)">62%</div>
+        <div style="font-size:12px;color:var(--tw3)">118/190 DoCs ready</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:12px">
+        <div class="stat"><div class="stat-lbl">Declaration of conformity</div><div class="stat-val" style="color:#8fe3b6">118/190</div></div><div class="stat"><div class="stat-lbl">Substance compliance (PFAS)</div><div class="stat-val" style="color:#8fe3b6">171/190</div></div><div class="stat"><div class="stat-lbl">Technical documentation</div><div class="stat-val" style="color:#f5a623">133/190</div><div style="font-size:10px;color:var(--tw3);margin-top:2px">57 outstanding</div></div>
+      </div>
+      <div class="grp" style="grid-column:1/-1"><div class="grp-hdr">Submissions awaiting review</div><div class="grp-body">
+        <div class="alert alert-info" style="margin-bottom:10px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5b9cf6" stroke-width="2" style="flex-shrink:0"><use href="#gsi-1"/></svg><span>3 submissions at Incomplete — review each before generating a DoC</span></div>
+        <div class="filter-toolbar">
+          <div class="search-wrap"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-0"/></svg><input class="fi fi-search" placeholder="Search submissions..." oninput="gsFilterToolbar(this)"></div>
+          <select class="fi fi-select" onchange="gsFilterToolbar(this)"><option value="all">All retailers</option><option>Primark Stores Ltd</option><option>H&amp;M Group</option><option>Next plc</option><option>Zara / Inditex</option><option>M&amp;S Group</option><option>Dunnes Stores</option><option>New Look</option></select>
+          <select class="fi fi-select" onchange="gsFilterToolbar(this)"><option value="all">All statuses</option><option value="incomplete">Incomplete</option><option value="pending">Pending</option></select>
+        </div>
+        <div class="tbl-wrap"><table class="tbl"><colgroup><col width="15%"><col width="14%"><col width="15%"><col width="12%"><col width="12%"><col width="12%"><col width="20%"></colgroup>
+        <thead><tr><th>SKU</th><th>Description</th><th>Retailer</th><th>Supplier</th><th>Submitted</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td class="tbl-name">PRK-001-SW-BLK</td><td class="tbl-muted">Black Sweatshirt</td><td class="tbl-muted">Primark Stores Ltd</td><td class="tbl-muted">Indotex</td><td class="tbl-muted">Today, 09:14</td><td><span class="pill pill-grey">Incomplete</span></td><td style="display:flex;gap:4px"><button class="btn-p"  onclick="go('sa_gendoc')" style="height:32px;padding:0 12px"><img class="btn-sw" src="" alt="" data-sw><span class="btn-c">Approve</span></button><button class="btn-g" style="height:32px;padding:0 12px">Reject</button></td></tr>
+          <tr><td class="tbl-name">PRK-002-JN-BLU</td><td class="tbl-muted">Blue Jeans</td><td class="tbl-muted">Primark Stores Ltd</td><td class="tbl-muted">EcoPack</td><td class="tbl-muted">Yesterday</td><td><span class="pill pill-grey">Incomplete</span></td><td style="display:flex;gap:4px"><button class="btn-p"  onclick="go('sa_gendoc')" style="height:32px;padding:0 12px"><img class="btn-sw" src="" alt="" data-sw><span class="btn-c">Approve</span></button><button class="btn-g" style="height:32px;padding:0 12px">Reject</button></td></tr>
+          <tr><td class="tbl-name">HMG-310-HDY-GRY</td><td class="tbl-muted">Grey Hoodie</td><td class="tbl-muted">H&amp;M Group</td><td class="tbl-muted">Verdepak</td><td class="tbl-muted">Today, 08:02</td><td><span class="pill pill-grey">Incomplete</span></td><td style="display:flex;gap:4px"><button class="btn-p"  onclick="go('sa_gendoc')" style="height:32px;padding:0 12px"><img class="btn-sw" src="" alt="" data-sw><span class="btn-c">Approve</span></button><button class="btn-g" style="height:32px;padding:0 12px">Reject</button></td></tr>
+          <tr><td class="tbl-name">NXT-005-TS-WHT</td><td class="tbl-muted">White T-Shirt</td><td class="tbl-muted">Next plc</td><td class="tbl-muted">Luntai</td><td class="tbl-muted">2 days ago</td><td><span class="pill pill-amber">Pending</span></td><td style="display:flex;gap:4px"><button class="btn-p"  onclick="go('sa_gendoc')" style="height:32px;padding:0 12px"><img class="btn-sw" src="" alt="" data-sw><span class="btn-c">Approve</span></button><button class="btn-g" style="height:32px;padding:0 12px">Reject</button></td></tr>
+          <tr><td class="tbl-name">DNN-208-SCF-NVY</td><td class="tbl-muted">Navy Scarf</td><td class="tbl-muted">Dunnes Stores</td><td class="tbl-muted">Nordic Packaging</td><td class="tbl-muted">2 days ago</td><td><span class="pill pill-amber">Pending</span></td><td style="display:flex;gap:4px"><button class="btn-p"  onclick="go('sa_gendoc')" style="height:32px;padding:0 12px"><img class="btn-sw" src="" alt="" data-sw><span class="btn-c">Approve</span></button><button class="btn-g" style="height:32px;padding:0 12px">Reject</button></td></tr>
+        </tbody></table></div>
+      </div></div>
+      <div class="grp" style="grid-column:1/-1"><div class="grp-hdr">Per-SKU conformity overview</div><div class="grp-body">
+        <div class="filter-toolbar">
+          <div class="search-wrap"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-0"/></svg><input class="fi fi-search" placeholder="Search SKUs..." oninput="gsFilterToolbar(this)"></div>
+          <select class="fi fi-select" onchange="gsFilterToolbar(this)"><option value="all">All retailers</option><option>Primark Stores Ltd</option><option>H&amp;M Group</option><option>Next plc</option><option>Zara / Inditex</option><option>M&amp;S Group</option><option>Dunnes Stores</option><option>New Look</option></select>
+          <select class="fi fi-select" onchange="gsFilterToolbar(this)"><option value="all">All statuses</option><option value="complete">Complete</option><option value="incomplete">Incomplete</option><option value="pending">Pending</option></select>
+        </div>
+        <div class="tbl-wrap"><table class="tbl"><colgroup><col width="14%"><col width="14%"><col width="14%"><col width="7%"><col width="11%"><col width="25%"><col width="15%"></colgroup>
+        <thead><tr><th>SKU</th><th>Description</th><th>Retailer</th><th>RAG</th><th>Status</th><th>Failing check</th><th></th></tr></thead>
+        <tbody>
+          <tr onclick="go('sa_gendoc')" style="cursor:pointer"><td class="tbl-name">PRK-001-SW-BLK</td><td class="tbl-muted">Black Sweatshirt</td><td class="tbl-muted">Primark Stores Ltd</td><td><span style="color:#4ebb81;font-size:16px">●</span></td><td><span class="pill pill-green">Complete</span></td><td class="tbl-muted">All checks passed</td><td><button class="btn-p"  onclick="go('sa_gendoc')" style="height:32px;padding:0 12px"><img class="btn-sw" src="" alt="" data-sw><span class="btn-c">Generate DoC</span></button></td></tr>
+          <tr onclick="go('sa_gendoc')" style="cursor:pointer"><td class="tbl-name">PRK-002-JN-BLU</td><td class="tbl-muted">Blue Jeans</td><td class="tbl-muted">Primark Stores Ltd</td><td><span style="color:#f5a623;font-size:16px">●</span></td><td><span class="pill pill-grey">Incomplete</span></td><td style="font-size:11px;color:#f5a623">PCR% 0% declared — Art. 7 target 30%</td><td><a class="bc-link" onclick="go('sa_gendoc')">Review →</a></td></tr>
+          <tr onclick="go('sa_gendoc')" style="cursor:pointer"><td class="tbl-name">NXT-005-TS-WHT</td><td class="tbl-muted">White T-Shirt</td><td class="tbl-muted">Next plc</td><td><span style="color:#f5a623;font-size:16px">●</span></td><td><span class="pill pill-amber">Pending</span></td><td style="font-size:11px;color:#f5a623">Awaiting review — checks not yet run</td><td><a class="bc-link" onclick="go('sa_gendoc')">Review →</a></td></tr>
+          <tr onclick="go('sa_gendoc')" style="cursor:pointer"><td class="tbl-name">PRK-003-DRS-RED</td><td class="tbl-muted">Red Midi Dress</td><td class="tbl-muted">Primark Stores Ltd</td><td><span style="color:#ff9c96;font-size:16px">●</span></td><td><span class="pill pill-grey">Incomplete</span></td><td style="font-size:11px;color:#ff9c96">3 mandatory fields missing</td><td><a class="bc-link" onclick="go('sa_docreq')">Request →</a></td></tr>
+          <tr onclick="go('sa_gendoc')" style="cursor:pointer"><td class="tbl-name">HMG-310-HDY-GRY</td><td class="tbl-muted">Grey Hoodie</td><td class="tbl-muted">H&amp;M Group</td><td><span style="color:#f5a623;font-size:16px">●</span></td><td><span class="pill pill-grey">Incomplete</span></td><td style="font-size:11px;color:#f5a623">Hanger material not declared</td><td><a class="bc-link" onclick="go('sa_docreq')">Request →</a></td></tr>
+          <tr onclick="go('sa_gendoc')" style="cursor:pointer"><td class="tbl-name">DNN-208-SCF-NVY</td><td class="tbl-muted">Navy Scarf</td><td class="tbl-muted">Dunnes Stores</td><td><span style="color:#f5a623;font-size:16px">●</span></td><td><span class="pill pill-amber">Pending</span></td><td style="font-size:11px;color:#f5a623">Awaiting review — checks not yet run</td><td><a class="bc-link" onclick="go('sa_gendoc')">Review →</a></td></tr>
+          <tr onclick="go('sa_gendoc')" style="cursor:pointer"><td class="tbl-name">NXT-112-JKT-BLK</td><td class="tbl-muted">Black Jacket</td><td class="tbl-muted">Next plc</td><td><span style="color:#4ebb81;font-size:16px">●</span></td><td><span class="pill pill-green">Complete</span></td><td class="tbl-muted">All checks passed</td><td><button class="btn-p"  onclick="go('sa_gendoc')" style="height:32px;padding:0 12px"><img class="btn-sw" src="" alt="" data-sw><span class="btn-c">Generate DoC</span></button></td></tr>
+        </tbody></table></div>
+        <div class="tbl-footer">Showing 7 of 1,240 SKUs across all retailers</div>
+      </div></div>
+    </div>
+  </div>
+</div>
+<script src="js/super-admin.js?v=32"></script>
+<script src="js/greenstreets-theme.js?v=46"></script>
+</body>
+</html>

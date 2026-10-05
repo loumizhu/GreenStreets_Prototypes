@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>GreenStreets Super Admin · Dashboard (Light)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/greenstreets-theme.css?v=167">
+<link rel="stylesheet" href="css/sa-dash-users.css?v=2">
+<link rel="stylesheet" href="css/greenstreets-light.css?v=123">
+<style>html.gs-anim-armed #sa_dash .pg-hdr-bar,html.gs-anim-armed #sa_dash #sa-tour-metrics .stat,html.gs-anim-armed #sa_dash .grp{opacity:0}</style>
+</head>
+<body class="lt">
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true"><defs><symbol id="gsi-0" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol><symbol id="gsi-1" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/></symbol><symbol id="gsi-2" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol><symbol id="gsi-3" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></symbol><symbol id="gsi-4" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></symbol><symbol id="gsi-5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></symbol><symbol id="gsi-6" viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></symbol><symbol id="gsi-7" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol><symbol id="gsi-8" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol><symbol id="gsi-9" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></symbol><symbol id="gsi-10" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></symbol><symbol id="gsi-11" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></symbol><symbol id="gsi-12" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></symbol><symbol id="gsi-13" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol><symbol id="gsi-14" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></symbol><symbol id="gsi-15" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol><symbol id="gsi-16" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></symbol><symbol id="gsi-17" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></symbol></defs></svg>
+
+<div class="screen on" id="sa_dash">
+  <div class="app-body">
+    <div class="sidebar" data-active="sa_dash"></div>
+    <div class="main">
+      <div class="pg-hdr-bar" style="margin-bottom:10px">
+        <div><div class="pg-title">Compliance dashboard <span class="pg-badge" title="Super Admin console" aria-label="Super Admin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9.5 12l1.8 1.8L15 10"/></svg></span></div><div class="pg-sub" id="sa-dash-sub">All retailers · platform overview</div></div>
+        <div class="pg-actions" style="display:flex;gap:8px;align-items:center">
+          <div class="sa-scope"><span class="sa-scope-lbl">Scope</span><select class="fi fi-select cs-searchable" id="sa-dash-scope" aria-label="Retailer scope" onchange="saDashScope(this)"><option value="all">All retailers</option><option value="Primark Stores Ltd">Primark Stores Ltd</option><option value="H&amp;M Group">H&amp;M Group</option><option value="Next plc">Next plc</option><option value="Zara / Inditex">Zara / Inditex</option><option value="M&amp;S Group">M&amp;S Group</option><option value="Dunnes Stores">Dunnes Stores</option><option value="New Look">New Look</option></select></div>
+          <button class="btn-g" onclick="saTourStart()" style="height:32px;padding:0 12px;font-size:11px;display:inline-flex;align-items:center;gap:5px">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-11"/></svg>
+            Getting started
+          </button>
+          <div class="sa-notif-wrap">
+            <button class="btn-g" onclick="saToggleNotif(event)" title="Notifications" aria-label="Notifications" style="height:32px;padding:0 11px;display:inline-flex;align-items:center;position:relative">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><use href="#gsi-12"/></svg>
+              <span class="bell-badge" style="position:absolute;top:-5px;right:-3px">4</span>
+            </button>
+            <div class="sa-notif-menu" id="sa-notif-menu">
+              <div class="sa-notif-hd">Notifications <span style="font-weight:400;color:var(--tw3);font-size:10px">4 new</span></div>
+              <button class="sa-notif-item" onclick="go('sa_compliance')"><span class="sa-notif-dot" style="background:var(--status-danger)"></span><div><div class="sa-notif-txt"><b>NXT-318-RED</b> — 3 mandatory fields missing, supplier incomplete</div><div class="sa-notif-time">2 hours ago</div></div></button><button class="sa-notif-item" onclick="go('sa_tracker')"><span class="sa-notif-dot" style="background:var(--status-warn)"></span><div><div class="sa-notif-txt"><b>Luntai Packaging Co.</b> is overdue — invitation opened, not submitted</div><div class="sa-notif-time">Today, 09:14</div></div></button><button class="sa-notif-item" onclick="go('sa_compliance')"><span class="sa-notif-dot" style="background:var(--status-ok-strong)"></span><div><div class="sa-notif-txt"><b>Nordic Materials AB</b> submitted packaging data — ready to review</div><div class="sa-notif-time">Yesterday</div></div></button>
+              <div class="sa-notif-foot"><a class="bc-link" style="font-size:11px;cursor:pointer" onclick="go('s16')">View all notifications →</a></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Metric tiles — all four in a single row -->
+      <div id="sa-tour-metrics" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px">
+        <div class="stat" style="cursor:pointer;display:flex;align-items:center;gap:10px;justify-content:space-between" onclick="go('sa_compliance')"><div style="min-width:0"><div class="stat-lbl">Declaration of conformity</div><div class="stat-val" style="color:var(--status-ok)">70<span style="font-size:14px;color:var(--tw3);font-weight:400">/98</span></div><div class="stat-sub" style="font-size:10px;color:var(--tw3);margin-top:3px">Review 28 outstanding →</div></div><div tabindex="0" role="img" aria-label="DoC status breakdown" onclick="event.stopPropagation()" data-gs-tip="Declaration of Conformity across 98 products — 70 approved &amp; DoC generated (green), 17 awaiting supplier data (blue), 11 missing mandatory fields (red)." style="width:38px;height:38px;border-radius:50%;flex-shrink:0;background:conic-gradient(var(--status-ok) 0 71.4%,var(--status-info-strong) 71.4% 88.8%,var(--status-danger) 88.8% 100%);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)"></div></div>
+        <div class="stat" style="cursor:pointer" onclick="saGoFilter('s11',{selectValue:'Incomplete'})" title="View the products with outstanding substance data"><div class="stat-lbl">Substance compliance (PFAS)</div><div class="stat-val" style="color:var(--status-ok)">86<span style="font-size:14px;color:var(--tw3);font-weight:400">/98</span></div><div class="stat-sub" style="font-size:10px;color:var(--tw3);margin-top:3px">12 to review →</div></div>
+        <div class="stat" style="cursor:pointer" onclick="go('s9')"><div class="stat-lbl">Technical documentation</div><div class="stat-val" style="color:var(--status-warn)">62<span style="font-size:14px;color:var(--tw3);font-weight:400">/98</span></div><div class="stat-sub" style="font-size:10px;color:var(--status-warn);margin-top:2px">36 docs outstanding · open →</div></div>
+        <div class="stat" style="cursor:pointer" onclick="go('s9')" title="Open Documents"><div class="stat-lbl">Overall data collection</div><div class="stat-val" style="color:var(--gs)">71%</div><div class="prog" style="width:100%;height:5px;margin-top:7px"><div class="prog-f" style="width:71%"></div></div><div class="stat-sub" style="font-size:10px;color:var(--tw3);margin-top:5px">70 of 98 DoCs ready · view outstanding →</div></div>
+      </div>
+
+      <!-- Insight row: weekly supplier data-collection chart + expiring documents -->
+      <div style="display:grid;grid-template-columns:1.35fr 1fr;gap:12px;margin-bottom:12px">
+
+        <!-- Weekly supplier data-filling performance (segmented bar) -->
+        <div class="grp" style="margin-bottom:0">
+          <div class="grp-hdr">Supplier data collection · last 7 days
+            <span style="margin-left:auto;font-weight:400;text-transform:none;letter-spacing:0;color:var(--tw3);font-size:10px">Submissions per day, by outcome</span>
+          </div>
+          <div class="grp-body">
+            <div class="wk-chart">
+              <div class="wk-yaxis"><span>15</span><span>10</span><span>5</span><span>0</span></div>
+              <div class="wk-plotcol">
+                <div class="wk-plot">
+                  <div class="wk-hline" style="bottom:100%"></div><div class="wk-hline" style="bottom:66.7%"></div><div class="wk-hline" style="bottom:33.3%"></div><div class="wk-hline" style="bottom:0"></div><div class="wk-vline" style="left:14.29%"></div><div class="wk-vline" style="left:28.57%"></div><div class="wk-vline" style="left:42.86%"></div><div class="wk-vline" style="left:57.14%"></div><div class="wk-vline" style="left:71.43%"></div><div class="wk-vline" style="left:85.71%"></div><div class="wk-hline2" style="bottom:16.65%"></div><div class="wk-hline2" style="bottom:50%"></div><div class="wk-hline2" style="bottom:83.35%"></div><div class="wk-vline2" style="left:7.14%"></div><div class="wk-vline2" style="left:21.43%"></div><div class="wk-vline2" style="left:35.71%"></div><div class="wk-vline2" style="left:50.00%"></div><div class="wk-vline2" style="left:64.28%"></div><div class="wk-vline2" style="left:78.57%"></div><div class="wk-vline2" style="left:92.85%"></div>
+                  <div class="wk-bars-row">
+                    <div class="wk-col"><div class="wk-bar wk-approved" data-series="approved" style="height:33%" title="Mon · complete 5"></div><div class="wk-bar wk-submitted" data-series="submitted" style="height:47%" title="Mon · incomplete 7"></div><div class="wk-bar wk-halftone" data-series="inprog" style="height:40%" title="Mon · needs changing 6"></div></div>
+                    <div class="wk-col"><div class="wk-bar wk-approved" data-series="approved" style="height:47%" title="Tue · complete 7"></div><div class="wk-bar wk-submitted" data-series="submitted" style="height:67%" title="Tue · incomplete 10"></div><div class="wk-bar wk-halftone" data-series="inprog" style="height:47%" title="Tue · needs changing 7"></div></div>
+                    <div class="wk-col"><div class="wk-bar wk-approved" data-series="approved" style="height:27%" title="Wed · complete 4"></div><div class="wk-bar wk-submitted" data-series="submitted" style="height:33%" title="Wed · incomplete 5"></div><div class="wk-bar wk-halftone" data-series="inprog" style="height:40%" title="Wed · needs changing 6"></div></div>
+                    <div class="wk-col"><div class="wk-bar wk-approved" data-series="approved" style="height:80%" title="Thu · complete 12"></div><div class="wk-bar wk-submitted" data-series="submitted" style="height:80%" title="Thu · incomplete 12"></div><div class="wk-bar wk-halftone" data-series="inprog" style="height:47%" title="Thu · needs changing 7"></div></div>
+                    <div class="wk-col"><div class="wk-bar wk-approved" data-series="approved" style="height:93%" title="Fri · complete 14"></div><div class="wk-bar wk-submitted" data-series="submitted" style="height:87%" title="Fri · incomplete 13"></div><div class="wk-bar wk-halftone" data-series="inprog" style="height:47%" title="Fri · needs changing 7"></div></div>
+                    <div class="wk-col"><div class="wk-bar wk-approved" data-series="approved" style="height:13%" title="Sat · complete 2"></div><div class="wk-bar wk-submitted" data-series="submitted" style="height:20%" title="Sat · incomplete 3"></div><div class="wk-bar wk-halftone" data-series="inprog" style="height:27%" title="Sat · needs changing 4"></div></div>
+                    <div class="wk-col"><div class="wk-bar wk-approved" data-series="approved" style="height:20%" title="Sun · complete 3"></div><div class="wk-bar wk-submitted" data-series="submitted" style="height:33%" title="Sun · incomplete 5"></div><div class="wk-bar wk-halftone" data-series="inprog" style="height:27%" title="Sun · needs changing 4"></div></div>
+                    </div>
+                </div>
+                <div class="wk-days"><div class="wk-day">Mon <span>3</span></div><div class="wk-day">Tue <span>4</span></div><div class="wk-day">Wed <span>5</span></div><div class="wk-day">Thu <span>6</span></div><div class="wk-day">Fri <span>7</span></div><div class="wk-day">Sat <span>8</span></div><div class="wk-day">Sun <span>9</span></div></div>
+              </div>
+            </div>
+            <div style="margin-top:11px;padding-top:9px;border-top:1px solid var(--bw);display:flex;justify-content:space-between;font-size:11px;color:var(--tw3)">
+              <span id="sa-wk-total"><b style="color:var(--tw)">143</b> supplier submissions this week</span>
+              <span id="sa-wk-trend" style="color:var(--status-ok)">▲ 22% vs. previous week</span>
+            </div>
+            <div class="wk-legend">
+              <button class="wk-key" data-series="approved" onclick="saWkToggle(this)"><span class="wk-sw wk-approved"></span>Complete</button>
+              <button class="wk-key" data-series="submitted" onclick="saWkToggle(this)"><span class="wk-sw wk-submitted"></span>Incomplete</button>
+              <button class="wk-key" data-series="inprog" onclick="saWkToggle(this)"><span class="wk-sw wk-halftone"></span>Needs Changing</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Documents expiring soon -->
+        <div class="grp" id="sa-exp-card" style="margin-bottom:0;cursor:pointer" onclick="go('s9')" title="Open Documents">
+          <div class="grp-hdr">Documents expiring soon
+            <span style="margin-left:auto;display:inline-flex;align-items:center;gap:5px;color:var(--status-danger);font-weight:600"><span id="sa-exp-count">4 </span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><use href="#gsi-9"/></svg></span>
+          </div>
+          <div class="grp-body" style="padding:0">
+            <div class="exp-row" style="display:flex;align-items:center;gap:9px;padding:9px 14px" onclick="saPreviewDoc(event,this)" data-doc-id="doc-022" data-retailer="Primark Stores Ltd"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2" style="flex-shrink:0;stroke:var(--status-danger)"><use href="#gsi-14"/></svg><div style="flex:1;min-width:0"><div class="tbl-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">DoC_PRK-022_v3.pdf</div><div style="font-size:10px;color:var(--tw3)">DoC · EcoPack · Primark Stores Ltd</div></div><span class="pill pill-red pill-expired" style="font-size:10px;flex-shrink:0">Expired 5 days ago</span><button class="exp-remind" onclick="saRemindDoc(event,this)" title="Send reminder to supplier"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-12"/></svg> Remind</button></div>
+            <div class="exp-row" style="display:flex;align-items:center;gap:9px;padding:9px 14px" onclick="saPreviewDoc(event,this)" data-doc-id="doc-030" data-retailer="H&amp;M Group"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2" style="flex-shrink:0;stroke:var(--status-danger)"><use href="#gsi-14"/></svg><div style="flex:1;min-width:0"><div class="tbl-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">DoC_HM-030_v2.pdf</div><div style="font-size:10px;color:var(--tw3)">DoC · Luntai · H&amp;M Group</div></div><span class="pill pill-red" style="font-size:10px;flex-shrink:0">Expires in 9 days</span><button class="exp-remind" onclick="saRemindDoc(event,this)" title="Send reminder to supplier"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-12"/></svg> Remind</button></div>
+            <div class="exp-row" style="display:flex;align-items:center;gap:9px;padding:9px 14px" onclick="saPreviewDoc(event,this)" data-doc-id="sup-reach" data-retailer="Next plc"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2" style="flex-shrink:0;stroke:var(--status-danger)"><use href="#gsi-14"/></svg><div style="flex:1;min-width:0"><div class="tbl-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">REACH_EcoPack.pdf</div><div style="font-size:10px;color:var(--tw3)">Test report · EcoPack · Next plc</div></div><span class="pill pill-red" style="font-size:10px;flex-shrink:0">Expires in 14 days</span><button class="exp-remind" onclick="saRemindDoc(event,this)" title="Send reminder to supplier"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-12"/></svg> Remind</button></div>
+            <div class="exp-row" style="display:flex;align-items:center;gap:9px;padding:9px 14px" onclick="saPreviewDoc(event,this)" data-doc-id="sup-fsc2" data-retailer="Zara / Inditex"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2" style="flex-shrink:0;stroke:var(--status-danger)"><use href="#gsi-14"/></svg><div style="flex:1;min-width:0"><div class="tbl-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">FSC_CoC_Nordic.pdf</div><div style="font-size:10px;color:var(--tw3)">Certificate · Nordic Packaging · Zara / Inditex</div></div><span class="pill pill-red" style="font-size:10px;flex-shrink:0">Expires in 45 days</span><button class="exp-remind" onclick="saRemindDoc(event,this)" title="Send reminder to supplier"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-12"/></svg> Remind</button></div>
+            <div id="sa-exp-empty" style="display:none;padding:18px 14px;text-align:center;font-size:12px;color:var(--tw3)">No documents expiring soon for this retailer.</div>
+            <div id="sa-exp-footer" style="padding:8px 14px;border-top:1px solid var(--bw);text-align:right"><a class="bc-link" style="font-size:11px" onclick="event.stopPropagation();go('s9')">View all documents →</a></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Main grid -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+
+        <!-- Product conformity table (full width) -->
+        <div class="grp" id="sa-tour-conformity" style="grid-column:1/-1">
+          <div class="grp-hdr"><a onclick="go('s11')" style="cursor:pointer;color:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:5px" title="Open Products">Product conformity overview <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><use href="#gsi-9"/></svg></a>
+            <button class="btn-g" style="margin-left:auto;height:26px;padding:0 10px;font-size:11px;display:inline-flex;align-items:center;gap:5px" onclick="go('sa_importproducts')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-3"/></svg>Import</button>
+          </div>
+          <div class="grp-body" style="padding:0">
+            <table class="tbl" data-nosort>
+            <colgroup><col width="13%"><col width="19%"><col width="12%"><col width="7%"><col width="22%"><col width="27%"></colgroup>
+            <thead><tr><th>Product</th><th>Description</th><th>Retailer</th><th>Status</th><th>Failing check</th><th></th></tr></thead>
+            <tbody>
+              <tr onclick="saOpenProduct('PRK-001-BLA')" style="cursor:pointer" title="Open product detail" data-retailer="Primark Stores Ltd"><td class="tbl-name gs-id-cell">PRK-001-BLA</td><td class="tbl-muted">Black Crew Neck Sweatshirt</td><td class="tbl-muted">Primark Stores Ltd</td><td><span role="img" aria-label="Compliant" title="Compliant — all checks passed" style="color:var(--status-ok-strong);font-size:16px">●</span></td><td class="tbl-muted">All checks passed</td><td style="display:flex;align-items:center;gap:6px;padding:7px 11px" onclick="event.stopPropagation()"><button class="act-mini act-view" title="Open detail" onclick="event.stopPropagation();saOpenProduct('PRK-001-BLA')">View</button><button class="btn-p" onclick="go('sa_gendoc')" style="height:26px;padding:0 10px;font-size:10px">Generate DoC</button></td></tr>
+              <tr onclick="saOpenProduct('PRK-002-BLU')" style="cursor:pointer" title="Open product detail" data-retailer="Primark Stores Ltd"><td class="tbl-name gs-id-cell">PRK-002-BLU</td><td class="tbl-muted">Blue Slim Fit Jeans</td><td class="tbl-muted">Primark Stores Ltd</td><td><span role="img" aria-label="At risk" title="At risk — action recommended" style="color:var(--status-warn);font-size:16px">●</span></td><td style="font-size:11px;color:var(--status-warn)">PCR% 0% — below Art. 7 target of 30%</td><td style="display:flex;align-items:center;gap:6px;padding:7px 11px" onclick="event.stopPropagation()"><button class="act-mini act-view" title="Open detail" onclick="event.stopPropagation();saOpenProduct('PRK-002-BLU')">View</button><div class="reminder-btn-wrap"><button class="btn-reminder" onclick="toggleDropdown(this)">Send reminder <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:3px;vertical-align:middle"><use href="#gsi-13"/></svg></button><div class="reminder-dropdown"><button onclick="saDashRemind(this)">Send reminder now</button><button onclick="go('sa_custom_invite')">Customize invitation</button></div></div></td></tr>
+              <tr onclick="saOpenProduct('HM-2041-WHT')" style="cursor:pointer" title="Open product detail" data-retailer="H&amp;M Group"><td class="tbl-name gs-id-cell">HM-2041-WHT</td><td class="tbl-muted">White Linen Shirt</td><td class="tbl-muted">H&amp;M Group</td><td><span role="img" aria-label="Compliant" title="Compliant — all checks passed" style="color:var(--status-ok-strong);font-size:16px">●</span></td><td class="tbl-muted">All checks passed</td><td style="display:flex;align-items:center;gap:6px;padding:7px 11px" onclick="event.stopPropagation()"><button class="act-mini act-view" title="Open detail" onclick="event.stopPropagation();saOpenProduct('HM-2041-WHT')">View</button><button class="btn-p" onclick="go('sa_gendoc')" style="height:26px;padding:0 10px;font-size:10px">Generate DoC</button></td></tr>
+              <tr onclick="saOpenProduct('NXT-318-RED')" style="cursor:pointer" title="Open product detail" data-retailer="Next plc"><td class="tbl-name gs-id-cell">NXT-318-RED</td><td class="tbl-muted">Red Midi Dress</td><td class="tbl-muted">Next plc</td><td><span role="img" aria-label="Non-compliant" title="Non-compliant — action required" style="color:var(--status-danger);font-size:16px">●</span></td><td style="font-size:11px;color:var(--status-danger)">3 mandatory fields missing — supplier incomplete</td><td style="display:flex;align-items:center;gap:6px;padding:7px 11px" onclick="event.stopPropagation()"><button class="act-mini act-view" title="Open detail" onclick="event.stopPropagation();saOpenProduct('NXT-318-RED')">View</button><div class="reminder-btn-wrap"><button class="btn-reminder" onclick="toggleDropdown(this)">Send reminder <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:3px;vertical-align:middle"><use href="#gsi-13"/></svg></button><div class="reminder-dropdown"><button onclick="saDashRemind(this)">Send reminder now</button><button onclick="go('sa_custom_invite')">Customize invitation</button></div></div></td></tr>
+              <tr onclick="saOpenProduct('ZAR-772-KHA')" style="cursor:pointer" title="Open product detail" data-retailer="Zara / Inditex"><td class="tbl-name gs-id-cell">ZAR-772-KHA</td><td class="tbl-muted">Khaki Utility Jacket</td><td class="tbl-muted">Zara / Inditex</td><td><span role="img" aria-label="Non-compliant" title="Non-compliant — action required" style="color:var(--status-danger);font-size:16px">●</span></td><td style="font-size:11px;color:var(--status-danger)">Supplier data not submitted — hanger outstanding</td><td style="display:flex;align-items:center;gap:6px;padding:7px 11px" onclick="event.stopPropagation()"><button class="act-mini act-view" title="Open detail" onclick="event.stopPropagation();saOpenProduct('ZAR-772-KHA')">View</button><div class="reminder-btn-wrap"><button class="btn-reminder" onclick="toggleDropdown(this)">Send reminder <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:3px;vertical-align:middle"><use href="#gsi-13"/></svg></button><div class="reminder-dropdown"><button onclick="saDashRemind(this)">Send reminder now</button><button onclick="go('sa_custom_invite')">Customize invitation</button></div></div></td></tr>
+              <tr onclick="saOpenProduct('MS-905-WHI')" style="cursor:pointer" title="Open product detail" data-retailer="M&amp;S Group"><td class="tbl-name gs-id-cell">MS-905-WHI</td><td class="tbl-muted">White Essential T-Shirt</td><td class="tbl-muted">M&amp;S Group</td><td><span role="img" aria-label="Compliant" title="Compliant — all checks passed" style="color:var(--status-ok-strong);font-size:16px">●</span></td><td class="tbl-muted">All checks passed</td><td style="display:flex;align-items:center;gap:6px;padding:7px 11px" onclick="event.stopPropagation()"><button class="act-mini act-view" title="Open detail" onclick="event.stopPropagation();saOpenProduct('MS-905-WHI')">View</button><button class="btn-p" onclick="go('sa_gendoc')" style="height:26px;padding:0 10px;font-size:10px">Generate DoC</button></td></tr>
+              <tr onclick="saOpenProduct('DUN-120-BLK')" style="cursor:pointer" title="Open product detail" data-retailer="Dunnes Stores"><td class="tbl-name gs-id-cell">DUN-120-BLK</td><td class="tbl-muted">Black Canvas Belt</td><td class="tbl-muted">Dunnes Stores</td><td><span role="img" aria-label="At risk" title="At risk — action recommended" style="color:var(--status-warn);font-size:16px">●</span></td><td style="font-size:11px;color:var(--status-warn)">Recycled content 12% — below Art. 7 target of 30%</td><td style="display:flex;align-items:center;gap:6px;padding:7px 11px" onclick="event.stopPropagation()"><button class="act-mini act-view" title="Open detail" onclick="event.stopPropagation();saOpenProduct('DUN-120-BLK')">View</button><div class="reminder-btn-wrap"><button class="btn-reminder" onclick="toggleDropdown(this)">Send reminder <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:3px;vertical-align:middle"><use href="#gsi-13"/></svg></button><div class="reminder-dropdown"><button onclick="saDashRemind(this)">Send reminder now</button><button onclick="go('sa_custom_invite')">Customize invitation</button></div></div></td></tr>
+              <tr onclick="saOpenProduct('NL-066-NVY')" style="cursor:pointer" title="Open product detail" data-retailer="New Look"><td class="tbl-name gs-id-cell">NL-066-NVY</td><td class="tbl-muted">Navy Chino Trousers</td><td class="tbl-muted">New Look</td><td><span role="img" aria-label="Non-compliant" title="Non-compliant — action required" style="color:var(--status-danger);font-size:16px">●</span></td><td style="font-size:11px;color:var(--status-danger)">Supplier data not submitted — poly bag outstanding</td><td style="display:flex;align-items:center;gap:6px;padding:7px 11px" onclick="event.stopPropagation()"><button class="act-mini act-view" title="Open detail" onclick="event.stopPropagation();saOpenProduct('NL-066-NVY')">View</button><div class="reminder-btn-wrap"><button class="btn-reminder" onclick="toggleDropdown(this)">Send reminder <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:3px;vertical-align:middle"><use href="#gsi-13"/></svg></button><div class="reminder-dropdown"><button onclick="saDashRemind(this)">Send reminder now</button><button onclick="go('sa_custom_invite')">Customize invitation</button></div></div></td></tr>
+              </tbody></table>
+            <div class="tbl-footer" id="sa-conf-footer" style="padding:7px 14px">Showing 8 of 1,865 products · <span style="color:var(--status-danger)">30 red</span> · <span style="color:var(--status-warn)">53 amber</span> · <span style="color:var(--status-ok-strong)">1,782 green</span></div>
+          </div>
+        </div>
+
+        <!-- Invitations sent -->
+        <div class="grp" id="sa-inv-card" style="grid-column:1/-1">
+          <div class="grp-hdr">
+            <a onclick="go('s3')" style="cursor:pointer;color:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:5px" title="Open Suppliers">Supplier invitations <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><use href="#gsi-9"/></svg></a>
+            <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+              <span id="sa-inv-sum" style="font-size:11px;color:var(--tw3);font-weight:400">1,780 sent · 68% responded</span>
+              <button class="btn-g" style="height:26px;padding:0 10px;font-size:11px;display:inline-flex;align-items:center;gap:5px" onclick="go('sa_importsuppliers')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-3"/></svg>Import</button>
+              <button class="btn-g" style="height:26px;padding:0 10px;font-size:11px" onclick="go('sa_tracker')">View tracker</button>
+            </div>
+          </div>
+          <div class="grp-body" style="padding:0">
+            <table class="tbl" data-nosort>
+            <colgroup><col width="18%"><col width="11%"><col width="10%"><col width="12%"><col width="13%"><col width="12%"><col width="10%"><col width="14%"></colgroup>
+            <thead><tr><th>Supplier</th><th>Retailer</th><th>Invited</th><th>Opened</th><th>Portal activity</th><th>Status</th><th>Last active</th><th></th></tr></thead>
+            <tbody>
+              <tr style="" data-retailer="Primark Stores Ltd"><td><div class="tbl-name">Indotex Manufacturing</div><div class="tbl-sub">indotex@supplier.ie</div></td><td class="tbl-muted">Primark Stores Ltd</td><td class="tbl-muted">14 Jun</td><td style="font-size:11px;color:var(--status-ok-strong)">14 Jun · 1hr later</td><td style="font-size:11px;color:var(--tw2)">3 sessions</td><td><span class="pill pill-green">Invitation Accepted</span></td><td class="tbl-muted">2 hrs ago</td><td style="padding:6px 11px;white-space:nowrap"><button class="act-mini act-view" title="Open detail" onclick="go('s3')">View</button></td></tr>
+              <tr style="" data-retailer="H&amp;M Group"><td><div class="tbl-name">EcoPack GmbH</div><div class="tbl-sub">ops@ecopack.de</div></td><td class="tbl-muted">H&amp;M Group</td><td class="tbl-muted">14 Jun</td><td style="font-size:11px;color:var(--status-ok-strong)">15 Jun</td><td style="font-size:11px;color:var(--tw2)">2 sessions · uploading</td><td><span class="pill pill-amber">In Progress</span></td><td class="tbl-muted">3 hrs ago</td><td style="padding:6px 11px;white-space:nowrap"><button class="act-mini act-view" title="Open detail" onclick="go('s3')">View</button></td></tr>
+              <tr style="background:rgba(78,187,129,.04)" data-retailer="Next plc"><td><div class="tbl-name">Nordic Materials AB</div><div class="tbl-sub">nordic@materials.se</div></td><td class="tbl-muted">Next plc</td><td class="tbl-muted">10 Jun</td><td style="font-size:11px;color:var(--status-ok-strong)">10 Jun · same day</td><td style="font-size:11px;color:var(--tw2)">2 sessions · submitted</td><td><span class="pill pill-green">Invitation Accepted</span></td><td class="tbl-muted">1 day ago</td><td style="padding:6px 11px;white-space:nowrap"><button class="btn-p" onclick="go('sa_compliance')" style="height:26px;padding:0 10px;font-size:10px">Review</button></td></tr>
+              <tr style="background:rgba(78,187,129,.04)" data-retailer="Zara / Inditex"><td><div class="tbl-name">Hangzhou TextilePack</div><div class="tbl-sub">hzpack@textile.cn</div></td><td class="tbl-muted">Zara / Inditex</td><td class="tbl-muted">12 Jun</td><td style="font-size:11px;color:var(--status-ok-strong)">12 Jun</td><td style="font-size:11px;color:var(--tw2)">1 session · submitted all</td><td><span class="pill pill-green">Invitation Accepted</span></td><td class="tbl-muted">3 days ago</td><td style="padding:6px 11px;white-space:nowrap"><button class="btn-p" onclick="go('sa_compliance')" style="height:26px;padding:0 10px;font-size:10px">Review</button></td></tr>
+              <tr style="background:rgba(245,166,35,.03)" data-retailer="M&amp;S Group"><td><div class="tbl-name">Verdepak S.A.</div><div class="tbl-sub">contact@verdepak.ie</div></td><td class="tbl-muted">M&amp;S Group</td><td class="tbl-muted">14 Jun</td><td style="font-size:11px;color:var(--status-warn)">Not opened</td><td style="font-size:11px;color:var(--tw3)">No activity</td><td><span class="pill pill-blue">Invited</span></td><td class="tbl-muted">—</td><td style="padding:6px 11px;white-space:nowrap"><div class="reminder-btn-wrap"><button class="btn-reminder" onclick="toggleDropdown(this)">Send reminder <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:3px;vertical-align:middle"><use href="#gsi-13"/></svg></button><div class="reminder-dropdown"><button onclick="saDashRemind(this)">Send reminder now</button><button onclick="go('sa_custom_invite')">Customize invitation</button></div></div></td></tr>
+              <tr style="background:rgba(224,82,82,.03)" data-retailer="Primark Stores Ltd"><td><div class="tbl-name">Luntai Packaging Co.</div><div class="tbl-sub">luntai@pack.cn</div></td><td class="tbl-muted">Primark Stores Ltd</td><td class="tbl-muted">14 Jun</td><td style="font-size:11px;color:var(--status-info)">Once — Day 7</td><td style="font-size:11px;color:var(--tw3)">Opened, did not submit</td><td><span class="pill pill-red">Overdue</span></td><td class="tbl-muted" style="color:var(--status-danger)">21 days ago</td><td style="padding:6px 11px;white-space:nowrap"><div class="reminder-btn-wrap"><button class="btn-reminder btn-reminder-urgent" onclick="toggleDropdown(this)">Send reminder <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:3px;vertical-align:middle"><use href="#gsi-13"/></svg></button><div class="reminder-dropdown"><button onclick="saDashRemind(this)">Send reminder now</button><button onclick="go('sa_custom_invite')">Customize invitation</button></div></div></td></tr>
+              <tr style="background:rgba(224,82,82,.03)" data-retailer="Dunnes Stores"><td><div class="tbl-name">Nordic Box AB</div><div class="tbl-sub">info@nordicbox.ie</div></td><td class="tbl-muted">Dunnes Stores</td><td class="tbl-muted">14 Jun</td><td style="font-size:11px;color:var(--status-warn)">Not opened</td><td style="font-size:11px;color:var(--tw3)">No activity · 2 reminders sent</td><td><span class="pill pill-red">Overdue</span></td><td class="tbl-muted" style="color:var(--status-danger)">—</td><td style="padding:6px 11px;white-space:nowrap"><div class="reminder-btn-wrap"><button class="btn-reminder btn-reminder-urgent" onclick="toggleDropdown(this)">Send reminder <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:3px;vertical-align:middle"><use href="#gsi-13"/></svg></button><div class="reminder-dropdown"><button onclick="saDashRemind(this)">Send reminder now</button><button onclick="go('sa_custom_invite')">Customize invitation</button></div></div></td></tr>
+              <tr style="" data-retailer="New Look"><td><div class="tbl-name">Porto Textile Lda</div><div class="tbl-sub">hello@portotextile.pt</div></td><td class="tbl-muted">New Look</td><td class="tbl-muted">16 Jun</td><td style="font-size:11px;color:var(--status-ok-strong)">17 Jun</td><td style="font-size:11px;color:var(--tw2)">1 session · uploading</td><td><span class="pill pill-amber">In Progress</span></td><td class="tbl-muted">5 hrs ago</td><td style="padding:6px 11px;white-space:nowrap"><button class="act-mini act-view" title="Open detail" onclick="go('s3')">View</button></td></tr>
+              </tbody></table>
+            <div class="tbl-footer" id="sa-inv-footer" style="padding:7px 14px">Showing 8 of 1,780 invitations · <a class="bc-link" style="font-size:11px" onclick="go('sa_tracker')">View all in tracker →</a></div>
+          </div>
+        </div>
+
+      </div><!-- end main grid -->
+    </div>
+  </div>
+</div>
+<!-- Expiring-document quick preview (opened from the "Documents expiring soon" widget) -->
+<div class="modal-overlay" id="sa-doc-preview-modal" onclick="saClosePreviewOverlay(event)">
+  <div class="modal-box" style="max-width:640px;width:92vw;height:95vh;display:flex;flex-direction:column;position:relative;padding:22px">
+    <button onclick="saClosePreview()" title="Close" aria-label="Close" style="position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:8px;border:1px solid var(--bw);background:rgba(255,255,255,.04);color:var(--tw2);display:flex;align-items:center;justify-content:center;cursor:pointer">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-7"/></svg>
+    </button>
+    <div style="display:flex;align-items:flex-start;gap:11px;margin-bottom:14px;padding-right:40px;flex-shrink:0">
+      <div style="width:38px;height:38px;border-radius:9px;background:rgba(224,82,82,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--status-danger)" stroke-width="2"><use href="#gsi-14"/></svg>
+      </div>
+      <div style="min-width:0">
+        <div style="font-size:14px;font-weight:600" id="sa-prev-name">Document.pdf</div>
+        <div style="font-size:11px;color:var(--tw3);margin-top:2px" id="sa-prev-meta">Type · Supplier</div>
+      </div>
+    </div>
+    <div style="flex:1;min-height:0;border:1px dashed var(--bw);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(255,255,255,.02);margin-bottom:14px">
+      <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="var(--tw3)" stroke-width="1.4" style="margin-bottom:16px"><use href="#gsi-14"/></svg>
+      <div style="font-size:14px;color:var(--tw2)">Document preview</div>
+      <div style="font-size:12.5px;color:var(--status-danger);font-weight:600;margin-top:8px" id="sa-prev-expiry"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-shrink:0">
+      <div style="display:flex;gap:8px">
+        <button class="exp-remind" id="sa-prev-remind-btn" onclick="saRemindFromPreview()" title="Send reminder to supplier"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-12"/></svg>Remind</button>
+        <button class="btn-g" onclick="saClosePreview()">Close</button>
+      </div>
+      <button class="btn-p" id="sa-prev-open-btn" onclick="saOpenPreviewInDocuments()">Open in Documents</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/super-admin.js?v=32"></script>
+<script src="js/greenstreets-theme.js?v=46"></script>
+<script src="js/sa-dashboard.js?v=2"></script>
+<script src="js/sa-tour.js?v=2"></script>
+<script>
+(function(){
+  'use strict';
+
+  /* ---------- Default config (every knob the tuner exposes) ---------- */
+  var DEFAULTS = {
+    delay:0,            // ms before anything starts
+    speed:1.7,          // global speed multiplier (higher = faster)
+    overlap:0.55,       // 0..0.9 — how much each stage starts before the previous one ends
+    dist:20,            // px rise distance for tiles / cards / text
+    rowDist:12,         // px slide distance for listing rows
+    ease:'cubic-bezier(.22,1,.36,1)',
+    sidebarDur:520,     // ms — left pane slide-in
+    sidebarDist:46,     // % of its own width it slides from
+    pieDur:260,         // ms — clockwise pie sweep
+    numDur:360,         // ms — number count-up
+    stages:[
+      {key:'header',     label:'Header',               dur:420},
+      {key:'tile1',      label:'DoC tile + pie',        dur:560},
+      {key:'tile2',      label:'Substance tile',        dur:440},
+      {key:'tile3',      label:'Technical docs tile',   dur:440},
+      {key:'tile4',      label:'Data collection tile',  dur:260},
+      {key:'chart',      label:'Supplier chart card',   dur:520, grid:260, text:360, barDur:300, barStag:55},
+      {key:'expiring',   label:'Documents expiring',    dur:480, rowDur:420, rowStag:80},
+      {key:'conformity', label:'Product conformity',    dur:480, rowDur:420, rowStag:75},
+      {key:'invites',    label:'Supplier invitations',  dur:480, rowDur:420, rowStag:65}
+    ]
+  };
+
+  var CFG = DEFAULTS;
+
+  /* ---------- Element handles ---------- */
+  var $  = function(s,r){ return (r||document).querySelector(s); };
+  var $$ = function(s,r){ return Array.prototype.slice.call((r||document).querySelectorAll(s)); };
+
+  var els = {};
+  function grab(){
+    els.sidebar   = $('#sa_dash .sidebar');
+    els.header    = $('#sa_dash .pg-hdr-bar');
+    els.tiles     = $$('#sa-tour-metrics > .stat');
+    els.pie       = $('#sa-tour-metrics [role="img"][aria-label="DoC status breakdown"]');
+    els.progFill  = $('#sa-tour-metrics .prog-f');
+    var insight   = $$('#sa_dash .main > div')[1]; // the insight grid (2nd content block after metrics)
+    // Robust card lookups by content:
+    els.chartCard = closestGrp($('#sa_dash .wk-chart'));
+    els.expCard   = closestGrp($('#sa_dash .exp-row'));
+    els.confCard  = $('#sa-tour-conformity');
+    els.invCard   = $$('#sa_dash .grp').filter(function(g){ return /Supplier invitations/.test(g.textContent); })[0];
+    els.gridLines = $$('#sa_dash .wk-hline, #sa_dash .wk-hline2, #sa_dash .wk-vline, #sa_dash .wk-vline2');
+    els.bars      = $$('#sa_dash .wk-bar');
+    els.chartText = [ $('#sa_dash .wk-days'), $('#sa_dash .wk-legend'),
+                      els.chartCard ? els.chartCard.querySelector('.grp-body > div[style*="border-top"]') : null ];
+    els.chartText = els.chartText.filter(Boolean);
+    els.expRows   = $$('#sa_dash .exp-row');
+    els.confRows  = els.confCard ? $$('tbody tr', els.confCard) : [];
+    els.invRows   = els.invCard  ? $$('tbody tr', els.invCard)  : [];
+    // number count-up targets
+    els.nums = els.tiles.map(function(t){ return t.querySelector('.stat-val'); });
+  }
+  function closestGrp(node){ while(node && !(node.classList && node.classList.contains('grp'))) node=node.parentElement; return node; }
+
+  /* ---------- Number targets captured once ---------- */
+  function captureNumbers(){
+    els.nums.forEach(function(v){
+      if(!v || v._gsNumNode) return;
+      var node = v.childNodes[0];
+      if(node && node.nodeType===3){
+        var m = String(node.nodeValue).match(/^\s*(\d+)(.*)$/);
+        if(m){ v._gsNumNode=node; v._gsTarget=parseInt(m[1],10); v._gsSuffix=m[2]||''; }
+      }
+    });
+    if(els.progFill && els.progFill._gsW==null){ els.progFill._gsW = els.progFill.style.width || '0%'; }
+  }
+
+  /* ---------- Run bookkeeping (so replay can cancel cleanly) ---------- */
+  var RUN = { timers:[], rafs:[], anims:[] };
+  function stop(){
+    RUN.timers.forEach(clearTimeout); RUN.rafs.forEach(cancelAnimationFrame);
+    RUN.anims.forEach(function(a){ try{a.cancel();}catch(e){} });
+    RUN = { timers:[], rafs:[], anims:[] };
+  }
+  var SP = 1;                                   // active speed
+  function at(ms, fn){ RUN.timers.push(setTimeout(fn, Math.max(0,ms)/SP)); }
+
+  /* ---------- Low-level animators ---------- */
+  var easeOutCubic = function(t){ return 1 - Math.pow(1-t, 3); };
+  function tween(dur, onUpd, onDone){
+    var start=null;
+    function frame(ts){
+      if(start==null) start=ts;
+      var t = Math.min(1, (ts-start)/(dur/SP));
+      onUpd(easeOutCubic(t), t);
+      if(t<1){ RUN.rafs.push(requestAnimationFrame(frame)); } else if(onDone){ onDone(); }
+    }
+    RUN.rafs.push(requestAnimationFrame(frame));
+  }
+  function rise(el, dur, dist){
+    if(!el) return;
+    var a = el.animate(
+      [{opacity:0, transform:'translateY('+dist+'px)'},{opacity:1, transform:'translateY(0)'}],
+      {duration:dur/SP, easing:CFG.ease, fill:'both'});
+    RUN.anims.push(a);
+    a.finished && a.finished.then(function(){ el.style.opacity=''; el.style.transform=''; }).catch(function(){});
+  }
+  function slideDown(el, dur, dist){
+    if(!el) return;
+    var a = el.animate(
+      [{opacity:0, transform:'translateY(-'+dist+'px)'},{opacity:1, transform:'translateY(0)'}],
+      {duration:dur/SP, easing:CFG.ease, fill:'both'});
+    RUN.anims.push(a);
+    a.finished && a.finished.then(function(){ el.style.opacity=''; el.style.transform=''; }).catch(function(){});
+  }
+  function growBar(el, dur){
+    if(!el) return;
+    var a = el.animate(
+      [{opacity:0, transform:'scaleY(0)'},{opacity:1, transform:'scaleY(1)'}],
+      {duration:dur/SP, easing:'cubic-bezier(.2,.8,.25,1)', fill:'both'});
+    RUN.anims.push(a);
+    a.finished && a.finished.then(function(){ el.style.opacity=''; el.style.transform=''; }).catch(function(){});
+  }
+  function fadeIn(el, dur){
+    if(!el) return;
+    var a = el.animate([{opacity:0},{opacity:1}], {duration:dur/SP, easing:'ease-out', fill:'both'});
+    RUN.anims.push(a);
+    a.finished && a.finished.then(function(){ el.style.opacity=''; }).catch(function(){});
+  }
+  function countUp(v, dur){
+    if(!v || !v._gsNumNode) return;
+    tween(dur, function(p){
+      v._gsNumNode.nodeValue = Math.round(v._gsTarget * p) + v._gsSuffix;
+    }, function(){ v._gsNumNode.nodeValue = v._gsTarget + v._gsSuffix; });
+  }
+  function pieSweep(el, dur){
+    if(!el) return;
+    tween(dur, function(p){
+      var a = (360*p).toFixed(1)+'deg';
+      var mask = 'conic-gradient(#000 '+a+', transparent 0)';
+      el.style.webkitMaskImage = mask; el.style.maskImage = mask;
+    }, function(){ el.style.webkitMaskImage=''; el.style.maskImage=''; });
+  }
+  function growProg(el, dur){
+    if(!el) return;
+    var target = el._gsW || '62%';
+    el.style.width = '0%';
+    var a = el.animate([{width:'0%'},{width:target}], {duration:dur/SP, easing:CFG.ease, fill:'both'});
+    RUN.anims.push(a);
+    a.finished && a.finished.then(function(){ el.style.width=target; }).catch(function(){});
+  }
+
+  /* ---------- Arm: hide everything at its start state ---------- */
+  function arm(){
+    grab(); captureNumbers();
+    var hide = function(el){ if(el){ el.style.opacity='0'; } };
+    hide(els.sidebar); if(els.sidebar) els.sidebar.style.transform='translateX(-'+CFG.sidebarDist+'%)';
+    hide(els.header);
+    els.tiles.forEach(hide);
+    els.nums.forEach(function(v){ if(v && v._gsNumNode) v._gsNumNode.nodeValue = '0'+v._gsSuffix; });
+    if(els.pie){ els.pie.style.webkitMaskImage='conic-gradient(#000 0deg, transparent 0)'; els.pie.style.maskImage='conic-gradient(#000 0deg, transparent 0)'; }
+    if(els.progFill){ els.progFill.style.width='0%'; }
+    [els.chartCard, els.expCard, els.confCard, els.invCard].forEach(hide);
+    els.gridLines.forEach(hide);
+    els.chartText.forEach(hide);
+    els.bars.forEach(function(b){ b.style.opacity='0'; b.style.transform='scaleY(0)'; b.style.transformOrigin='bottom'; });
+    [].concat(els.expRows, els.confRows, els.invRows).forEach(function(r){ if(r){ r.style.opacity='0'; } });
+    document.documentElement.classList.remove('gs-anim-armed'); // inline states now own visibility
+  }
+
+  /* ---------- Per-stage runner ---------- */
+  function runStage(s){
+    var sub = function(off, fn){ at(off, fn); };
+    switch(s.key){
+      case 'header':  rise(els.header, s.dur, CFG.dist); break;
+      case 'tile1':
+        rise(els.tiles[0], s.dur, CFG.dist);
+        sub(60, function(){ countUp(els.nums[0], CFG.numDur); pieSweep(els.pie, CFG.pieDur); });
+        break;
+      case 'tile2':
+        rise(els.tiles[1], s.dur, CFG.dist);
+        sub(50, function(){ countUp(els.nums[1], CFG.numDur); });
+        break;
+      case 'tile3':
+        rise(els.tiles[2], s.dur, CFG.dist);
+        sub(50, function(){ countUp(els.nums[2], CFG.numDur); });
+        break;
+      case 'tile4':
+        rise(els.tiles[3], s.dur, CFG.dist);
+        sub(60, function(){ countUp(els.nums[3], CFG.numDur); growProg(els.progFill, s.dur); });
+        break;
+      case 'chart':
+        rise(els.chartCard, s.dur, CFG.dist);
+        // grid, then text, then bars one after another (overlapping)
+        sub(s.dur*0.35, function(){ els.gridLines.forEach(function(g){ fadeIn(g, s.grid); }); });
+        sub(s.dur*0.35 + s.grid*0.6, function(){ els.chartText.forEach(function(t){ rise(t, s.text, CFG.dist*0.6); }); });
+        var barStart = s.dur*0.35 + s.grid*0.6 + s.text*0.4;
+        els.bars.forEach(function(b,i){ sub(barStart + i*s.barStag, function(){ growBar(b, s.barDur); }); });
+        break;
+      case 'expiring':  cardRows(els.expCard,  els.expRows,  s); break;
+      case 'conformity':cardRows(els.confCard, els.confRows, s); break;
+      case 'invites':   cardRows(els.invCard,  els.invRows,  s); break;
+    }
+  }
+  function cardRows(card, rows, s){
+    rise(card, s.dur, CFG.dist);
+    var rowStart = s.dur*0.30;
+    rows.forEach(function(r,i){ at(rowStart + i*s.rowStag, function(){ slideDown(r, s.rowDur, CFG.rowDist); }); });
+  }
+
+  /* ---------- Play the whole timeline ---------- */
+  function play(){
+    stop();
+    SP = CFG.speed || 1;
+    arm();
+    // Sidebar first (slides right)
+    at(CFG.delay, function(){
+      if(!els.sidebar) return;
+      var a = els.sidebar.animate(
+        [{opacity:0, transform:'translateX(-'+CFG.sidebarDist+'%)'},{opacity:1, transform:'translateX(0)'}],
+        {duration:CFG.sidebarDur/SP, easing:CFG.ease, fill:'both'});
+      RUN.anims.push(a);
+      a.finished && a.finished.then(function(){ els.sidebar.style.opacity=''; els.sidebar.style.transform=''; }).catch(function(){});
+    });
+    // Right-pane stages begin partway through the sidebar slide, then cascade with overlap
+    var t = CFG.delay + CFG.sidebarDur*0.5;
+    CFG.stages.forEach(function(s){
+      var start = t;
+      at(start, function(){ runStage(s); });
+      t += s.dur * (1 - CFG.overlap);
+    });
+  }
+
+  /* ---------- Boot ---------- */
+  function boot(){ arm(); play(); }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+
+  // Expose for console / baking
+  window.GSDashAnim = { play:play, cfg:CFG, defaults:DEFAULTS };
+})();
+</script>
+<script src="js/greenstreets-light.js?v=2"></script>
+</body>
+</html>

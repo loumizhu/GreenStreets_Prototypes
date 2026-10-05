@@ -121,14 +121,14 @@
                 <td><div class="tbl-name">Hanger</div></td><td class="tbl-muted">PRK-003-HG-RED</td>
                 <td class="tbl-muted">—</td><td class="tbl-muted">—</td><td class="tbl-muted">—</td><td class="tbl-muted">—</td>
                 <td><span style="color:var(--red);font-size:12px;font-weight:600">0</span><span style="color:var(--tw3);font-size:11px"> / 2</span></td>
-                <td><span class="pill pill-red">Incomplete</span></td>
+                <td><span class="pill pill-grey">Incomplete</span></td>
                 <td class="chev-cell"><div class="chev-btn" onclick="openPackagingRA('PRK-003-HG-RED')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></div></td>
               </tr>
               <tr style="background:rgba(224,96,90,.05)">
                 <td><div class="tbl-name">Tissue paper</div></td><td class="tbl-muted">PRK-004-TP-KHK</td>
                 <td class="tbl-muted">—</td><td class="tbl-muted">—</td><td class="tbl-muted">—</td><td class="tbl-muted">—</td>
                 <td><span style="color:var(--red);font-size:12px;font-weight:600">0</span><span style="color:var(--tw3);font-size:11px"> / 1</span></td>
-                <td><span class="pill pill-red">Incomplete</span></td>
+                <td><span class="pill pill-grey">Incomplete</span></td>
                 <td class="chev-cell"><div class="chev-btn" onclick="openPackagingRA('PRK-004-TP-KHK')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></div></td>
               </tr>
                           <tr>
@@ -181,7 +181,7 @@
     setTxt('ra-sup-crumb', name);
     /* light-touch demo variants so each supplier reads differently */
     var meta={
-      'EcoPack GmbH':          {status:'In Progress', pill:'pill-blue', tier:'Tier 1', region:'EU',   email:'ops@ecopack.de'},
+      'EcoPack GmbH':          {status:'In Progress', pill:'pill-amber', tier:'Tier 1', region:'EU',   email:'ops@ecopack.de'},
       'Luntai Packaging Co.':  {status:'Overdue',     pill:'pill-red',  tier:'Tier 2', region:'APAC', email:'luntai@pack.cn'},
       'Luntai Packaging':      {status:'Overdue',     pill:'pill-red',  tier:'Tier 2', region:'APAC', email:'luntai@pack.cn'}
     }[name];
@@ -193,7 +193,7 @@
   }
 })();
 </script>
-<script src="js/retailer-admin.js?v=44"></script>
+<script src="js/retailer-admin.js?v=45"></script>
 <script src="js/greenstreets-theme.js?v=31"></script>
 <script src="js/ra-tour.js?v=11"></script>
 <script src="js/gs-appearance.js?v=9"></script>

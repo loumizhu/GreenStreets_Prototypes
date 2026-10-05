@@ -116,7 +116,7 @@ function insertPkgRow(targetScope, name, level, material){
   var lvlPill = level === 'Primary' ? 'pill-blue' : 'pill-grey';
   var tr = document.createElement('tr');
   tr.style.background = 'rgba(78,187,129,.08)';
-  tr.innerHTML = '<td class="tbl-name">'+name+'</td><td><span class="pill '+lvlPill+'">'+level+'</span></td><td class="tbl-muted">'+material+'</td><td class="tbl-muted">—</td><td class="tbl-muted">—</td><td><span class="pill pill-red">Incomplete</span></td><td style="display:flex;gap:4px;padding:6px 11px"><button class="btn-g-sm" onclick="go(\'ru5\')">Edit</button><button class="btn-g-sm" onclick="this.closest(\'tr\').remove()">Remove</button></td>';
+  tr.innerHTML = '<td class="tbl-name">'+name+'</td><td><span class="pill '+lvlPill+'">'+level+'</span></td><td class="tbl-muted">'+material+'</td><td class="tbl-muted">—</td><td class="tbl-muted">—</td><td><span class="pill pill-grey">Incomplete</span></td><td style="display:flex;gap:4px;padding:6px 11px"><button class="btn-g-sm" onclick="go(\'ru5\')">Edit</button><button class="btn-g-sm" onclick="this.closest(\'tr\').remove()">Remove</button></td>';
   tbody.appendChild(tr);
 }
 
@@ -202,7 +202,7 @@ var PRODUCTS_RU = (function(){
   var adjs = ['Black','Blue','Red','Khaki','White','Grey','Navy','Olive','Beige','Pink','Green','Cream','Charcoal','Rust','Teal'];
   var items = ['Crew Neck Sweatshirt','Slim Fit Jeans','Midi Dress','Utility Jacket','Essential T-Shirt','Zip Hoodie','Chino Trousers','Puffer Coat','Knit Jumper','Cargo Shorts','Pleated Skirt','Denim Jacket','Trainers','Canvas Belt','Wool Scarf'];
   var statuses = ['Complete','Incomplete','Incomplete','Pending'];
-  var pills = {Complete:'pill-green', Incomplete:'pill-amber', Pending:'pill-grey'};
+  var pills = {Complete:'pill-green', Incomplete:'pill-grey', Pending:'pill-amber'};
   var missingPool = ['2 fields missing','3 mandatory fields missing','Supplier data not submitted','1 field missing','Material data missing'];
   var list = [];
   for (var i=0;i<64;i++){
@@ -213,7 +213,6 @@ var PRODUCTS_RU = (function(){
     var comps = 2 + (i % 4);
     var pill = pills[status];
     var severe = status==='Incomplete' && (i % missingPool.length) < 2;
-    if (severe) pill = 'pill-red';
     var compsText = status==='Complete' ? String(comps) : '—';
     var missing = status==='Complete' ? '—' : (status==='Pending' ? 'Not started' : missingPool[i % missingPool.length]);
     list.push({

@@ -24,7 +24,23 @@ var GS_PAGES={
   's16':'01-greenstreets_super_admin_Notifications.html',
   's13':'01-greenstreets_super_admin_Settings.html',
   'suedit':'01-greenstreets_super_admin_User-Edit.html',
-  'sa_gendoc':'01-greenstreets_super_admin_Generate-DoC.html'
+  'sa_gendoc':'01-greenstreets_super_admin_Generate-DoC.html',
+  'sa_dash':'01-greenstreets_super_admin_Dashboard.html',
+  'sa_suphub':'01-greenstreets_super_admin_Suppliers-Hub.html',
+  'sa_importsuppliers':'01-greenstreets_super_admin_Import-Suppliers.html',
+  'sa_validate_sup':'01-greenstreets_super_admin_Validate-Import.html',
+  'sa_importsuppliers_done':'01-greenstreets_super_admin_Import-Suppliers-Done.html',
+  'sa_importproducts':'01-greenstreets_super_admin_Import-Products.html',
+  'sa_validate_prod':'01-greenstreets_super_admin_Validate-Products-Import.html',
+  'sa_importproducts_done':'01-greenstreets_super_admin_Import-Products-Done.html',
+  'sa_importusers':'01-greenstreets_super_admin_Import-Users.html',
+  'sa_validate_users':'01-greenstreets_super_admin_Validate-Users-Import.html',
+  'sa_importusers_done':'01-greenstreets_super_admin_Import-Users-Done.html',
+  'sa_invites':'01-greenstreets_super_admin_Send-Invites.html',
+  'sa_custom_invite':'01-greenstreets_super_admin_Custom-Invite.html',
+  'sa_tracker':'01-greenstreets_super_admin_Tracker.html',
+  'sa_docreq':'01-greenstreets_super_admin_DoC-Request.html',
+  'sa_compliance':'01-greenstreets_super_admin_Compliance.html'
 };
 function go(id){
   if(GS_PAGES[id]){ window.location.href=GS_PAGES[id]; return; }
@@ -35,6 +51,7 @@ function go(id){
 
 /* ── SHARED OPERATOR SIDEBAR — mounted into every <div class="sidebar" data-active="…"> ── */
 var SIDEBAR_NAV=[
+  {id:'sa_dash',label:'Dashboard',icon:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12l9-9 9 9"/><path d="M5 10v10h14V10"/></svg>'},
   {id:'s2',label:'Retailers',icon:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>'},
   {id:'s7',label:'Users',icon:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'},
   {id:'s3',label:'Suppliers',icon:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>'},
@@ -235,7 +252,7 @@ var PRODUCTS_S11=(function(){
   var adjs=['Black','Blue','Red','Khaki','White','Grey','Navy','Olive','Beige','Pink','Green','Cream','Charcoal','Rust','Teal'];
   var items=['Crew Neck Sweatshirt','Slim Fit Jeans','Midi Dress','Utility Jacket','Essential T-Shirt','Zip Hoodie','Chino Trousers','Puffer Coat','Knit Jumper','Cargo Shorts','Pleated Skirt','Denim Jacket','Trainers','Canvas Belt','Wool Scarf'];
   var statuses=['Complete','Incomplete','Incomplete:ready','Incomplete','Pending','Incomplete:ready']; /* 'Incomplete:ready' = Incomplete product whose components are all done, awaiting approval */
-  var pills={Complete:'pill-green',Incomplete:'pill-amber',Pending:'pill-grey'};
+  var pills={Complete:'pill-green',Incomplete:'pill-grey',Pending:'pill-amber'};
   var activities=['2 hrs ago','Yesterday','3 days ago','14 days ago','5 hrs ago','1 week ago'];
   var list=[];
   for(var i=0;i<64;i++){
@@ -248,7 +265,6 @@ var PRODUCTS_S11=(function(){
     var done=allDone?comps:(status==='Incomplete'?Math.max(0,comps-1-(i%comps)):0);
     var pkgText=allDone?(ready?(comps+' components · ready to approve'):(comps+' components')):(status==='Pending'?'Not started':(done+' of '+comps+' done'));
     var pill=pills[status];
-    if(status==='Incomplete'&&done===0&&!ready)pill='pill-red';
     list.push({
       sku:'PRK-'+String(i+1).padStart(3,'0')+'-'+adj.slice(0,3).toUpperCase(),
       desc:adj+' '+item,cat:cat,
@@ -434,8 +450,19 @@ function saProdBulkRemind() {
 }
 
 function saProdBulkExport() {
-  var n = saProdSel.size;
-  saProdMiniToast('Exporting ' + n + ' product' + (n>1?'s':'') + '...');
+  var rows = saProdSelectedRows();
+  if (!rows.length) return;
+  var head = ['SKU','Description','Category','Retailer','Supplier','Packaging','Status'];
+  var esc = function(v){ v = String(v==null?'':v); return /[",\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; };
+  var lines = [head.join(',')];
+  rows.forEach(function(r){ lines.push([r.sku,r.desc,r.cat,r.retailer,r.supplier,r.pkg,r.status].map(esc).join(',')); });
+  var blob = new Blob([lines.join('\n')], {type:'text/csv'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'products-selection.csv';
+  document.body.appendChild(a); a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 100);
+  saProdMiniToast('Exported ' + rows.length + ' product' + (rows.length>1?'s':'') + ' to CSV');
 }
 
 /* DoC actions never "download" in the prototype — they open the Generate DoC page,
@@ -469,7 +496,7 @@ function saCancelApproval(sku) {
     if (!a && e.target !== m) return;
     m.remove();
     if (a && a.getAttribute('data-a') === 'ok') {
-      var p = rec._prev || { status: 'Incomplete', pill: 'pill-amber', pkg: rec.pkg, ready: true };
+      var p = rec._prev || { status: 'Incomplete', pill: 'pill-grey', pkg: rec.pkg, ready: true };
       rec.status = p.status; rec.pill = p.pill; rec.pkg = p.pkg; rec.ready = p.ready; rec._prev = null;
       ptRender('s11');
       saProdMiniToast('Approval of ' + sku + ' cancelled');
@@ -504,7 +531,7 @@ ptInit('s11',PRODUCTS_S11,{
       ? '<button class="act-mini" title="Send reminder" onclick="event.stopPropagation();saSendReminder(\''+r.sku+'\')" tabindex="-1" style="height:24px;display:inline-flex;align-items:center;vertical-align:middle;box-sizing:border-box;margin-right:6px">Send reminder</button>'
       : '';
       
-    return '<tr class="saprod-row'+(checked?' saprod-row-sel':'')+'" style="cursor:pointer" data-flip-key="'+r.sku+'" onclick="go(\'s12\')">'+cbCell+'<td class="tbl-name"><span class="gs-id-cell">'+r.sku+'</span></td><td>'+r.desc+'</td><td class="tbl-muted">'+r.cat+'</td><td class="tbl-muted">'+r.retailer+'</td><td class="tbl-muted">'+r.supplier+'</td><td class="tbl-muted">'+r.pkg+'</td><td><span class="pill '+r.pill+'">'+r.status+'</span></td><td class="act-cell" style="white-space:nowrap;vertical-align:middle" onclick="event.stopPropagation()">'+docBtn+reminderBtn+approveBtn+'</td><td class="chev-cell"><div class="chev-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></div></td></tr>';
+    return '<tr class="saprod-row'+(checked?' saprod-row-sel':'')+'" style="cursor:pointer" data-flip-key="'+r.sku+'" onclick="saOpenProduct(\''+r.sku+'\')">'+cbCell+'<td class="tbl-name"><span class="gs-id-cell">'+r.sku+'</span></td><td>'+r.desc+'</td><td class="tbl-muted">'+r.cat+'</td><td class="tbl-muted">'+r.retailer+'</td><td class="tbl-muted">'+r.supplier+'</td><td class="tbl-muted">'+r.pkg+'</td><td><span class="pill '+r.pill+'">'+r.status+'</span></td><td class="act-cell" style="white-space:nowrap;vertical-align:middle" onclick="event.stopPropagation()">'+docBtn+reminderBtn+approveBtn+'</td><td class="chev-cell"><div class="chev-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></div></td></tr>';
   }
 });
 
@@ -579,7 +606,7 @@ function insertPkgRow(targetScope,name,level,material){
   var lvlPill=level==='Primary'?'pill-blue':'pill-grey';
   var tr=document.createElement('tr');
   tr.style.background='rgba(78,187,129,.08)';
-  tr.innerHTML='<td class="tbl-name">'+name+'</td><td><span class="pill '+lvlPill+'">'+level+'</span></td><td class="tbl-muted">'+material+'</td><td class="tbl-muted">—</td><td class="tbl-muted">—</td><td><span class="pill pill-grey">Pending</span></td><td style="display:flex;gap:4px;padding:8px 12px"><button class="btn-g-sm">Edit</button><button class="btn-g-sm" onclick="this.closest(\'tr\').remove()">Remove</button></td>';
+  tr.innerHTML='<td class="tbl-name">'+name+'</td><td><span class="pill '+lvlPill+'">'+level+'</span></td><td class="tbl-muted">'+material+'</td><td class="tbl-muted">—</td><td class="tbl-muted">—</td><td><span class="pill pill-grey">Incomplete</span></td><td style="display:flex;gap:4px;padding:8px 12px"><button class="btn-g-sm">Edit</button><button class="btn-g-sm" onclick="this.closest(\'tr\').remove()">Remove</button></td>';
   tbody.appendChild(tr);
 }
 
@@ -1783,4 +1810,33 @@ try{ window.gsIdenticon=gsIdenticon; window.gsEnhanceIds=gsEnhanceIds; }catch(_)
     repaint();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+
+
+/* ── Dashboard → listing deep-link filter (saGoFilter in sa-dashboard.js stores `sa_filter`) ──
+   Consumed once on the target listing: sets the filter <select> that offers the requested value
+   (dispatching `change`, which runs the page's own ptFilter/gsFilterToolbar handler). */
+(function(){
+  function apply(){
+    var raw; try{ raw=sessionStorage.getItem('sa_filter'); }catch(e){}
+    if(!raw) return;
+    try{ sessionStorage.removeItem('sa_filter'); }catch(e){}
+    var f; try{ f=JSON.parse(raw); }catch(e){ return; }
+    if(f.search){
+      var s=document.querySelector('.filter-toolbar input.fi-search');
+      if(s){ s.value=f.search; s.dispatchEvent(new Event('input',{bubbles:true})); }
+    }
+    if(f.selectValue){
+      var done=false;
+      document.querySelectorAll('.filter-toolbar select.fi').forEach(function(sel){
+        if(done) return;
+        for(var i=0;i<sel.options.length;i++){
+          if(sel.options[i].text.trim().toLowerCase()===String(f.selectValue).toLowerCase()){
+            sel.selectedIndex=i; sel.dispatchEvent(new Event('change',{bubbles:true})); done=true; return;
+          }
+        }
+      });
+    }
+  }
+  window.addEventListener('load',function(){ setTimeout(apply,200); });
 })();

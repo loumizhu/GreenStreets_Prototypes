@@ -422,6 +422,11 @@
 
     root.innerHTML = topCard + expCard + actCard;
 
+    /* render() emits plain <select>/<input type=number>s - re-apply the theme's
+       enhancements, or a re-render leaves OS-drawn controls behind. */
+    if (window.GSEnhanceSelects) window.GSEnhanceSelects(root);
+    if (window.GSEnhanceNumbers) window.GSEnhanceNumbers(root);
+
     flushHighlight();
   }
 

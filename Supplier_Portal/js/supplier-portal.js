@@ -719,7 +719,7 @@ function prodToggleCompMenu(pi){
 var _pdOpen = null;
 function pdEsc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function pdLevelColor(l){ return {Primary:'#3aa8d8',Secondary:'#6bbf59',Tertiary:'#d65fc4'}[l] || '#3aa8d8'; }
-function pdStatusCls(s){ return s==='Complete'?'compliant':((s==='Incomplete'||s==='Needs Changing')?'incomplete':'review'); }
+function pdStatusCls(s){ return s==='Complete'?'compliant':(s==='Incomplete'?'incomplete':(s==='Needs Changing'?'changing':'review')); }
 function fval(pkg, label){ for(var g=0;g<pkg.groups.length;g++){var fs=pkg.groups[g].fields;for(var f=0;f<fs.length;f++){ if(fs[f].k===label) return fs[f].v; }} return ''; }
 function pkgStatus(pkg){
   var mat=fval(pkg,'Base Material'), cert=fval(pkg,'Certification'), rec=fval(pkg,'Recycled Content');
@@ -3826,14 +3826,14 @@ function gsOnbRenderWelcome(){
    ======================================================================= */
 (function(){
   var DOCS_DATA = [
-    {id:1, name:'FSC_CoC_Certificate_2026.pdf',                   type:'Certification', ref:'Swing Tag, Tissue Paper, Wrap Band', date:'12 Jun 2026', size:'342 KB',  color:'#e05252'},
-    {id:2, name:'REACH_Compliance_Declaration_2026.pdf',          type:'Declaration',   ref:'Hanger, Poly Bag',                   date:'3 Jun 2026',  size:'198 KB',  color:'#e05252'},
-    {id:3, name:'RecycledContent_SupplierDeclaration_Apr2026.pdf',type:'Declaration',   ref:'Shipping Carton, Display Box',        date:'28 Apr 2026', size:'87 KB',   color:'#e05252'},
-    {id:4, name:'HeavyMetals_TestReport_Q1_2026.xlsx',            type:'Test Report',   ref:'All primary packaging',              date:'15 Mar 2026', size:'1.2 MB',  color:'#5b9cf6'},
-    {id:5, name:'PEFC_WoodCertification_Pallet_2026.pdf',         type:'Certification', ref:'Pallet',                             date:'29 Jun 2026', size:'512 KB',  color:'#e05252'},
-    {id:6, name:'OEKOTEX_Certificate_SwingTag_2026.pdf',          type:'Certification', ref:'Swing Tag',                          date:'14 Jun 2026', size:'289 KB',  color:'#e05252'},
-    {id:7, name:'ISO14001_EnvCertificate_2025.pdf',              type:'Certification', ref:'All primary packaging',              date:'25 Aug 2026', size:'421 KB',  color:'#e05252', expSoon:true},
-    {id:8, name:'FoodContact_Declaration_PolyBag_2025.pdf',       type:'Declaration',   ref:'Poly Bag, GOH Polybag',              date:'6 Sep 2026',  size:'156 KB',  color:'#e05252', expSoon:true}
+    {id:1, status:'Approved', name:'FSC_CoC_Certificate_2026.pdf',                   type:'Certification', ref:'Swing Tag, Tissue Paper, Wrap Band', date:'12 Jun 2026', size:'342 KB',  color:'#e05252'},
+    {id:2, status:'Approved', name:'REACH_Compliance_Declaration_2026.pdf',          type:'Declaration',   ref:'Hanger, Poly Bag',                   date:'3 Jun 2026',  size:'198 KB',  color:'#e05252'},
+    {id:3, status:'Awaiting approval', name:'RecycledContent_SupplierDeclaration_Apr2026.pdf',type:'Declaration',   ref:'Shipping Carton, Display Box',        date:'28 Apr 2026', size:'87 KB',   color:'#e05252'},
+    {id:4, status:'Approved', name:'HeavyMetals_TestReport_Q1_2026.xlsx',            type:'Test Report',   ref:'All primary packaging',              date:'15 Mar 2026', size:'1.2 MB',  color:'#5b9cf6'},
+    {id:5, status:'Changes requested', name:'PEFC_WoodCertification_Pallet_2026.pdf',         type:'Certification', ref:'Pallet',                             date:'29 Jun 2026', size:'512 KB',  color:'#e05252'},
+    {id:6, status:'Awaiting approval', name:'OEKOTEX_Certificate_SwingTag_2026.pdf',          type:'Certification', ref:'Swing Tag',                          date:'14 Jun 2026', size:'289 KB',  color:'#e05252'},
+    {id:7, status:'Approved', name:'ISO14001_EnvCertificate_2025.pdf',              type:'Certification', ref:'All primary packaging',              date:'25 Aug 2026', size:'421 KB',  color:'#e05252', expSoon:true},
+    {id:8, status:'Awaiting approval', name:'FoodContact_Declaration_PolyBag_2025.pdf',       type:'Declaration',   ref:'Poly Bag, GOH Polybag',              date:'6 Sep 2026',  size:'156 KB',  color:'#e05252', expSoon:true}
   ];
   var _docsView='list', _docsPage=0, DOCS_PG_SIZE=8;
   var _docsSearch='', _docsType='all', _docsSelected={}, _docConfirmTimers={};
@@ -3861,6 +3861,14 @@ function gsOnbRenderWelcome(){
   function docsPageCount(){ return Math.max(1,Math.ceil(docsVisible().length/DOCS_PG_SIZE)); }
   function docsSvgFile(c){ return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="'+c+'" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>'; }
 
+  var DOCS_STATUS_PILL={'Approved':'pill-green','Awaiting approval':'pill-amber','Changes requested':'pill-red'};
+  function docsStatusPill(st){ return '<span class="pill '+(DOCS_STATUS_PILL[st]||'pill-grey')+'">'+st+'</span>'; }
+  function docsRemindBtn(d){
+    if(d.status==='Approved') return '';
+    if(d.reminded) return '<button class="docs-remind-btn docs-remind-sent" disabled><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Reminder sent</button>';
+    return '<button class="docs-remind-btn" title="Remind the approver" onclick="docsRemind('+d.id+')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Send reminder</button>';
+  }
+  window.docsRemind=function(id){ var d=DOCS_DATA.filter(function(x){return x.id===id;})[0]; if(!d) return; d.reminded=true; docsRender(); };
   function docsRenderList(){
     var tbody=document.getElementById('docs-tbody-new'); if(!tbody) return;
     var vis=docsVisible(), page=Math.min(_docsPage,docsPageCount()-1);
@@ -3873,12 +3881,13 @@ function gsOnbRenderWelcome(){
       html+='<td class="doc-cb-cell" onclick="event.stopPropagation()"><input type="checkbox" class="doc-cb" data-id="'+d.id+'" '+(sel?'checked':'')+' onchange="docsToggleRow('+d.id+',this)"></td>';
       html+='<td><div class="doc-name-wrap">'+docsSvgFile(d.color)+'<span class="doc-name-col" title="'+d.name+'">'+sn+'</span></div></td>';
       html+='<td class="doc-secondary">'+d.type+'</td>';
+      html+='<td>'+docsStatusPill(d.status)+'</td>';
       html+='<td class="doc-secondary">'+d.ref+'</td>';
       html+=(d.expSoon
         ? '<td class="doc-secondary doc-date-exp" title="Expires soon"><span class="doc-exp-dot" aria-hidden="true"></span>'+d.date+'</td>'
         : '<td class="doc-secondary">'+d.date+'</td>');
       html+='<td class="doc-secondary">'+d.size+'</td>';
-      html+='<td class="doc-actions-col" onclick="event.stopPropagation()"><button class="docs-dl-btn" onclick="docsDownload()" style="margin-right:2px">Download</button>';
+      html+='<td class="doc-actions-col" onclick="event.stopPropagation()">'+docsRemindBtn(d)+'<button class="docs-dl-btn" onclick="docsDownload()" style="margin-right:2px">Download</button>';
       html+='<button class="doc-del-btn" title="Delete" onclick="docsAskDelete('+d.id+',this)">'+DOCS_X_SVG+'</button>';
       html+='</td></tr>';
     });
@@ -4117,7 +4126,7 @@ function gsOnbRenderWelcome(){
   window.docsHandleUpload=function(files){
     Array.prototype.forEach.call(files,function(f){
       var id=Date.now()+Math.floor(Math.random()*1000);
-      DOCS_DATA.push({id:id,name:f.name,type:'Uploaded',ref:'—',
+      DOCS_DATA.push({id:id,status:'Awaiting approval',name:f.name,type:'Uploaded',ref:'—',
         date:new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}),
         size:f.size>1048576?(f.size/1048576).toFixed(1)+' MB':Math.round(f.size/1024)+' KB',
         color:f.name.endsWith('.xlsx')||f.name.endsWith('.xls')?'#5b9cf6':'#e05252'});

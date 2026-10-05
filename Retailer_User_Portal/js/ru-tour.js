@@ -50,8 +50,8 @@
       sel: '#ru-tour-supp', position: 'below' },
 
     { key: 'products', screen: 'ru6', icon: '📦', title: 'Review your products', stepNo: 3,
-      body: 'Every product shows its packaging <strong>completeness</strong>. Red means mandatory data is missing; ' +
-            'amber means a compliance target isn\'t met yet. For any product still missing input you can ' +
+      body: 'Every product shows its packaging <strong>completeness</strong>. Grey means Incomplete, amber means Pending (the supplier has not started); ' +
+            'green means Complete. For any product still missing input you can ' +
             '<strong>send the supplier a reminder</strong> right from the list. <em>Generating the DoC PDF itself is a ' +
             'Retailer Admin action.</em>',
       sel: '#ru-tour-prod', position: 'below' },

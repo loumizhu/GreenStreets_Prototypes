@@ -25,13 +25,13 @@
 .wk-col{flex:1;display:flex;align-items:flex-end;justify-content:center;gap:2px;height:100%}
 .wk-bar{width:28%;min-height:3px;border-radius:4px 4px 1px 1px;transition:opacity .15s,filter .12s;cursor:pointer}
 .wk-bar:hover{filter:brightness(1.18)}
-.wk-approved{background:var(--status-ok)}
-.wk-submitted{background:var(--status-info-strong)}
-.wk-halftone{background:#16223f}
+.wk-approved{background:#8ad2ac}
+.wk-submitted{background:#3f6fd1}
+.wk-halftone{background:#16224a;outline:1px solid rgba(120,150,220,.28);outline-offset:-1px}
 /* soft glow (reduced 1/4) */
 .wk-bar.wk-approved{box-shadow:0 0 7px rgba(138,210,172,.45)}
-.wk-bar.wk-submitted{box-shadow:0 0 8px rgba(70,120,210,.49)}
-.wk-bar.wk-halftone{box-shadow:0 0 8px rgba(70,120,210,.38)}
+.wk-bar.wk-submitted{box-shadow:0 0 8px rgba(63,111,209,.4)}
+.wk-bar.wk-halftone{box-shadow:0 0 8px rgba(22,34,74,.5)}
 .wk-days{display:flex;gap:2px}
 .wk-day{flex:1;text-align:center;font-size:12px;font-weight:600;color:var(--tw2)}
 .wk-day span{font-size:10px;font-weight:400;color:var(--tw3)}
@@ -160,13 +160,13 @@ html.gs-anim-armed #ra1 .grp{opacity:0}
                   <div class="wk-vline2" style="left:78.57%"></div>
                   <div class="wk-vline2" style="left:92.86%"></div>
                   <div class="wk-bars-row">
-                    <div class="wk-col"><div class="wk-bar wk-approved" data-series="approved" style="height:33%" title="Mon · approved 5"></div><div class="wk-bar wk-submitted" data-series="submitted" style="height:47%" title="Mon · submitted 7"></div><div class="wk-bar wk-halftone" data-series="inprog" style="height:40%" title="Mon · in progress 6"></div></div>
-                    <div class="wk-col"><div class="wk-bar wk-approved" data-series="approved" style="height:47%" title="Tue · approved 7"></div><div class="wk-bar wk-submitted" data-series="submitted" style="height:67%" title="Tue · submitted 10"></div><div class="wk-bar wk-halftone" data-series="inprog" style="height:47%" title="Tue · in progress 7"></div></div>
-                    <div class="wk-col"><div class="wk-bar wk-approved" data-series="approved" style="height:27%" title="Wed · approved 4"></div><div class="wk-bar wk-submitted" data-series="submitted" style="height:33%" title="Wed · submitted 5"></div><div class="wk-bar wk-halftone" data-series="inprog" style="height:40%" title="Wed · in progress 6"></div></div>
-                    <div class="wk-col"><div class="wk-bar wk-approved" data-series="approved" style="height:80%" title="Thu · approved 12"></div><div class="wk-bar wk-submitted" data-series="submitted" style="height:80%" title="Thu · submitted 12"></div><div class="wk-bar wk-halftone" data-series="inprog" style="height:47%" title="Thu · in progress 7"></div></div>
-                    <div class="wk-col"><div class="wk-bar wk-approved" data-series="approved" style="height:93%" title="Fri · approved 14"></div><div class="wk-bar wk-submitted" data-series="submitted" style="height:87%" title="Fri · submitted 13"></div><div class="wk-bar wk-halftone" data-series="inprog" style="height:47%" title="Fri · in progress 7"></div></div>
-                    <div class="wk-col"><div class="wk-bar wk-approved" data-series="approved" style="height:13%" title="Sat · approved 2"></div><div class="wk-bar wk-submitted" data-series="submitted" style="height:20%" title="Sat · submitted 3"></div><div class="wk-bar wk-halftone" data-series="inprog" style="height:27%" title="Sat · in progress 4"></div></div>
-                    <div class="wk-col"><div class="wk-bar wk-approved" data-series="approved" style="height:20%" title="Sun · approved 3"></div><div class="wk-bar wk-submitted" data-series="submitted" style="height:33%" title="Sun · submitted 5"></div><div class="wk-bar wk-halftone" data-series="inprog" style="height:27%" title="Sun · in progress 4"></div></div>
+                    <div class="wk-col"><div class="wk-bar wk-approved" data-series="approved" style="height:33%" title="Mon · complete 5"></div><div class="wk-bar wk-submitted" data-series="submitted" style="height:47%" title="Mon · incomplete 7"></div><div class="wk-bar wk-halftone" data-series="inprog" style="height:40%" title="Mon · needs changing 6"></div></div>
+                    <div class="wk-col"><div class="wk-bar wk-approved" data-series="approved" style="height:47%" title="Tue · complete 7"></div><div class="wk-bar wk-submitted" data-series="submitted" style="height:67%" title="Tue · incomplete 10"></div><div class="wk-bar wk-halftone" data-series="inprog" style="height:47%" title="Tue · needs changing 7"></div></div>
+                    <div class="wk-col"><div class="wk-bar wk-approved" data-series="approved" style="height:27%" title="Wed · complete 4"></div><div class="wk-bar wk-submitted" data-series="submitted" style="height:33%" title="Wed · incomplete 5"></div><div class="wk-bar wk-halftone" data-series="inprog" style="height:40%" title="Wed · needs changing 6"></div></div>
+                    <div class="wk-col"><div class="wk-bar wk-approved" data-series="approved" style="height:80%" title="Thu · complete 12"></div><div class="wk-bar wk-submitted" data-series="submitted" style="height:80%" title="Thu · incomplete 12"></div><div class="wk-bar wk-halftone" data-series="inprog" style="height:47%" title="Thu · needs changing 7"></div></div>
+                    <div class="wk-col"><div class="wk-bar wk-approved" data-series="approved" style="height:93%" title="Fri · complete 14"></div><div class="wk-bar wk-submitted" data-series="submitted" style="height:87%" title="Fri · incomplete 13"></div><div class="wk-bar wk-halftone" data-series="inprog" style="height:47%" title="Fri · needs changing 7"></div></div>
+                    <div class="wk-col"><div class="wk-bar wk-approved" data-series="approved" style="height:13%" title="Sat · complete 2"></div><div class="wk-bar wk-submitted" data-series="submitted" style="height:20%" title="Sat · incomplete 3"></div><div class="wk-bar wk-halftone" data-series="inprog" style="height:27%" title="Sat · needs changing 4"></div></div>
+                    <div class="wk-col"><div class="wk-bar wk-approved" data-series="approved" style="height:20%" title="Sun · complete 3"></div><div class="wk-bar wk-submitted" data-series="submitted" style="height:33%" title="Sun · incomplete 5"></div><div class="wk-bar wk-halftone" data-series="inprog" style="height:27%" title="Sun · needs changing 4"></div></div>
                   </div>
                 </div>
                 <div class="wk-days">
@@ -188,7 +188,7 @@ html.gs-anim-armed #ra1 .grp{opacity:0}
             <div class="wk-legend">
               <button class="wk-key" data-series="approved" onclick="wkToggle(this)"><span class="wk-sw wk-approved"></span>Complete</button>
               <button class="wk-key" data-series="submitted" onclick="wkToggle(this)"><span class="wk-sw wk-submitted"></span>Incomplete</button>
-              <button class="wk-key" data-series="inprog" onclick="wkToggle(this)"><span class="wk-sw wk-halftone"></span>Pending</button>
+              <button class="wk-key" data-series="inprog" onclick="wkToggle(this)"><span class="wk-sw wk-halftone"></span>Needs Changing</button>
             </div>
           </div>
         </div>
@@ -282,7 +282,7 @@ html.gs-anim-armed #ra1 .grp{opacity:0}
                 <td class="tbl-muted">14 Jun</td>
                 <td style="font-size:11px;color:var(--status-ok-strong)">14 Jun · 1hr later</td>
                 <td style="font-size:11px;color:var(--tw2)">3 sessions</td>
-                <td><span class="pill pill-green">Approved</span></td>
+                <td><span class="pill pill-green">Invitation Accepted</span></td>
                 <td class="tbl-muted">2 hrs ago</td>
                 <td style="padding:6px 11px"><button class="act-mini act-view" title="Open detail" onclick="go('ra4')">View</button></td>
               </tr>
@@ -291,7 +291,7 @@ html.gs-anim-armed #ra1 .grp{opacity:0}
                 <td class="tbl-muted">14 Jun</td>
                 <td style="font-size:11px;color:var(--status-ok-strong)">15 Jun</td>
                 <td style="font-size:11px;color:var(--tw2)">2 sessions · uploading</td>
-                <td><span class="pill pill-blue">In Progress</span></td>
+                <td><span class="pill pill-amber">In Progress</span></td>
                 <td class="tbl-muted">3 hrs ago</td>
                 <td style="padding:6px 11px"><button class="act-mini act-view" title="Open detail" onclick="go('ra4')">View</button></td>
               </tr>
@@ -300,9 +300,9 @@ html.gs-anim-armed #ra1 .grp{opacity:0}
                 <td class="tbl-muted">10 Jun</td>
                 <td style="font-size:11px;color:var(--status-ok-strong)">10 Jun · same day</td>
                 <td style="font-size:11px;color:var(--tw2)">2 sessions · submitted</td>
-                <td><span class="pill pill-blue" style="font-size:10px">Awaiting Approval</span></td>
+                <td><span class="pill pill-green">Invitation Accepted</span></td>
                 <td class="tbl-muted">1 day ago</td>
-                <td style="padding:6px 11px;display:flex;align-items:center;gap:5px">
+                <td style="padding:6px 11px;white-space:nowrap">
                   <button class="btn-p" onclick="go('ra11')" style="height:26px;padding:0 10px;font-size:10px"><img class="btn-sw" src="" alt="" data-sw><span class="btn-c">Review</span></button>
                 </td>
               </tr>
@@ -311,9 +311,9 @@ html.gs-anim-armed #ra1 .grp{opacity:0}
                 <td class="tbl-muted">12 Jun</td>
                 <td style="font-size:11px;color:var(--status-ok-strong)">12 Jun</td>
                 <td style="font-size:11px;color:var(--tw2)">1 session · submitted all</td>
-                <td><span class="pill pill-blue" style="font-size:10px">Awaiting Approval</span></td>
+                <td><span class="pill pill-green">Invitation Accepted</span></td>
                 <td class="tbl-muted">3 days ago</td>
-                <td style="padding:6px 11px;display:flex;align-items:center;gap:5px">
+                <td style="padding:6px 11px;white-space:nowrap">
                   <button class="btn-p" onclick="go('ra11')" style="height:26px;padding:0 10px;font-size:10px"><img class="btn-sw" src="" alt="" data-sw><span class="btn-c">Review</span></button>
                 </td>
               </tr>
@@ -322,17 +322,9 @@ html.gs-anim-armed #ra1 .grp{opacity:0}
                 <td class="tbl-muted">14 Jun</td>
                 <td style="font-size:11px;color:var(--status-warn)">Not opened</td>
                 <td style="font-size:11px;color:var(--tw3)">No activity</td>
-                <td><span class="pill pill-grey">Pending</span></td>
+                <td><span class="pill pill-blue">Invited</span></td>
                 <td class="tbl-muted">—</td>
-                <td style="padding:6px 11px;display:flex;align-items:center;gap:5px">
-                  <div class="reminder-btn-wrap">
-                    <button class="btn-reminder" onclick="toggleDropdown(this)">Send reminder <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:3px;vertical-align:middle"><use href="#gsi-15"/></svg></button>
-                    <div class="reminder-dropdown">
-                      <button onclick="sendReminder(this)">Send reminder now</button>
-                      <button onclick="go('ra_custom_invite')">Customize invitation</button>
-                    </div>
-                  </div>
-                </td>
+                <td style="padding:6px 11px"><button class="act-mini act-view" title="Open detail" onclick="go('ra4')">View</button></td>
               </tr>
               <tr style="background:rgba(224,82,82,.03)">
                 <td><div class="tbl-name">Luntai Packaging Co.</div><div class="tbl-sub">luntai@pack.cn</div></td>
@@ -341,15 +333,7 @@ html.gs-anim-armed #ra1 .grp{opacity:0}
                 <td style="font-size:11px;color:var(--tw3)">Opened, did not submit</td>
                 <td><span class="pill pill-red">Overdue</span></td>
                 <td class="tbl-muted" style="color:var(--status-danger)">21 days ago</td>
-                <td style="padding:6px 11px;display:flex;align-items:center;gap:5px">
-                  <div class="reminder-btn-wrap">
-                    <button class="btn-reminder btn-reminder-urgent" onclick="toggleDropdown(this)">Send reminder <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:3px;vertical-align:middle"><use href="#gsi-15"/></svg></button>
-                    <div class="reminder-dropdown">
-                      <button onclick="sendReminder(this)">Send reminder now</button>
-                      <button onclick="go('ra_custom_invite')">Customize invitation</button>
-                    </div>
-                  </div>
-                </td>
+                <td style="padding:6px 11px"><button class="act-mini act-view" title="Open detail" onclick="go('ra4')">View</button></td>
               </tr>
               <tr style="background:rgba(224,82,82,.03)">
                 <td><div class="tbl-name">Nordic Box AB</div><div class="tbl-sub">info@nordicbox.ie</div></td>
@@ -358,15 +342,7 @@ html.gs-anim-armed #ra1 .grp{opacity:0}
                 <td style="font-size:11px;color:var(--tw3)">No activity · 2 reminders sent</td>
                 <td><span class="pill pill-red">Overdue</span></td>
                 <td class="tbl-muted" style="color:var(--status-danger)">—</td>
-                <td style="padding:6px 11px;display:flex;align-items:center;gap:5px">
-                  <div class="reminder-btn-wrap">
-                    <button class="btn-reminder btn-reminder-urgent" onclick="toggleDropdown(this)">Send reminder <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:3px;vertical-align:middle"><use href="#gsi-15"/></svg></button>
-                    <div class="reminder-dropdown">
-                      <button onclick="sendReminder(this)">Send reminder now</button>
-                      <button onclick="go('ra_custom_invite')">Customize invitation</button>
-                    </div>
-                  </div>
-                </td>
+                <td style="padding:6px 11px"><button class="act-mini act-view" title="Open detail" onclick="go('ra4')">View</button></td>
               </tr>
             </tbody></table>
             <div class="tbl-footer" style="padding:7px 14px">Showing 7 of 380 invitations · <a class="bc-link" style="font-size:11px" onclick="go('ra9')">View all in tracker →</a></div>
@@ -406,7 +382,7 @@ html.gs-anim-armed #ra1 .grp{opacity:0}
     </div>
   </div>
 </div>
-<script src="js/retailer-admin.js?v=44"></script>
+<script src="js/retailer-admin.js?v=45"></script>
 <script src="js/greenstreets-theme.js?v=31"></script>
 <script src="js/ra-tour.js?v=11"></script>
 <script src="js/gs-appearance.js?v=9"></script>
@@ -424,9 +400,11 @@ function wkToggle(btn){
 document.addEventListener('click', function(e){
   var bar = e.target.closest && e.target.closest('.wk-bar');
   if(!bar) return;
-  var map = { approved:'Complete', submitted:'Incomplete', inprog:'Pending' };
-  var status = map[bar.getAttribute('data-series')];
-  if(status && typeof goFilter === 'function') goFilter('ra6', {selectValue: status});
+  var series = bar.getAttribute('data-series');
+  var map = { approved:'Complete', submitted:'Incomplete', inprog:'Needs Changing' };
+  var status = map[series];
+  /* Needs Changing is a packaging-component status -> Packagings listing; Complete/Incomplete -> Products */
+  if(status && typeof goFilter === 'function') goFilter(series==='inprog' ? 'ra5' : 'ra6', {selectValue: status});
 });
 /* Quick "remind supplier" on an expiring document row (card is clickable, so stop the bubble).
    Marks the row handled (persists "Reminder sent") and sinks it to the bottom of the list,

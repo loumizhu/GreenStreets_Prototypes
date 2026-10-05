@@ -49,7 +49,7 @@
             <div class="notif-body">
               <div class="notif-top"><span class="notif-title">Supplier overdue — action required</span><span class="notif-time">2 min ago</span></div>
               <div class="notif-msg"><strong>Luntai Packaging Co.</strong> (Primark) has not submitted their DoC — deadline passed <strong>14 days ago</strong>. Retailer has been notified; escalation pending.</div>
-              <div class="notif-actions"><button class="btn-g-sm" onclick="go('s10')">View supplier</button><button class="btn-g-sm">Send escalation</button></div>
+              <div class="notif-actions"><button class="btn-g-sm" onclick="go('s10')">View supplier</button><button class="btn-g-sm" onclick="go('sa_tracker')">View tracker</button><button class="btn-g-sm">Send escalation</button></div>
             </div>
             <span class="pill pill-red notif-type-pill">Urgent</span>
           </div>
@@ -71,7 +71,7 @@
             <div class="notif-body">
               <div class="notif-top"><span class="notif-title">DoC rejected — PFAS non-compliance</span><span class="notif-time">3 hrs ago</span></div>
               <div class="notif-msg">Packaging <strong>PRK-009</strong> (Dunnes Stores · EcoWrap Ltd) failed Article 5 PFAS check. Supplier has been notified to revise and resubmit.</div>
-              <div class="notif-actions"><button class="btn-g-sm">View DoC</button><button class="btn-g-sm">Contact supplier</button></div>
+              <div class="notif-actions"><button class="btn-g-sm" onclick="openDocumentSA('doc-001')">View DoC</button><button class="btn-g-sm">Contact supplier</button></div>
             </div>
             <span class="pill pill-red notif-type-pill">Urgent</span>
           </div>
@@ -138,7 +138,7 @@
             <div class="notif-body">
               <div class="notif-top"><span class="notif-title">DoC resubmission overdue</span><span class="notif-time">05 Jul 2026</span></div>
               <div class="notif-msg"><strong>EcoPack GmbH</strong> (Aldi) revised packaging weight on PRK-002 but has not resubmitted their DoC — <strong>5 days</strong> since revision.</div>
-              <div class="notif-actions"><button class="btn-g-sm" onclick="go('s10')">View supplier</button></div>
+              <div class="notif-actions"><button class="btn-g-sm" onclick="go('s10')">View supplier</button><button class="btn-g-sm" onclick="go('sa_tracker')">View tracker</button></div>
             </div>
             <span class="pill pill-amber notif-type-pill">Warning</span>
           </div>
@@ -150,7 +150,7 @@
             <div class="notif-body">
               <div class="notif-top"><span class="notif-title">DoC approved — PRK-001</span><span class="notif-time">Today 13:57</span></div>
               <div class="notif-msg">Keith O'Sullivan (Primark) approved the Declaration of Conformity for <strong>PRK-001</strong> (Indotex Manufacturing). All 5 PPWR articles passed.</div>
-              <div class="notif-actions"><button class="btn-g-sm">View DoC</button></div>
+              <div class="notif-actions"><button class="btn-g-sm" onclick="openDocumentSA('doc-001')">View DoC</button></div>
             </div>
             <span class="pill pill-green notif-type-pill">Success</span>
           </div>
@@ -194,7 +194,7 @@
             <div class="notif-body">
               <div class="notif-top"><span class="notif-title">DoC submitted — PRK-004</span><span class="notif-time">06 Jul 2026</span></div>
               <div class="notif-msg"><strong>Nordic Pack AS</strong> (Tesco Ireland) submitted their packaging DoC for <strong>PRK-004</strong> — 3 items, recycled content 32%. Awaiting retailer review.</div>
-              <div class="notif-actions"><button class="btn-g-sm">View DoC</button></div>
+              <div class="notif-actions"><button class="btn-g-sm" onclick="openDocumentSA('doc-001')">View DoC</button></div>
             </div>
             <span class="pill pill-green notif-type-pill">Success</span>
           </div>
@@ -205,7 +205,7 @@
             <div class="notif-body">
               <div class="notif-top"><span class="notif-title">Supplier onboarded — Indotex Manufacturing</span><span class="notif-time">05 Jul 2026</span></div>
               <div class="notif-msg"><strong>Indotex Manufacturing</strong> completed registration and logged in for the first time. Packaging data collection is now active for PRK-001.</div>
-              <div class="notif-actions"><button class="btn-g-sm" onclick="go('s10')">View supplier</button></div>
+              <div class="notif-actions"><button class="btn-g-sm" onclick="go('s10')">View supplier</button><button class="btn-g-sm" onclick="go('sa_tracker')">View tracker</button></div>
             </div>
             <span class="pill pill-green notif-type-pill">Success</span>
           </div>
@@ -336,7 +336,7 @@ window.gsNotifFilter = function(btn, type) {
 };
 </script>
 
-<script src="js/super-admin.js?v=30"></script>
+<script src="js/super-admin.js?v=32"></script>
 <script src="js/greenstreets-theme.js?v=46"></script>
 <script src="js/greenstreets-light.js?v=2"></script>
 </body>

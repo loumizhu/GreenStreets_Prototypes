@@ -189,11 +189,11 @@
 
   function statusMeta(status) {
     var s = (status || '').toLowerCase();
-    if (s.indexOf('complete') === 0) return 'pill-green';
-    if (s.indexOf('incomplete') === 0) return 'pill-red';
-    if (s.indexOf('pending') === 0 || s.indexOf('review needed') === 0) return 'pill-amber';
-    if (s.indexOf('needs changing') === 0) return 'pill-red';
-    return 'pill-grey';
+    if (s === 'complete' || s === 'approved') return 'pill-green';
+    if (s === 'review needed' || s === 'pending review' || s === 'pending') return 'pill-amber';
+    if (s === 'needs changing' || s === 'changes requested' || s === 'not approved' || s === 'expired') return 'pill-red';
+    if (s === 'submitted' || s === 'invited') return 'pill-blue';
+    return 'pill-grey'; /* Incomplete, Draft, Awaiting Supplier, Not Required */
   }
 
   function render() {

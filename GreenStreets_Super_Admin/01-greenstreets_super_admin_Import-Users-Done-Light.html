@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>GreenStreets Super Admin · Import users complete (Light)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/greenstreets-theme.css?v=167">
+<link rel="stylesheet" href="css/sa-dash-users.css?v=2">
+<link rel="stylesheet" href="css/greenstreets-light.css?v=123">
+</head>
+<body class="lt">
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true"><defs><symbol id="gsi-0" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol><symbol id="gsi-1" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/></symbol><symbol id="gsi-2" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol><symbol id="gsi-3" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></symbol><symbol id="gsi-4" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></symbol><symbol id="gsi-5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></symbol><symbol id="gsi-6" viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></symbol><symbol id="gsi-7" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol><symbol id="gsi-8" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol><symbol id="gsi-9" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></symbol><symbol id="gsi-10" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></symbol><symbol id="gsi-11" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></symbol><symbol id="gsi-12" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></symbol><symbol id="gsi-13" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol><symbol id="gsi-14" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></symbol><symbol id="gsi-15" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol><symbol id="gsi-16" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></symbol><symbol id="gsi-17" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></symbol></defs></svg>
+
+<div class="screen on" id="sa_importusers_done">
+  <div class="app-body">
+    <div class="sidebar" data-active="s7"></div>
+    <div class="main">
+      <div class="breadcrumb"><a class="bc-link" onclick="go('s7')">Users</a><span class="bc-sep">›</span><span class="bc-cur">Import complete</span></div>
+      <div class="pg-hdr-bar">
+        <div><div class="pg-title">Import complete <span class="pg-badge" title="Super Admin console" aria-label="Super Admin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9.5 12l1.8 1.8L15 10"/></svg></span></div><div class="pg-sub">Users imported into <b data-sa-imp-ret>the selected retailer</b></div></div>
+      </div>
+
+      <div class="grp">
+        <div class="grp-hdr">Import from CSV / XLSX</div>
+        <div class="grp-body">
+          <div style="display:flex;align-items:center;gap:0;margin-bottom:22px;position:relative"><div style="position:absolute;top:13px;left:0;right:0;height:1px;background:var(--gs);opacity:.5"></div><div class="step is-done step-nav" onclick="go('sa_importusers')" title="Back to upload"><div class="step-dot">1</div><div class="step-lbl">Upload</div></div><div class="step is-done step-nav" onclick="go('sa_validate_users')" title="Back to validation"><div class="step-dot">2</div><div class="step-lbl">Validate</div></div><div class="step is-done"><div class="step-dot"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="stroke:#fff"><use href="#gsi-10"/></svg></div><div class="step-lbl">Confirm</div></div></div>
+          <div style="text-align:center;padding:26px 20px 14px">
+            <div style="width:56px;height:56px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:rgba(78,187,129,.14);border:1.5px solid rgba(78,187,129,.4);margin-bottom:14px">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4ebb81" stroke-width="2.4"><use href="#gsi-10"/></svg>
+            </div>
+            <div style="font-size:17px;font-weight:600;color:var(--tw);margin-bottom:6px"><span data-sa-imp-valid>24</span> users imported</div>
+            <div style="font-size:12px;color:var(--tw3);max-width:420px;margin:0 auto">Invitations have been emailed to all <span data-sa-imp-valid>24</span> users. They'll appear as <strong style="color:var(--tw2);font-weight:600">Invited</strong> in the users list until they accept. The <span data-sa-imp-skipped>2</span> rows with errors were skipped.</div>
+          </div>
+
+          <div style="display:flex;gap:18px;justify-content:center;margin:18px 0 22px">
+            <div style="text-align:center"><div style="font-size:20px;font-weight:600;color:var(--gs)" data-sa-imp-valid>24</div><div style="font-size:10px;color:var(--tw3)">Invited</div></div>
+            <div style="width:1px;background:var(--bw)"></div>
+            <div style="text-align:center"><div style="font-size:20px;font-weight:600;color:var(--tw2)" data-sa-imp-skipped>2</div><div style="font-size:10px;color:var(--tw3)">Skipped</div></div>
+          </div>
+
+          <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px">
+            <div style="font-size:12px;font-weight:600;color:var(--tw2);text-transform:uppercase;letter-spacing:.04em">Invited team members</div>
+            <div style="font-size:11px;color:var(--tw3)">Showing 6 of <span data-sa-imp-valid>24</span></div>
+          </div>
+          <div class="tbl-wrap" style="max-height:230px;overflow:auto"><table class="tbl" data-nosort><colgroup><col width="30%"><col width="38%"><col width="18%"><col width="14%"></colgroup>
+          <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td class="tbl-name">Aoife Brennan</td><td class="tbl-muted">aoife@primark.com</td><td class="tbl-muted">Retailer user</td><td><span class="pill pill-blue">Invited</span></td></tr>
+            <tr><td class="tbl-name">Liam Murphy</td><td class="tbl-muted">liam@primark.com</td><td class="tbl-muted">Retailer Admin</td><td><span class="pill pill-blue">Invited</span></td></tr>
+            <tr><td class="tbl-name">Niamh Kelly</td><td class="tbl-muted">niamh@primark.com</td><td class="tbl-muted">Retailer user</td><td><span class="pill pill-blue">Invited</span></td></tr>
+            <tr><td class="tbl-name">Seán Walsh</td><td class="tbl-muted">sean@primark.com</td><td class="tbl-muted">Retailer user</td><td><span class="pill pill-blue">Invited</span></td></tr>
+            <tr><td class="tbl-name">Emma Byrne</td><td class="tbl-muted">emma@primark.com</td><td class="tbl-muted">Retailer user</td><td><span class="pill pill-blue">Invited</span></td></tr>
+            <tr><td class="tbl-name">Conor Ryan</td><td class="tbl-muted">conor@primark.com</td><td class="tbl-muted">Retailer Admin</td><td><span class="pill pill-blue">Invited</span></td></tr>
+          </tbody></table></div>
+
+          <div class="faction" style="justify-content:space-between;align-items:center;margin-top:20px"><button class="btn-g" onclick="go('sa_importusers')" style="height:36px;padding:0 16px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-8"/></svg>Import another file</button><button class="btn-p" onclick="go('s7')" style="height:36px;padding:0 16px">Done — view users</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="js/super-admin.js?v=32"></script>
+<script src="js/greenstreets-theme.js?v=46"></script>
+<script src="js/sa-users.js?v=2"></script>
+<script src="js/sa-tour.js?v=2"></script>
+<script src="js/greenstreets-light.js?v=2"></script>
+</body>
+</html>

@@ -150,13 +150,13 @@
   function allApproved() { return ACTUAL.length > 0 && approvedCount() === ACTUAL.length; }
   function statusPill() {
     if (APPROVED) return '<span class="pill pill-green">Complete</span>';
-    if (ACTUAL.length === 0) return '<span class="pill pill-amber">Incomplete</span>';
-    if (awaitingCount() === 0) return '<span class="pill pill-grey">Pending</span>';
-    return '<span class="pill" style="background:rgba(245,166,35,.14);color:#f5a623;border:1px solid rgba(245,166,35,.32)">Incomplete</span>';
+    if (ACTUAL.length === 0) return '<span class="pill pill-grey">Incomplete</span>';
+    if (awaitingCount() === 0) return '<span class="pill pill-amber">Pending</span>';
+    return '<span class="pill pill-grey">Incomplete</span>';
   }
   function compStatusPill(c) {
-    if (c.approved) return '<span class="pill pill-green" style="font-size:9px">✅ Approved</span>';
-    if (c.status === 'Provided') return '<span class="pill" style="font-size:9px;background:rgba(91,156,246,.14);color:#5b9cf6;border:1px solid rgba(91,156,246,.32)">Submitted</span>';
+    if (c.approved) return '<span class="pill pill-green" style="font-size:9px">Approved</span>';
+    if (c.status === 'Provided') return '<span class="pill pill-blue" style="font-size:9px">Submitted</span>';
     return '<span class="pill pill-grey" style="font-size:9px">Awaiting Supplier</span>';
   }
   /* Requirement-field status pill: seeded `req` label wins when it still matches the component's real state. */

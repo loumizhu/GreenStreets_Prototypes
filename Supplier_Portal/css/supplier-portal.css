@@ -138,10 +138,10 @@ html,body{height:100%;font-family:"Inter",sans-serif;color:var(--tw)}
 .pkg-add-btn-v3:hover{border-color:rgba(78,187,129,.5);color:var(--gs);background:rgba(78,187,129,.06)}
 .product-row-status{flex-shrink:0}
 .prod-status-pill{display:inline-block;font-size:11px;font-weight:700;padding:8px 14px;border-radius:8px;white-space:nowrap}
-.prod-status-submitted{background:rgba(78,187,129,.15);color:var(--gs-l);border:1px solid rgba(78,187,129,.35)}
+.prod-status-submitted{background:rgba(91,156,246,.13);color:#5b9cf6;border:1px solid rgba(91,156,246,.3)}
 .prod-status-ready{background:rgba(91,156,246,.13);color:#5b9cf6;border:1px solid rgba(91,156,246,.3)}
-.prod-status-incomplete{background:rgba(224,82,82,.13);color:#ff9c96;border:1px solid rgba(224,82,82,.3)}
-.prod-status-none{background:rgba(255,255,255,.06);color:var(--tw3);border:1px solid rgba(255,255,255,.12)}
+.prod-status-incomplete{background:rgba(255,255,255,.08);color:rgba(255,255,255,.78);border:1px solid rgba(255,255,255,.16)}
+.prod-status-none{background:rgba(245,166,35,.13);color:#f5a623;border:1px solid rgba(245,166,35,.3)}
 .prod-status-delisted{background:rgba(255,255,255,.05);color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.15)}
 .product-row-submit{flex-shrink:0}
 .prod-submit-btn{height:34px;padding:0 18px;border-radius:8px;border:none;background:var(--gs);color:#04160e;font-family:"Inter",sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:filter .12s}
@@ -316,7 +316,11 @@ html,body{height:100%;font-family:"Inter",sans-serif;color:var(--tw)}
 .pkg-status-pill{font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px;white-space:nowrap;display:inline-block}
 .pkg-status-pill.compliant{background:rgba(78,187,129,.15);color:#4ebb81;border:1px solid rgba(78,187,129,.3)}
 .pkg-status-pill.review{background:rgba(245,166,35,.13);color:#f5a623;border:1px solid rgba(245,166,35,.3)}
-.pkg-status-pill.incomplete{background:rgba(224,82,82,.13);color:#ff9c96;border:1px solid rgba(224,82,82,.3)}
+.pkg-status-pill.incomplete{background:rgba(255,255,255,.08);color:rgba(255,255,255,.78);border:1px solid rgba(255,255,255,.16)}
+.pkg-status-pill.changing{background:rgba(224,82,82,.13);color:#ff9c96;border:1px solid rgba(224,82,82,.3)}
+.pkg-status-pill.complete{background:rgba(78,187,129,.15);color:#4ebb81;border:1px solid rgba(78,187,129,.3)}
+.pkg-status-pill.submitted{background:rgba(91,156,246,.13);color:#5b9cf6;border:1px solid rgba(91,156,246,.3)}
+.pkg-status-pill.none{background:rgba(245,166,35,.13);color:#f5a623;border:1px solid rgba(245,166,35,.3)}
 /* DoC download button (compact, on table row) */
 .pkg-doc-dl-btn{display:inline-flex;align-items:center;gap:4px;height:26px;padding:0 10px;background:var(--gs);border:none;color:#fff;border-radius:6px;cursor:pointer;font-family:"Inter",sans-serif;font-size:11px;font-weight:700;white-space:nowrap;flex-shrink:0}
 .pkg-doc-dl-btn:hover{filter:brightness(1.1)}
@@ -781,7 +785,12 @@ select.pd-input option{background:#16294a;color:#fff}
 .docs-tbl-new .doc-name-col{font-weight:600;color:#fff}
 .docs-tbl-new .doc-name-wrap{display:flex;align-items:center;gap:8px}
 .docs-tbl-new .doc-secondary{color:rgba(255,255,255,.6);font-size:11px}
-.docs-tbl-new .doc-actions-col{text-align:right;white-space:nowrap;width:110px}
+.docs-tbl-new .doc-actions-col{text-align:right;white-space:nowrap;width:230px}
+.docs-remind-btn{display:inline-flex;align-items:center;gap:5px;height:28px;padding:0 10px;margin-right:6px;background:rgba(245,166,35,.12);border:1px solid rgba(245,166,35,.34);color:#ffcd7a;border-radius:6px;cursor:pointer;font-family:inherit;font-size:11px;font-weight:600;white-space:nowrap}
+.docs-remind-btn:hover{background:rgba(245,166,35,.22)}
+.docs-remind-btn.docs-remind-sent{background:rgba(78,187,129,.12);border-color:rgba(78,187,129,.3);color:var(--gs-l);cursor:default}
+body.lt .docs-remind-btn{background:#fdf2e2;border-color:#f4e0c0;color:#b9741a}
+body.lt .docs-remind-btn.docs-remind-sent{background:#e6f6ec;border-color:#cbead6;color:#2f9c62}
 
 /* ── Docs: expiring-soon date indicator ── */
 .doc-date-exp{color:#f2706e!important;font-weight:700!important;white-space:nowrap}

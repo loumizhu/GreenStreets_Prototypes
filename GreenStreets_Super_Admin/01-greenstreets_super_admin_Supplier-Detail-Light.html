@@ -19,20 +19,21 @@
     <div class="main">
       <div class="breadcrumb">
         <a class="bc-link" onclick="go('s2')">Retailers</a><span class="bc-sep">›</span>
-        <a class="bc-link" onclick="go('s4')">Primark Stores Ltd</a><span class="bc-sep">›</span>
+        <a class="bc-link" onclick="go('s4')" id="sa-sup-retailer-crumb">Primark Stores Ltd</a><span class="bc-sep">›</span>
         <a class="bc-link" onclick="go('s3')">Suppliers</a><span class="bc-sep">›</span>
-        <span class="bc-cur">Indotex Manufacturing</span>
+        <span class="bc-cur" id="sa-sup-crumb">Indotex Manufacturing</span>
       </div>
       <div class="pg-hdr-bar">
         <div>
           <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-            <div class="pg-title">Indotex Manufacturing <span class="pg-badge" title="Super Admin console" aria-label="Super Admin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9.5 12l1.8 1.8L15 10"/></svg></span></div>
-            <span class="pill pill-green">Submitted</span>
-            <span class="pill pill-grey">Tier 1</span>
-            <span class="pill pill-grey">APAC</span>
+            <div class="pg-title"><span id="sa-sup-name">Indotex Manufacturing</span> <span class="pg-badge" title="Super Admin console" aria-label="Super Admin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9.5 12l1.8 1.8L15 10"/></svg></span></div>
+            <span class="pill pill-green" id="sa-sup-status">Retailer Approved</span>
+            <span class="pill pill-grey" id="sa-sup-tier">Tier 1</span>
+            <span class="pill pill-grey" id="sa-sup-region">APAC</span>
           </div>
           <div style="font-size:11px;color:var(--tw3);margin-top:6px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
-            <span>indotex@supplier.ie</span><span>·</span>
+            <span id="sa-sup-email">indotex@supplier.ie</span><span>·</span>
+            <span>Retailer: <strong style="color:var(--tw2)" id="sa-sup-retailer">Primark Stores Ltd</strong></span><span>·</span>
             <span>Last active: <strong style="color:var(--tw2)">2 hours ago</strong></span><span>·</span>
             <span>Invited: 14 Jun 2026</span>
           </div>
@@ -45,6 +46,8 @@
             <div class="stat-mini"><div class="stat-icon i-am"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#gsi-3"/></svg></div><div><div class="stat-lbl">Docs missing</div><div class="stat-val" style="color:var(--amber)">2</div></div></div>
           </div>
           <div class="pg-actions">
+            <button class="btn-g" onclick="saSupplierProducts(document.getElementById('sa-sup-name').textContent)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/></svg>Products</button>
+            <button class="btn-g" onclick="saSupplierPackaging(document.getElementById('sa-sup-name').textContent)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>Packaging</button>
             <button class="btn-g"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-11"/></svg>Send reminder</button>
             <button class="btn-g"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit details</button>
           </div>
@@ -73,84 +76,84 @@
                 <td><span class="pill pill-green" style="font-size:9px">A</span></td>
                 <td><span style="color:var(--gs-l);font-size:12px;font-weight:600">2</span><span style="color:var(--tw3);font-size:11px"> / 2</span></td>
                 <td><span class="pill pill-green">Complete</span></td>
-                <td class="chev-cell"><div class="chev-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><use href="#gsi-7"/></svg></div></td>
+                <td class="chev-cell"><div class="chev-btn" onclick="saSupOpenPackaging(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><use href="#gsi-7"/></svg></div></td>
               </tr>
               <tr>
                 <td><div class="tbl-name">Box / carton</div></td><td class="tbl-muted"><span class="gs-id-cell">PRK-001-SW-BLK</span></td><td class="tbl-muted">Corrugated</td><td>45.0</td><td>65%</td>
                 <td><span class="pill pill-green" style="font-size:9px">A</span></td>
                 <td><span style="color:var(--gs-l);font-size:12px;font-weight:600">3</span><span style="color:var(--tw3);font-size:11px"> / 3</span></td>
                 <td><span class="pill pill-green">Complete</span></td>
-                <td class="chev-cell"><div class="chev-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><use href="#gsi-7"/></svg></div></td>
+                <td class="chev-cell"><div class="chev-btn" onclick="saSupOpenPackaging(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><use href="#gsi-7"/></svg></div></td>
               </tr>
               <tr>
                 <td><div class="tbl-name">Poly bag</div></td><td class="tbl-muted"><span class="gs-id-cell">PRK-002-JN-BLU</span></td><td class="tbl-muted">LDPE</td><td>8.1</td><td>0%</td>
                 <td><span class="pill pill-amber" style="font-size:9px">D</span></td>
                 <td><span style="color:var(--amber);font-size:12px;font-weight:600">1</span><span style="color:var(--tw3);font-size:11px"> / 2</span></td>
                 <td><span class="pill pill-amber">Review Needed</span></td>
-                <td class="chev-cell"><div class="chev-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><use href="#gsi-7"/></svg></div></td>
+                <td class="chev-cell"><div class="chev-btn" onclick="saSupOpenPackaging(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><use href="#gsi-7"/></svg></div></td>
               </tr>
               <tr style="background:rgba(224,96,90,.05)">
                 <td><div class="tbl-name">Hanger</div></td><td class="tbl-muted"><span class="gs-id-cell">PRK-003-DRS-RED</span></td>
                 <td class="tbl-muted">—</td><td class="tbl-muted">—</td><td class="tbl-muted">—</td><td class="tbl-muted">—</td>
                 <td><span style="color:var(--red);font-size:12px;font-weight:600">0</span><span style="color:var(--tw3);font-size:11px"> / 2</span></td>
-                <td><span class="pill pill-red">Incomplete</span></td>
-                <td class="chev-cell"><div class="chev-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><use href="#gsi-7"/></svg></div></td>
+                <td><span class="pill pill-grey">Incomplete</span></td>
+                <td class="chev-cell"><div class="chev-btn" onclick="saSupOpenPackaging(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><use href="#gsi-7"/></svg></div></td>
               </tr>
               <tr style="background:rgba(224,96,90,.05)">
                 <td><div class="tbl-name">Tissue paper</div></td><td class="tbl-muted"><span class="gs-id-cell">PRK-004-JKT-KHK</span></td>
                 <td class="tbl-muted">—</td><td class="tbl-muted">—</td><td class="tbl-muted">—</td><td class="tbl-muted">—</td>
                 <td><span style="color:var(--red);font-size:12px;font-weight:600">0</span><span style="color:var(--tw3);font-size:11px"> / 1</span></td>
-                <td><span class="pill pill-red">Incomplete</span></td>
-                <td class="chev-cell"><div class="chev-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><use href="#gsi-7"/></svg></div></td>
+                <td><span class="pill pill-grey">Incomplete</span></td>
+                <td class="chev-cell"><div class="chev-btn" onclick="saSupOpenPackaging(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><use href="#gsi-7"/></svg></div></td>
               </tr>
               <tr style="background:rgba(224,96,90,.05)">
                 <td><div class="tbl-name">Header card</div></td><td class="tbl-muted"><span class="gs-id-cell">PRK-005-TEE-WHT</span></td>
                 <td class="tbl-muted">—</td><td class="tbl-muted">—</td><td class="tbl-muted">—</td><td class="tbl-muted">—</td>
                 <td><span style="color:var(--red);font-size:12px;font-weight:600">0</span><span style="color:var(--tw3);font-size:11px"> / 1</span></td>
                 <td><span class="pill pill-red">Needs Changing</span></td>
-                <td class="chev-cell"><div class="chev-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><use href="#gsi-7"/></svg></div></td>
+                <td class="chev-cell"><div class="chev-btn" onclick="saSupOpenPackaging(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><use href="#gsi-7"/></svg></div></td>
               </tr>
               <tr>
                 <td><div class="tbl-name">Garment bag</div></td><td class="tbl-muted"><span class="gs-id-cell">PRK-006-SHT-GRN</span></td><td class="tbl-muted">—</td><td class="tbl-muted">—</td><td class="tbl-muted">—</td><td class="tbl-muted">—</td>
                 <td><span style="color:var(--red);font-size:12px;font-weight:600">0</span><span style="color:var(--tw3);font-size:11px"> / 2</span></td>
                 <td><span class="pill pill-grey">Awaiting Supplier</span></td>
-                <td class="chev-cell"><div class="chev-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><use href="#gsi-7"/></svg></div></td>
+                <td class="chev-cell"><div class="chev-btn" onclick="saSupOpenPackaging(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><use href="#gsi-7"/></svg></div></td>
               </tr>
               <tr>
                 <td><div class="tbl-name">Poly bag</div></td><td class="tbl-muted"><span class="gs-id-cell">PRK-007-CRD-NVY</span></td><td class="tbl-muted">LDPE</td><td>7.4</td><td>15%</td><td><span class="pill pill-amber" style="font-size:9px">D</span></td>
                 <td><span style="color:var(--amber);font-size:12px;font-weight:600">1</span><span style="color:var(--tw3);font-size:11px"> / 2</span></td>
                 <td><span class="pill pill-grey">Draft</span></td>
-                <td class="chev-cell"><div class="chev-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><use href="#gsi-7"/></svg></div></td>
+                <td class="chev-cell"><div class="chev-btn" onclick="saSupOpenPackaging(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><use href="#gsi-7"/></svg></div></td>
               </tr>
               <tr>
                 <td><div class="tbl-name">Swing tag</div></td><td class="tbl-muted"><span class="gs-id-cell">PRK-008-SKT-CRM</span></td><td class="tbl-muted">Paper</td><td>2.2</td><td>70%</td><td><span class="pill pill-green" style="font-size:9px">A</span></td>
                 <td><span style="color:var(--gs-l);font-size:12px;font-weight:600">2</span><span style="color:var(--tw3);font-size:11px"> / 2</span></td>
                 <td><span class="pill pill-blue">Submitted</span></td>
-                <td class="chev-cell"><div class="chev-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><use href="#gsi-7"/></svg></div></td>
+                <td class="chev-cell"><div class="chev-btn" onclick="saSupOpenPackaging(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><use href="#gsi-7"/></svg></div></td>
               </tr>
               <tr>
                 <td><div class="tbl-name">Box / carton</div></td><td class="tbl-muted"><span class="gs-id-cell">PRK-009-JKT-OLV</span></td><td class="tbl-muted">Corrugated</td><td>48.0</td><td>60%</td><td><span class="pill pill-green" style="font-size:9px">A</span></td>
                 <td><span style="color:var(--gs-l);font-size:12px;font-weight:600">3</span><span style="color:var(--tw3);font-size:11px"> / 3</span></td>
                 <td><span class="pill pill-amber">Pending Review</span></td>
-                <td class="chev-cell"><div class="chev-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><use href="#gsi-7"/></svg></div></td>
+                <td class="chev-cell"><div class="chev-btn" onclick="saSupOpenPackaging(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><use href="#gsi-7"/></svg></div></td>
               </tr>
               <tr>
                 <td><div class="tbl-name">Tissue paper</div></td><td class="tbl-muted"><span class="gs-id-cell">PRK-010-TEE-GRY</span></td><td class="tbl-muted">Paper</td><td>3.1</td><td>55%</td><td><span class="pill pill-green" style="font-size:9px">A</span></td>
                 <td><span style="color:var(--gs-l);font-size:12px;font-weight:600">1</span><span style="color:var(--tw3);font-size:11px"> / 1</span></td>
                 <td><span class="pill pill-green">Approved</span></td>
-                <td class="chev-cell"><div class="chev-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><use href="#gsi-7"/></svg></div></td>
+                <td class="chev-cell"><div class="chev-btn" onclick="saSupOpenPackaging(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><use href="#gsi-7"/></svg></div></td>
               </tr>
               <tr>
                 <td><div class="tbl-name">Hanger</div></td><td class="tbl-muted"><span class="gs-id-cell">PRK-011-HDY-TEL</span></td><td class="tbl-muted">Plastic</td><td>34.0</td><td>30%</td><td><span class="pill pill-amber" style="font-size:9px">C</span></td>
                 <td><span style="color:var(--amber);font-size:12px;font-weight:600">1</span><span style="color:var(--tw3);font-size:11px"> / 2</span></td>
                 <td><span class="pill pill-red">Changes Requested</span></td>
-                <td class="chev-cell"><div class="chev-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><use href="#gsi-7"/></svg></div></td>
+                <td class="chev-cell"><div class="chev-btn" onclick="saSupOpenPackaging(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><use href="#gsi-7"/></svg></div></td>
               </tr>
               <tr>
                 <td><div class="tbl-name">Header card</div></td><td class="tbl-muted"><span class="gs-id-cell">PRK-012-CAP-BLK</span></td><td class="tbl-muted">—</td><td class="tbl-muted">—</td><td class="tbl-muted">—</td><td class="tbl-muted">—</td>
                 <td class="tbl-muted">—</td>
                 <td><span class="pill pill-grey">Not Required</span></td>
-                <td class="chev-cell"><div class="chev-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><use href="#gsi-7"/></svg></div></td>
+                <td class="chev-cell"><div class="chev-btn" onclick="saSupOpenPackaging(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><use href="#gsi-7"/></svg></div></td>
               </tr>
             </tbody>
           </table>
@@ -172,12 +175,12 @@
           </div>
         </div>
         <div class="grp">
-          <div class="grp-hdr">Proof documents<span style="font-size:11px;color:var(--tw3);font-weight:400">9 approved · 2 awaiting supplier</span></div>
+          <div class="grp-hdr">Proof documents<span style="font-size:11px;color:var(--tw3);font-weight:400">9 approved · 2 missing · 1 pending</span></div>
           <div class="grp-body" style="padding:0">
             <div class="filter-toolbar">
               <div class="search-wrap"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#gsi-6"/></svg><input class="fi fi-search" placeholder="Search documents…" oninput="gsFilterToolbar(this)"></div>
               <select class="fi fi-select" onchange="gsFilterToolbar(this)"><option value="all">All types</option><option value="certificate">Certificate</option><option value="declaration">Declaration</option><option value="report">Test report</option></select>
-              <select class="fi fi-select" onchange="gsFilterToolbar(this)"><option value="all">All statuses</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="not approved">Not Approved</option><option value="expired">Expired</option><option value="awaiting supplier">Awaiting Supplier</option></select>
+              <select class="fi fi-select" onchange="gsFilterToolbar(this)"><option value="all">All statuses</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="not approved">Not Approved</option><option value="expired">Expired</option><option value="missing">Missing</option></select>
             </div>
             <table class="tbl" style="table-layout:fixed">
               <colgroup><col width="38%"><col width="22%"><col width="18%"><col width="22%"></colgroup>
@@ -186,8 +189,8 @@
                 <tr><td><div class="tbl-name" style="font-size:11px">FSC Chain of Custody</div><div class="tbl-sub">Box / carton</div></td><td><span class="pill pill-grey" style="font-size:9px">Certificate</span></td><td class="tbl-muted">Dec 2026</td><td><span class="pill pill-green">Approved</span></td></tr>
                 <tr><td><div class="tbl-name" style="font-size:11px">Recycled content cert.</div><div class="tbl-sub">Swing tag</div></td><td><span class="pill pill-grey" style="font-size:9px">Certificate</span></td><td class="tbl-muted">Mar 2027</td><td><span class="pill pill-green">Approved</span></td></tr>
                 <tr><td><div class="tbl-name" style="font-size:11px">REACH test report</div><div class="tbl-sub">Poly bag</div></td><td><span class="pill pill-grey" style="font-size:9px">Test report</span></td><td class="tbl-muted">Jun 2026</td><td><span class="pill pill-green">Approved</span></td></tr>
-                <tr><td><div class="tbl-name" style="font-size:11px">MSDS — Poly bag</div><div class="tbl-sub">Poly bag</div></td><td><span class="pill pill-grey" style="font-size:9px">Safety sheet</span></td><td class="tbl-muted">—</td><td><span class="pill pill-grey">Awaiting Supplier</span></td></tr>
-                <tr><td><div class="tbl-name" style="font-size:11px">PCR content declaration</div><div class="tbl-sub">Hanger</div></td><td><span class="pill pill-grey" style="font-size:9px">Declaration</span></td><td class="tbl-muted">—</td><td><span class="pill pill-grey">Awaiting Supplier</span></td></tr>
+                <tr><td><div class="tbl-name" style="font-size:11px">MSDS — Poly bag</div><div class="tbl-sub">Poly bag</div></td><td><span class="pill pill-grey" style="font-size:9px">Safety sheet</span></td><td class="tbl-muted">—</td><td><span class="pill pill-red">Missing</span></td></tr>
+                <tr><td><div class="tbl-name" style="font-size:11px">PCR content declaration</div><div class="tbl-sub">Hanger</div></td><td><span class="pill pill-grey" style="font-size:9px">Declaration</span></td><td class="tbl-muted">—</td><td><span class="pill pill-red">Missing</span></td></tr>
                 <tr><td><div class="tbl-name" style="font-size:11px">Hanger recyclability cert.</div><div class="tbl-sub">Hanger</div></td><td><span class="pill pill-grey" style="font-size:9px">Certificate</span></td><td class="tbl-muted">Jan 2027</td><td><span class="pill pill-amber">Pending</span></td></tr>
                 <tr><td><div class="tbl-name" style="font-size:11px">Tissue paper FSC cert.</div><div class="tbl-sub">Tissue paper</div></td><td><span class="pill pill-grey" style="font-size:9px">Certificate</span></td><td class="tbl-muted">Nov 2026</td><td><span class="pill pill-red">Not Approved</span></td></tr>
                 <tr><td><div class="tbl-name" style="font-size:11px">Carton REACH report</div><div class="tbl-sub">Box / carton</div></td><td><span class="pill pill-grey" style="font-size:9px">Test report</span></td><td class="tbl-muted">Feb 2026</td><td><span class="pill pill-red pill-expired">Expired</span></td></tr>
@@ -201,8 +204,9 @@
   </div>
 </div>
 
-<script src="js/super-admin.js?v=30"></script>
+<script src="js/super-admin.js?v=32"></script>
 <script src="js/greenstreets-theme.js?v=46"></script>
+<script src="js/sa-suppliers.js?v=1"></script>
 <script src="js/greenstreets-light.js?v=2"></script>
 </body>
 </html>

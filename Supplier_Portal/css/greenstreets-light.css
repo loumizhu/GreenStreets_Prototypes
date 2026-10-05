@@ -192,11 +192,11 @@ body.lt .prod-count,body.lt .prod-pg-lbl,body.lt .pkg-pg-lbl,body.lt .pkg-pg-of,
 body.lt .prod-count strong{color:var(--lt-ink)}
 
 /* status pills / badges (SP-specific, hardcoded colours in dark) */
-body.lt .prod-status-submitted{background:#e6f6ec;color:#157043;border-color:#cbead6}
+body.lt .prod-status-submitted{background:#e9f1ff;color:#3f74c7;border-color:#d3e2fb}
 body.lt .prod-status-ready{background:#e9f1ff;color:#3f74c7;border-color:#d3e2fb}
-body.lt .prod-status-incomplete{background:#fdeceb;color:#cf5751;border-color:#f6d5d3}
+body.lt .prod-status-incomplete{background:#eef1f6;color:#5f6b82;border-color:#e0e6ef}
 body.lt .prod-status-complete{background:#e6f6ec;color:#2f9c62;border-color:#cbead6}
-body.lt .prod-status-none{background:#eef1f6;color:var(--lt-ink-3);border-color:#e0e6ef}
+body.lt .prod-status-none{background:#fdf2e2;color:#b9781f;border-color:#f4d9ab}
 body.lt .prod-status-delisted{background:#eef1f6;color:#8a94a8;border-color:#e0e6ef}
 body.lt .prod-submit-btn{background:#4ebb81;color:#fff}
 body.lt .prod-submit-btn:disabled{background:#eef1f6;color:#a7b0c2}
@@ -274,7 +274,11 @@ body.lt .pkg-tbl-id{color:var(--lt-ink-3)}
 body.lt .pkg-lib-table thead th.sortable:hover{color:var(--lt-ink)}
 body.lt .pkg-status-pill.compliant{background:#e6f6ec;color:#2f9c62;border-color:#cbead6}
 body.lt .pkg-status-pill.review{background:#fdf2e2;color:#b9781f;border-color:#f4d9ab}
-body.lt .pkg-status-pill.incomplete{background:#fdeceb;color:#cf5751;border-color:#f6d5d3}
+body.lt .pkg-status-pill.incomplete{background:#eef1f6;color:#5f6b82;border-color:#e0e6ef}
+body.lt .pkg-status-pill.changing{background:#fdeceb;color:#cf5751;border-color:#f6d5d3}
+body.lt .pkg-status-pill.complete{background:#e6f6ec;color:#2f9c62;border-color:#cbead6}
+body.lt .pkg-status-pill.submitted{background:#e9f1ff;color:#3f74c7;border-color:#d3e2fb}
+body.lt .pkg-status-pill.none{background:#fdf2e2;color:#b9781f;border-color:#f4d9ab}
 body.lt .pkg-doc-dl-btn,body.lt .pkg-doc-download-btn,body.lt .docs-dl-btn,body.lt .docs-preview-dl,body.lt .docs-thumb-dl,body.lt .air-finish-btn{background:#4ebb81;color:#fff}
 body.lt .pkg-row-list .pkg-row-card{background:#fff;border:1px solid var(--lt-line-2)}
 body.lt .pkg-row-card:hover{border-color:#4ebb81;background:#eaf7ee}
