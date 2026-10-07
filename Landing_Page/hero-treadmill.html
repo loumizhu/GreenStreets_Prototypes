@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Greenstreets — Landing hero</title>
+<title>Greenstreets — Landing hero (Treadmill)</title>
 <meta name="theme-color" content="#c9f26b">
 <meta name="description" content="Greenstreets helps everyone in the packaged-goods chain keep PPWR packaging data ready, complete and easy to share.">
 <link rel="icon" href="../img/greenstreet-favicon.png">
@@ -171,6 +171,61 @@ html[data-logo-tone="ink"] .logo img{filter:brightness(0)}
 
 .eu-flag{position:absolute;top:0;right:0;z-index:3;width:80px;height:auto;border-radius:6px;box-shadow:0 8px 18px -6px rgba(0,0,0,.45);pointer-events:none}
 
+/* ── Treadmill scene: boxes ride from the trucker to Europe, every one checked on the way ──
+   Everything is sized in cqw (1% of the scene width) so the whole drawing scales as one piece. */
+.scene{container-type:inline-size;position:relative;width:100%;max-width:600px;margin:0 auto;aspect-ratio:100/78}
+.scene>*{position:absolute}
+.sc-shadow{background:radial-gradient(closest-side,color-mix(in srgb,var(--ink) 28%,transparent),transparent);height:5cqw;top:67.6cqw;border-radius:50%}
+.sc-shadow.a{left:0;width:36cqw}.sc-shadow.b{left:34cqw;width:32cqw}.sc-shadow.c{left:68cqw;width:32cqw}
+
+/* belt */
+.sc-leg{width:2.2cqw;height:9.4cqw;top:60.6cqw;background:var(--ink);border-radius:.4cqw .4cqw 0 0}
+.sc-leg.l{left:27cqw}.sc-leg.r{left:70.8cqw}
+.sc-leg::after{content:"";position:absolute;left:-1.6cqw;right:-1.6cqw;bottom:0;height:.9cqw;border-radius:.5cqw;background:var(--ink)}
+.sc-belt{left:17cqw;width:66cqw;top:52cqw;height:9cqw;border-radius:4.5cqw;background:var(--ink);overflow:hidden}
+.sc-tread{position:absolute;left:0;right:0;top:0;height:2.6cqw;background:repeating-linear-gradient(90deg,color-mix(in srgb,var(--ground) 38%,transparent) 0 1.4cqw,transparent 1.4cqw 6cqw);animation:tread .667s linear infinite}
+.sc-tread.low{top:auto;bottom:0;animation-direction:reverse}
+@keyframes tread{to{background-position-x:-6cqw}}
+.sc-roller{top:52.6cqw;width:7.8cqw;height:7.8cqw;border-radius:50%;background:var(--ink);border:.9cqw solid color-mix(in srgb,var(--ground) 45%,var(--ink))}
+.sc-roller::after{content:"";position:absolute;left:50%;top:.6cqw;bottom:.6cqw;width:.8cqw;margin-left:-.4cqw;border-radius:.4cqw;background:color-mix(in srgb,var(--ground) 60%,var(--ink))}
+.sc-roller.l{left:17cqw;animation:roll 1.1s linear infinite}.sc-roller.r{left:75.2cqw;animation:roll 1.1s linear infinite}
+@keyframes roll{to{transform:rotate(-360deg)}}
+
+/* boxes */
+.sc-clip{left:22cqw;width:56cqw;top:28cqw;height:26cqw;overflow:hidden}
+.sc-box{position:absolute;left:0;bottom:2.1cqw;width:20cqw;transform:translateX(calc(var(--x,60) * 1cqw));will-change:transform}
+.sc-box img{display:block;width:100%;height:auto;filter:drop-shadow(0 .6cqw .5cqw rgba(0,0,0,.28))}
+.sc-ok{position:absolute;top:-2.4cqw;right:-1.8cqw;width:6.6cqw;height:6.6cqw;border-radius:50%;background:var(--stamp);color:var(--ground);display:grid;place-items:center;transform:scale(0);box-shadow:0 .5cqw 1cqw -.3cqw rgba(0,0,0,.4)}
+.sc-ok svg{width:62%;height:62%}
+.sc-box.ok .sc-ok{transform:none;animation:pop .55s var(--ease)}
+@keyframes pop{from{transform:scale(0) rotate(-30deg)}60%{transform:scale(1.18)}to{transform:none}}
+
+/* characters: europe receives on the left, the trucker sends on the right, eyes meeting across the belt */
+.sc-eu{left:-1cqw;top:36cqw;width:35cqw;transform-origin:50% 100%}
+.sc-tr{left:71.5cqw;top:36.6cqw;width:29cqw;transform-origin:50% 100%}
+.sc-eu img,.sc-tr img{display:block;width:100%;height:auto;transform-origin:50% 100%;animation:sway 3.6s ease-in-out infinite}
+.sc-tr img{animation-delay:-1.8s}
+@keyframes sway{0%,100%{transform:rotate(-1.1deg) scaleY(1)}50%{transform:rotate(1.1deg) scaleY(.984)}}
+.sc-eu.hop{animation:hop .55s var(--ease)}
+@keyframes hop{30%{transform:translateY(-2.6cqw) scaleY(1.04)}65%{transform:translateY(0) scaleY(.96)}100%{transform:none}}
+
+/* compliance sheet above the belt */
+.sc-paper{left:35cqw;top:0;width:30cqw;height:30.6cqw;transform:rotate(-2deg);animation:bob 4.5s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-1cqw) rotate(1.5deg)}}
+.sc-paper svg{display:block;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 1cqw 1.4cqw rgba(0,0,0,.25))}
+.sc-sheet{fill:color-mix(in srgb,var(--ground) 14%,#fff)}
+.sc-fold{fill:color-mix(in srgb,var(--ground) 40%,#fff)}
+.sc-bar{fill:color-mix(in srgb,var(--ink) 26%,transparent)}
+.sc-bar.h{fill:var(--ink)}
+.sc-circ{fill:none;stroke:color-mix(in srgb,var(--ink) 35%,transparent);stroke-width:2}
+.sc-ck{fill:none;stroke:var(--stamp);stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+.sc-paper.run .sc-ck{stroke-dasharray:1;animation:tick .4s var(--ease) both}
+.sc-paper.run .sc-ck:nth-of-type(2){animation-delay:.2s}.sc-paper.run .sc-ck:nth-of-type(3){animation-delay:.4s}
+@keyframes tick{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+.sc-beam{left:44cqw;width:12cqw;top:30cqw;height:8cqw;background:linear-gradient(180deg,color-mix(in srgb,var(--stamp) 55%,transparent),transparent);clip-path:polygon(35% 0,65% 0,100% 100%,0 100%);opacity:0}
+.sc-paper.run~.sc-beam{animation:beam 1s ease-out}
+@keyframes beam{0%{opacity:0}20%{opacity:.9}100%{opacity:0}}
+
 /* responsive */@media(max-width:1020px){
   .hero-body{grid-template-columns:1fr}
   .nav-links{display:none}
@@ -327,78 +382,28 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
     </div>
 
     <div class="visuals">
-      <svg class="eu-flag" viewBox="0 0 300 200" width="80" height="53" aria-hidden="true" focusable="false"><rect width="300" height="200" rx="10" fill="#003399"/><g fill="#FFCC00"><polygon points="150.0,23.0 152.5,30.6 160.5,30.6 154.0,35.3 156.5,42.9 150.0,38.2 143.5,42.9 146.0,35.3 139.5,30.6 147.5,30.6"/><polygon points="183.0,31.8 185.5,39.4 193.5,39.4 187.0,44.1 189.5,51.7 183.0,47.0 176.5,51.7 179.0,44.1 172.5,39.4 180.5,39.4"/><polygon points="207.2,56.0 209.6,63.6 217.6,63.6 211.2,68.3 213.6,75.9 207.2,71.2 200.7,75.9 203.2,68.3 196.7,63.6 204.7,63.6"/><polygon points="216.0,89.0 218.5,96.6 226.5,96.6 220.0,101.3 222.5,108.9 216.0,104.2 209.5,108.9 212.0,101.3 205.5,96.6 213.5,96.6"/><polygon points="207.2,122.0 209.6,129.6 217.6,129.6 211.2,134.3 213.6,141.9 207.2,137.2 200.7,141.9 203.2,134.3 196.7,129.6 204.7,129.6"/><polygon points="183.0,146.2 185.5,153.8 193.5,153.8 187.0,158.5 189.5,166.1 183.0,161.4 176.5,166.1 179.0,158.5 172.5,153.8 180.5,153.8"/><polygon points="150.0,155.0 152.5,162.6 160.5,162.6 154.0,167.3 156.5,174.9 150.0,170.2 143.5,174.9 146.0,167.3 139.5,162.6 147.5,162.6"/><polygon points="117.0,146.2 119.5,153.8 127.5,153.8 121.0,158.5 123.5,166.1 117.0,161.4 110.5,166.1 113.0,158.5 106.5,153.8 114.5,153.8"/><polygon points="92.8,122.0 95.3,129.6 103.3,129.6 96.8,134.3 99.3,141.9 92.8,137.2 86.4,141.9 88.8,134.3 82.4,129.6 90.4,129.6"/><polygon points="84.0,89.0 86.5,96.6 94.5,96.6 88.0,101.3 90.5,108.9 84.0,104.2 77.5,108.9 80.0,101.3 73.5,96.6 81.5,96.6"/><polygon points="92.8,56.0 95.3,63.6 103.3,63.6 96.8,68.3 99.3,75.9 92.8,71.2 86.4,75.9 88.8,68.3 82.4,63.6 90.4,63.6"/><polygon points="117.0,31.8 119.5,39.4 127.5,39.4 121.0,44.1 123.5,51.7 117.0,47.0 110.5,51.7 113.0,44.1 106.5,39.4 114.5,39.4"/></g></svg>
-      <!-- Default visual: the packaging record on the moulded base-mark -->
-      <div class="visual visual-lib">
-        <h2 class="sr">Packaging record, shipping carton</h2>
-        <svg class="dieline" viewBox="0 0 600 510" role="img" aria-label="A shipping carton laid flat as a dieline, with five numbered callouts: material, weight, recycled content, recyclability and supplier. Four are complete and recycled content is requested from the supplier.">
-          <g class="board-g">
-            <!-- glue tab -->
-            <path class="board" pathLength="1" d="M110 188 L86 204 L86 318 L110 334 Z"/>
-            <!-- body panels -->
-            <path class="board" pathLength="1" d="M110 172 H205 V350 H110 Z"/>
-            <path class="board" pathLength="1" d="M205 172 H300 V350 H205 Z"/>
-            <path class="board" pathLength="1" d="M300 172 H395 V350 H300 Z"/>
-            <path class="board" pathLength="1" d="M395 172 H490 V350 H395 Z"/>
-            <!-- top flaps -->
-            <path class="board" pathLength="1" d="M110 172 L116 112 Q117 104 125 104 H190 Q198 104 199 112 L205 172 Z"/>
-            <path class="board" pathLength="1" d="M205 172 L211 112 Q212 104 220 104 H285 Q293 104 294 112 L300 172 Z"/>
-            <path class="board" pathLength="1" d="M300 172 L306 112 Q307 104 315 104 H380 Q388 104 389 112 L395 172 Z"/>
-            <path class="board" pathLength="1" d="M395 172 L401 112 Q402 104 410 104 H475 Q483 104 484 112 L490 172 Z"/>
-            <!-- bottom flaps -->
-            <path class="board" pathLength="1" d="M110 350 L116 410 Q117 418 125 418 H190 Q198 418 199 410 L205 350 Z"/>
-            <path class="board" pathLength="1" d="M205 350 L211 410 Q212 418 220 418 H285 Q293 418 294 410 L300 350 Z"/>
-            <path class="board" pathLength="1" d="M300 350 L306 410 Q307 418 315 418 H380 Q388 418 389 410 L395 350 Z"/>
-            <path class="board" pathLength="1" d="M395 350 L401 410 Q402 418 410 418 H475 Q483 418 484 410 L490 350 Z"/>
-          </g>
-          <!-- fold lines -->
-          <path class="fold" d="M205 172V350M300 172V350M395 172V350M110 172H490M110 350H490"/>
-
-          <!-- panel 2: material mark -->
-          <path class="mark" d="M252 206 L278 252 M270 262 L234 262 M226 252 L240 228" />
-          <text class="big" x="252" y="292">PAP 20</text>
-          <text class="cap" x="252" y="314">BOARD</text>
-          <!-- panel 3: weight -->
-          <text class="big" x="347" y="268">420 g</text>
-          <text class="cap" x="347" y="292">NET</text>
-          <!-- panel 4: printed label lines -->
-          <path class="print" d="M418 222H466M418 242H458M418 262H466M418 282H450"/>
-          <!-- panel 1: supplier label -->
-          <rect x="130" y="222" width="55" height="52" rx="3" fill="none" stroke="currentColor" stroke-width="3"/>
-          <path class="print" d="M140 238H175M140 250H168M140 262H175"/>
-          <!-- missing field: recycled content, top flap of panel 4 -->
-          <rect class="gap" x="418" y="122" width="52" height="30" rx="3"/>
-
-          <!-- leaders -->
-          <path class="lead" d="M252 62V204M347 62V240M444 62V122M444 458V300M157 458V276"/>
-          <circle class="dot" cx="252" cy="204" r="4"/><circle class="dot" cx="347" cy="240" r="4"/><circle class="dot" cx="444" cy="300" r="4"/><circle class="dot" cx="157" cy="276" r="4"/>
-
-          <!-- callouts -->
-          <g class="pins">
-            <g><circle class="pin" cx="252" cy="46" r="17"/><text class="pin-n" x="252" y="46">1</text></g>
-            <g><circle class="pin" cx="347" cy="46" r="17"/><text class="pin-n" x="347" y="46">2</text></g>
-            <g><circle class="pin-open" cx="444" cy="46" r="17"/><text class="pin-open-n" x="444" y="46">3</text></g>
-            <g><circle class="pin" cx="444" cy="474" r="17"/><text class="pin-n" x="444" y="474">4</text></g>
-            <g><circle class="pin" cx="157" cy="474" r="17"/><text class="pin-n" x="157" y="474">5</text></g>
-          </g>
-        </svg>
-
-        <ol class="record">
-          <li><span class="n">1</span><span><b>Material</b><small>PAP 20 · Corrugated board</small></span><span class="tag tag-ok">Complete</span></li>
-          <li><span class="n">2</span><span><b>Weight</b><small>420 g</small></span><span class="tag tag-ok">Complete</span></li>
-          <li class="miss"><span class="n">3</span><span><b>Recycled content</b><small>Requested from supplier</small></span><span class="tag tag-warn">Requested</span></li>
-          <li><span class="n">4</span><span><b>Recyclability</b><small>Confirmed</small></span><span class="tag tag-ok">Complete</span></li>
-          <li><span class="n">5</span><span><b>Supplier</b><small>Data complete</small></span><span class="tag tag-ok">Complete</span></li>
-        </ol>
-        <p class="illus">Illustrative product preview</p>
-      </div>
-
-      <!-- "PPWR made easy" (proposal 3) swaps in the supplied illustration -->
-      <div class="visual visual-eu off">
-        <div class="eu-plate">
-          <img src="img/Importing_Goods_to_Europe.png" alt="Three stacks of shipping cartons, each with a compliant document, passing into the European Union." width="1536" height="1024">
+      <div class="visual visual-scene">
+        <h2 class="sr">Every box is checked as it passes</h2>
+        <div class="scene" role="img" aria-label="Boxes ride a conveyor belt from a trucker on the right to Europe on the left. A compliance sheet above the belt ticks off every box as it passes.">
+          <i class="sc-shadow a"></i><i class="sc-shadow b"></i><i class="sc-shadow c"></i>
+          <div class="sc-leg l"></div><div class="sc-leg r"></div>
+          <div class="sc-belt"><div class="sc-tread"></div><div class="sc-tread low"></div></div>
+          <div class="sc-roller l"></div><div class="sc-roller r"></div>
+          <div class="sc-clip" id="scClip"></div>
+          <div class="sc-eu" id="scEu"><img src="img/Europe-ball-s.png" width="480" height="480" alt=""></div>
+          <div class="sc-tr"><img src="img/trucker-s.png" width="420" height="497" alt=""></div>
+          <div class="sc-paper" id="scPaper">
+            <svg viewBox="0 0 100 102" aria-hidden="true">
+              <path class="sc-sheet" d="M6 4h66l22 22v72H6z"/>
+              <path class="sc-fold" d="M72 4v22h22z"/>
+              <rect class="sc-bar h" x="16" y="14" width="40" height="6" rx="3"/>
+              <circle class="sc-circ" cx="22" cy="42" r="8"/><path class="sc-ck" pathLength="1" d="M17.5 42.5l3.6 3.6 6.4-7.6"/><rect class="sc-bar" x="36" y="39" width="42" height="6" rx="3"/>
+              <circle class="sc-circ" cx="22" cy="62" r="8"/><path class="sc-ck" pathLength="1" d="M17.5 62.5l3.6 3.6 6.4-7.6"/><rect class="sc-bar" x="36" y="59" width="34" height="6" rx="3"/>
+              <circle class="sc-circ" cx="22" cy="82" r="8"/><path class="sc-ck" pathLength="1" d="M17.5 82.5l3.6 3.6 6.4-7.6"/><rect class="sc-bar" x="36" y="79" width="40" height="6" rx="3"/>
+            </svg>
+          </div>
+          <div class="sc-beam"></div>
         </div>
-        
       </div>
     </div>
   </main>
@@ -427,10 +432,7 @@ LABELS.forEach(function(l,i){
 });
 /* Proposal 3 ("PPWR made easy") swaps the right-hand visual to the supplied illustration */
 var EU_PROPOSAL=2;
-function syncVisual(n){
-  document.querySelector('.visual-lib').classList.toggle('off',n===EU_PROPOSAL);
-  document.querySelector('.visual-eu').classList.toggle('off',n!==EU_PROPOSAL);
-}
+function syncVisual(n){}
 function go(n,dir){
   n=(n+items.length)%items.length;
   dir=dir||(n>cur?1:-1);
@@ -467,7 +469,7 @@ mb.addEventListener('click',function(){var o=mn.classList.toggle('open');mb.setA
 /* ── Theme widget ─────────────────────────────────────────────────────────
    Every control writes a CSS custom property or data-attribute on <html>; nothing else is touched. */
 (function(){
-  var KEY='gs-hero-theme-v1';
+  var KEY='gs-hero-theme-treadmill';
   var root=document.documentElement;
   /* ground, ink, accent, warn, euBg, logoBg, logoTone */
   var P=[
@@ -527,12 +529,6 @@ mb.addEventListener('click',function(){var o=mn.classList.toggle('open');mb.setA
       {k:'ink',t:'color',l:'Text',ratio:'ground'},
       {k:'accent',t:'color',l:'Accent (headline, tags, focus)',ratio:'ground'},
       {k:'warn',t:'color',l:'Missing-data highlight',ratio:'ground'}]},
-    {sec:'Europe illustration',open:true,items:[
-      {k:'euShape',t:'seg',l:'Backdrop',o:[['none','None'],['rounded','Rounded'],['circle','Circle']]},
-      {k:'euBg',t:'color',l:'Backdrop colour'},
-      {k:'euScale',t:'range',l:'Illustration size',min:60,max:160,u:'%'},
-      {k:'euRadius',t:'range',l:'Corner roundness',min:0,max:140,u:'px'},
-      {k:'euPad',t:'range',l:'Padding',min:0,max:80,u:'px'}]},
     {sec:'Logo',open:true,items:[
       {k:'logoBgOn',t:'toggle',l:'Logo background'},
       {k:'logoBg',t:'color',l:'Logo background colour'},
@@ -646,6 +642,48 @@ mb.addEventListener('click',function(){var o=mn.classList.toggle('open');mb.setA
   }
 
   build();apply();
+})();
+</script>
+<script>
+/* ── Treadmill scene: an endless belt of boxes, each checked at the centre ──
+   Units are cqw (percent of scene width), matching the CSS. Boxes enter at the trucker's end and leave behind Europe. */
+(function(){
+  var clip=document.getElementById('scClip'),paper=document.getElementById('scPaper'),eu=document.getElementById('scEu');
+  if(!clip)return;
+  var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var V=9,BW=20,GAP=30,LEN=56,CTR=18,boxes=[];
+  var OK='<span class="sc-ok"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.4l3 3 6-6.8"/></svg></span>';
+  function mk(x){
+    var d=document.createElement('div');d.className='sc-box';
+    d.innerHTML='<img src="img/Packpage-Box-s.png" width="440" height="318" alt="">'+OK;
+    d.style.setProperty('--x',x);clip.appendChild(d);
+    var b={el:d,x:x,ok:false};if(x<=CTR)approve(b,true);boxes.push(b);return b;
+  }
+  function approve(b,quiet){
+    b.ok=true;b.el.classList.add('ok');
+    if(quiet)return;
+    paper.classList.remove('run');void paper.offsetWidth;paper.classList.add('run');
+  }
+  function hop(){eu.classList.remove('hop');void eu.offsetWidth;eu.classList.add('hop')}
+  eu.addEventListener('animationend',function(){eu.classList.remove('hop')});
+
+  [LEN-12,LEN-12-GAP,LEN-12-2*GAP].forEach(mk);
+  if(reduce){paper.classList.remove('run');return}
+  document.querySelectorAll('.sc-tread').forEach(function(t){t.style.animationDuration=(6/V)+'s'});
+
+  var last=performance.now();
+  function frame(t){
+    var dt=Math.min((t-last)/1000,.1);last=t;
+    for(var i=boxes.length-1;i>=0;i--){
+      var b=boxes[i];b.x-=V*dt;b.el.style.setProperty('--x',b.x.toFixed(2));
+      if(!b.ok&&b.x<=CTR)approve(b);
+      if(b.x<-BW){b.el.remove();boxes.splice(i,1);hop()}
+    }
+    var right=boxes.reduce(function(m,b){return Math.max(m,b.x)},-999);
+    if(right<=LEN-GAP)mk(LEN);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
 })();
 </script>
 </body>

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-logo-bg="off" data-logo-tone="colour" data-motion="on" data-eu-shape="none">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Greenstreets — Landing hero</title>
-<meta name="theme-color" content="#c9f26b">
+<title>Greenstreets — Landing hero (Mint · Europe full bleed)</title>
+<meta name="theme-color" content="#bff0d8">
 <meta name="description" content="Greenstreets helps everyone in the packaged-goods chain keep PPWR packaging data ready, complete and easy to share.">
 <link rel="icon" href="../img/greenstreet-favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,13 +13,13 @@
 <style>
 :root{
   /* lime ground, deep-green ink: one material, one signal */
-  --ground:#c9f26b;--ground-lo:#b6e24f;
-  --ink:#0b2e1a;
+    --ink:#0b2e1a;
   --ink-2:color-mix(in srgb,var(--ink) 88%,transparent);--ink-3:color-mix(in srgb,var(--ink) 74%,transparent);
   --rule:color-mix(in srgb,var(--ink) 20%,transparent);--rule-2:color-mix(in srgb,var(--ink) 42%,transparent);
   --board:#e3f8a8;--eu-bg:#f6ffe0;--eu-scale:100;--eu-radius:56px;--eu-pad:18px;
   --logo-bg:#fff;--logo-radius:18px;--logo-pad:12px;--logo-h:84px;
   --h1-scale:1;--h1-wdth:108;--btn-r:10px;--noise:.1;
+  --ground:#bff0d8;--ground-lo:#a9d9c3;--ink:#0a2f26;--stamp:#0b6b57;--warn:#8a4200;--board:#d5f5e5;--eu-bg:#f1fffa;--eu-scale:145;--eu-radius:56px;--eu-pad:0px;--logo-bg:#ffffff;--logo-radius:45px;--logo-pad:23px;--logo-h:77px;--h1-scale:0.81;--h1-wdth:125;--btn-r:10px;--wrap:1240px;--noise:0.1;
   --stamp:#0f5238;            /* emphasis + focus on lime */
   --warn:#7a3f00;
   --ease:cubic-bezier(.22,1,.36,1);
@@ -395,7 +395,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
 
       <!-- "PPWR made easy" (proposal 3) swaps in the supplied illustration -->
       <div class="visual visual-eu off">
-        <div class="eu-plate">
+        <div class="eu-plate" data-shape="none">
           <img src="img/Importing_Goods_to_Europe.png" alt="Three stacks of shipping cartons, each with a compliant document, passing into the European Union." width="1536" height="1024">
         </div>
         
@@ -467,7 +467,7 @@ mb.addEventListener('click',function(){var o=mn.classList.toggle('open');mb.setA
 /* ── Theme widget ─────────────────────────────────────────────────────────
    Every control writes a CSS custom property or data-attribute on <html>; nothing else is touched. */
 (function(){
-  var KEY='gs-hero-theme-v1';
+  var KEY='gs-hero-theme-hero-mint-bleed';
   var root=document.documentElement;
   /* ground, ink, accent, warn, euBg, logoBg, logoTone */
   var P=[
@@ -487,10 +487,7 @@ mb.addEventListener('click',function(){var o=mn.classList.toggle('open');mb.setA
     ['Deep teal', '#0d4a4f','#e6fbfa','#ffd166','#ffb18a','#e6fbfa','#ffffff','white']
   ].map(function(a){return {name:a[0],ground:a[1],ink:a[2],accent:a[3],warn:a[4],euBg:a[5],logoBg:a[6],logoTone:a[7]}});
 
-  var DEF={preset:'Lime',ground:P[0].ground,ink:P[0].ink,accent:P[0].accent,warn:P[0].warn,
-    euShape:'rounded',euBg:P[0].euBg,euScale:100,euRadius:56,euPad:18,
-    logoBgOn:false,logoBg:'#ffffff',logoRadius:18,logoPad:12,logoSize:84,logoTone:'colour',
-    h1Scale:100,h1Wdth:108,btnRadius:10,wrap:1240,noise:10,boardMix:null,motion:true};
+  var DEF={"preset": "Mint", "ground": "#bff0d8", "ink": "#0a2f26", "accent": "#0b6b57", "euBg": "#f1fffa", "logoBgOn": false, "logoBg": "#ffffff", "logoRadius": 45, "logoPad": 23, "logoSize": 77, "logoTone": "colour", "h1Scale": 81, "h1Wdth": 125, "btnRadius": 10, "wrap": 1240, "noise": 10, "boardMix": null, "motion": true, "euRadius": 56, "warn": "#8a4200", "euShape": "none", "euScale": 145, "euPad": 0};
   var ST=JSON.parse(JSON.stringify(DEF));
   try{var sv=JSON.parse(localStorage.getItem(KEY)||'null');if(sv)for(var k in sv)if(k in DEF)ST[k]=sv[k]}catch(e){}
 
