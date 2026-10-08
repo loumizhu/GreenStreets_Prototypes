@@ -3335,6 +3335,37 @@
         height: 38px
       }
     }
+
+    @media(max-width:640px) {
+      .eu-card {
+        zoom: .6;
+        top: -15cqw
+      }
+
+      .chips {
+        flex-wrap: nowrap;
+        gap: 4px
+      }
+
+      .chip {
+        height: 24px;
+        padding: 0 7px;
+        gap: 4px;
+        font-size: 10px;
+        white-space: nowrap
+      }
+
+      .chip svg {
+        width: 11px;
+        height: 11px
+      }
+    }
+
+    @media(max-width:380px) {
+      .chip svg {
+        display: none
+      }
+    }
   </style>
 </head>
 
