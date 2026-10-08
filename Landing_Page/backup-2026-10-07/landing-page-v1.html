@@ -1,0 +1,2610 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <script>document.documentElement.classList.add("js")</script>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Greenstreets — PPWR made easy</title>
+  <meta name="description"
+    content="Greenstreets helps everyone in the packaged-goods chain keep PPWR packaging data ready, complete and easy to share.">
+  <link rel="icon" href="../img/greenstreet-favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gs: #4ebb81;
+      --gs-l: #8fe3b6;
+      --gs-d: #2f9c62;
+      --bg-0: #070f1c;
+      --bg-1: #0b1830;
+      --tw: #fff;
+      --tw2: rgba(255, 255, 255, .72);
+      --tw3: rgba(255, 255, 255, .5);
+      --line: rgba(255, 255, 255, .09);
+      --line-2: rgba(255, 255, 255, .16);
+      --glass: rgba(255, 255, 255, .05);
+      --amber: #f2b84b;
+      --blue: #5b9cf6;
+      --ease: cubic-bezier(.22, 1, .36, 1);
+      --wrap: 1240px;
+      --gutter: clamp(20px, 4vw, 48px);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    html {
+      scroll-behavior: smooth
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      color: var(--tw);
+      background: var(--bg-0);
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.5;
+      overflow-x: hidden
+    }
+
+    button {
+      font: inherit;
+      color: inherit;
+      background: none;
+      border: 0;
+      cursor: pointer
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--gs-l);
+      outline-offset: 3px;
+      border-radius: 8px
+    }
+
+    .wrap {
+      max-width: var(--wrap);
+      margin: 0 auto;
+      padding: 0 var(--gutter)
+    }
+
+    .sr {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap
+    }
+
+    /* ── Hero shell ───────────────────────────────────────────────────────── */
+    .hero {
+      position: relative;
+      min-height: calc(100svh - 41px);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      isolation: isolate;
+      background:
+        radial-gradient(900px 600px at 82% 18%, rgba(55, 225, 174, .16), transparent 60%),
+        radial-gradient(700px 500px at 8% 92%, rgba(78, 187, 129, .12), transparent 60%),
+        linear-gradient(180deg, var(--bg-1), var(--bg-0) 75%)
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      opacity: .5;
+      background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+      background-size: 64px 64px;
+      -webkit-mask-image: radial-gradient(ellipse 70% 60% at 60% 40%, #000, transparent 75%);
+      mask-image: radial-gradient(ellipse 70% 60% at 60% 40%, #000, transparent 75%)
+    }
+
+    /* nav */
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      min-height: 104px;
+      padding: 8px 0
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 18px;
+      letter-spacing: -.02em
+    }
+
+    .logo img {
+      height: 72px;
+      width: auto;
+      display: block
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 6px
+    }
+
+    .nav-links a {
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--tw2);
+      transition: color .2s, background .2s
+    }
+
+    .nav-links a:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, .07)
+    }
+
+    .nav-cta {
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    /* buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      height: 48px;
+      padding: 0 24px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      white-space: nowrap;
+      transition: transform .15s var(--ease), box-shadow .25s, background .2s, border-color .2s
+    }
+
+    .btn:active {
+      transform: scale(.97)
+    }
+
+    .btn-p {
+      color: #04160e;
+      background: linear-gradient(135deg, var(--gs-l), var(--gs));
+      box-shadow: 0 8px 28px -6px rgba(78, 187, 129, .55), inset 0 1px 0 rgba(255, 255, 255, .4)
+    }
+
+    .btn-p:hover {
+      box-shadow: 0 12px 36px -6px rgba(78, 187, 129, .75), inset 0 1px 0 rgba(255, 255, 255, .4);
+      transform: translateY(-1px)
+    }
+
+    .btn-p svg {
+      transition: transform .25s var(--ease)
+    }
+
+    .btn-p:hover svg {
+      transform: translateX(3px)
+    }
+
+    .btn-g {
+      color: #fff;
+      border: 1px solid var(--line-2);
+      background: var(--glass)
+    }
+
+    .btn-g:hover {
+      background: rgba(255, 255, 255, .1);
+      border-color: rgba(255, 255, 255, .32)
+    }
+
+    .btn-sm {
+      height: 38px;
+      padding: 0 16px;
+      font-size: 14px;
+      border-radius: 10px
+    }
+
+    .btn-link {
+      color: var(--tw2);
+      height: 38px;
+      padding: 0 14px;
+      font-size: 14px;
+      font-weight: 500;
+      border-radius: 10px
+    }
+
+    .btn-link:hover {
+      color: #fff
+    }
+
+    /* layout */
+    .hero-body {
+      flex: 1;
+      display: grid;
+      grid-template-columns: minmax(0, .86fr) minmax(0, 1.14fr);
+      align-items: center;
+      gap: clamp(32px, 5vw, 72px);
+      padding-top: clamp(24px, 5vh, 56px);
+      padding-bottom: clamp(40px, 7vh, 80px)
+    }
+
+    /* copy */
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      height: 30px;
+      padding: 0 14px 0 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(78, 187, 129, .35);
+      background: rgba(78, 187, 129, .1);
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--gs-l);
+      letter-spacing: .01em
+    }
+
+    .eyebrow i {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--gs);
+      box-shadow: 0 0 0 4px rgba(78, 187, 129, .22)
+    }
+
+    .h1 {
+      margin: 22px 0 0;
+      font-size: clamp(2.6rem, 5.6vw, 4.9rem);
+      line-height: 1.02;
+      letter-spacing: -.035em;
+      font-weight: 700;
+      text-wrap: balance
+    }
+
+    .h1 em {
+      font-style: normal;
+      background: linear-gradient(100deg, var(--gs-l) 10%, #37e1ae 60%, var(--gs) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      padding-bottom: .08em
+    }
+
+    .lede {
+      margin-top: 24px;
+      max-width: 34em;
+      font-size: clamp(1.05rem, 1.45vw, 1.25rem);
+      line-height: 1.55;
+      color: var(--tw2)
+    }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 34px
+    }
+
+    .audience {
+      margin-top: 44px;
+      padding-top: 24px;
+      border-top: 1px solid var(--line);
+      max-width: 36em
+    }
+
+    .audience p {
+      font-size: 14px;
+      color: var(--tw3);
+      margin-bottom: 12px
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      height: 32px;
+      padding: 0 13px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--tw2);
+      border: 1px solid var(--line);
+      background: var(--glass)
+    }
+
+    .chip svg {
+      width: 14px;
+      height: 14px;
+      color: var(--gs-l)
+    }
+
+    /* ── Illustration: boxes → compliant paperwork → Europe ────────────────
+   Everything inside .scene is sized in cqw so the composition scales as one
+   piece. Base styles are the FINAL, fully-visible state; keyframes only
+   animate away from/back to it, so reduced-motion shows the finished art. */
+    .visual {
+      position: relative
+    }
+
+    .scene {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 3/2;
+      container-type: inline-size
+    }
+
+    .scene img {
+      position: absolute;
+      display: block;
+      user-select: none;
+      -webkit-user-drag: none
+    }
+
+    .mapw {
+      position: absolute;
+      right: -22cqw;
+      top: 33%;
+      width: 88.4cqw;
+      transform: translateY(-50%);
+      filter: drop-shadow(0 0 3cqw rgba(30, 90, 230, .55));
+      animation: mapGlow 8s ease-in-out infinite
+    }
+
+    .mapw .map {
+      position: static;
+      width: 100%
+    }
+
+    /* 12 stars rebuilt in SVG on the map's own 820x968 pixel grid, at the measured positions of the flag ring */
+    .stars {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      pointer-events: none
+    }
+
+    .stars .ring {
+      transform-box: view-box;
+      transform-origin: 414.6px 588.2px
+    }
+
+    .stars polygon {
+      fill: #ffcc00;
+      transform-box: fill-box;
+      transform-origin: center
+    }
+
+    .map-halo {
+      position: absolute;
+      right: -8cqw;
+      top: 50%;
+      width: 72cqw;
+      aspect-ratio: 1;
+      transform: translateY(-50%);
+      border-radius: 50%;
+      background: radial-gradient(closest-side, rgba(55, 140, 255, .35), transparent 70%);
+      pointer-events: none;
+      animation: haloPulse 8s ease-in-out infinite
+    }
+
+    .row {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: var(--y);
+      height: 22cqw;
+      --d: 0s
+    }
+
+    .r1 {
+      --y: 2cqw
+    }
+
+    .r2 {
+      --y: 21.5cqw;
+      --d: .9s
+    }
+
+    .r3 {
+      --y: 41cqw;
+      --d: 1.8s
+    }
+
+    /* boxes: three stacked cartons, gentle idle bob */
+    .boxes {
+      position: absolute;
+      left: var(--bx);
+      top: 3cqw;
+      width: 22cqw;
+      height: 17cqw
+    }
+
+    .boxes img {
+      filter: drop-shadow(0 1.2cqw 1.4cqw rgba(0, 0, 0, .4))
+    }
+
+    .boxes .b1 {
+      left: 0;
+      top: 2.2cqw;
+      width: 10cqw;
+      animation: bobS 6s ease-in-out calc(var(--d)*-1) infinite
+    }
+
+    .boxes .b2 {
+      left: 5cqw;
+      top: .8cqw;
+      width: 10.5cqw;
+      animation: bobS 6s ease-in-out calc(var(--d)*-1 - 1.5s) infinite
+    }
+
+    .boxes .b3 {
+      left: 8.5cqw;
+      top: 3.4cqw;
+      width: 13.5cqw;
+      animation: bobS 6s ease-in-out calc(var(--d)*-1 - 3s) infinite;
+      z-index: 2
+    }
+
+    .r1 {
+      --bx: 1cqw
+    }
+
+    .r2 {
+      --bx: 4cqw
+    }
+
+    .r3 {
+      --bx: 1cqw
+    }
+
+    /* arrows: wiped in left→right, then a light sweep keeps the data "moving".
+   .flow is the clip box; sized from its own artwork. */
+    .flow {
+      position: absolute;
+      left: var(--ax);
+      top: var(--ay);
+      width: var(--aw);
+      aspect-ratio: var(--ar);
+      overflow: hidden
+    }
+
+    .flow img {
+      position: absolute;
+      top: 0;
+      left: var(--il, 0);
+      width: var(--iw, 100%);
+      height: 100%
+    }
+
+    .flow .sheen {
+      filter: brightness(2.4) saturate(.45);
+      opacity: .9;
+      -webkit-mask-image: linear-gradient(100deg, transparent 38%, #000 50%, transparent 62%);
+      mask-image: linear-gradient(100deg, transparent 38%, #000 50%, transparent 62%);
+      -webkit-mask-size: 300% 100%;
+      mask-size: 300% 100%;
+      -webkit-mask-repeat: no-repeat;
+      mask-repeat: no-repeat;
+    }
+
+    .r1 .flow {
+      --ax: 20cqw;
+      --ay: 2.9cqw;
+      --aw: 34cqw;
+      --ar: 440/247
+    }
+
+    .r2 .flow {
+      --ax: 23cqw;
+      --ay: 1.5cqw;
+      --aw: 31cqw;
+      --ar: 409/201
+    }
+
+    .r3 .flow {
+      --ax: 20cqw;
+      --ay: -.2cqw;
+      --aw: 33cqw;
+      --ar: 333/133
+    }
+
+    /* paperwork + stamped label */
+    .doc {
+      position: absolute;
+      left: var(--dx);
+      top: var(--dy);
+      width: 11.5cqw;
+      animation: bobS 7s ease-in-out calc(var(--d)*-1) infinite
+    }
+
+    .r1 .doc {
+      --dx: 25cqw;
+      --dy: 1.5cqw
+    }
+
+    .r2 .doc {
+      --dx: 28cqw;
+      --dy: 2.5cqw
+    }
+
+    .r3 .doc {
+      --dx: 25cqw;
+      --dy: 3cqw
+    }
+
+    .doc .paper {
+      position: static;
+      width: 100%;
+      filter: drop-shadow(0 1cqw 1.2cqw rgba(0, 0, 0, .35))
+    }
+
+    .stamp {
+      position: absolute;
+      left: -3.5cqw;
+      top: -4cqw;
+      width: 15cqw;
+      transform: rotate(-5deg);
+      transform-origin: 50% 60%
+    }
+
+    .stamp svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      overflow: visible;
+      filter: drop-shadow(0 .6cqw .8cqw rgba(0, 0, 0, .35))
+    }
+
+    .stamp .pill-bg {
+      fill: #e9f2fb;
+      stroke: #7e9bb9;
+      stroke-width: 3
+    }
+
+    .stamp .pill-in {
+      fill: none;
+      stroke: #fff;
+      stroke-width: 1.5;
+      opacity: .9
+    }
+
+    .stamp text {
+      font: 800 27px 'Inter', sans-serif;
+      fill: #3f9a5a;
+      letter-spacing: -.01em
+    }
+
+    .stamp .tick-bg {
+      fill: var(--gs);
+      stroke: #e9f2fb;
+      stroke-width: 3
+    }
+
+    .stamp .tick {
+      fill: none;
+      stroke: #04160e;
+      stroke-width: 3.4;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 22
+    }
+
+    .stamp .glint {
+      fill: url(#glintG)
+    }
+
+    /* compliance card, laid over the artwork */
+    .eu-card {
+      position: absolute;
+      right: 0;
+      top: -17cqw;
+      width: min(300px, 52cqw);
+      animation: bob 7s ease-in-out infinite
+      z-index: 5
+    }
+
+    .float {
+      border-radius: 16px;
+      border: 1px solid var(--line-2);
+      background: rgba(11, 24, 48, .84);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 24px 60px -12px rgba(0, 0, 0, .6);
+      padding: 14px 16px
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 24px;
+      padding: 0 10px;
+      border-radius: 999px;
+      font-size: 11.5px;
+      font-weight: 600;
+      white-space: nowrap
+    }
+
+    .pill::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor
+    }
+
+    .pill-ok {
+      color: var(--gs-l);
+      background: rgba(78, 187, 129, .14)
+    }
+
+    .ico {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      background: rgba(78, 187, 129, .12);
+      color: var(--gs-l)
+    }
+
+    .ico svg {
+      width: 18px;
+      height: 18px
+    }
+
+    .eu-card-top {
+      display: grid;
+      grid-template-columns: 36px 1fr auto;
+      gap: 12px;
+      align-items: center
+    }
+
+    .eu-card-top b {
+      display: block;
+      font-size: 13.5px;
+      font-weight: 600
+    }
+
+    .eu-card-top small {
+      font-size: 12px;
+      color: var(--tw3)
+    }
+
+    .checks {
+      list-style: none;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+      display: grid;
+      gap: 8px
+    }
+
+    .checks li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12.5px;
+      color: var(--tw2)
+    }
+
+    .checks li::before {
+      content: "";
+      flex: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--gs) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%2304160e' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4.5 8.3 2.3 2.3 4.7-4.9'/%3E%3C/svg%3E") center/12px no-repeat
+    }
+
+    .net-card {
+      position: absolute;
+      right: 0;
+      bottom: -13cqw;
+      width: min(212px, 36cqw);
+      animation: bob 8s ease-in-out -3s infinite
+      z-index: 5
+    }
+
+    .net-card h3 {
+      font-size: 12.5px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .net-card p {
+      font-size: 12px;
+      color: var(--tw3);
+      margin-top: 4px
+    }
+
+    .net-svg {
+      display: block;
+      width: 100%;
+      height: 84px;
+      margin-top: 6px
+    }
+
+    .net-svg .edge {
+      stroke: rgba(143, 227, 182, .45);
+      stroke-width: 1.2;
+      stroke-dasharray: 3 4;
+      animation: flow 2.4s linear infinite
+    }
+
+    .net-svg .node {
+      fill: var(--bg-1);
+      stroke: var(--gs-l);
+      stroke-width: 1.6;
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: grow 4.8s ease-in-out infinite
+    }
+
+    .net-svg .n2 {
+      animation-delay: .5s
+    }
+
+    .net-svg .n3 {
+      animation-delay: 1s
+    }
+
+    .net-svg .n4 {
+      animation-delay: 1.5s
+    }
+
+    .net-svg .n5 {
+      animation-delay: 2s
+    }
+
+    .net-svg .n6 {
+      animation-delay: 2.5s
+    }
+
+    .net-svg .core {
+      fill: var(--gs);
+      stroke: none
+    }
+
+    @keyframes flow {
+      to {
+        stroke-dashoffset: -14
+      }
+    }
+
+    @keyframes grow {
+
+      0%,
+      100% {
+        transform: scale(1)
+      }
+
+      30% {
+        transform: scale(1.35)
+      }
+    }
+
+    .share-btn {
+      position: absolute;
+      left: 0;
+      bottom: -13cqw;
+      z-index: 5;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      height: 34px;
+      padding: 0 14px 0 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line-2);
+      background: rgba(11, 24, 48, .84);
+      backdrop-filter: blur(12px);
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--tw2);
+      box-shadow: 0 12px 30px -10px rgba(0, 0, 0, .6);
+      transition: background .2s, border-color .2s, color .2s, transform .15s var(--ease)
+    }
+
+    .share-btn:hover {
+      background: rgba(255, 255, 255, .12);
+      border-color: rgba(255, 255, 255, .32);
+      color: #fff
+    }
+
+    .share-btn:active {
+      transform: scale(.96)
+    }
+
+    .share-btn svg {
+      width: 14px;
+      height: 14px;
+      color: var(--gs-l)
+    }
+
+    .share-btn.done {
+      color: var(--gs-l);
+      border-color: rgba(78, 187, 129, .5)
+    }
+
+    /* TIMING CHAIN (s) — each element starts when the previous is ~75% done, never at the same moment:
+   headline .1–1.3 · cartons .4–1.15 · arrows .8–1.45 · map 1.2–1.7 · stars 1.55–2.3 · papers 2.1–2.6
+   · labels 2.3–2.85 (tick/glint follow) · shipping card 2.8–3.45 · network card 3.3–3.95 · share 3.7–4.1 */
+/* ── Intro: plays ONCE on load. Tightly overlapped — each step starts while the previous one is still finishing.
+   headline 0.1s → cartons slide in top/mid/bottom 0.35s → arrows 0.8s → map 1.2s → papers 1.45s → labels 1.65s
+   → shipping-carton card (top→bottom) 2.5s → network card (bottom→top) 3.0s → share button 3.5s.
+   Everything else on the page just fades in place at 0s. Base styles are the finished state; animations use
+   fill "backwards" so elements wait hidden for their turn, and prefers-reduced-motion shows the finished art. */
+    .r1 {
+      --i: 0
+    }
+
+    .r2 {
+      --i: 1
+    }
+
+    .r3 {
+      --i: 2
+    }
+
+    .nav,
+    .eyebrow,
+    .lede,
+    .cta-row,
+    .audience,
+    .scroll-cue {
+      animation: fade 1.4s ease-out backwards
+    }
+
+    .h1 {
+      animation: wipeR 1.2s cubic-bezier(.16, 1, .3, 1) .1s backwards
+    }
+
+    .boxes {
+      animation: boxIn .45s cubic-bezier(.34, 1.4, .64, 1) calc(.4s + var(--i)*.1s) backwards
+    }
+
+    .flow {
+      animation: wipe .35s cubic-bezier(.4, 0, .2, 1) calc(.8s + var(--i)*.1s) backwards
+    }
+
+    .mapw {
+      animation: mapIn .5s cubic-bezier(.16, 1, .3, 1) 1.2s backwards, mapGlow 8s ease-in-out 1.7s infinite
+    }
+
+    /* stars: spin in like a wheel the moment the last arrow lands (~1.1s), then a glint travels
+       around the ring, clockwise, looping in step with the arrow sweeps */
+    .stars .ring {
+      animation: starsWheel .75s cubic-bezier(.16, 1, .3, 1) 1.55s backwards
+    }
+
+    .stars polygon {
+      animation: starGlow 3.2s ease-in-out calc(3.1s + var(--k)*.2s) infinite
+    }
+
+    @keyframes starsWheel {
+      from {
+        opacity: 0;
+        transform: rotate(-240deg) scale(.3)
+      }
+
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
+
+    @keyframes starGlow {
+
+      0%,
+      34%,
+      100% {
+        fill: #ffcc00;
+        transform: none;
+        filter: none
+      }
+
+      12% {
+        fill: #fff3b0;
+        transform: scale(1.4);
+        filter: drop-shadow(0 0 7px rgba(255, 226, 120, .95))
+      }
+    }
+
+    .map-halo {
+      animation: mapIn .5s cubic-bezier(.16, 1, .3, 1) 1.2s backwards, haloPulse 8s ease-in-out 1.7s infinite
+    }
+
+    .paper {
+      animation: shrinkIn .3s cubic-bezier(.16, 1, .3, 1) calc(2.1s + var(--i)*.1s) backwards
+    }
+
+    .stamp {
+      animation: labelIn .35s cubic-bezier(.34, 1.4, .64, 1) calc(2.3s + var(--i)*.1s) backwards
+    }
+
+    .tick {
+      animation: tick .22s ease-out calc(2.55s + var(--i)*.1s) backwards
+    }
+
+    .glint {
+      animation: glint .5s ease-in-out calc(2.65s + var(--i)*.1s) backwards
+    }
+
+    .eu-card {
+      animation: cardDown .65s cubic-bezier(.16, 1, .3, 1) 2.8s backwards, bob 7s ease-in-out 3.45s infinite
+    }
+
+    .eu-card .eu-card-top {
+      animation: fadeIn .3s ease-out 2.9s backwards
+    }
+
+    .checks li {
+      animation: fadeIn .25s ease-out backwards
+    }
+
+    .checks li:nth-child(1) {
+      animation-delay: 3.0s
+    }
+
+    .checks li:nth-child(2) {
+      animation-delay: 3.08s
+    }
+
+    .checks li:nth-child(3) {
+      animation-delay: 3.16s
+    }
+
+    .checks li:nth-child(4) {
+      animation-delay: 3.24s
+    }
+
+    .net-card {
+      animation: cardUp .65s cubic-bezier(.16, 1, .3, 1) 3.3s backwards, bob 8s ease-in-out 3.95s infinite
+    }
+
+    .share-btn {
+      animation: riseIn .4s cubic-bezier(.16, 1, .3, 1) 3.7s backwards
+    }
+
+    .flow .sheen {
+      animation: sweep 3.2s ease-in-out calc(2.3s + var(--i)*.3s) infinite both
+    }
+
+    @keyframes fade {
+      from {
+        opacity: 0
+      }
+
+      to {
+        opacity: 1
+      }
+    }
+
+    @keyframes wipeR {
+      from {
+        clip-path: inset(-8% 100% -8% 0);
+        transform: translateX(-24px)
+      }
+
+      to {
+        clip-path: inset(-8% -3% -8% 0);
+        transform: none
+      }
+    }
+
+    @keyframes boxIn {
+      from {
+        opacity: 0;
+        transform: translateX(-10cqw)
+      }
+
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
+
+    @keyframes wipe {
+      from {
+        clip-path: inset(0 100% 0 0)
+      }
+
+      to {
+        clip-path: inset(0)
+      }
+    }
+
+    @keyframes mapIn {
+      from {
+        opacity: 0;
+        transform: translateY(-50%) scale(.9)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(-50%)
+      }
+    }
+
+    @keyframes shrinkIn {
+      from {
+        opacity: 0;
+        transform: scale(1.5)
+      }
+
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
+
+    @keyframes labelIn {
+      from {
+        opacity: 0;
+        transform: rotate(-12deg) scale(1.8)
+      }
+
+      to {
+        opacity: 1;
+        transform: rotate(-5deg) scale(1)
+      }
+    }
+
+    @keyframes tick {
+      from {
+        stroke-dashoffset: 22
+      }
+
+      to {
+        stroke-dashoffset: 0
+      }
+    }
+
+    @keyframes glint {
+      from {
+        transform: translateX(-120px) skewX(-20deg)
+      }
+
+      to {
+        transform: translateX(260px) skewX(-20deg)
+      }
+    }
+
+    @keyframes cardDown {
+      from {
+        opacity: 0;
+        clip-path: inset(0 0 100% 0)
+      }
+
+      to {
+        opacity: 1;
+        clip-path: inset(-20px -20px -20px -20px)
+      }
+    }
+
+    @keyframes cardUp {
+      from {
+        opacity: 0;
+        clip-path: inset(100% 0 0 0)
+      }
+
+      to {
+        opacity: 1;
+        clip-path: inset(-20px -20px -20px -20px)
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-6px)
+      }
+
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
+
+    @keyframes riseIn {
+      from {
+        opacity: 0;
+        transform: translateY(14px)
+      }
+
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
+
+    @keyframes sweep {
+      from {
+        -webkit-mask-position: 130% 0;
+        mask-position: 130% 0
+      }
+
+      to {
+        -webkit-mask-position: -30% 0;
+        mask-position: -30% 0
+      }
+    }
+
+    @keyframes mapGlow {
+      50% {
+        filter: drop-shadow(0 0 4.4cqw rgba(60, 130, 255, .85)) brightness(1.08)
+      }
+    }
+
+    @keyframes haloPulse {
+      50% {
+        opacity: .55;
+        transform: translateY(-50%) scale(1.06)
+      }
+    }
+
+    @keyframes bobS {
+      50% {
+        transform: translateY(-.6cqw)
+      }
+    }
+
+    @keyframes bob {
+      50% {
+        transform: translateY(-8px)
+      }
+    }
+
+    .scroll-cue {
+      display: flex;
+      justify-content: center;
+      padding-bottom: 22px
+    }
+
+    .scroll-cue a {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--tw3);
+      transition: color .2s
+    }
+
+    .scroll-cue a:hover {
+      color: #fff
+    }
+
+    .scroll-cue svg {
+      animation: nudge 2s ease-in-out infinite
+    }
+
+    @keyframes nudge {
+      50% {
+        transform: translateY(4px)
+      }
+    }
+
+    /* responsive */
+    @media(max-width:1020px) {
+      .hero-body {
+        grid-template-columns: 1fr
+      }
+
+      .visual {
+        max-width: 640px;
+        width: 100%;
+        margin: 0 auto 20px
+      }
+
+      .nav-links {
+        display: none
+      }
+    }
+
+    @media(max-width:560px) {
+      .btn-link {
+        display: none
+      }
+
+      .cta-row .btn {
+        width: 100%
+      }
+
+      .eu-card {
+        width: 60cqw;
+        top: -16cqw;
+        padding: 10px 12px
+      }
+
+      .net-card {
+        display: none
+      }
+
+      .share-btn {
+        bottom: -13cqw
+      }
+
+      .scroll-cue {
+        display: none
+      }
+    }
+
+    @media(prefers-reduced-motion:reduce) {
+
+      *,
+      *::before,
+      *::after {
+        animation: none !important;
+        transition-duration: .01ms !important
+      }
+
+      html {
+        scroll-behavior: auto
+      }
+    }
+  
+    /* ═════════════════════════════════════════════════════════════════════════
+       SECTIONS BELOW THE HERO
+       Motion budget: one reveal (fade + 12px rise, once), one scroll-drawn line
+       between sections, and three diagrams that animate only because the order
+       they appear in IS the message (chain → network growth → supplier progress).
+       Base styles are the finished state; `.js` pages start hidden and `.in` reveals.
+       ═════════════════════════════════════════════════════════════════════════ */
+    :root {
+      --red: #ff8a80;
+      --sp: clamp(96px, 12vw, 150px)
+    }
+
+    html {
+      scroll-padding-top: 84px
+    }
+
+    .sec {
+      position: relative;
+      padding: var(--sp) 0
+    }
+
+    .sec-alt {
+      background: linear-gradient(180deg, transparent, rgba(14, 30, 58, .6) 18%, rgba(14, 30, 58, .6) 82%, transparent)
+    }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gs-l);
+      letter-spacing: .01em
+    }
+
+    .kicker::before {
+      content: "";
+      width: 22px;
+      height: 1px;
+      background: var(--gs-l);
+      opacity: .7
+    }
+
+    .h2 {
+      margin-top: 16px;
+      font-size: clamp(2rem, 3.9vw, 3.3rem);
+      line-height: 1.07;
+      letter-spacing: -.03em;
+      font-weight: 700;
+      text-wrap: balance
+    }
+
+    .h2 em {
+      font-style: normal;
+      color: var(--gs-l)
+    }
+
+    .body {
+      margin-top: 22px;
+      max-width: 34em;
+      font-size: clamp(1.02rem, 1.3vw, 1.15rem);
+      line-height: 1.65;
+      color: var(--tw2)
+    }
+
+    .body+.body {
+      margin-top: 16px
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+      align-items: center;
+      gap: clamp(40px, 7vw, 110px)
+    }
+
+    .split.rev {
+      grid-template-columns: minmax(0, 1.12fr) minmax(0, .98fr)
+    }
+
+    .split.rev .fig {
+      order: -1
+    }
+
+    .ticks {
+      list-style: none;
+      margin-top: 30px;
+      display: grid;
+      gap: 14px
+    }
+
+    .ticks li {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 1.05rem;
+      font-weight: 500
+    }
+
+    .ticks li::before {
+      content: "";
+      flex: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: rgba(78, 187, 129, .16) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%238fe3b6' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4.5 8.3 2.3 2.3 4.7-4.9'/%3E%3C/svg%3E") center/14px no-repeat;
+      border: 1px solid rgba(78, 187, 129, .4)
+    }
+
+    /* ── Reveal (once) ─────────────────────────────────────────────────────── */
+    .js .rv {
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity .8s var(--ease) var(--d, 0s), transform .8s var(--ease) var(--d, 0s)
+    }
+
+    .js .rv.in {
+      opacity: 1;
+      transform: none
+    }
+
+    /* ── The line between sections ─────────────────────────────────────────────
+       An oblique thread drawn by scroll position (JS writes --p, 0→1). It runs from
+       the previous section's tail to a dot sitting above the next section's heading. */
+    .seam {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: calc(var(--sp) * -1 + 28px);
+      height: calc(var(--sp) + 28px);
+      pointer-events: none;
+      z-index: 2
+    }
+
+    .seam.first {
+      top: -36px;
+      height: calc(var(--sp) + 20px)
+    }
+
+    .seam .sin {
+      position: relative;
+      height: 100%;
+      width: min(calc(100% - 2 * var(--gutter)), calc(var(--wrap) - 2 * var(--gutter)));
+      margin: 0 auto
+    }
+
+    .seam svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+      overflow: visible
+    }
+
+    .seam path {
+      fill: none;
+      vector-effect: non-scaling-stroke;
+      stroke-linecap: round
+    }
+
+    .seam .track {
+      stroke: rgba(255, 255, 255, .07);
+      stroke-width: 1
+    }
+
+    .seam .draw {
+      stroke: var(--gs);
+      stroke-width: 1.5;
+      stroke-dasharray: 1;
+      stroke-dashoffset: calc(1 - var(--p, 1));
+      filter: drop-shadow(0 0 6px rgba(78, 187, 129, .55))
+    }
+
+    .seam i {
+      position: absolute;
+      bottom: -5px;
+      left: var(--x);
+      width: 10px;
+      height: 10px;
+      margin-left: -5px;
+      border-radius: 50%;
+      background: var(--gs);
+      box-shadow: 0 0 0 5px rgba(78, 187, 129, .2), 0 0 18px rgba(78, 187, 129, .6);
+      opacity: 1;
+      transform: none;
+      transition: opacity .35s var(--ease), transform .35s var(--ease)
+    }
+
+    .js .seam:not(.end) i {
+      opacity: 0;
+      transform: scale(.3)
+    }
+
+    /* ── Sticky bar: appears once the hero has gone, keeps the one CTA in reach ── */
+    .bar {
+      position: fixed;
+      inset: 0 0 auto 0;
+      z-index: 50;
+      transform: translateY(-100%);
+      visibility: hidden;
+      transition: transform .45s var(--ease), visibility 0s .45s;
+      background: rgba(7, 15, 28, .82);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--line)
+    }
+
+    .bar.on {
+      transform: none;
+      visibility: visible;
+      transition: transform .45s var(--ease), visibility 0s
+    }
+
+    .bar .wrap {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      height: 68px
+    }
+
+    .bar .logo img {
+      height: 54px
+    }
+
+    /* ── 01 · Who it concerns: a chain of four hands ─────────────────────────── */
+    .chain {
+      list-style: none;
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      margin-top: clamp(48px, 6vw, 80px)
+    }
+
+    .chain::before,
+    .chain::after {
+      content: "";
+      position: absolute;
+      top: 31px;
+      left: 12.5%;
+      right: 12.5%;
+      height: 2px;
+      border-radius: 2px
+    }
+
+    .chain::before {
+      background: var(--line-2)
+    }
+
+    .chain::after {
+      background: linear-gradient(90deg, var(--gs), var(--gs-l));
+      transform-origin: left;
+      box-shadow: 0 0 12px rgba(78, 187, 129, .5);
+      transition: transform 1.5s cubic-bezier(.65, 0, .35, 1) .25s
+    }
+
+    .js .chain:not(.in)::after {
+      transform: scaleX(0)
+    }
+
+    .chain li {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 0 12px
+    }
+
+    .cn {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 20px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--bg-1);
+      border: 1px solid rgba(78, 187, 129, .5);
+      color: var(--gs-l);
+      box-shadow: 0 0 0 6px var(--bg-0);
+      transition: transform .5s var(--ease), opacity .5s var(--ease);
+      transition-delay: calc(var(--i) * .42s)
+    }
+
+    .js .chain:not(.in) .cn {
+      transform: scale(.7);
+      opacity: 0
+    }
+
+    .cn svg {
+      width: 26px;
+      height: 26px
+    }
+
+    .chain b {
+      display: block;
+      font-size: 1.05rem;
+      font-weight: 600
+    }
+
+    .chain small {
+      display: block;
+      margin-top: 6px;
+      font-size: .92rem;
+      line-height: 1.45;
+      color: var(--tw3)
+    }
+
+    .chain-note {
+      margin-top: 44px;
+      text-align: center;
+      color: var(--tw2);
+      font-size: 1.02rem
+    }
+
+    /* ── 02 · Library: one record → many formats ─────────────────────────────── */
+    .card {
+      border-radius: 18px;
+      border: 1px solid var(--line-2);
+      background: linear-gradient(180deg, rgba(255, 255, 255, .065), rgba(255, 255, 255, .025));
+      box-shadow: 0 34px 70px -34px rgba(0, 0, 0, .75), inset 0 1px 0 rgba(255, 255, 255, .06)
+    }
+
+    .lib {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      align-items: center;
+      gap: 0
+    }
+
+    .rec {
+      position: relative;
+      padding: 22px
+    }
+
+    .rec-top {
+      display: grid;
+      grid-template-columns: 40px 1fr auto;
+      gap: 12px;
+      align-items: center
+    }
+
+    .rec-top b {
+      display: block;
+      white-space: nowrap;
+      font-size: 15px;
+      font-weight: 600
+    }
+
+    .rec-top small {
+      font-size: 12px;
+      color: var(--tw3)
+    }
+
+    .rec dl {
+      margin-top: 18px;
+      padding-top: 6px;
+      border-top: 1px solid var(--line)
+    }
+
+    .rec dl div {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 11px 0;
+      border-bottom: 1px solid var(--line);
+      font-size: 13.5px
+    }
+
+    .rec dl div:last-child {
+      border-bottom: 0;
+      padding-bottom: 0
+    }
+
+    .rec dt {
+      color: var(--tw3)
+    }
+
+    .rec dd {
+      font-weight: 500;
+      text-align: right
+    }
+
+    .rec::after {
+      content: "";
+      position: absolute;
+      right: -44px;
+      top: 50%;
+      width: 44px;
+      height: 1.5px;
+      background: var(--gs);
+      transform-origin: left;
+      transition: transform .6s var(--ease) .5s
+    }
+
+    .outs {
+      position: relative;
+      display: grid;
+      gap: 14px;
+      margin-left: 44px
+    }
+
+    .outs::before {
+      content: "";
+      position: absolute;
+      left: -22px;
+      top: 36px;
+      bottom: 36px;
+      width: 1.5px;
+      background: var(--gs);
+      transform-origin: top;
+      transition: transform .7s var(--ease) .9s
+    }
+
+    .out {
+      position: relative;
+      display: grid;
+      grid-template-columns: 36px 1fr;
+      gap: 12px;
+      align-items: center;
+      height: 72px;
+      padding: 0 16px;
+      border-radius: 14px;
+      border: 1px solid var(--line-2);
+      background: rgba(255, 255, 255, .04);
+      transition: opacity .6s var(--ease), transform .6s var(--ease);
+      transition-delay: calc(1.3s + var(--i) * .12s)
+    }
+
+    .out::before {
+      content: "";
+      position: absolute;
+      left: -22px;
+      top: 50%;
+      width: 22px;
+      height: 1.5px;
+      background: var(--gs);
+      transform-origin: left;
+      transition: transform .5s var(--ease);
+      transition-delay: calc(1.1s + var(--i) * .12s)
+    }
+
+    .out b {
+      display: block;
+      font-size: 13.5px;
+      font-weight: 600
+    }
+
+    .out small {
+      font-size: 12px;
+      color: var(--tw3)
+    }
+
+    .js .lib:not(.in) .rec::after,
+    .js .lib:not(.in) .out::before {
+      transform: scaleX(0)
+    }
+
+    .js .lib:not(.in) .outs::before {
+      transform: scaleY(0)
+    }
+
+    .js .lib:not(.in) .out {
+      opacity: 0;
+      transform: translateX(-10px)
+    }
+
+    /* pills (extends the hero's .pill) */
+    .pill-warn {
+      color: var(--amber);
+      background: rgba(242, 184, 75, .13)
+    }
+
+    .pill-info {
+      color: #9cc3fb;
+      background: rgba(91, 156, 246, .14)
+    }
+
+    .pill-bad {
+      color: var(--red);
+      background: rgba(255, 138, 128, .13)
+    }
+
+    /* ── 03 · Supplier Hub: a request board ─────────────────────────────────── */
+    .hub {
+      padding: 22px
+    }
+
+    .hub-top {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px
+    }
+
+    .hub-top b {
+      font-size: 15px;
+      font-weight: 600
+    }
+
+    .hub-top span {
+      font-size: 13px;
+      color: var(--tw3)
+    }
+
+    .hub-top span strong {
+      color: var(--gs-l);
+      font-weight: 600
+    }
+
+    .meter {
+      height: 6px;
+      margin: 14px 0 8px;
+      border-radius: 6px;
+      background: var(--line-2);
+      overflow: hidden
+    }
+
+    .meter i {
+      display: block;
+      height: 100%;
+      width: 75%;
+      border-radius: 6px;
+      background: linear-gradient(90deg, var(--gs), var(--gs-l));
+      transform-origin: left;
+      transition: transform 1.3s cubic-bezier(.65, 0, .35, 1) .3s
+    }
+
+    .js .hub:not(.in) .meter i {
+      transform: scaleX(0)
+    }
+
+    .sup {
+      list-style: none
+    }
+
+    .sup li {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 14px;
+      align-items: center;
+      padding: 13px 0;
+      border-bottom: 1px solid var(--line)
+    }
+
+    .sup b {
+      display: block;
+      font-size: 14px;
+      font-weight: 600
+    }
+
+    .sup small {
+      font-size: 12px;
+      color: var(--tw3)
+    }
+
+    .trail {
+      list-style: none;
+      margin-top: 16px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, .035);
+      display: grid;
+      gap: 9px
+    }
+
+    .trail li {
+      display: flex;
+      gap: 12px;
+      font-size: 12.5px;
+      color: var(--tw2)
+    }
+
+    .trail time {
+      flex: none;
+      width: 66px;
+      color: var(--tw3)
+    }
+
+    .trail-h {
+      margin-top: 18px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--tw3);
+      letter-spacing: .02em
+    }
+
+    /* ── 04 · The chain grows: invitations spreading outward ─────────────────── */
+    .grow-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, .9fr);
+      gap: clamp(32px, 6vw, 96px);
+      align-items: end
+    }
+
+    .grow-head .body {
+      margin-top: 0
+    }
+
+    .net {
+      position: relative;
+      margin-top: clamp(40px, 5vw, 72px);
+      padding: clamp(20px, 3vw, 36px) clamp(16px, 3vw, 40px) 20px;
+      border-radius: 22px
+    }
+
+    .net svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      overflow: visible
+    }
+
+    .net .e {
+      fill: none;
+      stroke: rgba(143, 227, 182, .5);
+      stroke-width: 1.6;
+      stroke-dasharray: 1;
+      stroke-dashoffset: 0;
+      transition: stroke-dashoffset .9s var(--ease) var(--t)
+    }
+
+    .net .e.dim {
+      stroke: rgba(143, 227, 182, .28)
+    }
+
+    .net .e.inv {
+      stroke: rgba(91, 156, 246, .6)
+    }
+
+    .net .nd {
+      fill: var(--bg-1);
+      stroke: var(--gs-l);
+      stroke-width: 1.8;
+      transform-box: fill-box;
+      transform-origin: center;
+      transition: transform .55s var(--ease) var(--t), opacity .4s var(--ease) var(--t)
+    }
+
+    .net .nd.cust {
+      stroke: var(--blue)
+    }
+
+    .net .nd.you {
+      fill: var(--gs);
+      stroke: none
+    }
+
+    .net .nd.sub {
+      stroke: rgba(143, 227, 182, .6);
+      stroke-width: 1.5
+    }
+
+    .net .halo {
+      fill: rgba(78, 187, 129, .14);
+      transform-box: fill-box;
+      transform-origin: center;
+      transition: transform .8s var(--ease) var(--t), opacity .6s var(--ease) var(--t)
+    }
+
+    .js .net:not(.in) .e {
+      stroke-dashoffset: 1
+    }
+
+    .js .net:not(.in) .nd,
+    .js .net:not(.in) .halo {
+      transform: scale(.2);
+      opacity: 0
+    }
+
+    .net-cols {
+      position: relative;
+      height: 48px;
+      margin-top: 14px
+    }
+
+    .net-cols span {
+      position: absolute;
+      top: 0;
+      left: var(--x);
+      width: 120px;
+      margin-left: -60px;
+      text-align: center;
+      font-size: 13px;
+      line-height: 1.35;
+      color: var(--tw2)
+    }
+
+    .net-cols span small {
+      display: block;
+      color: var(--tw3);
+      font-size: 12px
+    }
+
+    .net-cols span:first-child {
+      margin-left: 0;
+      text-align: left;
+      left: 0
+    }
+
+    .net-cols span:last-child {
+      margin-left: 0;
+      left: auto;
+      right: 0;
+      text-align: right
+    }
+
+    /* ── Close ───────────────────────────────────────────────────────────────── */
+    .close {
+      position: relative;
+      text-align: center;
+      padding: clamp(56px, 8vw, 104px) clamp(24px, 6vw, 80px);
+      border-radius: 28px;
+      border: 1px solid var(--line-2);
+      overflow: hidden;
+      isolation: isolate;
+      background:
+        radial-gradient(640px 360px at 50% 0%, rgba(55, 225, 174, .2), transparent 70%),
+        linear-gradient(180deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, .02))
+    }
+
+    .close .h2 {
+      max-width: 17em;
+      margin-left: auto;
+      margin-right: auto
+    }
+
+    .close .body {
+      margin: 22px auto 0;
+      max-width: 36em
+    }
+
+    .close .btn {
+      margin-top: 36px;
+      height: 54px;
+      padding: 0 32px;
+      font-size: 16px
+    }
+
+    .foot {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px 24px;
+      padding: 32px var(--gutter) 40px;
+      font-size: 13px;
+      color: var(--tw3)
+    }
+
+    .foot img {
+      height: 40px;
+      width: auto;
+      opacity: .85
+    }
+
+    /* ── Responsive ──────────────────────────────────────────────────────────── */
+    @media(max-width:1020px) {
+
+      .split,
+      .split.rev,
+      .grow-head {
+        grid-template-columns: 1fr
+      }
+
+      .split.rev .fig {
+        order: 0
+      }
+
+      .grow-head {
+        align-items: start;
+        gap: 22px
+      }
+
+      .bar .nav-links {
+        display: none
+      }
+    }
+
+    @media(max-width:640px) {
+      :root {
+        --sp: 88px
+      }
+
+      .lib {
+        grid-template-columns: 1fr
+      }
+
+      .rec::after,
+      .outs::before,
+      .out::before {
+        display: none
+      }
+
+      .outs {
+        margin: 14px 0 0
+      }
+
+      .chain {
+        grid-template-columns: 1fr;
+        gap: 28px
+      }
+
+      .chain::before,
+      .chain::after {
+        top: 32px;
+        bottom: 32px;
+        left: 31px;
+        right: auto;
+        width: 2px;
+        height: auto
+      }
+
+      .chain::after {
+        transform-origin: top
+      }
+
+      .js .chain:not(.in)::after {
+        transform: scaleY(0)
+      }
+
+      .chain li {
+        display: grid;
+        grid-template-columns: 64px 1fr;
+        column-gap: 18px;
+        align-items: center;
+        text-align: left;
+        padding: 0
+      }
+
+      .cn {
+        grid-row: 1 / span 2;
+        margin: 0
+      }
+
+      .chain small {
+        margin-top: 2px
+      }
+
+      .net-cols span {
+        width: 84px;
+        margin-left: -42px;
+        font-size: 11.5px
+      }
+
+      .foot {
+        justify-content: center;
+        text-align: center
+      }
+    }
+
+    @media(prefers-reduced-motion:reduce) {
+
+      .js .rv,
+      .js .chain:not(.in)::after,
+      .js .chain:not(.in) .cn,
+      .js .lib:not(.in) *,
+      .js .hub:not(.in) .meter i,
+      .js .net:not(.in) * {
+        opacity: 1 !important;
+        transform: none !important;
+        stroke-dashoffset: 0 !important;
+        transition: none !important
+      }
+
+      .bar {
+        transition: none
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="hero" id="top">
+    <div class="wrap">
+      <nav class="nav" aria-label="Main">
+        <a href="#top" class="logo" aria-label="Greenstreets home"><img src="../img/Logo-WG.png" alt="Greenstreets"></a>
+        <div class="nav-links">
+          <a href="#library">Packaging Library</a>
+          <a href="#hub">Supplier Hub</a>
+          <a href="#network">Network</a>
+        </div>
+        <div class="nav-cta">
+          <a href="#demo" class="btn btn-p btn-sm">Book a demo</a>
+        </div>
+      </nav>
+    </div>
+
+    <div class="wrap hero-body">
+      <div class="copy">
+        <span class="eyebrow"><i></i>Packaging &amp; Packaging Waste Regulation (EU) 2025/40</span>
+
+        <h1 class="h1">PPWR <em>made easy</em></h1>
+
+        <p class="lede">Keep your packaging data ready, complete and easy to share — while building a stronger network
+          of customers and suppliers.</p>
+
+        <div class="cta-row">
+          <a href="#demo" class="btn btn-p">Book a demo
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 8h10M9 4l4 4-4 4" />
+            </svg>
+          </a>
+          <a href="#library" class="btn btn-g">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M5 3.2v9.6a.6.6 0 0 0 .92.5l7.4-4.8a.6.6 0 0 0 0-1L5.92 2.7A.6.6 0 0 0 5 3.2Z" />
+            </svg>
+            See how it works
+          </a>
+        </div>
+
+        <div class="audience">
+          <p>One place for everyone who makes, imports, distributes or sells packaged goods in the EU.</p>
+          <div class="chips" role="list">
+            <span class="chip" role="listitem"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 13V7l4 2V7l4 2V3h4v10H2Z" />
+              </svg>Manufacturers</span>
+            <span class="chip" role="listitem"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 5l6-3 6 3v6l-6 3-6-3V5Zm0 0 6 3 6-3M8 8v6" />
+              </svg>Importers</span>
+            <span class="chip" role="listitem"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1.5 4.5h8v6h-8zM9.5 7h3l2 2v1.5h-5" />
+                <circle cx="4.5" cy="11.5" r="1.3" />
+                <circle cx="11.5" cy="11.5" r="1.3" />
+              </svg>Distributors</span>
+            <span class="chip" role="listitem"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path
+                  d="M2 6.5 3 2.5h10l1 4M2 6.5c0 1 .8 1.8 1.8 1.8S5.6 7.5 5.6 6.5c0 1 .8 1.8 1.7 1.8S9 7.5 9 6.5c0 1 .8 1.8 1.8 1.8s1.8-.8 1.8-1.8M3 8.5v5h10v-5" />
+              </svg>Retailers</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="visual">
+        <div class="scene">
+          <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+            <defs>
+              <clipPath id="pillClip">
+                <rect x="2" y="6" width="196" height="52" rx="26" />
+              </clipPath>
+              <linearGradient id="glintG" x1="0" x2="1">
+                <stop offset="0" stop-color="#fff" stop-opacity="0" />
+                <stop offset=".5" stop-color="#fff" stop-opacity=".95" />
+                <stop offset="1" stop-color="#fff" stop-opacity="0" />
+              </linearGradient>
+            </defs>
+          </svg>
+          <span class="map-halo" aria-hidden="true"></span>
+          <div class="mapw" aria-hidden="true"><img class="map" src="img/europe-map.png" alt=""><svg class="stars" viewBox="0 0 820 968" aria-hidden="true"><g class="ring"><polygon style="--k:0" points="469.6,481.7 472.8,491.6 483.3,491.7 474.8,497.8 478.1,507.7 469.6,501.6 461.1,507.7 464.4,497.8 455.9,491.7 466.4,491.6"/><polygon style="--k:1" points="510.2,522.1 513.4,532.0 523.9,532.1 515.4,538.2 518.7,548.1 510.2,542.0 501.7,548.1 505.0,538.2 496.5,532.1 507.0,532.0"/><polygon style="--k:2" points="525.8,574.5 529.0,584.4 539.5,584.5 531.0,590.6 534.3,600.5 525.8,594.4 517.3,600.5 520.6,590.6 512.1,584.5 522.6,584.4"/><polygon style="--k:3" points="509.6,627.6 512.8,637.5 523.3,637.6 514.8,643.7 518.1,653.6 509.6,647.5 501.1,653.6 504.4,643.7 495.9,637.6 506.4,637.5"/><polygon style="--k:4" points="470.0,664.7 473.2,674.6 483.7,674.7 475.2,680.8 478.5,690.7 470.0,684.6 461.5,690.7 464.8,680.8 456.3,674.7 466.8,674.6"/><polygon style="--k:5" points="415.8,678.1 419.0,688.0 429.5,688.1 421.0,694.2 424.3,704.1 415.8,698.0 407.3,704.1 410.6,694.2 402.1,688.1 412.6,688.0"/><polygon style="--k:6" points="361.5,664.7 364.7,674.6 375.2,674.7 366.7,680.8 370.0,690.7 361.5,684.6 353.0,690.7 356.3,680.8 347.8,674.7 358.3,674.6"/><polygon style="--k:7" points="321.2,627.7 324.4,637.6 334.9,637.7 326.4,643.8 329.7,653.7 321.2,647.6 312.7,653.7 316.0,643.8 307.5,637.7 318.0,637.6"/><polygon style="--k:8" points="303.6,574.6 306.8,584.5 317.3,584.6 308.8,590.7 312.1,600.6 303.6,594.5 295.1,600.6 298.4,590.7 289.9,584.6 300.4,584.5"/><polygon style="--k:9" points="317.8,522.0 321.0,531.9 331.5,532.0 323.0,538.1 326.3,548.0 317.8,541.9 309.3,548.0 312.6,538.1 304.1,532.0 314.6,531.9"/><polygon style="--k:10" points="356.6,481.6 359.8,491.5 370.3,491.6 361.8,497.7 365.1,507.6 356.6,501.5 348.1,507.6 351.4,497.7 342.9,491.6 353.4,491.5"/><polygon style="--k:11" points="413.8,465.7 417.0,475.6 427.5,475.7 419.0,481.8 422.3,491.7 413.8,485.6 405.3,491.7 408.6,481.8 400.1,475.7 410.6,475.6"/></g></svg></div>
+          <div aria-hidden="true" class="row r1">
+            <div class="boxes"><img class="b1" src="img/box-3-4-view.png" alt=""><img class="b2"
+                src="img/box-3-4-view.png" alt=""><img class="b3" src="img/box-3-4-view.png" alt=""></div>
+            <div class="flow"><img class="arrow" src="img/arrow-001.png" alt=""><img class="sheen"
+                src="img/arrow-001.png" alt=""></div>
+            <div class="doc"><img class="paper" src="img/paper.png" alt="">
+              <div class="stamp"><svg viewBox="0 0 200 64" aria-hidden="true">
+                  <rect class="pill-bg" x="2" y="6" width="196" height="52" rx="26" />
+                  <rect class="pill-in" x="8" y="12" width="184" height="40" rx="20" /><text x="100" y="42"
+                    text-anchor="middle">Compliant</text>
+                  <g clip-path="url(#pillClip)">
+                    <rect class="glint" x="0" y="6" width="40" height="52" />
+                  </g>
+                  <circle class="tick-bg" cx="186" cy="12" r="12" />
+                  <path class="tick" d="M180.5 12.5l4 4 7-8" />
+                </svg></div>
+            </div>
+          </div>
+          <div aria-hidden="true" class="row r2">
+            <div class="boxes"><img class="b1" src="img/box-3-4-view.png" alt=""><img class="b2"
+                src="img/box-3-4-view.png" alt=""><img class="b3" src="img/box-3-4-view.png" alt=""></div>
+            <div class="flow"><img class="arrow" src="img/arrow-003.png" alt=""><img class="sheen"
+                src="img/arrow-003.png" alt=""></div>
+            <div class="doc"><img class="paper" src="img/paper.png" alt="">
+              <div class="stamp"><svg viewBox="0 0 200 64" aria-hidden="true">
+                  <rect class="pill-bg" x="2" y="6" width="196" height="52" rx="26" />
+                  <rect class="pill-in" x="8" y="12" width="184" height="40" rx="20" /><text x="100" y="42"
+                    text-anchor="middle">Compliant</text>
+                  <g clip-path="url(#pillClip)">
+                    <rect class="glint" x="0" y="6" width="40" height="52" />
+                  </g>
+                  <circle class="tick-bg" cx="186" cy="12" r="12" />
+                  <path class="tick" d="M180.5 12.5l4 4 7-8" />
+                </svg></div>
+            </div>
+          </div>
+          <div aria-hidden="true" class="row r3">
+            <div class="boxes"><img class="b1" src="img/box-3-4-view.png" alt=""><img class="b2"
+                src="img/box-3-4-view.png" alt=""><img class="b3" src="img/box-3-4-view.png" alt=""></div>
+            <div class="flow"><img class="arrow" src="img/arrow-002.png" alt=""><img class="sheen"
+                src="img/arrow-002.png" alt=""></div>
+            <div class="doc"><img class="paper" src="img/paper.png" alt="">
+              <div class="stamp"><svg viewBox="0 0 200 64" aria-hidden="true">
+                  <rect class="pill-bg" x="2" y="6" width="196" height="52" rx="26" />
+                  <rect class="pill-in" x="8" y="12" width="184" height="40" rx="20" /><text x="100" y="42"
+                    text-anchor="middle">Compliant</text>
+                  <g clip-path="url(#pillClip)">
+                    <rect class="glint" x="0" y="6" width="40" height="52" />
+                  </g>
+                  <circle class="tick-bg" cx="186" cy="12" r="12" />
+                  <path class="tick" d="M180.5 12.5l4 4 7-8" />
+                </svg></div>
+            </div>
+          </div>
+
+          <div class="float eu-card" aria-hidden="true">
+            <div class="eu-card-top"><span class="ico"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor"
+                  stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 6.5 10 3l7 3.5v7L10 17l-7-3.5v-7Zm0 0 7 3.5 7-3.5M10 10v7" />
+                </svg></span>
+              <div><b>Shipping carton</b><small>Packaging data</small></div><span class="pill pill-ok">PPWR ready</span>
+            </div>
+            <ul class="checks">
+              <li>Material declared</li>
+              <li>Recyclability confirmed</li>
+              <li>Recycled content recorded</li>
+              <li>Supplier data complete</li>
+            </ul>
+          </div>
+          <div class="float net-card" aria-hidden="true">
+            <h3><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--gs-l)" stroke-width="1.7"
+                stroke-linecap="round">
+                <circle cx="8" cy="8" r="2" />
+                <circle cx="3" cy="3.5" r="1.4" />
+                <circle cx="13" cy="4" r="1.4" />
+                <circle cx="12.5" cy="13" r="1.4" />
+                <path d="m4 4.4 2.5 2.2M11.8 5l-2.3 2M11.6 12l-2.4-2.5" />
+              </svg>Your network</h3>
+            <svg class="net-svg" viewBox="0 0 180 84">
+              <g>
+                <line class="edge" x1="90" y1="42" x2="26" y2="18" />
+                <line class="edge" x1="90" y1="42" x2="30" y2="68" />
+                <line class="edge" x1="90" y1="42" x2="154" y2="16" />
+                <line class="edge" x1="90" y1="42" x2="158" y2="66" />
+                <line class="edge" x1="26" y1="18" x2="6" y2="40" />
+                <line class="edge" x1="158" y1="66" x2="174" y2="44" />
+                <circle class="node n1" cx="26" cy="18" r="6" />
+                <circle class="node n2" cx="30" cy="68" r="6" />
+                <circle class="node n3" cx="154" cy="16" r="6" />
+                <circle class="node n4" cx="158" cy="66" r="6" />
+                <circle class="node n5" cx="6" cy="40" r="4" />
+                <circle class="node n6" cx="174" cy="44" r="4" />
+                <circle class="core" cx="90" cy="42" r="10" />
+              </g>
+            </svg>
+            <p>Suppliers connected, and growing</p>
+          </div>
+          <button class="share-btn" type="button" id="shareBtn"><svg viewBox="0 0 16 16" fill="none"
+              stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 10V2m0 0L5 5m3-3 3 3M3 9v4h10V9" />
+            </svg><span>Share with your entire network</span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="scroll-cue"><a href="#library">Explore the platform
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8 3v10m0 0 4-4m-4 4L4 9" />
+        </svg></a></div>
+  </header>
+
+  <!-- Sticky bar: slides in after the hero so the single CTA is always in reach -->
+  <div class="bar" id="bar">
+    <div class="wrap">
+      <a href="#top" class="logo" aria-label="Greenstreets, back to top"><img src="../img/Logo-WG.png" alt="Greenstreets"></a>
+      <div class="nav-links">
+        <a href="#library">Packaging Library</a>
+        <a href="#hub">Supplier Hub</a>
+        <a href="#network">Network</a>
+      </div>
+      <a href="#demo" class="btn btn-p btn-sm">Book a demo</a>
+    </div>
+  </div>
+
+  <main>
+
+    <!-- 01 · Who it concerns -->
+    <section class="sec" id="why">
+      <div class="seam first r" aria-hidden="true">
+        <div class="sin"><svg viewBox="0 0 1000 200" preserveAspectRatio="none"><path class="track" d="M700 0 L60 200" /><path class="draw" pathLength="1" d="M700 0 L60 200" /></svg><i style="--x:6%"></i></div>
+      </div>
+      <div class="wrap">
+        <div class="rv">
+          <span class="kicker">Who it concerns</span>
+          <h2 class="h2">PPWR applies to <em>more than the shop.</em></h2>
+          <p class="body">If you make, import, distribute or sell packaged goods in the EU, your packaging data matters.
+            Whatever your size, wherever you sit in the chain, the right information needs to move with the product.</p>
+        </div>
+
+        <ol class="chain rv" aria-label="The packaging chain">
+          <li style="--i:0"><span class="cn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"
+                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M2 13V7l4 2V7l4 2V3h4v10H2Z" /></svg></span>
+            <b>Manufacturer</b><small>Declares what the packaging is made of</small></li>
+          <li style="--i:1"><span class="cn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"
+                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M2 5l6-3 6 3v6l-6 3-6-3V5Zm0 0 6 3 6-3M8 8v6" /></svg></span>
+            <b>Importer</b><small>Needs it before the goods enter the EU</small></li>
+          <li style="--i:2"><span class="cn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"
+                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M1.5 4.5h8v6h-8zM9.5 7h3l2 2v1.5h-5" />
+                <circle cx="4.5" cy="11.5" r="1.3" />
+                <circle cx="11.5" cy="11.5" r="1.3" /></svg></span>
+            <b>Distributor</b><small>Passes it on with every shipment</small></li>
+          <li style="--i:3"><span class="cn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"
+                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M2 6.5 3 2.5h10l1 4M2 6.5c0 1 .8 1.8 1.8 1.8S5.6 7.5 5.6 6.5c0 1 .8 1.8 1.7 1.8S9 7.5 9 6.5c0 1 .8 1.8 1.8 1.8s1.8-.8 1.8-1.8M3 8.5v5h10v-5" /></svg></span>
+            <b>Retailer</b><small>Asks for the data, and answers to the regulator</small></li>
+        </ol>
+
+        <p class="chain-note rv">The same product passes through every one of them. Each step depends on accurate packaging
+          data — and each connection is a chance to make the next request easier.</p>
+      </div>
+    </section>
+
+    <!-- 02 · Packaging Library -->
+    <section class="sec sec-alt" id="library">
+      <div class="seam l" aria-hidden="true">
+        <div class="sin"><svg viewBox="0 0 1000 200" preserveAspectRatio="none"><path class="track" d="M300 0 L940 200" /><path class="draw" pathLength="1" d="M300 0 L940 200" /></svg><i style="--x:94%"></i></div>
+      </div>
+      <div class="wrap split rev">
+        <div class="copy rv">
+          <span class="kicker">Packaging Library</span>
+          <h2 class="h2">Fill it in once. <em>Share it whenever it’s needed.</em></h2>
+          <p class="body">Store your packaging data in one place, then share the right information with customers and
+            partners in the format they need.</p>
+          <ul class="ticks">
+            <li>No retyping.</li>
+            <li>No hunting through files.</li>
+            <li>Less room for errors.</li>
+          </ul>
+        </div>
+
+        <div class="fig">
+          <div class="lib rv" aria-label="One packaging record shared in three formats">
+            <div class="card rec">
+              <div class="rec-top">
+                <span class="ico"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"
+                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3 6.5 10 3l7 3.5v7L10 17l-7-3.5v-7Zm0 0 7 3.5 7-3.5M10 10v7" /></svg></span>
+                <div><b>Shipping carton</b><small>Entered once</small></div>
+                <span class="pill pill-ok">Complete</span>
+              </div>
+              <dl>
+                <div><dt>Material</dt><dd>Corrugated cardboard</dd></div>
+                <div><dt>Recycled content</dt><dd>82%</dd></div>
+                <div><dt>Recyclable</dt><dd>Yes</dd></div>
+                <div><dt>Weight</dt><dd>214 g</dd></div>
+                <div><dt>Supplier</dt><dd>Rhein Cartons GmbH</dd></div>
+              </dl>
+            </div>
+            <div class="outs">
+              <div class="out" style="--i:0"><span class="ico"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor"
+                    stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3 4h14v12H3zM3 8.5h14M8 4v12" /></svg></span>
+                <div><b>Retailer template</b><small>Their spreadsheet</small></div></div>
+              <div class="out" style="--i:1"><span class="ico"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor"
+                    stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M10 3v9m0 0-3.5-3.5M10 12l3.5-3.5M4 14v3h12v-3" /></svg></span>
+                <div><b>Customer portal</b><small>Sent straight to them</small></div></div>
+              <div class="out" style="--i:2"><span class="ico"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor"
+                    stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M5 2.5h7l3.5 3.5v11.5H5zM12 2.5V6h3.5M8 10h5M8 13h5" /></svg></span>
+                <div><b>Compliance pack</b><small>PDF, audit-ready</small></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 · Supplier Hub -->
+    <section class="sec" id="hub">
+      <div class="seam r" aria-hidden="true">
+        <div class="sin"><svg viewBox="0 0 1000 200" preserveAspectRatio="none"><path class="track" d="M700 0 L60 200" /><path class="draw" pathLength="1" d="M700 0 L60 200" /></svg><i style="--x:6%"></i></div>
+      </div>
+      <div class="wrap split">
+        <div class="copy rv">
+          <span class="kicker">Supplier Hub</span>
+          <h2 class="h2">Get the data you need <em>without the chasing.</em></h2>
+          <p class="body">Send clear requests to suppliers, see what’s missing, track what’s complete and keep the whole
+            audit trail together.</p>
+        </div>
+
+        <div class="fig">
+          <div class="card hub rv" aria-label="Example supplier request board">
+            <div class="hub-top"><b>Supplier requests</b><span><strong>18</strong> of 24 complete</span></div>
+            <div class="meter" role="img" aria-label="18 of 24 complete"><i></i></div>
+            <ul class="sup">
+              <li><div><b>Rhein Cartons GmbH</b><small>3 components</small></div><span class="pill pill-ok">Complete</span></li>
+              <li><div><b>Nordic Pack AB</b><small>5 components</small></div><span class="pill pill-warn">2 fields missing</span></li>
+              <li><div><b>Lisboa Films Lda</b><small>2 components</small></div><span class="pill pill-info">Awaiting reply</span></li>
+              <li><div><b>Atlantic Labels Ltd</b><small>4 components</small></div><span class="pill pill-bad">Overdue 6 days</span></li>
+            </ul>
+            <p class="trail-h">Audit trail</p>
+            <ul class="trail" style="margin-top:10px">
+              <li><time>09:12</time>Rhein Cartons submitted 3 components</li>
+              <li><time>Yesterday</time>Reminder sent to Atlantic Labels</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 · The chain grows -->
+    <section class="sec sec-alt" id="network">
+      <div class="seam l" aria-hidden="true">
+        <div class="sin"><svg viewBox="0 0 1000 200" preserveAspectRatio="none"><path class="track" d="M300 0 L940 200" /><path class="draw" pathLength="1" d="M300 0 L940 200" /></svg><i style="--x:94%"></i></div>
+      </div>
+      <div class="wrap">
+        <div class="grow-head rv">
+          <div>
+            <span class="kicker">The chain grows</span>
+            <h2 class="h2">Every new connection <em>makes the next one easier.</em></h2>
+          </div>
+          <p class="body">When your customer invites you in, you can invite your suppliers too. As more of the chain
+            joins, packaging data becomes easier to collect, share and reuse — and your network keeps growing with it.</p>
+        </div>
+
+        <div class="card net rv" aria-label="A customer invites you, you invite your suppliers, they invite theirs">
+          <svg viewBox="0 0 900 340" aria-hidden="true">
+            <!-- level 1: customer → you -->
+            <path class="e inv" pathLength="1" style="--t:.2s" d="M86 170 C 200 170, 210 170, 308 170" />
+            <!-- level 2: you → suppliers -->
+            <path class="e" pathLength="1" style="--t:1.1s" d="M352 170 C 480 170, 470 50, 588 50" />
+            <path class="e" pathLength="1" style="--t:1.15s" d="M352 170 C 480 170, 470 125, 588 125" />
+            <path class="e" pathLength="1" style="--t:1.2s" d="M352 170 C 480 170, 470 215, 588 215" />
+            <path class="e" pathLength="1" style="--t:1.25s" d="M352 170 C 480 170, 470 290, 588 290" />
+            <!-- level 3: suppliers → their suppliers -->
+            <path class="e dim" pathLength="1" style="--t:1.9s" d="M612 50 C 720 50, 730 25, 832 25" />
+            <path class="e dim" pathLength="1" style="--t:1.95s" d="M612 50 C 720 50, 730 75, 832 75" />
+            <path class="e dim" pathLength="1" style="--t:2s" d="M612 125 C 720 125, 730 125, 832 125" />
+            <path class="e dim" pathLength="1" style="--t:2.05s" d="M612 215 C 720 215, 730 190, 832 190" />
+            <path class="e dim" pathLength="1" style="--t:2.1s" d="M612 215 C 720 215, 730 240, 832 240" />
+            <path class="e dim" pathLength="1" style="--t:2.15s" d="M612 290 C 720 290, 730 290, 832 290" />
+            <path class="e dim" pathLength="1" style="--t:2.2s" d="M612 290 C 720 290, 730 322, 832 322" />
+
+            <circle class="nd cust" style="--t:0s" cx="70" cy="170" r="16" />
+            <circle class="halo" style="--t:.85s" cx="330" cy="170" r="42" />
+            <circle class="nd you" style="--t:.8s" cx="330" cy="170" r="22" />
+            <circle class="nd" style="--t:1.7s" cx="600" cy="50" r="12" />
+            <circle class="nd" style="--t:1.75s" cx="600" cy="125" r="12" />
+            <circle class="nd" style="--t:1.8s" cx="600" cy="215" r="12" />
+            <circle class="nd" style="--t:1.85s" cx="600" cy="290" r="12" />
+            <circle class="nd sub" style="--t:2.5s" cx="840" cy="25" r="8" />
+            <circle class="nd sub" style="--t:2.55s" cx="840" cy="75" r="8" />
+            <circle class="nd sub" style="--t:2.6s" cx="840" cy="125" r="8" />
+            <circle class="nd sub" style="--t:2.65s" cx="840" cy="190" r="8" />
+            <circle class="nd sub" style="--t:2.7s" cx="840" cy="240" r="8" />
+            <circle class="nd sub" style="--t:2.75s" cx="840" cy="290" r="8" />
+            <circle class="nd sub" style="--t:2.8s" cx="840" cy="322" r="8" />
+          </svg>
+          <div class="net-cols" aria-hidden="true">
+            <span style="--x:7.8%">Your customer<small>invites you</small></span>
+            <span style="--x:36.7%">You<small>invite your suppliers</small></span>
+            <span style="--x:66.7%">Your suppliers<small>invite theirs</small></span>
+            <span style="--x:93.3%">And so on</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Close -->
+    <section class="sec" id="demo">
+      <div class="seam r" aria-hidden="true">
+        <div class="sin"><svg viewBox="0 0 1000 200" preserveAspectRatio="none"><path class="track" d="M700 0 L500 200" /><path class="draw" pathLength="1" d="M700 0 L500 200" /></svg><i style="--x:50%"></i></div>
+      </div>
+      <div class="wrap">
+        <div class="close rv">
+          <h2 class="h2">Your customers will ask for packaging data. <em>Be ready before they do.</em></h2>
+          <p class="body">See how Greenstreets can help you stay ready, connect more suppliers and make your next business
+            relationship easier to manage. It takes 20 minutes.</p>
+          <a href="#demo" class="btn btn-p">Book a demo
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 8h10M9 4l4 4-4 4" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="wrap foot">
+    <img src="../img/Logo-WG.png" alt="Greenstreets">
+    <span>Built around Regulation (EU) 2025/40 · © 2026 Greenstreets</span>
+  </footer>
+
+  <script>
+    (function () {
+      var b = document.getElementById('shareBtn'), t;
+      b.addEventListener('click', function () {
+        var l = b.querySelector('span');
+        b.classList.add('done'); l.textContent = 'Link copied'; clearTimeout(t);
+        t = setTimeout(function () { b.classList.remove('done'); l.textContent = 'Share with your entire network' }, 1800)
+      })
+    })();
+  </script>
+
+  <script>
+    (function () {
+      var root = document.documentElement,
+        bar = document.getElementById('bar'),
+        hero = document.getElementById('top'),
+        seams = [].slice.call(document.querySelectorAll('.seam')),
+        calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      /* one-shot reveal */
+      var items = [].slice.call(document.querySelectorAll('.rv, .chain, .lib, .hub, .net'));
+      if ('IntersectionObserver' in window && !calm) {
+        var io = new IntersectionObserver(function (es) {
+          es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target) } })
+        }, { threshold: .18, rootMargin: '0px 0px -6% 0px' });
+        items.forEach(function (n) { io.observe(n) });
+      } else { items.forEach(function (n) { n.classList.add('in') }) }
+
+      /* scroll-drawn line between sections + sticky bar */
+      var queued = false;
+      function frame() {
+        queued = false;
+        var vh = window.innerHeight;
+        bar.classList.toggle('on', hero.getBoundingClientRect().bottom < 120);
+        if (calm) return;
+        seams.forEach(function (s) {
+          var r = s.getBoundingClientRect(),
+            p = Math.max(0, Math.min(1, (vh * .92 - r.top) / (r.height + vh * .28)));
+          s.style.setProperty('--p', p.toFixed(3));
+          s.classList.toggle('end', p > .97)
+        })
+      }
+      function ask() { if (!queued) { queued = true; requestAnimationFrame(frame) } }
+      addEventListener('scroll', ask, { passive: true });
+      addEventListener('resize', ask);
+      if (calm) seams.forEach(function (s) { s.classList.add('end') });
+      frame();
+    })();
+  </script>
+</body>
+
+</html>

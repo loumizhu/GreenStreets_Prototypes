@@ -619,7 +619,7 @@
       right: 0;
       top: -17cqw;
       width: min(300px, 52cqw);
-      animation: bob 7s ease-in-out infinite;
+      animation: bob 7s ease-in-out infinite
       z-index: 5
     }
 
@@ -721,7 +721,7 @@
       right: 0;
       bottom: -13cqw;
       width: min(212px, 36cqw);
-      animation: bob 8s ease-in-out -3s infinite;
+      animation: bob 8s ease-in-out -3s infinite
       z-index: 5
     }
 
@@ -847,7 +847,10 @@
       border-color: rgba(78, 187, 129, .5)
     }
 
-    /* ── Intro: plays ONCE on load. Tightly overlapped — each step starts while the previous one is still finishing.
+    /* TIMING CHAIN (s) — each element starts when the previous is ~75% done, never at the same moment:
+   headline .1–1.3 · cartons .4–1.15 · arrows .8–1.45 · map 1.2–1.7 · stars 1.55–2.3 · papers 2.1–2.6
+   · labels 2.3–2.85 (tick/glint follow) · shipping card 2.8–3.45 · network card 3.3–3.95 · share 3.7–4.1 */
+/* ── Intro: plays ONCE on load. Tightly overlapped — each step starts while the previous one is still finishing.
    headline 0.1s → cartons slide in top/mid/bottom 0.35s → arrows 0.8s → map 1.2s → papers 1.45s → labels 1.65s
    → shipping-carton card (top→bottom) 2.5s → network card (bottom→top) 3.0s → share button 3.5s.
    Everything else on the page just fades in place at 0s. Base styles are the finished state; animations use
@@ -870,39 +873,39 @@
     .cta-row,
     .audience,
     .scroll-cue {
-      animation: fade 1.6s ease-out backwards
+      animation: fade 1.4s ease-out backwards
     }
 
     .h1 {
-      animation: wipeR 1.4s cubic-bezier(.22, 1, .36, 1) .1s backwards
+      animation: wipeR 1.2s cubic-bezier(.16, 1, .3, 1) .1s backwards
     }
 
     .boxes {
-      animation: boxIn .4s cubic-bezier(.2, .8, .3, 1) calc(.3s + var(--i)*.1s) backwards
+      animation: boxIn .45s cubic-bezier(.34, 1.4, .64, 1) calc(.4s + var(--i)*.1s) backwards
     }
 
     .flow {
-      animation: wipe .3s cubic-bezier(.3, .7, .3, 1) calc(.6s + var(--i)*.1s) backwards
+      animation: wipe .35s cubic-bezier(.4, 0, .2, 1) calc(.8s + var(--i)*.1s) backwards
     }
 
     .mapw {
-      animation: mapIn .45s var(--ease) .85s backwards, mapGlow 8s ease-in-out 1.3s infinite
+      animation: mapIn .5s cubic-bezier(.16, 1, .3, 1) 1.2s backwards, mapGlow 8s ease-in-out 1.7s infinite
     }
 
     /* stars: spin in like a wheel the moment the last arrow lands (~1.1s), then a glint travels
        around the ring, clockwise, looping in step with the arrow sweeps */
     .stars .ring {
-      animation: starsWheel .75s cubic-bezier(.2, .8, .2, 1) 1.1s backwards
+      animation: starsWheel .75s cubic-bezier(.16, 1, .3, 1) 1.55s backwards
     }
 
     .stars polygon {
-      animation: starGlow 3.2s ease-in-out calc(2.2s + var(--k)*.2s) infinite
+      animation: starGlow 3.2s ease-in-out calc(3.1s + var(--k)*.2s) infinite
     }
 
     @keyframes starsWheel {
       from {
         opacity: 0;
-        transform: rotate(-300deg) scale(.15)
+        transform: rotate(-240deg) scale(.3)
       }
 
       to {
@@ -929,63 +932,63 @@
     }
 
     .map-halo {
-      animation: mapIn .45s var(--ease) .85s backwards, haloPulse 8s ease-in-out 1.3s infinite
+      animation: mapIn .5s cubic-bezier(.16, 1, .3, 1) 1.2s backwards, haloPulse 8s ease-in-out 1.7s infinite
     }
 
     .paper {
-      animation: shrinkIn .28s cubic-bezier(.2, .8, .25, 1) calc(1s + var(--i)*.12s) backwards
+      animation: shrinkIn .3s cubic-bezier(.16, 1, .3, 1) calc(2.1s + var(--i)*.1s) backwards
     }
 
     .stamp {
-      animation: labelIn .3s cubic-bezier(.2, .9, .3, 1.1) calc(1.15s + var(--i)*.12s) backwards
+      animation: labelIn .35s cubic-bezier(.34, 1.4, .64, 1) calc(2.3s + var(--i)*.1s) backwards
     }
 
     .tick {
-      animation: tick .22s ease-out calc(1.4s + var(--i)*.12s) backwards
+      animation: tick .22s ease-out calc(2.55s + var(--i)*.1s) backwards
     }
 
     .glint {
-      animation: glint .55s ease-in-out calc(1.5s + var(--i)*.12s) backwards
+      animation: glint .5s ease-in-out calc(2.65s + var(--i)*.1s) backwards
     }
 
     .eu-card {
-      animation: cardDown .6s cubic-bezier(.3, .7, .3, 1) 1.7s backwards, bob 7s ease-in-out 2.3s infinite
+      animation: cardDown .65s cubic-bezier(.16, 1, .3, 1) 2.8s backwards, bob 7s ease-in-out 3.45s infinite
     }
 
     .eu-card .eu-card-top {
-      animation: fadeIn .3s ease-out 1.8s backwards
+      animation: fadeIn .3s ease-out 2.9s backwards
     }
 
     .checks li {
-      animation: fadeIn .28s ease-out backwards
+      animation: fadeIn .25s ease-out backwards
     }
 
     .checks li:nth-child(1) {
-      animation-delay: 1.95s
+      animation-delay: 3.0s
     }
 
     .checks li:nth-child(2) {
-      animation-delay: 2.04s
+      animation-delay: 3.08s
     }
 
     .checks li:nth-child(3) {
-      animation-delay: 2.13s
+      animation-delay: 3.16s
     }
 
     .checks li:nth-child(4) {
-      animation-delay: 2.22s
+      animation-delay: 3.24s
     }
 
     .net-card {
-      animation: cardUp .6s cubic-bezier(.3, .7, .3, 1) 2.1s backwards, bob 8s ease-in-out 2.7s infinite
+      animation: cardUp .65s cubic-bezier(.16, 1, .3, 1) 3.3s backwards, bob 8s ease-in-out 3.95s infinite
     }
 
     .share-btn {
-      animation: riseIn .4s var(--ease) 2.5s backwards
+      animation: riseIn .4s cubic-bezier(.16, 1, .3, 1) 3.7s backwards
     }
 
     .flow .sheen {
-      animation: sweep 3.2s ease-in-out calc(1.5s + var(--i)*.3s) infinite both
+      animation: sweep 3.2s ease-in-out calc(2.3s + var(--i)*.3s) infinite both
     }
 
     @keyframes fade {
@@ -1047,7 +1050,7 @@
     @keyframes shrinkIn {
       from {
         opacity: 0;
-        transform: scale(1.7)
+        transform: scale(1.5)
       }
 
       to {
@@ -1059,7 +1062,7 @@
     @keyframes labelIn {
       from {
         opacity: 0;
-        transform: rotate(-14deg) scale(2.1)
+        transform: rotate(-12deg) scale(1.8)
       }
 
       to {
