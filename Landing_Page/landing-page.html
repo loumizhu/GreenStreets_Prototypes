@@ -2985,7 +2985,7 @@
       }
 
       .eu-card {
-        zoom: .62;
+        zoom: .74;
         top: -8cqw;
         padding: 12px 14px
       }
@@ -3099,6 +3099,240 @@
         text-align: center;
         white-space: nowrap;
         font-size: 12px
+      }
+    }
+
+    /* ═══ Phones, round 3: compact so each section fits one screen ═══ */
+    @media(max-width:640px) {
+      .mapw {
+        width: 79.6cqw;
+        top: 41%
+      }
+
+      .eu-card {
+        top: -17cqw
+      }
+
+      .eu-card-top {
+        grid-template-columns: 34px minmax(0, 1fr);
+        gap: 4px 10px
+      }
+
+      .eu-card-top .ico {
+        grid-row: 1 / 3
+      }
+
+      .eu-card-top b {
+        font-size: 13px
+      }
+
+      .eu-card-top small {
+        font-size: 11.5px
+      }
+
+      .eu-card-top .pill {
+        grid-column: 2;
+        justify-self: start;
+        height: 20px;
+        padding: 0 8px;
+        font-size: 10px
+      }
+
+      .sec {
+        padding: 48px 0
+      }
+
+      .sec-head {
+        margin-bottom: 16px
+      }
+
+      .h2 {
+        margin-top: 10px;
+        font-size: clamp(1.9rem, 8.4vw, 2.3rem);
+        line-height: 1.06
+      }
+
+      .kicker {
+        font-size: 12px
+      }
+
+      .body {
+        font-size: .98rem;
+        line-height: 1.5
+      }
+
+      .ticks {
+        margin-top: 14px;
+        gap: 8px
+      }
+
+      .ticks li {
+        font-size: .95rem
+      }
+
+      .split {
+        gap: 18px
+      }
+
+      .lib {
+        row-gap: 12px
+      }
+
+      .lib-imp::after,
+      .lib-org::after {
+        display: none
+      }
+
+      .lib-org {
+        padding: 8px 14px 8px 10px
+      }
+
+      .rec {
+        padding: 14px
+      }
+
+      .rec dl {
+        margin-top: 10px
+      }
+
+      .rec dl div {
+        padding: 6px 0;
+        font-size: 13px
+      }
+
+      .hub {
+        padding: 14px
+      }
+
+      .meter {
+        margin: 10px 0 2px
+      }
+
+      .sup li {
+        padding: 8px 0
+      }
+
+      .trail-h {
+        margin-top: 12px
+      }
+
+      .trail {
+        padding: 10px 12px;
+        gap: 6px
+      }
+
+      .chain {
+        gap: 18px
+      }
+
+      .chain-note {
+        margin-top: 24px;
+        font-size: .95rem
+      }
+
+      .stats {
+        margin-top: 18px
+      }
+
+      .about-meta {
+        margin-top: 14px
+      }
+
+      #about .body {
+        font-size: .92rem
+      }
+    }
+
+    @media(max-width:640px) {
+      .sec {
+        padding: 40px 0
+      }
+
+      .chain li {
+        grid-template-columns: 56px minmax(0, 1fr);
+        column-gap: 20px
+      }
+
+      .cn {
+        width: 56px;
+        height: 56px
+      }
+
+      .cn svg {
+        width: 24px;
+        height: 24px
+      }
+
+      .chain::before,
+      .chain::after {
+        left: 27px;
+        top: 28px;
+        bottom: 28px
+      }
+
+      .chain {
+        gap: 14px;
+        margin-top: 22px
+      }
+
+      .chain b {
+        font-size: 1.05rem
+      }
+
+      .chain small {
+        font-size: .88rem
+      }
+
+      .chain-note {
+        margin-top: 18px;
+        font-size: .9rem
+      }
+
+      .rec dl div:last-child,
+      .lib-org small {
+        display: none
+      }
+
+      .rec dl div:nth-child(4) {
+        border-bottom: 0
+      }
+
+      .lib-org {
+        padding: 10px 14px 10px 10px
+      }
+
+      .lib-actions {
+        margin-top: 0
+      }
+    }
+
+    @media(max-width:640px) {
+      .ticks {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px 14px;
+        margin-top: 10px
+      }
+
+      .ticks li {
+        font-size: .88rem;
+        gap: 8px
+      }
+
+      .ticks li::before {
+        width: 18px;
+        height: 18px;
+        background-size: 12px
+      }
+
+      #library .body,
+      #hub .body {
+        font-size: .92rem
+      }
+
+      .rec-top .ico {
+        width: 38px;
+        height: 38px
       }
     }
   </style>
