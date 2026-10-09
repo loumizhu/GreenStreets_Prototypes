@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/greenstreets-theme.css?v=148">
 <link rel="stylesheet" href="css/retailer-user.css?v=16">
-<link rel="stylesheet" href="css/greenstreets-light.css?v=107">
+<link rel="stylesheet" href="css/greenstreets-light.css?v=108">
 <style>
 /* Dashboard weekly-chart: grouped pixel bars over a dashed grid (ported from Retailer Admin) */
 .wk-chart{display:flex;gap:7px}
@@ -23,11 +23,11 @@
 .wk-bar{width:28%;min-height:3px;border-radius:4px 4px 1px 1px;transition:opacity .15s,filter .12s;cursor:pointer}
 .wk-bar:hover{filter:brightness(1.18)}
 .wk-approved{background:#8ad2ac}
-.wk-submitted{background:#8e98ab}
-.wk-halftone{background:#e0605a}
+.wk-submitted{background:#3f6fd1}
+.wk-halftone{background:#16224a;outline:1px solid rgba(120,150,220,.28);outline-offset:-1px}
 .wk-bar.wk-approved{box-shadow:0 0 7px rgba(138,210,172,.45)}
-.wk-bar.wk-submitted{box-shadow:0 0 8px rgba(142,152,171,.4)}
-.wk-bar.wk-halftone{box-shadow:0 0 8px rgba(224,96,90,.45)}
+.wk-bar.wk-submitted{box-shadow:0 0 8px rgba(63,111,209,.4)}
+.wk-bar.wk-halftone{box-shadow:0 0 8px rgba(22,34,74,.5)}
 .wk-days{display:flex;gap:2px}
 .wk-day{flex:1;text-align:center;font-size:12px;font-weight:600;color:var(--tw2)}
 .wk-day span{font-size:10px;font-weight:400;color:var(--tw3)}
