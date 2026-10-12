@@ -41,6 +41,7 @@
     var f = (location.pathname.split('/').pop() || '').replace(/-Light\.html$/i, '.html');
     f = f.replace(/^04-greenstreets_supplier_portal_/, '').replace(/\.html$/i, '');
     if(/^Settings$/i.test(f))                  return 'settings';
+    if(/^Notifications$/i.test(f))             return 'notifications';
     if(/^Products$|^Product-Detail$/i.test(f)) return 'products';
     if(/^Documents$/i.test(f))                 return 'docs';
     if(/^Packaging/i.test(f))                  return 'packaging';
@@ -49,19 +50,9 @@
     return '';
   }
 
-  var NOTIFS = [
-    {t:'Packaging data due in 12 days',        s:'Primark Stores Ltd · 26 Jul 2026',    c:'amber'},
-    {t:'3 components need review',             s:'AI-imported values awaiting your check',   c:'blue'},
-    {t:'Declaration of Conformity requested',  s:'Swing tag · supporting document',     c:'green'}
-  ];
-
   function sidebarHtml(active){
     var items = SP_NAV.map(function(n){
       return '<a class="nav-item' + (n.key === active ? ' active' : '') + '" onclick="go(\'' + n.id + '\')">' + n.icon + n.label + '</a>';
-    }).join('');
-    var pop = NOTIFS.map(function(n){
-      return '<div class="sb-notif-item"><span class="sb-notif-dot ' + n.c + '"></span>' +
-             '<div><div class="sb-notif-t">' + n.t + '</div><div class="sb-notif-s">' + n.s + '</div></div></div>';
     }).join('');
     return '' +
       '<div class="sb-logo-zone"><img class="gs-logo-img sb-logo" src="img/Logo-WG.png" alt="Greenstreets"></div>' +
@@ -69,12 +60,9 @@
       items +
       '<div class="sb-divider"></div>' +
       '<a class="nav-item' + (active === 'settings' ? ' active' : '') + '" onclick="go(\'sp_settings\')">' + ICON.settings + 'Settings</a>' +
-      '<div class="sb-notif-wrap-sb">' +
-        '<div class="sb-notif-row" onclick="gsSpToggleNotifs(event)" title="Notifications">' +
-          '<div class="sb-bell-btn">' + ICON.bell + '<span class="bell-badge">3</span></div>' +
-          '<span class="sb-notif-label">Notifications</span>' +
-        '</div>' +
-        '<div class="sb-notif-pop" id="spNotifPop" hidden><div class="sb-notif-pop-hdr">Notifications</div>' + pop + '</div>' +
+      '<div class="sb-notif-row" onclick="go(\'sp_notifications\')" title="Notifications"' + (active === 'notifications' ? ' style="background:rgba(255,255,255,.06)"' : '') + '>' +
+        '<div class="sb-bell-btn">' + ICON.bell + '<span class="bell-badge">3</span></div>' +
+        '<span class="sb-notif-label"' + (active === 'notifications' ? ' style="color:var(--tw2)"' : '') + '>Notifications</span>' +
       '</div>' +
       '<div class="sb-user" style="cursor:pointer" onclick="go(\'sp_settings\')" title="Account settings">' +
         '<div class="sb-avatar">LP</div>' +
@@ -84,15 +72,25 @@
       '</div>';
   }
 
-  window.gsSpToggleNotifs = function(ev){
-    if(ev) ev.stopPropagation();
-    var p = document.getElementById('spNotifPop'); if(!p) return;
-    p.hidden = !p.hidden;
-  };
-  document.addEventListener('click', function(e){
-    var p = document.getElementById('spNotifPop');
-    if(p && !p.hidden && p.parentNode && !p.parentNode.contains(e.target)) p.hidden = true;
-  });
+  /* Collapsible rail — same behaviour as the Retailer Admin sidebar: click the
+     right edge (.sb-edge) to toggle; state shared via localStorage. */
+  function enhanceCollapse(sb){
+    if(sb.querySelector('.sb-edge')) return;
+    try{ if(localStorage.getItem('gsSbCollapsed')==='1') sb.classList.add('sb-collapsed'); }catch(e){}
+    function syncTitles(){
+      var c = sb.classList.contains('sb-collapsed');
+      sb.querySelectorAll('.nav-item').forEach(function(n){ n.title = c ? (n.textContent||'').trim() : ''; });
+    }
+    var edge = document.createElement('div');
+    edge.className = 'sb-edge'; edge.title = 'Collapse / expand sidebar';
+    edge.addEventListener('click', function(){
+      sb.classList.toggle('sb-collapsed');
+      try{ localStorage.setItem('gsSbCollapsed', sb.classList.contains('sb-collapsed') ? '1' : '0'); }catch(e){}
+      syncTitles();
+    });
+    sb.appendChild(edge);
+    syncTitles();
+  }
 
   function mount(){
     var shell = document.querySelector('.pshell');
@@ -107,6 +105,7 @@
     sb.innerHTML = sidebarHtml(currentKey());
     row.appendChild(sb);
     row.appendChild(shell);
+    enhanceCollapse(sb);
 
     /* Settings now lives in the left pane — drop the header gear it duplicates. */
     var gear = shell.querySelector('.ph button[onclick*="sp_settings"]');

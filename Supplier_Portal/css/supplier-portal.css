@@ -96,7 +96,7 @@ html,body{height:100%;font-family:"Inter",sans-serif;color:var(--tw)}
 
 /* Product cards v2 — landing page */
 /* Landing page tabs */
-.landing-tabs{display:flex;gap:6px;margin:0 auto 16px;max-width:660px;border-bottom:1px solid rgba(255,255,255,.1);padding-bottom:0}
+.landing-tabs{display:flex;gap:6px;margin:0 0 16px;max-width:none;border-bottom:1px solid rgba(255,255,255,.1);padding-bottom:0}
 .landing-tab{font-family:"Inter",sans-serif;font-size:12px;font-weight:600;color:rgba(255,255,255,.45);background:transparent;border:none;border-bottom:2px solid transparent;padding:10px 4px;margin-bottom:-1px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .12s}
 .landing-tab:hover{color:rgba(255,255,255,.75)}
 .landing-tab.active{color:var(--gs);border-bottom-color:var(--gs)}
@@ -597,7 +597,7 @@ table[tabindex]:focus-visible{outline:none}
 .pcmp-menu.pcmp-open{display:flex}
 
 /* ── Product detail page ── */
-.pd-wrap{max-width:1180px;margin:0 auto}
+.pd-wrap{max-width:none;margin:0}
 .pd-back-row{margin-bottom:14px}
 .pd-back{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 14px;border-radius:9px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);color:rgba(255,255,255,.7);font-family:"Inter",sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .12s}
 .pd-back:hover{color:#fff;border-color:rgba(255,255,255,.3)}
@@ -1388,3 +1388,83 @@ button.gs-crumb:hover{background:rgba(78,187,129,.15);border-color:rgba(78,187,1
 .sb-notif-dot.green{background:var(--gs-l)}
 .sb-notif-t{font-size:11.5px;font-weight:600;color:var(--tw);line-height:1.3}
 .sb-notif-s{font-size:10px;color:var(--tw3);margin-top:2px;line-height:1.3}
+
+/* ═══ Collapsible sidebar — ported from the Retailer Admin portal ═══ */
+.sidebar{position:relative;transition:width .2s ease}
+.sb-logo-zone{position:relative}
+/* wider, easier-to-hit hotspot; the cursor itself is a little "collapse panel" button */
+.sb-edge{position:absolute;top:0;right:0;width:14px;height:100%;z-index:6;user-select:none;
+  cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Ccircle cx='15' cy='15' r='13' fill='%23163a2b' stroke='%238fe3b6' stroke-width='2'/%3E%3Crect x='8' y='8' width='14' height='14' rx='2.5' fill='none' stroke='%238fe3b6' stroke-width='2'/%3E%3Cpath d='M13.5 8v14' stroke='%238fe3b6' stroke-width='2'/%3E%3C/svg%3E") 15 15, col-resize;}
+.sb-edge:hover{background:linear-gradient(270deg,rgba(143,227,182,.55) 0,rgba(143,227,182,.55) 2px,transparent 2px)}
+/* chevron "tab" hint that pokes out of the seam on hover — the box is mirrored
+   (rounded on the LEFT, flat against the seam) but the ‹ chevron still points left */
+.sb-edge::after{
+  content:"";position:absolute;top:50%;right:-1px;
+  width:18px;height:44px;transform:translateY(-50%) translateX(-6px);
+  opacity:0;pointer-events:none;border-radius:8px 0 0 8px;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23c7f2da' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 6l-6 6 6 6'/%3E%3C/svg%3E") center/16px no-repeat,linear-gradient(270deg,rgba(23,58,43,.96),rgba(29,74,54,.96));
+  border:1px solid rgba(143,227,182,.45);border-right:none;
+  box-shadow:-2px 0 12px rgba(0,0,0,.35);
+  transition:opacity .18s ease,transform .18s cubic-bezier(.34,1.4,.64,1);
+}
+.sb-edge:hover::after{opacity:1;transform:translateY(-50%) translateX(0)}
+/* when already collapsed, flip the chevron to point › (expand) */
+.sidebar.sb-collapsed .sb-edge::after{
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23c7f2da' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 6l6 6-6 6'/%3E%3C/svg%3E") center/16px no-repeat,linear-gradient(270deg,rgba(23,58,43,.96),rgba(29,74,54,.96));
+}
+.sidebar.sb-collapsed{width:64px}
+.sidebar.sb-collapsed .sb-section{display:none}
+.sidebar.sb-collapsed .nav-item{justify-content:center;gap:0;padding-left:0;padding-right:0;font-size:0}
+.sidebar.sb-collapsed .nav-item svg{opacity:.9}
+.sidebar.sb-collapsed .sb-divider{margin-left:10px;margin-right:10px}
+.sidebar.sb-collapsed .sb-notif-row{justify-content:center;gap:0;padding-left:0;padding-right:0}
+.sidebar.sb-collapsed .sb-notif-label{display:none}
+.sidebar.sb-collapsed .sb-user{justify-content:center;padding-left:0;padding-right:0}
+.sidebar.sb-collapsed .sb-user-info,.sidebar.sb-collapsed .sb-logout{display:none}
+/* collapsed rail swaps the wordmark for the compact Greenstreets mark (the
+   favicon tile) — the full logo is unreadable at 64px, and hiding it entirely
+   left the rail with no brand at all. */
+.sidebar.sb-collapsed .sb-logo-zone{padding:var(--sp-3) 6px}
+.sidebar.sb-collapsed .sb-logo{display:none}
+.sidebar.sb-collapsed .sb-logo-zone::after{
+  content:"";display:block;width:34px;height:34px;margin:0 auto;border-radius:8px;
+  background:url('../../img/greenstreet-favicon.png') center/contain no-repeat;
+  filter:drop-shadow(0 1px 6px rgba(0,0,0,.3));
+}
+
+/* RA sidebar gradient, applied to the supplier left pane */
+.sp-app>.sidebar{background:linear-gradient(90deg,rgba(14,26,46,.98) 0%,rgba(22,40,66,.95) 100%);border:1px solid var(--bw,var(--line))}
+/* collapsed rail: the bell row sits in a wrapper here */
+.sidebar.sb-collapsed .sb-notif-wrap-sb{margin-top:auto}
+
+/* ═══ Notifications page — ported from the Retailer Admin portal ═══ */
+.notif-item{display:flex;align-items:flex-start;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line);position:relative;transition:background .15s;cursor:default}
+.notif-item:last-child{border-bottom:none}
+.notif-item:hover{background:rgba(255,255,255,.025)}
+.notif-item.notif-unread{background:rgba(255,255,255,.035)}
+.notif-item.notif-unread::after{content:'';position:absolute;top:18px;right:14px;width:7px;height:7px;border-radius:50%;background:var(--bl-l)}
+.notif-item[data-type="urgent"].notif-unread::after{background:var(--red)}
+.notif-item[data-type="warning"].notif-unread::after{background:var(--amber)}
+.notif-item[data-type="success"].notif-unread::after{background:var(--gs-l)}
+.notif-stripe{width:3px;flex-shrink:0;border-radius:4px;align-self:stretch;min-height:32px}
+.notif-stripe-urgent{background:var(--red)}
+.notif-stripe-warning{background:var(--amber)}
+.notif-stripe-success{background:var(--gs-l)}
+.notif-stripe-info{background:var(--bl-l)}
+.notif-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.notif-icon-urgent{background:rgba(224,96,90,.15);color:#ff9c96}
+.notif-icon-warning{background:rgba(245,166,35,.15);color:#ffcd7a}
+.notif-icon-success{background:rgba(78,187,129,.15);color:var(--gs-l)}
+.notif-icon-info{background:rgba(91,156,246,.15);color:var(--bl-l)}
+.notif-body{flex:1;min-width:0}
+.notif-top{display:flex;align-items:baseline;gap:10px;margin-bottom:4px;flex-wrap:wrap}
+.notif-title{font-size:13px;font-weight:600;color:var(--tw1)}
+.notif-time{font-size:11px;color:var(--tw3);margin-left:auto;white-space:nowrap}
+.notif-msg{font-size:12px;color:var(--tw2);line-height:1.55;margin-bottom:8px}
+.notif-actions{display:flex;gap:6px;flex-wrap:wrap}
+.notif-type-pill{flex-shrink:0;align-self:flex-start;margin-top:2px;margin-left:4px}
+.notif-hidden{display:none}
+.notif-filter-btn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:20px;color:var(--tw2);font-size:11px;font-weight:500;padding:4px 12px;cursor:pointer;transition:background .15s,border-color .15s;display:inline-flex;align-items:center;gap:5px}
+.notif-filter-btn:hover{background:rgba(255,255,255,.1)}
+.notif-filter-btn.active{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25);color:var(--tw1)}
+.notif-filter-count{background:rgba(255,255,255,.15);border-radius:10px;padding:0 6px;font-size:10px;color:#eef1f6}

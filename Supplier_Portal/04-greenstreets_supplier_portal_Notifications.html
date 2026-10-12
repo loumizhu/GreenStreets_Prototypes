@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Greenstreets — Supplier Portal · Notifications</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/greenstreets-theme.css?v=149">
+<link rel="stylesheet" href="css/supplier-portal.css?v=64">
+</head>
+<body>
+<div class="screen on" id="sp_notifications"><div class="pshell">
+  <div class="ph">
+    <div><div style="font-size:16px;font-weight:700;color:#fff">Notifications</div></div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <button class="btn-g" onclick="document.querySelectorAll('#sp_notifications .notif-item.notif-unread').forEach(function(n){n.classList.remove('notif-unread')});document.querySelectorAll('.bell-badge').forEach(function(b){b.style.display='none'})">Mark all read</button>
+    </div>
+  </div>
+  <div class="pbody"><div>
+      <div class="grp" style="overflow:visible">
+        <div class="grp-hdr">All notifications
+          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+            <button class="notif-filter-btn active" onclick="gsNotifFilter(this,'all')">All <span class="notif-filter-count">8</span></button>
+            <button class="notif-filter-btn" onclick="gsNotifFilter(this,'urgent')">Urgent <span class="notif-filter-count">2</span></button>
+            <button class="notif-filter-btn" onclick="gsNotifFilter(this,'warning')">Warning <span class="notif-filter-count">2</span></button>
+            <button class="notif-filter-btn" onclick="gsNotifFilter(this,'success')">Success <span class="notif-filter-count">2</span></button>
+            <button class="notif-filter-btn" onclick="gsNotifFilter(this,'info')">Info <span class="notif-filter-count">2</span></button>
+          </div>
+        </div>
+        <div class="grp-body" style="padding:0">
+          <div class="notif-item notif-unread" data-type="urgent">
+            <div class="notif-stripe notif-stripe-urgent"></div>
+            <div class="notif-icon notif-icon-urgent"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+            <div class="notif-body">
+              <div class="notif-top"><span class="notif-title">Packaging data due in 12 days</span><span class="notif-time">Today 09:30</span></div>
+              <div class="notif-msg"><strong>Primark Stores Ltd</strong> expects your packaging data by <strong>26 Jul 2026</strong>. 4 products are still incomplete.</div>
+              <div class="notif-actions"><button class="btn-g-sm" onclick="go('sp2')">View products</button></div>
+            </div>
+            <span class="pill pill-red notif-type-pill">Urgent</span>
+          </div>
+          <div class="notif-item notif-unread" data-type="urgent">
+            <div class="notif-stripe notif-stripe-urgent"></div>
+            <div class="notif-icon notif-icon-urgent"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+            <div class="notif-body">
+              <div class="notif-top"><span class="notif-title">Declaration of Conformity requested</span><span class="notif-time">1 hr ago</span></div>
+              <div class="notif-msg">Primark requested a DoC for the <strong>Swing tag</strong> component. Upload the signed document before the deadline.</div>
+              <div class="notif-actions"><button class="btn-g-sm" onclick="go('sp2_docs')">Open documents</button></div>
+            </div>
+            <span class="pill pill-red notif-type-pill">Urgent</span>
+          </div>
+          <div class="notif-item notif-unread" data-type="warning">
+            <div class="notif-stripe notif-stripe-warning"></div>
+            <div class="notif-icon notif-icon-warning"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+            <div class="notif-body">
+              <div class="notif-top"><span class="notif-title">3 components need review</span><span class="notif-time">3 hrs ago</span></div>
+              <div class="notif-msg">AI-imported values for <strong>3 components</strong> are awaiting your check before they can be marked complete.</div>
+              <div class="notif-actions"><button class="btn-g-sm" onclick="go('sp2_pkg')">Review components</button></div>
+            </div>
+            <span class="pill pill-amber notif-type-pill">Warning</span>
+          </div>
+          <div class="notif-item" data-type="warning">
+            <div class="notif-stripe notif-stripe-warning"></div>
+            <div class="notif-icon notif-icon-warning"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+            <div class="notif-body">
+              <div class="notif-top"><span class="notif-title">Recycled-content value missing</span><span class="notif-time">Yesterday 16:30</span></div>
+              <div class="notif-msg"><strong>Poly bag</strong> is flagged as containing recycled content but has no PCR % entered. Add it to pass the PPWR check.</div>
+              <div class="notif-actions"><button class="btn-g-sm" onclick="go('sp2_pkg')">Open packaging</button></div>
+            </div>
+            <span class="pill pill-amber notif-type-pill">Warning</span>
+          </div>
+          <div class="notif-item" data-type="success">
+            <div class="notif-stripe notif-stripe-success"></div>
+            <div class="notif-icon notif-icon-success"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="notif-body">
+              <div class="notif-top"><span class="notif-title">AI import accepted</span><span class="notif-time">Yesterday 11:20</span></div>
+              <div class="notif-msg"><strong>5 components</strong> from <em>Luntai_spec_sheet.pdf</em> were added to your packaging library.</div>
+              
+            </div>
+            <span class="pill pill-green notif-type-pill">Success</span>
+          </div>
+          <div class="notif-item" data-type="success">
+            <div class="notif-stripe notif-stripe-success"></div>
+            <div class="notif-icon notif-icon-success"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="notif-body">
+              <div class="notif-top"><span class="notif-title">Product marked complete — PRK-003</span><span class="notif-time">Yesterday 09:15</span></div>
+              <div class="notif-msg"><strong>PRK-003-DRS-RED</strong> is now complete and has been submitted to Primark.</div>
+              <div class="notif-actions"><button class="btn-g-sm" onclick="go('sp2')">View products</button></div>
+            </div>
+            <span class="pill pill-green notif-type-pill">Success</span>
+          </div>
+          <div class="notif-item" data-type="info">
+            <div class="notif-stripe notif-stripe-info"></div>
+            <div class="notif-icon notif-icon-info"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+            <div class="notif-body">
+              <div class="notif-top"><span class="notif-title">Retailer added a new field</span><span class="notif-time">06 Jul 2026</span></div>
+              <div class="notif-msg">Primark now asks for <strong>Material Compliance</strong> on every component. Existing components were left unchanged.</div>
+              
+            </div>
+            <span class="pill pill-blue notif-type-pill">Info</span>
+          </div>
+          <div class="notif-item" data-type="info">
+            <div class="notif-stripe notif-stripe-info"></div>
+            <div class="notif-icon notif-icon-info"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+            <div class="notif-body">
+              <div class="notif-top"><span class="notif-title">Platform update — data-grid export &amp; bulk select</span><span class="notif-time">04 Jul 2026</span></div>
+              <div class="notif-msg">All listing tables now support CSV export of filtered views, bulk selection and a column chooser.</div>
+              
+            </div>
+            <span class="pill pill-blue notif-type-pill">Info</span>
+          </div>
+        </div>
+      </div>
+  </div></div>
+</div></div>
+<script>
+window.gsNotifFilter=function(btn,type){
+  var s=btn.closest('.screen');
+  s.querySelectorAll('.notif-filter-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+  s.querySelectorAll('.notif-item').forEach(function(i){i.classList.toggle('notif-hidden',type!=='all'&&i.dataset.type!==type)});
+};
+</script>
+<script src="js/gs-schema.js?v=2"></script>
+<script src="js/supplier-portal.js?v=70"></script>
+<script src="js/supplier-shell.js?v=2"></script>
+<script src="js/greenstreets-theme.js?v=35"></script>
+<script src="js/gs-appearance.js?v=7"></script>
+</body>
+</html>

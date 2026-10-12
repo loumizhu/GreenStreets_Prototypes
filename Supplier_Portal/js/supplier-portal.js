@@ -3624,6 +3624,7 @@ var GS_PAGES = {
   'sp1':                   '04-greenstreets_supplier_portal_Login.html',
   'sp_welcome':            '04-greenstreets_supplier_portal_Welcome.html',
   'sp_settings':           '04-greenstreets_supplier_portal_Settings.html',
+  'sp_notifications':      '04-greenstreets_supplier_portal_Notifications.html',
   'sp2':                   '04-greenstreets_supplier_portal_Products.html',
   'sp2_pkg':               '04-greenstreets_supplier_portal_Packaging.html',
   'sp2_docs':              '04-greenstreets_supplier_portal_Documents.html',
