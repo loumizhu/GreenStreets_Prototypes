@@ -14,7 +14,8 @@
    .pbody keep their markup.  The light twins keep working because nav uses
    go(id) — greenstreets-light.js re-wraps go() to resolve the -Light page.
 
-   Skipped: Login (no chrome) and the Component Wizard (a focused flow that
+   Skipped: Login (no chrome), Welcome/onboarding (a standalone flow — it
+   doesn't link this file) and the Component Wizard (a focused flow that
    already owns its own left pane, .snav).
    ══════════════════════════════════════════════════════════════════════════ */
 (function(){
