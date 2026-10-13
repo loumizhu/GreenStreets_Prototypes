@@ -1496,18 +1496,21 @@
 
     /* ── 01 · Who it concerns: a chain of four hands ─────────────────────────── */
     .chain {
+      /* headroom above the circles: the chain animation (and future elements) live here */
+      --chain-head: clamp(120px, 13vw, 170px);
       list-style: none;
       position: relative;
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      margin-top: clamp(40px, 5vw, 64px)
+      margin-top: clamp(40px, 5vw, 64px);
+      padding-top: var(--chain-head)
     }
 
     .chain::before,
     .chain::after {
       content: "";
       position: absolute;
-      top: 39px;
+      top: calc(var(--chain-head) + 39px);
       left: 12.5%;
       right: 12.5%;
       height: 2px;
@@ -1531,7 +1534,7 @@
 
     .chain li {
       position: relative;
-      z-index: 1;
+      z-index: 2;
       text-align: center;
       padding: 0 12px
     }
@@ -1580,6 +1583,286 @@
       text-align: center;
       color: var(--tw2);
       font-size: 1.12rem
+    }
+
+    /* ── 01 · chain animation (built by the "chain run" script) ──────────────────
+       Manufacturer puffs a cloud → a box slides along the line, papers arc above it,
+       one more paper per hand → the retailer lifts the stack, the EU seal stamps it,
+       all four circles turn green, hold, loop. Positions are measured, never hard-coded. */
+    .chain li.cfx {
+      position: absolute;
+      inset: 0;
+      display: block;
+      padding: 0;
+      pointer-events: none;
+      text-align: left
+    }
+
+    .chain li.cfx-under {
+      z-index: 1
+    }
+
+    .chain li.cfx-over {
+      z-index: 3
+    }
+
+    .cfx>* {
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+      will-change: transform, opacity
+    }
+
+    .cfx svg {
+      display: block;
+      overflow: visible
+    }
+
+    .cfx-box svg {
+      width: 36px;
+      height: 36px
+    }
+
+    .cfx-cloud svg {
+      width: 15px;
+      height: 10px;
+      fill: none;
+      stroke: #fff;
+      stroke-width: 1.3;
+      stroke-linejoin: round
+    }
+
+    .cfx-cloud.sm svg {
+      width: 10px;
+      height: 7px
+    }
+
+    .cfx svg .ol {
+      vector-effect: non-scaling-stroke
+    }
+
+    /* papers are drawn as outlines; the dark fill lets a stacked sheet hide the one beneath */
+    .cfx-paper .pg {
+      fill: var(--bg-1);
+      stroke: var(--gs-l);
+      stroke-width: 2.2;
+      stroke-linejoin: round
+    }
+
+    .cfx-paper .pl {
+      fill: none;
+      stroke: var(--gs-l);
+      stroke-width: 2;
+      stroke-linecap: round;
+      opacity: .75
+    }
+
+    /* papers are drawn at 2x and shown at half scale, so the retailer's zoom-up stays crisp */
+    .cfx-papers {
+      width: 28px;
+      height: 36px
+    }
+
+    .cfx-paper {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 28px;
+      height: 36px;
+      opacity: 0;
+      transform: translate(calc(var(--k) * 5px), calc(var(--k) * -6px + 16px)) scale(.4);
+      transition: opacity .3s var(--ease), transform .45s cubic-bezier(.34, 1.56, .64, 1)
+    }
+
+    .cfx-paper.on {
+      opacity: 1;
+      transform: translate(calc(var(--k) * 5px), calc(var(--k) * -6px)) scale(1)
+    }
+
+    .cfx-paper svg {
+      width: 28px;
+      height: 36px;
+      filter: drop-shadow(0 4px 6px rgba(0, 0, 0, .45))
+    }
+
+    .cfx-check {
+      stroke-dasharray: 12;
+      stroke-dashoffset: 12
+    }
+
+    .cfx-eu svg {
+      width: 39px;
+      height: 39px;
+      filter: drop-shadow(0 3px 6px rgba(0, 0, 0, .5))
+    }
+
+    .cfx-ring {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid var(--gs-l)
+    }
+
+    /* "EU compliant" tag over each hand, when the whole chain turns green */
+    .cfx>.cfx-tag {
+      top: auto;
+      left: auto;
+      padding: 4px 10px 4px 8px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      border-radius: 999px;
+      border: 1px solid rgba(143, 227, 182, .45);
+      background: rgba(11, 24, 48, .85);
+      box-shadow: 0 0 18px rgba(78, 187, 129, .35);
+      color: var(--gs-l);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      line-height: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      transform: translate(-50%, -50%) translateY(10px) scale(.7);
+      transition: opacity .35s var(--ease), transform .55s cubic-bezier(.34, 1.56, .64, 1), letter-spacing .7s var(--ease)
+    }
+
+    .cfx-tag svg {
+      width: 11px;
+      height: 11px;
+      flex-shrink: 0;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 14;
+      stroke-dashoffset: 14;
+      transition: stroke-dashoffset .4s var(--ease) .25s
+    }
+
+    .cfx>.cfx-tag.on {
+      opacity: 1;
+      letter-spacing: .08em;
+      transform: translate(-50%, -50%) scale(1)
+    }
+
+    .cfx-tag.on svg {
+      stroke-dashoffset: 0
+    }
+
+    /* a light sweep crosses the tag as it lands */
+    .cfx-tag::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, .45) 50%, transparent 70%);
+      transform: translateX(-120%)
+    }
+
+    .cfx-tag.on::after {
+      animation: tagSweep .9s var(--ease) .3s both
+    }
+
+    @keyframes tagSweep {
+      to { transform: translateX(120%) }
+    }
+
+    .cfx.vert>.cfx-tag {
+      transform: translate(0, -50%) translateX(-8px) scale(.7);
+      transform-origin: left center;
+      font-size: 9px;
+      padding: 3px 7px 3px 6px;
+      gap: 4px
+    }
+
+    .cfx.vert>.cfx-tag.on {
+      transform: translate(0, -50%) scale(1)
+    }
+
+    .cfx.vert .cfx-tag svg {
+      width: 9px;
+      height: 9px
+    }
+
+    /* circle states */
+    .chain.fx .cn {
+      transition: transform .5s var(--ease), opacity .5s var(--ease), box-shadow .6s var(--ease),
+        border-color .6s var(--ease), background .6s var(--ease), color .6s var(--ease);
+      transition-delay: 0s
+    }
+
+    .chain li.fx-on .cn {
+      border-color: var(--gs-l);
+      color: #fff;
+      background: radial-gradient(circle at 50% 40%, rgba(143, 227, 182, .16), transparent 70%), var(--bg-1);
+      box-shadow: 0 0 0 6px var(--bg-0), 0 0 30px 6px rgba(143, 227, 182, .5);
+      animation: cnShine .7s var(--ease)
+    }
+
+    .chain li.fx-ok .cn {
+      border-color: var(--gs-l);
+      color: #fff;
+      background: radial-gradient(circle at 50% 40%, rgba(78, 187, 129, .55), rgba(47, 156, 98, .28) 70%), var(--bg-1);
+      box-shadow: 0 0 0 6px var(--bg-0), 0 0 36px 6px rgba(78, 187, 129, .6);
+      animation: cnOk .6s var(--ease)
+    }
+
+    .chain li.fx-ok b {
+      color: var(--gs-l);
+      transition: color .6s var(--ease)
+    }
+
+    .chain.fx-ok::after {
+      box-shadow: 0 0 22px rgba(78, 187, 129, .9);
+      transition: transform 1.5s cubic-bezier(.65, 0, .35, 1) .25s, box-shadow .6s var(--ease)
+    }
+
+    @keyframes cnShine {
+      0% { transform: scale(1) }
+      35% { transform: scale(1.12) }
+      100% { transform: scale(1) }
+    }
+
+    @keyframes cnOk {
+      0% { transform: scale(1) }
+      35% { transform: scale(1.14) }
+      100% { transform: scale(1) }
+    }
+
+    /* the distributor's truck comes to life while the box passes through */
+    .cn {
+      position: relative
+    }
+
+    .chain li.fx-drive .cn svg {
+      animation: cnDrive .32s ease-in-out infinite
+    }
+
+    .chain li.fx-drive .cn::after {
+      content: "";
+      position: absolute;
+      left: 16%;
+      top: 42%;
+      width: 14%;
+      height: 16%;
+      background:
+        linear-gradient(currentColor, currentColor) 0 0 / 100% 1.5px no-repeat,
+        linear-gradient(currentColor, currentColor) 30% 50% / 70% 1.5px no-repeat,
+        linear-gradient(currentColor, currentColor) 0 100% / 100% 1.5px no-repeat;
+      opacity: .7;
+      animation: cnSpeed .32s linear infinite
+    }
+
+    @keyframes cnDrive {
+      0%, 100% { transform: translate(1px, 0) }
+      50% { transform: translate(2.5px, -1.2px) }
+    }
+
+    @keyframes cnSpeed {
+      0% { transform: translateX(4px); opacity: 0 }
+      40% { opacity: .75 }
+      100% { transform: translateX(-6px); opacity: 0 }
     }
 
     /* ── 02 · Library: one record → many formats ─────────────────────────────── */
@@ -2652,6 +2935,7 @@
       }
 
       .chain {
+        --chain-head: 0px;
         grid-template-columns: 1fr;
         gap: 28px
       }
@@ -4067,6 +4351,208 @@
 
       remeasure(); onScroll();
       seams.forEach(function (s) { s.t = s.tt; s.q = s.qq; render(s, performance.now() / 1000) })
+    })();
+  </script>
+  <script>
+    /* ── 01 · chain run: manufacturer → importer → distributor → retailer, on a loop ──
+       Everything is a pure function of one clock (seconds into the cycle), so pausing
+       off-screen and resuming can't drift. Geometry comes from offsetLeft/Top, which
+       ignore the circles' own scale animations. */
+    (function () {
+      var chain = document.querySelector('.chain');
+      if (!chain || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var lis = [].slice.call(chain.children).filter(function (n) { return n.querySelector('.cn') }),
+        cns = lis.map(function (li) { return li.querySelector('.cn') });
+      if (lis.length !== 4) return;
+
+      function layer(cls, html) {
+        var li = document.createElement('li');
+        li.className = 'cfx ' + cls; li.setAttribute('aria-hidden', 'true'); li.innerHTML = html;
+        chain.appendChild(li); return li;
+      }
+      var CLOUD = '<svg viewBox="0 0 22 14"><path d="M5.5 13h11a4.5 4.5 0 0 0 .6-8.96A5.5 5.5 0 0 0 6.6 3.2 4.9 4.9 0 0 0 5.5 13Z" class="ol"/></svg>',
+        PAPER = '<svg viewBox="0 0 14 18"><path class="pg ol" d="M1 1.5A.5.5 0 0 1 1.5 1h8L13 4.5v12a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5Z"/>' +
+          '<path class="pg ol" d="M9.5 1v3.5H13"/>' +
+          '<path class="pl ol" d="M3.5 7.5h7M3.5 10h7M3.5 12.5h4.5"/></svg>',
+        stars = '';
+      for (var k = 0; k < 12; k++) {
+        var a = k / 12 * Math.PI * 2, x = 13 + Math.sin(a) * 8, y = 13 - Math.cos(a) * 8, pts = [];
+        for (var j = 0; j < 10; j++) {
+          var b = j / 10 * Math.PI * 2, r = j % 2 ? .62 : 1.5;
+          pts.push((x + Math.sin(b) * r).toFixed(2) + ',' + (y - Math.cos(b) * r).toFixed(2));
+        }
+        stars += '<polygon points="' + pts.join(' ') + '" fill="#ffcc00"/>';
+      }
+      var EU = '<svg viewBox="0 0 26 26"><circle cx="13" cy="13" r="12.4" fill="#0f3fa8" stroke="#fff" stroke-width="1.1"/>' + stars + '</svg>';
+
+      var under = layer('cfx-under',
+        '<div class="cfx-box"><svg viewBox="0 0 16 16"><path class="bx-side" d="M2 5.2 8 2l6 3.2v6.6L8 15l-6-3.2Z"/>' +
+        '<path class="bx-top" d="M2 5.2 8 8.4l6-3.2L8 2Z"/>' +
+        '<path d="M8 8.4V15M5 3.6l6 3.2" stroke="rgba(0,0,0,.28)" stroke-width=".8" fill="none"/></svg></div>'),
+        over = layer('cfx-over',
+          '<div class="cfx-cloud">' + CLOUD + '</div><div class="cfx-cloud sm">' + CLOUD + '</div>' +
+          '<div class="cfx-papers">' + [0, 1, 2].map(function (k) {
+            return '<div class="cfx-paper" style="--k:' + k + '">' + PAPER + '</div>';
+          }).join('') + '</div>' +
+          '<div class="cfx-ring"></div><div class="cfx-eu">' + EU + '</div>' +
+          [0, 1, 2, 3].map(function () {
+            return '<div class="cfx-tag"><svg viewBox="0 0 12 12"><path d="M2 6.3l2.6 2.6L10 3.4"/></svg>EU COMPLIANT</div>';
+          }).join(''));
+      var box = under.querySelector('.cfx-box'), side = box.querySelector('.bx-side'), lid = box.querySelector('.bx-top'),
+        clouds = over.querySelectorAll('.cfx-cloud'), stack = over.querySelector('.cfx-papers'),
+        papers = [].slice.call(over.querySelectorAll('.cfx-paper')), ring = over.querySelector('.cfx-ring'),
+        eu = over.querySelector('.cfx-eu'), tags = [].slice.call(over.querySelectorAll('.cfx-tag'));
+      /* the stamp leaves its check on the top paper (the third, by the time it's stamped) */
+      papers[2].querySelector('svg').insertAdjacentHTML('beforeend',
+        '<path class="cfx-check" d="M3.6 10.2l2.4 2.4 4.6-5" fill="none" stroke="#5fe39e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>');
+      var check = over.querySelector('.cfx-check');
+
+      /* geometry: circle centres in the chain's own coordinates */
+      var C = [], vert = false;
+      function measure() {
+        C = lis.map(function (li, i) {
+          var cn = cns[i];
+          return { x: li.offsetLeft + cn.offsetLeft + cn.offsetWidth / 2, y: li.offsetTop + cn.offsetTop + cn.offsetHeight / 2, r: cn.offsetWidth / 2 };
+        });
+        vert = Math.abs(C[1].y - C[0].y) > Math.abs(C[1].x - C[0].x);
+        over.classList.toggle('vert', vert);
+        /* stacked layout: the box hops over the circles, so it lives in the top layer there */
+        var home = vert ? over : under;
+        if (box.parentNode !== home) home.insertBefore(box, home.firstChild);
+        /* tags sit above each circle; in the stacked layout there's no room above, so they follow the title */
+        tags.forEach(function (tag, i) {
+          var c = C[i], b = lis[i].querySelector('b');
+          if (vert && b && b.firstChild) {
+            var rg = document.createRange(); rg.selectNodeContents(b);
+            var tr = rg.getBoundingClientRect(), cr = chain.getBoundingClientRect();
+            tag.style.left = (tr.right - cr.left + 10) + 'px';
+            tag.style.top = (tr.top - cr.top + tr.height / 2) + 'px';
+          } else {
+            tag.style.left = c.x + 'px';
+            tag.style.top = (c.y - c.r - 16) + 'px';
+          }
+        });
+      }
+      /* where the paper stack rests: above each hand (row layout) or on its shoulder (stacked layout, where the labels sit beside it) */
+      function anchor(i) {
+        var c = C[i];
+        return vert ? { x: c.x + c.r * .72, y: c.y - c.r * .72 } : { x: c.x, y: c.y - c.r - 18 };
+      }
+
+      /* timeline, in seconds */
+      var SEG = [[1.3, 3.1], [3.6, 5.4], [5.9, 7.7]], ON = [.5, 3.1, 5.4, 7.7],
+        POP = [7.9, 8.35], DROP = [8.4, 8.85], HIT = 8.85, OK = 9.45, OUT = [12.9, 13.5], CYCLE = 13.9;
+      /* the box warms from kraft to green as it travels */
+      var BOXC = [[201, 147, 90], [214, 178, 94], [166, 206, 112], [95, 211, 155]];
+
+      function cl(v) { return v < 0 ? 0 : v > 1 ? 1 : v }
+      function span(t, a, b) { return cl((t - a) / (b - a)) }
+      function inOut(u) { return u < .5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2 }
+      function out(u) { return 1 - Math.pow(1 - u, 3) }
+      function back(u) { var c = 1.7; return 1 + (c + 1) * Math.pow(u - 1, 3) + c * Math.pow(u - 1, 2) }
+      function put(el, x, y, s, o, extra) {
+        el.style.transform = 'translate(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px) translate(-50%,-50%) scale(' + s.toFixed(3) + ')' + (extra || '');
+        el.style.opacity = o.toFixed(3);
+      }
+      function mix(a, b, u) { return a.map(function (v, i) { return Math.round(v + (b[i] - v) * u) }) }
+      function rgb(c, d) { return 'rgb(' + c.map(function (v) { return Math.max(0, Math.min(255, v + d)) }).join(',') + ')' }
+      function flag(el, c, on) { if (el.classList.contains(c) !== on) el.classList.toggle(c, on) }
+
+      function frame(t) {
+        var fade = 1 - span(t, OUT[0], OUT[1]), live = fade > .5;
+
+        /* 1 · the manufacturer puffs a cloud from its chimney, inside the circle */
+        [0, .35].forEach(function (d, i) {
+          var u = span(t, .2 + d, 1.9 + d), c = C[0], k = c.r / 40;
+          put(clouds[i], c.x + k * (i ? 12 : 7) + u * k * (i ? 3 : -2), c.y - k * 13 - out(u) * k * 14,
+            k * (.7 + u * .45), Math.sin(u * Math.PI) * .95);
+        });
+
+        /* hands shine as the shipment reaches them; the truck drives while the box passes through */
+        lis.forEach(function (li, i) {
+          flag(li, 'fx-on', t >= ON[i] && live);
+          flag(li, 'fx-ok', t >= OK + i * .12 && live);
+          flag(tags[i], 'on', t >= OK + .1 + i * .18 && live);
+        });
+        flag(lis[2], 'fx-drive', t >= ON[2] - .2 && t < SEG[2][1] + .1);
+        flag(chain, 'fx-ok', t >= OK && live);
+
+        /* 2 · s = 0..3, how far along the chain the shipment is */
+        var s = 0;
+        SEG.forEach(function (g) { s += inOut(span(t, g[0], g[1])) });
+        var i = Math.min(2, Math.floor(s)), u = s - i, a = C[i], b = C[i + 1];
+
+        if (!vert) {
+          /* the box slides along the line, vanishing behind each circle on its way through */
+          put(box, a.x + (b.x - a.x) * u, a.y + (b.y - a.y) * u - 19, 1, (t >= 1 ? 1 : 0) * fade);
+        } else {
+          /* stacked layout: the box hops from circle centre to circle centre, over the icons. It grows
+             toward the top of the jump and shrinks as it lands (eased like a real jump), squashes on
+             landing, and is gone once it reaches the retailer. */
+          var lin = span(t, SEG[i][0], SEG[i][1]), hop = Math.sin(lin * Math.PI),
+            born = back(span(t, 1, 1.3)), land = 0;
+          SEG.forEach(function (g) { var q = span(t, g[1], g[1] + .22); if (q > 0 && q < 1) land = Math.sin(q * Math.PI) });
+          var gone = 1 - span(t, SEG[2][1] + .05, SEG[2][1] + .3);
+          put(box, a.x, a.y + (b.y - a.y) * u, (.85 + .65 * hop) * born * (1 - .35 * (1 - gone)),
+            (t >= 1 ? 1 : 0) * gone * fade,
+            land ? ' scale(' + (1 + .16 * land).toFixed(3) + ',' + (1 - .2 * land).toFixed(3) + ')' : '');
+        }
+        var col = mix(BOXC[i], BOXC[i + 1], u);
+        side.setAttribute('fill', rgb(col, -40));
+        lid.setAttribute('fill', rgb(col, 25));
+
+        /* the papers fly a curved path from hand to hand */
+        var pa = anchor(i), pb = anchor(i + 1), arc = Math.sin(u * Math.PI);
+        var px = pa.x + (pb.x - pa.x) * u + (vert ? arc * 7 : 0),
+          py = pa.y + (pb.y - pa.y) * u - (vert ? 0 : arc * 44),
+          sc = vert ? .85 : 1;
+        /* 3 · the retailer lifts the stack for the stamp */
+        var pop = back(span(t, POP[0], POP[1]));
+        if (s >= 3) { py -= pop * (vert ? 4 : 40); sc += pop * (vert ? .25 : .7) }
+        var hit = span(t, HIT, HIT + .25),
+          shake = hit > 0 && hit < 1 ? Math.sin(hit * Math.PI * 4) * (1 - hit) * 2.5 : 0,
+          appear = out(span(t, 1, 1.3));
+        put(stack, px + shake, py + hit * (1 - hit) * 12, sc * .5 * (.5 + .5 * appear), appear * fade);
+        flag(papers[0], 'on', t >= 1);
+        flag(papers[1], 'on', t >= ON[1]);
+        flag(papers[2], 'on', t >= ON[2]);
+
+        /* 4 · the EU seal drops, stamps, and settles on the stack's corner */
+        var d = span(t, DROP[0], DROP[1]), dd = d * d, settle = out(span(t, HIT + .15, HIT + .6)),
+          sq = hit > 0 && hit < 1 ? Math.sin(hit * Math.PI) : 0;
+        /* once it has stamped, the seal lifts above the stack's corner and wiggles, hinged at its lower-left edge
+           (a round seal spun about its own centre would barely look like it moved) */
+        var w = span(t, HIT + .6, HIT + 1.9), rot = w > 0 && w < 1 ? 16 * Math.sin(w * Math.PI * 6) * (1 - w) : 0;
+        put(eu, px + settle * 12 * sc, py - (1 - dd) * (vert ? 30 : 66) - settle * 17 * sc,
+          (1.7 - .7 * dd) * (1 - .25 * settle) * (vert ? .8 : 1.15), (t >= DROP[0] ? Math.min(1, d * 3) : 0) * fade,
+          (sq ? ' scale(' + (1 + .18 * sq).toFixed(3) + ',' + (1 - .22 * sq).toFixed(3) + ')' : '') +
+          (rot ? ' translate(-38%,38%) rotate(' + rot.toFixed(2) + 'deg) translate(38%,-38%)' : ''));
+        check.style.strokeDashoffset = (12 * (1 - out(span(t, HIT + .05, HIT + .45)))).toFixed(2);
+        var rg = span(t, HIT, HIT + .7);
+        put(ring, px, py, .4 + rg * 1.4, rg > 0 && rg < 1 ? (1 - rg) * .8 : 0);
+      }
+
+      /* the clock runs only while the chain is on screen, and starts once its reveal has played */
+      var clock = 0, last = 0, raf = 0, visible = false, armed = 0;
+      function tick(now) {
+        raf = 0;
+        if (!visible) { last = 0; return }
+        if (!chain.classList.contains('in')) { raf = requestAnimationFrame(tick); return }
+        if (!armed) armed = now + 2200;        /* let the line draw and the circles land first */
+        if (now < armed) { raf = requestAnimationFrame(tick); return }
+        if (!C.length) measure();
+        chain.classList.add('fx');
+        if (last) clock = (clock + Math.min(.05, (now - last) / 1000)) % CYCLE;
+        last = now;
+        frame(clock);
+        raf = requestAnimationFrame(tick);
+      }
+      function run() { if (!raf) raf = requestAnimationFrame(tick) }
+      if ('ResizeObserver' in window) new ResizeObserver(measure).observe(chain);
+      else addEventListener('resize', measure);
+      if ('IntersectionObserver' in window) {
+        new IntersectionObserver(function (es) { visible = es[0].isIntersecting; if (visible) run() }, { threshold: .15 }).observe(chain);
+      } else { visible = true; run() }
     })();
   </script>
 </body>
