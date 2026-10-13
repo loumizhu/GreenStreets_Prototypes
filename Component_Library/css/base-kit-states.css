@@ -86,33 +86,17 @@
 .bk-st-hover .cs-opt:first-child::before{content:'' !important; position:absolute !important; inset:0 !important; border-radius:8px !important; pointer-events:none !important; background:radial-gradient(circle at center,rgba(143,227,182,.16),transparent 70%) !important}
 .bk-st-hover .gs-num-btn{background:rgba(91,156,246,.2) !important; color:var(--gs-l) !important}
 .bk-st-hover .gs-ecombo-caret{color:var(--gs) !important}
-.bk-st-hover .prod-filter-btn{color:#fff !important; border-color:rgba(255,255,255,.25) !important}
-.bk-st-hover .gs-seg-opt:not(.on):last-of-type{background:rgba(255,255,255,.1) !important; color:#fff !important}
-.bk-st-hover .notif-filter-btn{background:rgba(255,255,255,.1) !important}
 .bk-st-hover .gs-row-check{border-color:var(--gs) !important}
 .bk-st-hover .gs-grid-hint-x{color:#eef7f1 !important}
 .bk-st-hover .stat{transform:translateY(-2px) !important; box-shadow:var(--sh-2),inset 0 1px 0 rgba(255,255,255,.06) !important}
-.bk-st-hover .gs-bulk-btn{background:rgba(255,255,255,.15) !important}
-.bk-st-hover .gs-bulk-btn.gs-bulk-danger{background:rgba(224,82,82,.22) !important; border-color:rgba(224,82,82,.5) !important; color:#ffb4b4 !important}
-.bk-st-hover .gs-bulk-btn.gs-bulk-ghost{color:#fff !important; background:rgba(255,255,255,.08) !important}
-.bk-st-hover .gs-empty-row{background:transparent!important; transform:none!important}
 .bk-st-hover .chip span{border-color:rgba(255,255,255,.25) !important; color:#fff !important}
 .bk-st-hover .imp-exit{background:rgba(4,22,14,.28) !important}
-.bk-st-hover .nav-item:not(.active):last-of-type{background:rgba(255,255,255,.05) !important; color:var(--tw) !important}
-.bk-st-hover .onb-step.active{border-color:var(--gs) !important; background:rgba(78,187,129,.1) !important}
-.bk-st-hover .sb-logout{background:rgba(224,82,82,.16) !important; color:var(--red) !important}
-.bk-st-hover .bc-link{color:var(--tw) !important}
-.bk-st-hover .gs-crumb:not(.gs-crumb-current):first-of-type{background:rgba(78,187,129,.15) !important; border-color:rgba(78,187,129,.42) !important; color:#fff !important}
-.bk-st-hover .landing-tab:not(.active):last-of-type{color:rgba(255,255,255,.75) !important}
 .bk-st-hover .pcmp-x{background:rgba(224,82,82,.28) !important; color:#fff !important}
 .bk-st-hover .pcmp-note-ic{color:#ffd479 !important}
 .bk-st-hover .pcmp-step{background:rgba(78,187,129,.28) !important; color:#fff !important}
 .bk-st-hover .pcmp-add-btn{border-color:rgba(78,187,129,.55) !important; color:var(--gs) !important; background:rgba(78,187,129,.07) !important}
-.bk-st-hover .docs-vbtn{color:#fff !important}
-.bk-st-hover .docs-bulk-dl{filter:brightness(1.08) !important}
-.bk-st-hover .hdr-theme-toggle{background:rgba(78,187,129,.12) !important; border-color:var(--gs) !important; color:var(--gs-l) !important}
-.bk-st-hover .gs-seg-btn{color:var(--tw) !important}
-.bk-st-hover .gs-lp{border-color:var(--gs) !important}
+.bk-st-hover .nav-item:not(.active):last-of-type{background:rgba(255,255,255,.05) !important; color:var(--tw) !important}
+.bk-st-hover .onb-step.active{border-color:var(--gs) !important; background:rgba(78,187,129,.1) !important}
 
 /* ---- focus ---- */
 .bk-st-focus .fi{background:rgba(255,255,255,.07) !important; box-shadow:0 0 0 3px rgba(91,156,246,.14) !important}
@@ -120,7 +104,6 @@
 /* ---- active ---- */
 .bk-st-active .imp-exit{transform:scale(.955) !important}
 .bk-st-active .nav-item:not(.active):last-of-type{transform:scale(.955) !important}
-.bk-st-active .sb-logout{transform:scale(.955) !important}
 
 /* ---- disabled ---- */
 .bk-st-disabled .pcmp-step{opacity:.32 !important; pointer-events:none !important}

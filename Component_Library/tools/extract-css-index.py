@@ -36,6 +36,7 @@ SHEETS = [                                     # browser load order
     ('greenstreets-theme.css', os.path.join(LIB, 'css', 'greenstreets-theme.css')),
     ('supplier-portal.css',    os.path.join(LIB, 'css', 'supplier-portal.css')),
     ('portal-extras.css',      os.path.join(LIB, 'css', 'portal-extras.css')),
+    ('gs-scrollbar.css',       os.path.join(LIB, 'css', 'gs-scrollbar.css')),
 ]
 PAGE = os.path.join(LIB, 'components.html')
 OUT = os.path.join(LIB, 'js', 'css-index.js')

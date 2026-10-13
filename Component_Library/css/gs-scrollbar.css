@@ -1,0 +1,66 @@
+/* gs-scrollbar.css — the Scrollbar component, as specified on the Figma
+   "GreenStreets Component Page" (Components → Scrollbar) and measured from the
+   PPWR Compliance listing. Four parts, top to bottom: an UP ARROW BUTTON, the
+   track, the thumb, a DOWN ARROW BUTTON.
+
+   14px gutter · 9px thumb, centred, pill ends · 9×5px arrow, one button at
+   each end · #94b4e6 at 26% for the thumb and both arrows · the track never
+   paints.
+
+   Drawn through the pseudo-elements rather than the browser's recolour, so the
+   arrows are there on every Chrome/Edge/Safari, including machines set to
+   overlay scrollbars. `scrollbar-color` is kept for Firefox only, gated, since
+   setting it would switch Chrome back to the native bar.
+
+   NOT yet shipped in any portal stylesheet — this file is the only copy.
+   Anatomy and measurements: Component_Library/scrollbar.html.            */
+
+:root{
+  --gs-sb-w:14px;                     /* gutter */
+  --gs-sb-thumb-w:9px;                /* thumb paint width */
+  --gs-sb-thumb:#94b4e642;            /* #94b4e6 @ 26% */
+  --gs-sb-arrow-w:9px;                /* triangle base */
+  --gs-sb-arrow-h:5px;                /* triangle height */
+  --gs-sb-track:transparent;
+  /* the arrows carry the SAME colour as the thumb */
+  --gs-sb-up:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='5'%3E%3Cpath d='M4.5 0 9 5H0z' fill='%2394b4e6' fill-opacity='.26'/%3E%3C/svg%3E");
+  --gs-sb-down:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='5'%3E%3Cpath d='M0 0h9L4.5 5z' fill='%2394b4e6' fill-opacity='.26'/%3E%3C/svg%3E");
+}
+body.lt,
+.gs-scroll--ink{                      /* the light twin, on a light surface */
+  --gs-sb-thumb:#33415c47;            /* the ink token at 28% */
+  --gs-sb-up:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='5'%3E%3Cpath d='M4.5 0 9 5H0z' fill='%2333415c' fill-opacity='.28'/%3E%3C/svg%3E");
+  --gs-sb-down:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='5'%3E%3Cpath d='M0 0h9L4.5 5z' fill='%2333415c' fill-opacity='.28'/%3E%3C/svg%3E");
+}
+
+.gs-scroll{ overflow:auto; }
+
+/* Chrome · Edge · Safari — the four parts, drawn to the measured sizes. */
+.gs-scroll::-webkit-scrollbar{ width:var(--gs-sb-w); height:var(--gs-sb-w); }
+.gs-scroll::-webkit-scrollbar-track{ background:var(--gs-sb-track); }
+.gs-scroll::-webkit-scrollbar-thumb{
+  background:var(--gs-sb-thumb);
+  border-radius:99px;
+  /* 9px of paint inside a 14px gutter */
+  border:calc((var(--gs-sb-w) - var(--gs-sb-thumb-w)) / 2) solid transparent;
+  background-clip:padding-box;
+}
+.gs-scroll::-webkit-scrollbar-button:single-button{
+  display:block;
+  height:var(--gs-sb-w);
+  background:var(--gs-sb-track) no-repeat center;
+  background-size:var(--gs-sb-arrow-w) var(--gs-sb-arrow-h);
+}
+.gs-scroll::-webkit-scrollbar-button:single-button:vertical:decrement{ background-image:var(--gs-sb-up); }
+.gs-scroll::-webkit-scrollbar-button:single-button:vertical:increment{ background-image:var(--gs-sb-down); }
+/* Chrome will otherwise pair a second button at each end — the spec has
+   exactly one, so suppress the doubles and the horizontal set. */
+.gs-scroll::-webkit-scrollbar-button:double-button,
+.gs-scroll::-webkit-scrollbar-button:horizontal{ display:none; }
+
+/* Firefox only — it has no scrollbar pseudo-elements, and no arrow buttons
+   to draw. Gated, because in Chrome this declaration would replace
+   everything above with the browser's own bar. */
+@supports (-moz-appearance:none){
+  .gs-scroll{ scrollbar-width:auto; scrollbar-color:var(--gs-sb-thumb) var(--gs-sb-track); }
+}

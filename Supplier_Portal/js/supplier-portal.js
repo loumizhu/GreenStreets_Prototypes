@@ -3761,6 +3761,161 @@ function gsOnbRenderWelcome(){
   if(curLbl) curLbl.textContent = cur;
 }
 
+/* ==========================================================================
+   ONBOARDING v2 — ARCHIVED (2026-10-13). The client kept v1 (Welcome.html); the
+   v2 pages now live in old/onboarding-v2/. This code is left in place but NOT
+   wired: nothing routes to v2, and the init dispatcher no longer calls
+   gsOnb2Render / gsOnb2Mark / gsOnb2Chip. See old/onboarding-v2/README.md to revive.
+   --------------------------------------------------------------------------
+   ONBOARDING v2 — a standalone flow, separate from the dashboard (Products).
+   Page: Welcome-v2 (GS_PAGES 'sp_welcome'; the v1 walkthrough is 'sp_welcome_v1').
+   Three learn-by-doing steps, each opening the REAL portal page:
+     ai     → Import with AI        (done when the Confirmation page is reached)
+     wizard → Component Wizard      (done when the wizard saves — inline in the wizard pages)
+     docs   → Supporting Documents  (done when its guided tour ends — gs-tour.js)
+   While in progress, every portal page carries a "Back to Getting started" chip
+   in its header (gsOnb2Chip). Completing or skipping lands on the dashboard (sp2)
+   and onboarding is not shown again at sign-in. Faked persistence: localStorage
+   'gs_onb2' = {status:'not_started'|'in_progress'|'skipped'|'completed',
+                done:{ai,wizard,docs}, active:<key of the step last opened>}.
+   ========================================================================== */
+var GS_ONB2_STEPS = ['ai', 'wizard', 'docs'];
+function gsOnb2Get(){
+  var o = null;
+  try { o = JSON.parse(localStorage.getItem('gs_onb2')); } catch(e){}
+  o = o || {};
+  if(!o.status) o.status = 'not_started';
+  if(!o.done) o.done = {};
+  return o;
+}
+function gsOnb2Set(o){ try { localStorage.setItem('gs_onb2', JSON.stringify(o)); } catch(e){} }
+function gsOnb2DoneCount(o){
+  o = o || gsOnb2Get();
+  return GS_ONB2_STEPS.filter(function(k){ return o.done[k]; }).length;
+}
+/* Mark a step done (only counts while onboarding is running). */
+function gsOnb2Mark(k){
+  var o = gsOnb2Get();
+  if(o.status !== 'in_progress' || o.done[k]) return;
+  o.done[k] = true; gsOnb2Set(o);
+  gsOnb2Chip();
+}
+/* Open a step's real page. */
+function gsOnb2Open(k){
+  var o = gsOnb2Get();
+  o.status = 'in_progress'; o.active = k; gsOnb2Set(o);
+  if(k === 'ai') go('s_upload_0');
+  else if(k === 'wizard'){
+    sessionStorage.setItem('gs_wiz', JSON.stringify({code:'', name:'', origin:'onboarding', pi:null}));
+    go('wiz5');
+  }
+  else if(k === 'docs'){
+    try { sessionStorage.setItem('gs_docs_tour_active', '1'); } catch(e){}
+    go('sp2_docs');
+  }
+}
+function gsOnb2Back(){ go('sp_welcome'); }
+function gsOnb2Finish(){ var o = gsOnb2Get(); o.status = 'completed'; gsOnb2Set(o); go('sp2'); }
+function gsOnb2Skip(){ var o = gsOnb2Get(); o.status = 'skipped'; gsOnb2Set(o); go('sp2'); }
+
+/* Skip confirmation dialog (Welcome-v2). */
+function gsOnb2AskSkip(open){
+  var d = document.getElementById('ob2-skip-dlg');
+  if(!d) return gsOnb2Skip();
+  d.classList.toggle('on', open !== false);
+  if(open !== false){ var b = d.querySelector('.ob2-dlg-keep'); if(b) setTimeout(function(){ b.focus(); }, 30); }
+}
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape'){ var d = document.getElementById('ob2-skip-dlg'); if(d && d.classList.contains('on')) gsOnb2AskSkip(false); }
+});
+
+/* Render the Welcome-v2 page against saved progress. */
+function gsOnb2Render(){
+  var host = document.getElementById('ob2-steps');
+  if(!host) return;
+  var o = gsOnb2Get();
+  var n = gsOnb2DoneCount(o), total = GS_ONB2_STEPS.length;
+  var next = GS_ONB2_STEPS.filter(function(k){ return !o.done[k]; })[0] || null;
+  host.querySelectorAll('.ob2-step').forEach(function(card){
+    var k = card.getAttribute('data-k');
+    var done = !!o.done[k];
+    card.classList.toggle('done', done);
+    card.classList.toggle('current', k === next);
+    var tag = card.querySelector('.ob2-tag');
+    if(tag) tag.textContent = done ? 'Done' : (k === next ? 'Up next' : 'Not started');
+    var cta = card.querySelector('.ob2-cta');
+    if(cta){
+      cta.classList.toggle('ghost', done || k !== next);
+      var lbl = cta.querySelector('.ob2-cta-lbl');
+      if(lbl) lbl.textContent = done ? cta.getAttribute('data-again') : cta.getAttribute('data-go');
+    }
+  });
+  var cnt = document.getElementById('ob2-count'); if(cnt) cnt.textContent = n;
+  var bar = document.getElementById('ob2-bar'); if(bar) bar.style.width = (n / total * 100) + '%';
+  var ring = document.getElementById('ob2-ring'); if(ring) ring.style.setProperty('--p', (n / total * 100));
+  var all = (n === total);
+  document.body.classList.toggle('ob2-all-done', all);
+  var fin = document.getElementById('ob2-finish');
+  if(fin){
+    var fl = fin.querySelector('.ob2-cta-lbl');
+    if(all){ fin.onclick = gsOnb2Finish; if(fl) fl.textContent = 'Finish and go to my dashboard'; }
+    else {
+      var t = host.querySelector('.ob2-step[data-k="' + next + '"] h3');
+      fin.onclick = function(){ gsOnb2Open(next); };
+      if(fl) fl.textContent = 'Continue: ' + (t ? t.getAttribute('data-short') || t.textContent : 'next step');
+    }
+  }
+}
+
+/* "Back to Getting started" chip, injected into the page header on every
+   portal page while onboarding is in progress. Pulses once the step the user
+   came here for is done. */
+function gsOnb2Chip(){
+  if(document.getElementById('ob2-steps') || document.getElementById('sp1')) return;
+  var o = gsOnb2Get();
+  var old = document.getElementById('gs-onb2-chip');
+  if(o.status !== 'in_progress'){ if(old) old.remove(); return; }
+  if(!document.getElementById('gs-onb2-chip-css')){
+    var st = document.createElement('style'); st.id = 'gs-onb2-chip-css';
+    st.textContent =
+      '.gs-onb2-chip{height:30px;padding:0 12px 0 10px;font:600 11.5px/1 Inter,sans-serif;background:rgba(78,187,129,.14);border:1px solid rgba(78,187,129,.4);color:var(--gs-l);border-radius:999px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;white-space:nowrap}' +
+      '.gs-onb2-chip:hover{background:rgba(78,187,129,.22)}' +
+      '.gs-onb2-chip .gs-onb2-n{font-weight:700;padding:3px 7px;border-radius:999px;background:rgba(78,187,129,.22);font-size:10.5px}' +
+      '.gs-onb2-chip.ready{background:var(--gs);border-color:var(--gs);color:#04130c;animation:gsOnb2Pulse 1.8s ease-out 3}' +
+      '.gs-onb2-chip.ready .gs-onb2-n{background:rgba(4,19,12,.14)}' +
+      '.gs-onb2-chip.gs-onb2-float{position:fixed;right:18px;bottom:18px;z-index:9000;height:36px;box-shadow:0 10px 26px rgba(0,0,0,.35)}' +
+      '@keyframes gsOnb2Pulse{0%{box-shadow:0 0 0 0 rgba(78,187,129,.55)}100%{box-shadow:0 0 0 12px rgba(78,187,129,0)}}' +
+      'body.lt .gs-onb2-chip{color:#157043;background:#eaf7ee;border-color:#bfe6cf}' +
+      'body.lt .gs-onb2-chip .gs-onb2-n{background:#d3efdd}' +
+      'body.lt .gs-onb2-chip.ready{background:#4ebb81;border-color:#4ebb81;color:#fff}' +
+      'body.lt .gs-onb2-chip.ready .gs-onb2-n{background:rgba(255,255,255,.22)}';
+    document.head.appendChild(st);
+  }
+  var n = gsOnb2DoneCount(o), ready = !!(o.active && o.done[o.active]);
+  var chip = old || document.createElement('button');
+  chip.id = 'gs-onb2-chip'; chip.type = 'button';
+  chip.className = 'gs-onb2-chip' + (ready ? ' ready' : '');
+  chip.title = 'Return to the Getting started steps';
+  chip.onclick = gsOnb2Back;
+  chip.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>' +
+    (ready ? 'Step done — back to Getting started' : 'Back to Getting started') +
+    '<span class="gs-onb2-n">' + n + ' of ' + GS_ONB2_STEPS.length + '</span>';
+  if(old) return;
+  var ph = document.querySelector('.ph');
+  var kids = ph ? [].slice.call(ph.children) : [];
+  if(kids.length >= 2){
+    var grp = kids[kids.length - 1];
+    /* the listing headers' own "Getting started" button is redundant while this shows */
+    var gsb = grp.querySelector('button[onclick*="sp_welcome"]'); if(gsb) gsb.style.display = 'none';
+    if(getComputedStyle(grp).display.indexOf('flex') < 0){ grp.style.display = 'inline-flex'; grp.style.alignItems = 'center'; }
+    grp.style.gap = '10px';
+    grp.insertBefore(chip, grp.firstChild);
+  } else {
+    chip.classList.add('gs-onb2-float');
+    document.body.appendChild(chip);
+  }
+}
+
 /* Per-page onload dispatcher. */
 (function(){
   function init(){

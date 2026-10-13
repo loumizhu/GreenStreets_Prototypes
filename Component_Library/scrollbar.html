@@ -14,6 +14,8 @@
 <link rel="stylesheet" href="css/portal-extras-light.css?v=1">
 <!-- ...and the gallery chrome (everything prefixed cx-) -->
 <link rel="stylesheet" href="css/components-page.css?v=23">
+<!-- ...and the component this page documents -->
+<link rel="stylesheet" href="css/gs-scrollbar.css?v=1">
 
 <style>
 /* ══ THE COMPONENT ═══════════════════════════════════════════════════════
@@ -34,55 +36,7 @@
    Firefox only, gated, since setting it would switch Chrome back to the
    native bar.                                                              */
 
-:root{
-  --gs-sb-w:14px;                     /* gutter, measured x1494–1507 */
-  --gs-sb-thumb-w:9px;                /* thumb, measured x1496–1504 */
-  --gs-sb-thumb:#94b4e642;            /* #94b4e6 @ 26% — solved from the pixels */
-  --gs-sb-arrow-w:9px;                /* triangle base */
-  --gs-sb-arrow-h:5px;                /* triangle height */
-  --gs-sb-track:transparent;
-  /* the arrows carry the SAME colour as the thumb */
-  --gs-sb-up:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='5'%3E%3Cpath d='M4.5 0 9 5H0z' fill='%2394b4e6' fill-opacity='.26'/%3E%3C/svg%3E");
-  --gs-sb-down:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='5'%3E%3Cpath d='M0 0h9L4.5 5z' fill='%2394b4e6' fill-opacity='.26'/%3E%3C/svg%3E");
-}
-body.lt,
-.gs-scroll--ink{                      /* the light twin, on a light surface */
-  --gs-sb-thumb:#33415c47;            /* the ink token at 28% */
-  --gs-sb-up:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='5'%3E%3Cpath d='M4.5 0 9 5H0z' fill='%2333415c' fill-opacity='.28'/%3E%3C/svg%3E");
-  --gs-sb-down:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='5'%3E%3Cpath d='M0 0h9L4.5 5z' fill='%2333415c' fill-opacity='.28'/%3E%3C/svg%3E");
-}
-
-.gs-scroll{ overflow:auto; }
-
-/* Chrome · Edge · Safari — the four parts, drawn to the measured sizes. */
-.gs-scroll::-webkit-scrollbar{ width:var(--gs-sb-w); height:var(--gs-sb-w); }
-.gs-scroll::-webkit-scrollbar-track{ background:var(--gs-sb-track); }
-.gs-scroll::-webkit-scrollbar-thumb{
-  background:var(--gs-sb-thumb);
-  border-radius:99px;
-  /* 9px of paint inside a 14px gutter */
-  border:calc((var(--gs-sb-w) - var(--gs-sb-thumb-w)) / 2) solid transparent;
-  background-clip:padding-box;
-}
-.gs-scroll::-webkit-scrollbar-button:single-button{
-  display:block;
-  height:var(--gs-sb-w);
-  background:var(--gs-sb-track) no-repeat center;
-  background-size:var(--gs-sb-arrow-w) var(--gs-sb-arrow-h);
-}
-.gs-scroll::-webkit-scrollbar-button:single-button:vertical:decrement{ background-image:var(--gs-sb-up); }
-.gs-scroll::-webkit-scrollbar-button:single-button:vertical:increment{ background-image:var(--gs-sb-down); }
-/* Chrome will otherwise pair a second button at each end — the screenshot has
-   exactly one, so suppress the doubles and the horizontal set. */
-.gs-scroll::-webkit-scrollbar-button:double-button,
-.gs-scroll::-webkit-scrollbar-button:horizontal{ display:none; }
-
-/* Firefox only — it has no scrollbar pseudo-elements, and no arrow buttons
-   to draw. Gated, because in Chrome this declaration would replace
-   everything above with the browser's own bar. */
-@supports (-moz-appearance:none){
-  .gs-scroll{ scrollbar-width:auto; scrollbar-color:var(--gs-sb-thumb) var(--gs-sb-track); }
-}
+/* The component itself lives in css/gs-scrollbar.css (linked above). */
 
 /* ══ SHEET CHROME (not part of the component) ════════════════════════════ */
 .sb-wrap{max-width:980px}

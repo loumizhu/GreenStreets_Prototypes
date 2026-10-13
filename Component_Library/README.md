@@ -4,7 +4,18 @@ A single page cataloguing **every UI component used across the four GreenStreets
 the developers porting these prototypes to Next.js. Open
 [components.html](components.html) directly in a browser (double-click works — no server needed).
 
-**113 components in 26 categories — 66 base, 47 composed.**
+**38 components in 12 categories, all base — exactly what the Figma library carries.**
+
+> **Figma is the source of truth (since 2026-10-13).** The page catalogues only the components on
+> the Figma file *GreenStreets Component Page* (page *Components*), under Figma's names and order.
+> Everything else — the previous 115-specimen page and its generated sheets — is archived in
+> [`old/`](old/). `base-kit-1..5.html` are one page per Figma frame (`FIGMA_FRAMES` in
+> `tools/build-base-kit.py`, which refuses a section Figma does not have). The audit, with the
+> discrepancies still open in Figma, is [FIGMA-AUDIT.md](FIGMA-AUDIT.md). To add a component: add it
+> in Figma first, then the specimen here, then its section to `FIGMA_FRAMES`.
+>
+> Much of the text below describes the pre-Figma 115-specimen page and still applies to how the
+> page and its generators work; where it names specimens that are now in `old/`, read it as history.
 
 ## Reading order
 

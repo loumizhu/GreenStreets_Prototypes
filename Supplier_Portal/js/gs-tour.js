@@ -309,6 +309,104 @@ var _PKG_TOUR_STEPS = [
   }
 ];
 
+/* ══════════════════════════════════════════════════════════════════════════
+   SUPPORTING-DOCUMENTS TOUR  — Documents page.  [ARCHIVED with onboarding v2 —
+   inert: nothing sets its flag now. See old/onboarding-v2/README.md]
+   Armed by onboarding v2 step 3 (gsOnb2Open('docs') sets the flag and opens the
+   page). Ending the tour — Done, Skip or close — marks that onboarding step done.
+   ══════════════════════════════════════════════════════════════════════════ */
+var GS_DOCS_TOUR_KEY = 'gs_docs_tour_active';
+function _gsDocsTourIsActive(){ try{ return sessionStorage.getItem(GS_DOCS_TOUR_KEY)==='1'; }catch(_){ return false; } }
+function _gsDocsTourClearFlag(){ try{ sessionStorage.removeItem(GS_DOCS_TOUR_KEY); }catch(_){} }
+function _docsFirst(sel){ return document.querySelector('#docs-tbody-new ' + sel); }
+function _docsPulse(el){ if(el){ el.classList.add('gst-highlight','gst-pulse-target'); _highlighted.push(el); } return el; }
+function _docsUnpulse(){ document.querySelectorAll('#tab-panel-docs .gst-pulse-target').forEach(function(e){ e.classList.remove('gst-pulse-target'); }); }
+
+var _DOCS_TOUR_STEPS = [
+  {
+    icon:  '📤',
+    title: 'Upload your documents',
+    body:  'Certificates, declarations and test reports are the <strong>evidence behind what you declare</strong>. ' +
+           'Drag files onto this area or click <strong>Choose files</strong> — PDFs, images, Word and Excel files up to 25 MB each.',
+    targetFn: function(){ return document.querySelector('#tab-panel-docs > div > div:first-child'); },
+    position: 'below',
+    onShow: function(){ _tourHL('#tab-panel-docs > div > div:first-child'); }
+  },
+  {
+    icon:  '🔎',
+    title: 'Find any document',
+    body:  'Search by file name or by the component it supports, filter by <strong>type</strong>, and switch ' +
+           'between the <strong>list</strong> and <strong>thumbnail</strong> views.',
+    targetFn: function(){ return document.querySelector('#tab-panel-docs .ftb-host'); },
+    position: 'below',
+    onShow: function(){ _tourHL('#tab-panel-docs .ftb-host'); }
+  },
+  {
+    icon:  '🚦',
+    title: 'Track the approval status',
+    body:  'Primark reviews every document you upload. <strong>Approved</strong> means it\'s accepted; ' +
+           '<strong>Awaiting approval</strong> is still with the reviewer; <strong>Changes requested</strong> means ' +
+           'you need to upload a corrected version.',
+    targetFn: function(){ return _docsFirst('tr:first-child td:nth-child(4)') || document.querySelector('#docs-tbl th[data-sort="status"]'); },
+    position: 'right',
+    onShow: function(){ _tourHL('#docs-tbl th[data-sort="status"]'); _docsPulse(_docsFirst('tr:first-child td:nth-child(4)')); },
+    onHide: _docsUnpulse
+  },
+  {
+    icon:  '🔗',
+    title: 'See what each one supports',
+    body:  '<strong>Referenced by</strong> lists the packaging components a document backs up. ' +
+           'One certificate can cover several components, so you only upload it once.',
+    targetFn: function(){ return document.querySelector('#docs-tbl th[data-sort="ref"]'); },
+    position: 'below',
+    onShow: function(){ _tourHL('#docs-tbl th[data-sort="ref"]'); }
+  },
+  {
+    icon:  '⏰',
+    title: 'Stay ahead of expiry',
+    body:  'A dot beside the date means the document <strong>expires soon</strong> — renew it before it lapses. ' +
+           'If a document is waiting on the reviewer, <strong>Send reminder</strong> nudges them.',
+    targetFn: function(){ return _docsFirst('.docs-remind-btn') || _docsFirst('.doc-date-exp'); },
+    position: 'left',
+    onShow: function(){ _docsPulse(_docsFirst('.doc-date-exp')); _docsPulse(_docsFirst('.docs-remind-btn')); },
+    onHide: _docsUnpulse
+  },
+  {
+    icon:  '📄',
+    title: 'Preview, download or remove',
+    body:  'Click any row to <strong>preview</strong> the file. <strong>Download</strong> keeps a copy, and the ' +
+           '<strong>✕</strong> removes a document you no longer need. That\'s everything — you can head back to Getting started.',
+    targetFn: function(){ return _docsFirst('tr:first-child .doc-actions-col'); },
+    position: 'left',
+    isLast: true,
+    onShow: function(){ _tourHL('#docs-tbody-new tr:first-child'); }
+  }
+];
+
+function _gsDocsTourBegin(){
+  if(_tourRunning) return;
+  _activeSteps = _DOCS_TOUR_STEPS;
+  _tourStep    = 0;
+  _tourRunning = true;
+  _gsDocsTourClearFlag();  // consumed
+  _buildOverlay();
+  _gsTourShow(0);
+}
+
+(function(){
+  if(!document.getElementById('docs-tbody-new')) return;   // Documents page only
+  function tryBegin(){
+    if(!_gsDocsTourIsActive()) return;
+    var tries = 0;
+    (function waitForRows(){
+      if(document.querySelector('#docs-tbody-new tr')){ _gsDocsTourBegin(); }
+      else if(tries++ < 25){ setTimeout(waitForRows, 140); }
+    })();
+  }
+  if(document.readyState !== 'loading') setTimeout(tryBegin, 450);
+  else document.addEventListener('DOMContentLoaded', function(){ setTimeout(tryBegin, 450); });
+})();
+
 /* ── Build overlay DOM ───────────────────────────────────────────────── */
 function _buildOverlay(){
   if(_tourOverlay){ try{ _tourOverlay.remove(); }catch(_){} _tourOverlay = null; }
@@ -542,6 +640,8 @@ function _gsTourPrev(){
 }
 
 function _gsTourDone(){
+  /* Onboarding v2: finishing (or leaving) the documents tour completes step 3. */
+  if(_activeSteps === _DOCS_TOUR_STEPS && typeof gsOnb2Mark === 'function') gsOnb2Mark('docs');
   _tourRunning = false;
   _gsTourClearFlag();
   _gsPkgTourClearFlag();

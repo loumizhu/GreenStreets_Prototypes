@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>GreenStreets — Base component kit 1/4</title>
+<title>GreenStreets — Base component kit 1/5</title>
 <meta name="description" content="The base components of the GreenStreets design system, laid out as a design sheet for import into Figma. No code.">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <!-- The REAL portal stylesheets, in portal load order: every frame below is
@@ -13,11 +13,12 @@
 <link rel="stylesheet" href="css/portal-extras.css?v=1">
 <link rel="stylesheet" href="css/greenstreets-light.css?v=1">
 <link rel="stylesheet" href="css/portal-extras-light.css?v=1">
+<link rel="stylesheet" href="css/gs-scrollbar.css?v=1">
 <!-- The sheet's own layout, plus the Figma-import hygiene overrides -->
-<link rel="stylesheet" href="css/base-kit.css?v=26">
+<link rel="stylesheet" href="css/base-kit.css?v=27">
 <!-- GENERATED: the real :hover declarations, re-applied under .bk-st-hover
      so this static sheet can draw the hover state. See tools/kit_states.py -->
-<link rel="stylesheet" href="css/base-kit-states.css?v=25">
+<link rel="stylesheet" href="css/base-kit-states.css?v=27">
 </head>
 <body class="bk-body">
 
@@ -27,18 +28,19 @@
     <div class="bk-cover-main">
       <p class="bk-eyebrow">GreenStreets design system</p>
       <h1>Base component kit</h1>
-      <p class="bk-part">Part 1 of 4</p>
-      <p class="bk-lede">Every base component in the system — one primitive per frame, drawn by the
-        production stylesheets. Where a component's hover changes its appearance, that state is drawn
-        beside the default, from the real <code>:hover</code> declarations. Compositions, code and
-        documentation live in the component library; this sheet is the drawing.</p>
+      <p class="bk-part">Part 1 of 5</p>
+      <p class="bk-lede">The components of the Figma library <b>GreenStreets Component Page</b> —
+        the source of truth — drawn by the production stylesheets. Part 1 is Figma frame
+        1, section for section. Where a component's states change its appearance, they are
+        drawn beside the default from the real declarations. Code and documentation live in the
+        component library; this sheet is the drawing.</p>
     </div>
     <dl class="bk-facts">
-      <div><dt>Frames</dt><dd>13</dd></div>
-      <div><dt>Sections</dt><dd>3</dd></div>
-      <div><dt>State cells</dt><dd>44</dd></div>
+      <div><dt>Frames</dt><dd>8</dd></div>
+      <div><dt>Sections</dt><dd>2</dd></div>
+      <div><dt>State cells</dt><dd>24</dd></div>
       <div><dt>Theme</dt><dd>Dark (primary)</dd></div>
-      <div><dt>Generated</dt><dd>2026-09-10</dd></div>
+      <div><dt>Generated</dt><dd>2026-10-13</dd></div>
     </dl>
     <button class="bk-theme" type="button" id="bkTheme" aria-pressed="false">Light theme</button>
   </header>
@@ -50,9 +52,9 @@
         <span class="bk-sec-c">4</span>
       </header>
       <div class="bk-grid">
-      <figure class="bk-frame bk-span-3" data-frame="Heading levels" data-cells="1">
+      <figure class="bk-frame bk-span-3" data-frame="Headings" data-cells="1">
         <figcaption class="bk-label">
-          <span class="bk-name">Heading levels</span>
+          <span class="bk-name">Headings</span>
           <span class="bk-purpose">Nothing in the system needs a fifth level — if a screen seems to, it wants splitting into cards.</span>
         </figcaption>
         <div class="bk-states">
@@ -60,10 +62,10 @@
               <div class="bk-cell-box">
                 <div class="cx-row-v">
                  <div class="pg-eyebrow">Retailer account</div>
-                 <h1 class="pg-title" style="margin:0">Heading 1 &middot;</h1>
-                 <h2 class="grp-hdr" style="margin:0;border:0;padding:0;background:none">Heading 2 &middot;</h2>
-                 <h3 class="sec-lbl" style="margin:0">Heading 3 &middot;</h3>
-                 <h4 class="flbl" style="margin:0">Heading 4 &middot; (field label)</h4>
+                 <h1 class="pg-title" style="margin:0">Heading 1</h1>
+                 <h2 class="grp-hdr" style="margin:0;border:0;padding:0;background:none">Heading 2</h2>
+                 <h3 class="sec-lbl" style="margin:0">Heading 3</h3>
+                 <h4 class="flbl" style="margin:0">Heading 4 (field label)</h4>
                 </div>
               </div>
               <span class="bk-cell-lbl">Default</span>
@@ -80,19 +82,19 @@
               <div class="bk-cell-box">
                 <div class="cx-row-v" style="max-width:620px">
                  <div style="font-size:13px;color:var(--tw);line-height:1.7">Default body text &mdash; the paragraph style used across the app, sized for dense compliance tables and forms.</div>
-                 <div class="pg-sub" style="margin:0">Page subtitle &middot; &mdash; one line of context under a title.</div>
-                 <div class="fhint">Field hint &middot; &mdash; helper text under a control.</div>
-                 <div class="tbl-muted">Listing meta &middot; &mdash; timestamps, ids, counts.</div>
-                 <div class="dim">De-emphasised label &middot;</div>
+                 <div class="pg-sub" style="margin:0">Page subtitle &mdash; one line of context under a title.</div>
+                 <div class="fhint">Field hint &mdash; helper text under a control.</div>
+                 <div class="tbl-muted">Listing meta &mdash; timestamps, ids, counts.</div>
+                 <div class="dim">De-emphasised label</div>
                 </div>
               </div>
               <span class="bk-cell-lbl">Default</span>
             </div>
         </div>
       </figure>
-      <figure class="bk-frame bk-span-3" data-frame="Inline code &amp; numerics" data-cells="1">
+      <figure class="bk-frame bk-span-3" data-frame="Numerics" data-cells="1">
         <figcaption class="bk-label">
-          <span class="bk-name">Inline code &amp; numerics</span>
+          <span class="bk-name">Numerics</span>
           <span class="bk-purpose">Never set a column of numbers in proportional figures.</span>
         </figcaption>
         <div class="bk-states">
@@ -321,328 +323,6 @@
       </figure>
       </div>
     </section>
-    <section class="bk-sec">
-      <header class="bk-sec-hd">
-        <span class="bk-sec-n">03</span>
-        <h2>Form inputs</h2>
-        <span class="bk-sec-c">5</span>
-      </header>
-      <div class="bk-grid">
-      <figure class="bk-frame bk-span-3" data-frame="Text input" data-cells="4">
-        <figcaption class="bk-label">
-          <span class="bk-name">Text input</span>
-          <span class="bk-purpose">The atom of every form.</span>
-        </figcaption>
-        <div class="bk-states">
-            <div class="bk-cell">
-              <div class="bk-cell-box">
-                <div class="cx-frame">
-                 <div class="fgrp">
-                 <div class="flbl">Registered company name <span class="req">*</span></div>
-                 <input class="fi" placeholder="e.g. Primark Stores Ltd">
-                 <div class="fhint">As it appears on the trade register — this name is printed on the DoC.</div>
-                 </div>
-                 <div class="fgrp">
-                 <div class="flbl">Notes</div>
-                 <textarea class="fi notes-area" rows="3" placeholder="Anything the compliance team should know…"></textarea>
-                 </div>
-                </div>
-              </div>
-              <span class="bk-cell-lbl">Empty</span>
-            </div>
-            <div class="bk-cell" data-bk-variant="1">
-              <div class="bk-cell-box bk-st-focus">
-                <div class="cx-frame">
-                 <div class="fgrp">
-                 <div class="flbl">Registered company name <span class="req">*</span></div>
-                 <input class="fi" placeholder="e.g. Primark Stores Ltd">
-                 <div class="fhint">As it appears on the trade register — this name is printed on the DoC.</div>
-                 </div>
-                 <div class="fgrp">
-                 <div class="flbl">Notes</div>
-                 <textarea class="fi notes-area" rows="3" placeholder="Anything the compliance team should know…"></textarea>
-                 </div>
-                </div>
-              </div>
-              <span class="bk-cell-lbl bk-cell-lbl-alt">Focus</span>
-            </div>
-            <div class="bk-cell" data-bk-variant="1">
-              <div class="bk-cell-box bk-st-disabled-sys" data-bk-do="disable">
-                <div class="cx-frame">
-                 <div class="fgrp">
-                 <div class="flbl">Registered company name <span class="req">*</span></div>
-                 <input class="fi" placeholder="e.g. Primark Stores Ltd">
-                 <div class="fhint">As it appears on the trade register — this name is printed on the DoC.</div>
-                 </div>
-                 <div class="fgrp">
-                 <div class="flbl">Notes</div>
-                 <textarea class="fi notes-area" rows="3" placeholder="Anything the compliance team should know…"></textarea>
-                 </div>
-                </div>
-              </div>
-              <span class="bk-cell-lbl bk-cell-lbl-alt">Disabled</span>
-            </div>
-            <div class="bk-cell" data-bk-variant="1">
-              <div class="bk-cell-box" data-bk-do="filled">
-                <div class="cx-frame">
-                 <div class="fgrp">
-                 <div class="flbl">Registered company name <span class="req">*</span></div>
-                 <input class="fi" placeholder="e.g. Primark Stores Ltd">
-                 <div class="fhint">As it appears on the trade register — this name is printed on the DoC.</div>
-                 </div>
-                 <div class="fgrp">
-                 <div class="flbl">Notes</div>
-                 <textarea class="fi notes-area" rows="3" placeholder="Anything the compliance team should know…"></textarea>
-                 </div>
-                </div>
-              </div>
-              <span class="bk-cell-lbl bk-cell-lbl-alt">Filled</span>
-            </div>
-        </div>
-      </figure>
-      <figure class="bk-frame bk-span-3" data-frame="Input field with icon" data-cells="4">
-        <figcaption class="bk-label">
-          <span class="bk-name">Input field with icon</span>
-          <span class="bk-purpose">Swap the icon for any other 13px glyph.</span>
-        </figcaption>
-        <div class="bk-states">
-            <div class="bk-cell">
-              <div class="bk-cell-box">
-                <div class="search-wrap" style="max-width:320px">
-                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-                 <input class="fi fi-search" placeholder="Search SKU or description…">
-                </div>
-              </div>
-              <span class="bk-cell-lbl">Empty</span>
-            </div>
-            <div class="bk-cell" data-bk-variant="1">
-              <div class="bk-cell-box bk-st-focus">
-                <div class="search-wrap" style="max-width:320px">
-                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-                 <input class="fi fi-search" placeholder="Search SKU or description…">
-                </div>
-              </div>
-              <span class="bk-cell-lbl bk-cell-lbl-alt">Focus</span>
-            </div>
-            <div class="bk-cell" data-bk-variant="1">
-              <div class="bk-cell-box bk-st-disabled-sys" data-bk-do="disable">
-                <div class="search-wrap" style="max-width:320px">
-                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-                 <input class="fi fi-search" placeholder="Search SKU or description…">
-                </div>
-              </div>
-              <span class="bk-cell-lbl bk-cell-lbl-alt">Disabled</span>
-            </div>
-            <div class="bk-cell" data-bk-variant="1">
-              <div class="bk-cell-box" data-bk-do="query">
-                <div class="search-wrap" style="max-width:320px">
-                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-                 <input class="fi fi-search" placeholder="Search SKU or description…">
-                </div>
-              </div>
-              <span class="bk-cell-lbl bk-cell-lbl-alt">Filled</span>
-            </div>
-        </div>
-      </figure>
-      <figure class="bk-frame bk-span-3" data-frame="Dropdown list" data-cells="3">
-        <figcaption class="bk-label">
-          <span class="bk-name">Dropdown list</span>
-          <span class="bk-purpose">A single choice from a fixed list. The menu is drawn by the system, not by the browser, so it matches the rest of the interface.</span>
-        </figcaption>
-        <div class="bk-states">
-            <div class="bk-cell">
-              <div class="bk-cell-box">
-                <div class="cx-frame">
-                 <div class="fg2">
-                 <div class="fgrp">
-                 <div class="flbl">Packaging level</div>
-                 <div class="cs-wrap"><select class="fi fi-select" data-cs="1" style="display:none">
-                 <option>Primary</option>
-                 <option selected>Secondary</option>
-                 <option>Tertiary</option>
-                 </select><div class="fi cs-trigger" tabindex="0"><span class="cs-val">Secondary</span><span class="cs-caret"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></span></div><div class="cs-menu"></div></div>
-                 </div>
-                 </div>
-                </div>
-              </div>
-              <span class="bk-cell-lbl">Collapsed</span>
-            </div>
-            <div class="bk-cell" data-bk-variant="1">
-              <div class="bk-cell-box bk-st-focus">
-                <div class="cx-frame">
-                 <div class="fg2">
-                 <div class="fgrp">
-                 <div class="flbl">Packaging level</div>
-                 <div class="cs-wrap"><select class="fi fi-select" data-cs="1" style="display:none">
-                 <option>Primary</option>
-                 <option selected>Secondary</option>
-                 <option>Tertiary</option>
-                 </select><div class="fi cs-trigger" tabindex="0"><span class="cs-val">Secondary</span><span class="cs-caret"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></span></div><div class="cs-menu"></div></div>
-                 </div>
-                 </div>
-                </div>
-              </div>
-              <span class="bk-cell-lbl bk-cell-lbl-alt">Focus</span>
-            </div>
-            <div class="bk-cell" data-bk-variant="1">
-              <div class="bk-cell-box bk-st-hover">
-                <div class="cx-frame">
-                 <div class="fg2">
-                 <div class="fgrp">
-                 <div class="flbl">Packaging level</div>
-                 <div class="cs-wrap open"><select class="fi fi-select" data-cs="1" style="display:none">
-                 <option>Primary</option>
-                 <option selected>Secondary</option>
-                 <option>Tertiary</option>
-                 </select><div class="fi cs-trigger" tabindex="0"><span class="cs-val">Secondary</span><span class="cs-caret"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></span></div><div class="cs-menu open"><div class="cs-opt">Primary</div><div class="cs-opt sel">Secondary</div><div class="cs-opt">Tertiary</div></div></div>
-                 </div>
-                 </div>
-                </div>
-              </div>
-              <span class="bk-cell-lbl bk-cell-lbl-alt">Open, one item hovered</span>
-            </div>
-        </div>
-      </figure>
-      <figure class="bk-frame bk-span-3" data-frame="Number input" data-cells="5">
-        <figcaption class="bk-label">
-          <span class="bk-name">Number input</span>
-          <span class="bk-purpose">Stepper clicks dispatch both input and change.</span>
-        </figcaption>
-        <div class="bk-states">
-            <div class="bk-cell">
-              <div class="bk-cell-box">
-                <div class="fg2" style="max-width:420px">
-                 <div class="fgrp">
-                 <div class="flbl">Weight</div>
-                 <div class="fi-wrap">
-                 <input class="fi fi-has-unit" type="number" step="0.01" value="1.72">
-                 <span class="fi-unit">g</span>
-                 </div>
-                 </div>
-                </div>
-              </div>
-              <span class="bk-cell-lbl">With a value</span>
-            </div>
-            <div class="bk-cell" data-bk-variant="1">
-              <div class="bk-cell-box bk-st-hover">
-                <div class="fg2" style="max-width:420px">
-                 <div class="fgrp">
-                 <div class="flbl">Weight</div>
-                 <div class="fi-wrap">
-                 <input class="fi fi-has-unit" type="number" step="0.01" value="1.72">
-                 <span class="fi-unit">g</span>
-                 </div>
-                 </div>
-                </div>
-              </div>
-              <span class="bk-cell-lbl bk-cell-lbl-alt">Hover</span>
-            </div>
-            <div class="bk-cell" data-bk-variant="1">
-              <div class="bk-cell-box bk-st-focus">
-                <div class="fg2" style="max-width:420px">
-                 <div class="fgrp">
-                 <div class="flbl">Weight</div>
-                 <div class="fi-wrap">
-                 <input class="fi fi-has-unit" type="number" step="0.01" value="1.72">
-                 <span class="fi-unit">g</span>
-                 </div>
-                 </div>
-                </div>
-              </div>
-              <span class="bk-cell-lbl bk-cell-lbl-alt">Focus</span>
-            </div>
-            <div class="bk-cell" data-bk-variant="1">
-              <div class="bk-cell-box bk-st-disabled-sys" data-bk-do="disable">
-                <div class="fg2" style="max-width:420px">
-                 <div class="fgrp">
-                 <div class="flbl">Weight</div>
-                 <div class="fi-wrap">
-                 <input class="fi fi-has-unit" type="number" step="0.01" value="1.72">
-                 <span class="fi-unit">g</span>
-                 </div>
-                 </div>
-                </div>
-              </div>
-              <span class="bk-cell-lbl bk-cell-lbl-alt">Disabled</span>
-            </div>
-            <div class="bk-cell" data-bk-variant="1">
-              <div class="bk-cell-box" data-bk-do="empty">
-                <div class="fg2" style="max-width:420px">
-                 <div class="fgrp">
-                 <div class="flbl">Weight</div>
-                 <div class="fi-wrap">
-                 <input class="fi fi-has-unit" type="number" step="0.01" value="1.72">
-                 <span class="fi-unit">g</span>
-                 </div>
-                 </div>
-                </div>
-              </div>
-              <span class="bk-cell-lbl bk-cell-lbl-alt">Empty</span>
-            </div>
-        </div>
-      </figure>
-      <figure class="bk-frame bk-span-3" data-frame="Editable dropdown list" data-cells="4">
-        <figcaption class="bk-label">
-          <span class="bk-name">Editable dropdown list</span>
-          <span class="bk-purpose">A dropdown list you can also type into, for a value that SHOULD come from a controlled vocabulary but must still accept a write-in — material names, certifications.</span>
-        </figcaption>
-        <div class="bk-states">
-            <div class="bk-cell">
-              <div class="bk-cell-box">
-                <div class="pkg-detail-section pkg-sec-edit-mode" style="max-width:340px">
-                 <div class="pkg-detail-grid">
-                 <div class="pkg-detail-feat" data-mt="name">
-                 <div class="pkg-detail-feat-lbl">Material 1 name</div>
-                 <input class="fi pkg-detail-feat-input" value="Paper Kraft">
-                 </div>
-                 </div>
-                </div>
-              </div>
-              <span class="bk-cell-lbl">Collapsed</span>
-            </div>
-            <div class="bk-cell" data-bk-variant="1">
-              <div class="bk-cell-box bk-st-focus">
-                <div class="pkg-detail-section pkg-sec-edit-mode" style="max-width:340px">
-                 <div class="pkg-detail-grid">
-                 <div class="pkg-detail-feat" data-mt="name">
-                 <div class="pkg-detail-feat-lbl">Material 1 name</div>
-                 <input class="fi pkg-detail-feat-input" value="Paper Kraft">
-                 </div>
-                 </div>
-                </div>
-              </div>
-              <span class="bk-cell-lbl bk-cell-lbl-alt">Focus</span>
-            </div>
-            <div class="bk-cell" data-bk-variant="1">
-              <div class="bk-cell-box bk-st-hover" data-bk-do="open">
-                <div class="pkg-detail-section pkg-sec-edit-mode" style="max-width:340px">
-                 <div class="pkg-detail-grid">
-                 <div class="pkg-detail-feat" data-mt="name">
-                 <div class="pkg-detail-feat-lbl">Material 1 name</div>
-                 <input class="fi pkg-detail-feat-input" value="Paper Kraft">
-                 </div>
-                 </div>
-                </div>
-              </div>
-              <span class="bk-cell-lbl bk-cell-lbl-alt">Open, one item hovered</span>
-            </div>
-            <div class="bk-cell" data-bk-variant="1">
-              <div class="bk-cell-box" data-bk-do="typed">
-                <div class="pkg-detail-section pkg-sec-edit-mode" style="max-width:340px">
-                 <div class="pkg-detail-grid">
-                 <div class="pkg-detail-feat" data-mt="name">
-                 <div class="pkg-detail-feat-lbl">Material 1 name</div>
-                 <input class="fi pkg-detail-feat-input" value="Paper Kraft">
-                 </div>
-                 </div>
-                </div>
-              </div>
-              <span class="bk-cell-lbl bk-cell-lbl-alt">Typed</span>
-            </div>
-        </div>
-      </figure>
-      </div>
-    </section>
 
 
   <footer class="bk-foot">
@@ -655,6 +335,6 @@
 <script src="js/gs-schema.js?v=1"></script>
 <script src="js/gs-pkg-controls.js?v=1"></script>
 <script src="js/greenstreets-theme.js?v=1"></script>
-<script src="js/base-kit.js?v=25"></script>
+<script src="js/base-kit.js?v=27"></script>
 </body>
 </html>

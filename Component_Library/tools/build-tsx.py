@@ -54,7 +54,7 @@ NAME_KIND = {
     'Keyboard coach hint': 'alert',
     'Notification count badge': 'badge', 'Chips': 'badge',
     'Identifier with identicon': 'badge', 'Health dot & RAG': 'badge',
-    'AI confidence badge': 'badge',
+    'Badges': 'badge',
     'Notification row': 'alert', 'Activity timeline': 'generic',
     'Sidebar nav item': 'generic', 'Breadcrumb': 'generic', 'Tabs': 'segmented',
     'Login input': 'input', 'Read-only input': 'input',

@@ -108,7 +108,7 @@ STRUCTURAL = {
     ],
     'Editable dropdown list': [
         ('Open, one item hovered', 'hover', 'open'),
-        ('Typed', 'typed'),
+        # 'Typed' was dropped: the Figma library (the source of truth) hides it.
     ],
     'Checkbox': [
         ('Checked', 'checked'),
@@ -122,9 +122,8 @@ STRUCTURAL = {
         # field with an icon, so it matches Text input's own filled cell.
         ('Filled', 'query'),
     ],
-    'Number input': [
-        ('Empty', 'empty'),
-    ],
+    # 'Empty' was dropped: the Figma library (the source of truth) hides it.
+    'Number input': [],
     'Sortable header': [
         ('Sorted ascending', 'sort-asc'),
         ('Sorted descending', 'sort-desc'),
@@ -145,7 +144,7 @@ STRUCTURAL = {
     # The chip's two real variants. Both are markup the product emits, not CSS
     # a wrapper class can force: the quantity badge and the note glyph only
     # exist when there is a quantity above one / a note to show.
-    'Component chip': [
+    'Supplier Page Component chip': [
         ('Quantity above one', 'pcmp-qty'),
         ('With a retailer note', 'pcmp-note'),
     ],

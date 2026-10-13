@@ -42,7 +42,19 @@ import kit_states as ST
 HERE = os.path.dirname(os.path.abspath(__file__))
 LIB = os.path.dirname(HERE)
 PAGE = os.path.join(LIB, 'components.html')
-PARTS = 4
+PARTS = 5
+# The kit mirrors the Figma library "GreenStreets Component Page" (page
+# Components), which is the source of truth: one kit page per Figma frame, in
+# the frame's own section order. A section missing from this map is an error -
+# it means components.html carries something the Figma file does not.
+FIGMA_FRAMES = {
+    'Typography': 1, 'Buttons': 1,
+    'Form inputs': 2,
+    'Selection controls': 3, 'Alerts & feedback': 3, 'Cards & surfaces': 3,
+    'Tables & data grid': 3,
+    'Pills & badges': 4, 'Progress & steps': 4, 'App shells': 4, 'Scrollbar': 4,
+    'Portal colours': 5,
+}
 OUT = os.path.join(LIB, 'base-kit-%d.html')     # one page per part
 
 # Base specimens with no static appearance: a behaviour, or a build technique.
@@ -85,7 +97,7 @@ FULL = re.compile(r'\bclass="[^"]*\b(?:tbl|tbl-wrap|sidebar|pshell|grp|cx-frame|
 HALF = re.compile(r'\bclass="[^"]*\b(?:gs-bulkbar|docs-bulk-bar|gs-colmenu|upload-dz|'
                   r'login-card|toast|coach|imp-banner|tok-grid|swatch-grid)\b')
 SPAN_OVERRIDE = {
-    'Type scale': 3, 'Heading levels': 3, 'Table': 3, 'Sortable header': 3,
+    'Type scale': 3, 'Headings': 3, 'Table': 3, 'Sortable header': 3,
     'Dialog surface': 3, 'Activity timeline': 3, 'Sidebar user footer': 2,
     'Brand & status colours': 3, 'Ink, line & surface': 3,
     'Radius, elevation & spacing scale': 3, 'Impersonation banner': 3,
@@ -93,6 +105,8 @@ SPAN_OVERRIDE = {
     'Documents bulk bar': 2, 'Light-theme presets': 2, 'Upload dropzone': 2,
     'Stat cards': 3, 'Card': 2, 'Text input': 2, 'Dropdown list': 2,
     'Login input': 2, 'Number input': 2, 'Editable dropdown list': 2,
+    'Scrollbar': 2, 'Super Admin': 3, 'Retailer Admin': 3, 'Retailer User': 3,
+    'Supplier Portal': 3, 'Accent': 3, 'Supplier Page Component chip': 3,
 }
 
 
@@ -185,7 +199,8 @@ TAG_SPLIT = re.compile(r'(<[^>]*>)')
 # Class-name annotations inside the demo TEXT, e.g. "Heading 1 - .pg-title" or
 # "Page subtitle - .pg-sub - one line of context under a title."
 CODE_IN_TEXT = re.compile(
-    r'\s*[\u00b7|]\s*\.[A-Za-z][\w-]*'        # " . .pg-title" after a separator
+    r'\s*(?:[\u00b7|]|&middot;)\s*\.[A-Za-z][\w-]*'  # " . .pg-title" after a separator
+                                                     # (the specimens write it &middot;)
     r'|\s*\.[A-Za-z][\w-]{2,}(?![\w-])'        # a bare ".pg-sub"
     r'|\s*--[a-z][\w-]+'                       # a bare "--gs"
     r'|\s*[A-Za-z_]\w*\(\)'                    # "GSEnhanceNumbers()"
@@ -212,8 +227,8 @@ def strip_code_text(markup):
         # tidy what the removal leaves behind: doubled spaces, and a separator
         # or dash now dangling at either end of the run of text
         t = re.sub(r'[ \t]{2,}', ' ', t)
-        t = re.sub(r'(?m)^([ \t]*)[\u00b7|\u2014\u2013-]\s+', r'\1', t)
-        t = re.sub(r'\s+[\u00b7|\u2014\u2013-]\s*$', '', t)
+        t = re.sub(r'(?m)^([ \t]*)(?:[\u00b7|\u2014\u2013-]|&middot;|&mdash;)\s+', r'\1', t)
+        t = re.sub(r'\s+(?:[\u00b7|\u2014\u2013-]|&middot;|&mdash;)\s*$', '', t)
         out.append(t)
     return ''.join(out)
 
@@ -414,20 +429,13 @@ def build():
         '        <li><b>%s</b><span>%s</span></li>' % (H.escape(n), H.escape(BEHAVIOURS[n]))
         for n in skipped)
 
-    # Divide by FRAME count so the parts are a similar length. A section is
-    # never split across two parts.
-    per = max(1, (frames + PARTS - 1) // PARTS)
-    buckets, cur, run = [], [], 0
-    for section_html, n in zip(parts, [len(items) for _t, items in drawn]):
-        if run and run + n > per and len(buckets) < PARTS - 1:
-            buckets.append(cur)
-            cur, run = [], 0
-        cur.append(section_html)
-        run += n
-    if cur:
-        buckets.append(cur)
-    while len(buckets) < PARTS:
-        buckets.append([])
+    # One page per Figma frame (FIGMA_FRAMES). A section is never split.
+    buckets = [[] for _ in range(PARTS)]
+    for section_html, (title, _items) in zip(parts, drawn):
+        if title not in FIGMA_FRAMES:
+            raise SystemExit('section %r is not on the Figma page - add it to '
+                             'FIGMA_FRAMES or remove it from components.html' % title)
+        buckets[FIGMA_FRAMES[title] - 1].append(section_html)
 
     written = []
     for i, bucket in enumerate(buckets, 1):
@@ -443,7 +451,7 @@ def build():
             'body': '\n'.join(bucket),
             # the appendix belongs once, on the last part
             'appendix_block': APPENDIX % {'skipped': len(skipped), 'appendix': appendix}
-                              if i == PARTS else '',
+                              if i == PARTS and skipped else '',
         }
         path = OUT % i
         io.open(path, 'w', encoding='utf-8', newline='\n').write(html)
@@ -456,7 +464,8 @@ def build():
     print('  behaviours listed but not drawn (%d, on part %d): %s'
           % (len(skipped), PARTS, ', '.join(skipped)))
 
-    build_sp(sections, all_rules)
+    # The Supplier-Portal-only sheet (build_sp) is retired: the Figma file's
+    # Supplier Portal page is empty, so the old sheet lives in old/base-kit-5.html.
 
     old = os.path.join(LIB, 'base-kit.html')
     if os.path.exists(old):
@@ -593,11 +602,12 @@ TEMPLATE = '''<!DOCTYPE html>
 <link rel="stylesheet" href="css/portal-extras.css?v=1">
 <link rel="stylesheet" href="css/greenstreets-light.css?v=1">
 <link rel="stylesheet" href="css/portal-extras-light.css?v=1">
+<link rel="stylesheet" href="css/gs-scrollbar.css?v=1">
 <!-- The sheet's own layout, plus the Figma-import hygiene overrides -->
-<link rel="stylesheet" href="css/base-kit.css?v=26">
+<link rel="stylesheet" href="css/base-kit.css?v=27">
 <!-- GENERATED: the real :hover declarations, re-applied under .bk-st-hover
      so this static sheet can draw the hover state. See tools/kit_states.py -->
-<link rel="stylesheet" href="css/base-kit-states.css?v=16">
+<link rel="stylesheet" href="css/base-kit-states.css?v=27">
 </head>
 <body class="bk-body">
 
@@ -608,10 +618,11 @@ TEMPLATE = '''<!DOCTYPE html>
       <p class="bk-eyebrow">GreenStreets design system</p>
       <h1>Base component kit</h1>
       <p class="bk-part">Part %(part)d of %(parts)d</p>
-      <p class="bk-lede">Every base component in the system — one primitive per frame, drawn by the
-        production stylesheets. Where a component's hover changes its appearance, that state is drawn
-        beside the default, from the real <code>:hover</code> declarations. Compositions, code and
-        documentation live in the component library; this sheet is the drawing.</p>
+      <p class="bk-lede">The components of the Figma library <b>GreenStreets Component Page</b> —
+        the source of truth — drawn by the production stylesheets. Part %(part)d is Figma frame
+        %(part)d, section for section. Where a component's states change its appearance, they are
+        drawn beside the default from the real declarations. Code and documentation live in the
+        component library; this sheet is the drawing.</p>
     </div>
     <dl class="bk-facts">
       <div><dt>Frames</dt><dd>%(frames)d</dd></div>
@@ -636,7 +647,7 @@ TEMPLATE = '''<!DOCTYPE html>
 <script src="js/gs-schema.js?v=1"></script>
 <script src="js/gs-pkg-controls.js?v=1"></script>
 <script src="js/greenstreets-theme.js?v=1"></script>
-<script src="js/base-kit.js?v=16"></script>
+<script src="js/base-kit.js?v=27"></script>
 </body>
 </html>
 '''
