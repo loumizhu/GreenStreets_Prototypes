@@ -20,6 +20,8 @@
     var lib = window.COMPONENT_LIBRARY_JS, c = lib && lib.filter ? lib.filter(function (x) { return x.key === k; })[0] : null;
     return c && c.name ? c.name : k.replace(/_/g, ' ');
   }
+  /* listing row: standard Tinted button (Figma Button/Tinted) — icon spacing comes from the button gap */
+  var CHECK_T = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"></polyline></svg>';
   function toast(msg) { if (typeof window.gsToast === 'function') window.gsToast(msg); }
 
   /* small confirmation dialog — the existing .pkg-modal surface */
@@ -57,13 +59,13 @@
     doc.setAttribute('data-gs-appr', k);
     var approve, cancel;
     if (small) {
-      approve = mk('<button class="btn-p" title="Approve this component to unlock its Declaration of Conformity" style="height:24px;display:inline-flex;align-items:center;box-sizing:border-box;font-size:11px;padding:0 10px" onclick="gsPkgApprove(\'' + k + '\',event)">' + CHECK + LABEL + '</button>');
-      cancel = mk('<button class="btn-g-sm" title="Cancel approval" style="margin-left:6px" onclick="gsPkgCancelApproval(\'' + k + '\',event)">Cancel approval</button>');
+      approve = mk('<button class="btn-t" title="Approve this component to unlock its Declaration of Conformity" onclick="gsPkgApprove(\'' + k + '\',event)">' + CHECK_T + LABEL + '</button>');
+      cancel = mk('<button class="btn-g" title="Cancel approval" style="margin-left:6px" onclick="gsPkgCancelApproval(\'' + k + '\',event)">Cancel approval</button>');
     } else {
       approve = mk('<button class="btn-p" title="Approve this component to unlock its Declaration of Conformity" onclick="gsPkgApprove(\'' + k + '\',event)">' + CHECK + LABEL + '</button>');
       cancel = mk('<button class="btn-g" title="Cancel approval" onclick="gsPkgCancelApproval(\'' + k + '\',event)">Cancel approval</button>');
     }
-    approve.setAttribute('data-gs-appr-ctl', k); cancel.setAttribute('data-gs-appr-ctl', k);
+    approve.setAttribute('data-gs-appr-ctl', k); cancel.setAttribute('data-gs-appr-ctl', k); approve.setAttribute('data-gs-appr-approve', '');
     doc.parentNode.insertBefore(approve, doc);
     doc.parentNode.insertBefore(cancel, doc.nextSibling);
   }
@@ -75,7 +77,7 @@
       doc.style.display = on ? '' : 'none';
       document.querySelectorAll('[data-gs-appr-ctl="' + k + '"]').forEach(function (b) {
         if (b.parentNode !== doc.parentNode) return;
-        var show = b.classList.contains('btn-p') ? !on : on;
+        var show = b.hasAttribute('data-gs-appr-approve') ? !on : on;
         b.style.display = show ? '' : 'none';
       });
     });

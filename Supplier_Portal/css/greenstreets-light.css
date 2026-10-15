@@ -768,3 +768,16 @@ body.lt .notif-filter-btn:hover{background:#f4f6fa}
 body.lt .notif-filter-btn.active{background:#eef2f8;border-color:var(--lt-line-2);color:var(--lt-ink)}
 body.lt .notif-filter-count{background:#e2e7f0;color:var(--lt-ink-2)}
 body.lt .sidebar.sb-collapsed .sb-logo-zone::after{filter:none}
+
+/* ── scrollbars (light) — same shape as the dark bar in greenstreets-theme.css, pastel colours ── */
+body.lt ::-webkit-scrollbar-track,body.lt ::-webkit-scrollbar-corner{background:#e9eef6}
+body.lt ::-webkit-scrollbar-thumb{background:#bcc7d9;background-clip:padding-box}
+body.lt ::-webkit-scrollbar-thumb:hover{background:#9fadc6;background-clip:padding-box}
+body.lt ::-webkit-scrollbar-thumb:active{background:#8797b4;background-clip:padding-box}
+body.lt ::-webkit-scrollbar-button:single-button{background-color:#e9eef6}
+body.lt ::-webkit-scrollbar-button:single-button:hover{background-color:#dde4f0}
+body.lt ::-webkit-scrollbar-button:single-button:vertical:decrement{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 5'%3E%3Cpath d='M4 0L8 5H0z' fill='%2395a3bb'/%3E%3C/svg%3E")}
+body.lt ::-webkit-scrollbar-button:single-button:vertical:increment{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 5'%3E%3Cpath d='M0 0H8L4 5z' fill='%2395a3bb'/%3E%3C/svg%3E")}
+body.lt ::-webkit-scrollbar-button:single-button:horizontal:decrement{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 5 8'%3E%3Cpath d='M0 4L5 0V8z' fill='%2395a3bb'/%3E%3C/svg%3E")}
+body.lt ::-webkit-scrollbar-button:single-button:horizontal:increment{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 5 8'%3E%3Cpath d='M0 0L5 4L0 8z' fill='%2395a3bb'/%3E%3C/svg%3E")}
+@supports not selector(::-webkit-scrollbar){body.lt,body.lt *{scrollbar-color:#bcc7d9 #e9eef6}}

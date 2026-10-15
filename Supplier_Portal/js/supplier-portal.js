@@ -4021,8 +4021,8 @@ function gsOnb2Chip(){
   function docsStatusPill(st){ return '<span class="pill '+(DOCS_STATUS_PILL[st]||'pill-grey')+'">'+st+'</span>'; }
   function docsRemindBtn(d){
     if(d.status==='Approved') return '';
-    if(d.reminded) return '<button class="docs-remind-btn docs-remind-sent" disabled><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Reminder sent</button>';
-    return '<button class="docs-remind-btn" title="Remind the approver" onclick="docsRemind('+d.id+')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Send reminder</button>';
+    if(d.reminded) return '<button class="btn-t docs-remind-btn docs-remind-sent" disabled><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Reminder sent</button>';
+    return '<button class="btn-t amber docs-remind-btn" title="Remind the approver" onclick="docsRemind('+d.id+')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Send reminder</button>';
   }
   window.docsRemind=function(id){ var d=DOCS_DATA.filter(function(x){return x.id===id;})[0]; if(!d) return; d.reminded=true; docsRender(); };
   function docsRenderList(){
@@ -4043,7 +4043,7 @@ function gsOnb2Chip(){
         ? '<td class="doc-secondary doc-date-exp" title="Expires soon"><span class="doc-exp-dot" aria-hidden="true"></span>'+d.date+'</td>'
         : '<td class="doc-secondary">'+d.date+'</td>');
       html+='<td class="doc-secondary">'+d.size+'</td>';
-      html+='<td class="doc-actions-col" onclick="event.stopPropagation()">'+docsRemindBtn(d)+'<button class="docs-dl-btn" onclick="docsDownload()" style="margin-right:2px">Download</button>';
+      html+='<td class="doc-actions-col" onclick="event.stopPropagation()">'+docsRemindBtn(d)+'<button class="btn-a docs-dl-btn" onclick="docsDownload()" style="margin-right:2px">Download</button>';
       html+='<button class="doc-del-btn" title="Delete" onclick="docsAskDelete('+d.id+',this)">'+DOCS_X_SVG+'</button>';
       html+='</td></tr>';
     });

@@ -310,6 +310,26 @@ select.fi option{background-color:#0f2038;color:var(--tw)}
   border:1px solid var(--line-2);transition:all .15s;white-space:nowrap
 }
 .btn-g:hover{background:rgba(255,255,255,.08);color:var(--tw);border-color:rgba(255,255,255,.3)}
+/* Accent — flat green, white label (Figma: Button/Accent) */
+.btn-a{
+  font-family:'Inter',sans-serif;font-size:12.5px;font-weight:600;height:33px;padding:0 16px;border-radius:9px;
+  cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;
+  background:var(--gs);border:1px solid var(--gs);color:#fff;transition:background .15s
+}
+.btn-a:hover{background:#53c689}
+.btn-a[disabled]{opacity:.45;cursor:default}
+/* Tinted — tone tint + border (Figma: Button/Tinted, Tone=Green | AI | Amber) */
+.btn-t{
+  font-family:'Inter',sans-serif;font-size:11px;font-weight:700;height:27px;padding:0 11px;border-radius:8px;
+  cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;
+  background:rgba(78,187,129,.13);border:1px solid rgba(78,187,129,.45);color:var(--gs);transition:background .15s
+}
+.btn-t:hover{background:rgba(78,187,129,.2)}
+.btn-t.ai{background:rgba(139,92,246,.13);border-color:rgba(139,92,246,.45);color:#c084fc}
+.btn-t.ai:hover{background:rgba(139,92,246,.2)}
+.btn-t.amber{background:rgba(245,166,35,.13);border-color:rgba(245,166,35,.45);color:#ffcd7a}
+.btn-t.amber:hover{background:rgba(245,166,35,.2)}
+.btn-t[disabled]{opacity:.45;cursor:default}
 /* buttons get the same animated focus outline as fields — drawn by the shared .fs-ring overlay (see greenstreets-theme.js) */
 
 /* ── APP SHELL ── */
@@ -1035,3 +1055,25 @@ table[data-gs-grid] tbody tr.gs-kbd-row{ outline:2px solid var(--field-stroke-co
 .gs-search-clear svg{position:static;display:block}
 body.lt .gs-search-clear{background:rgba(51,65,92,.08);color:#5b6882}
 body.lt .gs-search-clear:hover{background:rgba(51,65,92,.16);color:#33415c}
+
+/* ── SCROLLBARS ─────────────────────────────────────────────────────────────
+   One themed scrollbar for every scroll container in the portal (listings, the page,
+   dropdown menus): a deep-navy track, a rounded slate pill thumb inset from the track edges,
+   and small triangle arrow buttons at each end. WebKit/Blink draw it from the pseudo-elements
+   below; Firefox can't style arrows or radius, so it only gets the colours. NOTE: never set
+   `scrollbar-color`/`scrollbar-width` where Blink can see it — Chrome 121+ then ignores every
+   ::-webkit-scrollbar rule and falls back to the native bar. Light values: greenstreets-light.css. */
+::-webkit-scrollbar{width:14px;height:14px}
+::-webkit-scrollbar-track{background:#0c1932}
+::-webkit-scrollbar-thumb{background:#3a4a6b;border:3px solid transparent;background-clip:padding-box;border-radius:999px;min-height:40px}
+::-webkit-scrollbar-thumb:hover{background:#4b5f88;background-clip:padding-box}
+::-webkit-scrollbar-thumb:active{background:#5a70a0;background-clip:padding-box}
+::-webkit-scrollbar-corner{background:#0c1932}
+::-webkit-scrollbar-button{display:none}
+::-webkit-scrollbar-button:single-button{display:block;width:14px;height:14px;background-color:#0c1932;background-repeat:no-repeat;background-position:center;background-size:8px 5px}
+::-webkit-scrollbar-button:single-button:vertical:decrement{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 5'%3E%3Cpath d='M4 0L8 5H0z' fill='%233a4a6b'/%3E%3C/svg%3E")}
+::-webkit-scrollbar-button:single-button:vertical:increment{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 5'%3E%3Cpath d='M0 0H8L4 5z' fill='%233a4a6b'/%3E%3C/svg%3E")}
+::-webkit-scrollbar-button:single-button:horizontal:decrement{background-size:5px 8px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 5 8'%3E%3Cpath d='M0 4L5 0V8z' fill='%233a4a6b'/%3E%3C/svg%3E")}
+::-webkit-scrollbar-button:single-button:horizontal:increment{background-size:5px 8px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 5 8'%3E%3Cpath d='M0 0L5 4L0 8z' fill='%233a4a6b'/%3E%3C/svg%3E")}
+::-webkit-scrollbar-button:single-button:hover{background-color:#13234a}
+@supports not selector(::-webkit-scrollbar){*{scrollbar-color:#3a4a6b #0c1932}}

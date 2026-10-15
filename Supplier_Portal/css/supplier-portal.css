@@ -322,7 +322,7 @@ html,body{height:100%;font-family:"Inter",sans-serif;color:var(--tw)}
 .pkg-status-pill.submitted{background:rgba(91,156,246,.13);color:#5b9cf6;border:1px solid rgba(91,156,246,.3)}
 .pkg-status-pill.none{background:rgba(245,166,35,.13);color:#f5a623;border:1px solid rgba(245,166,35,.3)}
 /* DoC download button (compact, on table row) */
-.pkg-doc-dl-btn{display:inline-flex;align-items:center;gap:4px;height:26px;padding:0 10px;background:var(--gs);border:none;color:#fff;border-radius:6px;cursor:pointer;font-family:"Inter",sans-serif;font-size:11px;font-weight:700;white-space:nowrap;flex-shrink:0}
+.pkg-doc-dl-btn{display:inline-flex;align-items:center;gap:8px;height:33px;padding:0 16px;background:var(--gs);border:1px solid var(--gs);color:#fff;border-radius:9px;cursor:pointer;font-family:"Inter",sans-serif;font-size:12.5px;font-weight:600;white-space:nowrap;flex-shrink:0} /* = .btn-a (Figma Button/Accent) */
 .pkg-doc-dl-btn:hover{filter:brightness(1.1)}
 /* Pagination */
 .pkg-tbl-pagination{display:flex;align-items:center;justify-content:flex-end;gap:4px;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.08)}
@@ -431,8 +431,7 @@ html,body{height:100%;font-family:"Inter",sans-serif;color:var(--tw)}
 .cpkg-inp{font-size:12px;color:#fff;background:rgba(255,255,255,.07);border:1px solid rgba(91,156,246,.4);border-radius:5px;padding:4px 7px;font-family:"Inter",sans-serif;width:100%;box-sizing:border-box}
 .cpkg-inp:focus{outline:none;border-color:var(--gs)}
 select.cpkg-inp option{background:#1a2f4a}
-.docs-dl-btn{display:inline-flex;align-items:center;gap:5px;height:28px;padding:0 12px;background:var(--gs);border:none;color:#fff;border-radius:6px;cursor:pointer;font-family:"Inter",sans-serif;font-size:11px;font-weight:700;white-space:nowrap}
-.docs-dl-btn:hover{filter:brightness(1.1)}
+.docs-dl-btn{flex-shrink:0} /* look = .btn-a (Figma Button/Accent) */
 
 /* ── Doc chips & Add document button ── */
 .doc-chips{display:flex;flex-wrap:wrap;gap:5px;min-height:4px}
@@ -786,9 +785,8 @@ select.pd-input option{background:#16294a;color:#fff}
 .docs-tbl-new .doc-name-wrap{display:flex;align-items:center;gap:8px}
 .docs-tbl-new .doc-secondary{color:rgba(255,255,255,.6);font-size:11px}
 .docs-tbl-new .doc-actions-col{text-align:right;white-space:nowrap;width:230px}
-.docs-remind-btn{display:inline-flex;align-items:center;gap:5px;height:28px;padding:0 10px;margin-right:6px;background:rgba(245,166,35,.12);border:1px solid rgba(245,166,35,.34);color:#ffcd7a;border-radius:6px;cursor:pointer;font-family:inherit;font-size:11px;font-weight:600;white-space:nowrap}
-.docs-remind-btn:hover{background:rgba(245,166,35,.22)}
-.docs-remind-btn.docs-remind-sent{background:rgba(78,187,129,.12);border-color:rgba(78,187,129,.3);color:var(--gs-l);cursor:default}
+.docs-remind-btn{margin-right:6px} /* look = .btn-t.amber (Figma Button/Tinted, Tone=Amber); sent = .btn-t (Tone=Green) */
+.docs-remind-btn.docs-remind-sent{cursor:default}
 body.lt .docs-remind-btn{background:#fdf2e2;border-color:#f4e0c0;color:#b9741a}
 body.lt .docs-remind-btn.docs-remind-sent{background:#e6f6ec;border-color:#cbead6;color:#2f9c62}
 
@@ -801,7 +799,7 @@ body.lt .docs-remind-btn.docs-remind-sent{background:#e6f6ec;border-color:#cbead
 .gs-reduce-motion .doc-exp-dot::after{animation:none;opacity:0}
 
 /* ── Docs: per-row delete btn ── */
-.doc-del-btn{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:6px;border:1px solid rgba(255,255,255,.1);background:transparent;color:rgba(255,255,255,.35);cursor:pointer;transition:all .12s;margin-left:5px;vertical-align:middle}
+.doc-del-btn{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:5px;border:1px solid rgba(255,255,255,.12);background:transparent;color:rgba(255,255,255,.74);cursor:pointer;transition:all .12s;margin-left:5px;vertical-align:middle}
 .doc-del-btn:hover{background:rgba(224,82,82,.18);border-color:rgba(224,82,82,.4);color:#f87171}
 .doc-del-btn.confirming{background:rgba(224,82,82,.28);border-color:rgba(224,82,82,.65);color:#f87171}
 
