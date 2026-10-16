@@ -346,7 +346,14 @@ function saProdInjectCss() {
     '.saprod-bb-approve{background:rgba(78,187,129,.14);border-color:rgba(78,187,129,.4);color:#4ebb81}' +
     '.saprod-bb-approve:hover{background:rgba(78,187,129,.26);border-color:var(--gs);color:#fff}' +
     '.saprod-bb-clear{background:transparent;border-color:transparent;color:var(--tw3)}' +
-    '.saprod-bb-clear:hover{background:rgba(255,255,255,.08);color:#fff}';
+    '.saprod-bb-clear:hover{background:rgba(255,255,255,.08);color:#fff}' +
+    '.saprod-cf-title{font-size:15px;font-weight:600;margin-bottom:8px;color:var(--tw)}' +
+    '.saprod-cf-body{font-size:12.5px;color:var(--tw2);margin-bottom:18px;line-height:1.5}' +
+    '.saprod-cf-body b{color:var(--tw);font-weight:600}' +
+    '.saprod-cf-btns{display:flex;justify-content:flex-end;gap:8px}' +
+    '.btn-p.saprod-cf-danger{background:linear-gradient(135deg,#e0605a,#c9423c)!important;color:#fff!important;border-color:transparent!important}' +
+    'body.lt .modal-overlay{background:rgba(60,90,140,.28)}' +
+    'body.lt .modal-box{background:#fff;border:1px solid var(--lt-line-2);box-shadow:var(--sh-2)}';
   document.head.appendChild(st);
 }
 
@@ -376,8 +383,8 @@ function saProdEnsureInline() {
       '<svg ' + ic + ' stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>Export</span></button>' +
     '<button type="button" class="gs-tool-btn" title="Generate a Declaration of Conformity" onclick="saProdBulkDownloadDoc()">' +
       '<svg ' + ic + ' stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg><span>DoC</span></button>' +
-    '<button type="button" class="gs-tool-btn danger" title="Clear selection" aria-label="Clear selection" onclick="saProdClearSel()">' +
-      '<svg ' + ic + ' stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg><span>Clear</span></button>';
+    '<button type="button" class="gs-tool-btn danger" title="Delete the selected products" aria-label="Delete the selected products" onclick="saProdBulkDelete()">' +
+      '<svg ' + ic + ' stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg><span>Delete</span></button>';
   tb.appendChild(sel);
   return sel;
 }
@@ -413,7 +420,7 @@ function saProdEnsureBar() {
       '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export CSV</button>' +
     '<button type="button" class="saprod-bb-btn" title="Generate a Declaration of Conformity" onclick="saProdBulkDownloadDoc()">' +
       '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>Generate DoC</button>' +
-    '<button type="button" class="saprod-bb-btn saprod-bb-clear" onclick="saProdClearSel()" aria-label="Clear selection" title="Clear selection"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg><span>Clear</span></button>';
+    '<button type="button" class="saprod-bb-btn saprod-bb-clear" onclick="saProdBulkDelete()" aria-label="Delete the selected products" title="Delete the selected products"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg><span>Delete</span></button>';
   document.body.appendChild(bar);
   return bar;
 }
@@ -441,6 +448,62 @@ function saProdBulkApprove() {
   ptRender('s11');
   saProdClearSel();
   saProdMiniToast(eligible.length ? eligible.length + ' product' + (eligible.length>1?'s':'') + ' approved' : 'No selected products are awaiting approval');
+}
+
+/* Delete (the bulk bar's destructive action) only asks for confirmation — this is a prototype, so the
+   rows are NOT removed: confirming toasts the result and clears the selection. */
+function saProdEnsureConfirm() {
+  var m = document.getElementById('saprod-confirm');
+  if (m) return m;
+  saProdInjectCss();
+  m = document.createElement('div');
+  m.className = 'modal-overlay'; m.id = 'saprod-confirm';
+  m.innerHTML =
+    '<div class="modal-box" role="alertdialog" aria-modal="true" aria-labelledby="saprod-confirm-title" aria-describedby="saprod-confirm-body">' +
+      '<div class="saprod-cf-title" id="saprod-confirm-title">Delete products?</div>' +
+      '<div class="saprod-cf-body" id="saprod-confirm-body"></div>' +
+      '<div class="saprod-cf-btns">' +
+        '<button type="button" class="btn-g" id="saprod-confirm-cancel" onclick="saProdConfirmClose()">Cancel</button>' +
+        '<button type="button" class="btn-p saprod-cf-danger" id="saprod-confirm-ok" onclick="saProdConfirmDelete()">Delete</button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(m);
+  m.addEventListener('mousedown', function(e){ if (e.target === m) saProdConfirmClose(); });
+  document.addEventListener('keydown', function(e){
+    if (m.classList.contains('open') && e.key === 'Escape') { e.preventDefault(); saProdConfirmClose(); }
+  });
+  return m;
+}
+
+function saProdBulkDelete() {
+  var rows = saProdSelectedRows();
+  if (!rows.length) return;
+  var m = saProdEnsureConfirm();
+  var n = rows.length, noun = n === 1 ? 'product' : 'products';
+  var esc = function(v){ return String(v).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); };
+  m.querySelector('#saprod-confirm-title').textContent = 'Delete ' + n + ' ' + noun + '?';
+  var body = n === 1
+    ? '<b>' + esc(rows[0].desc) + '</b> (' + esc(rows[0].sku) + ') will be removed, along with its packaging data.'
+    : 'The <b>' + n + ' selected products</b> will be removed, along with their packaging data.';
+  m.querySelector('#saprod-confirm-body').innerHTML = body + ' This can\'t be undone.';
+  m.querySelector('#saprod-confirm-ok').textContent = 'Delete ' + n + ' ' + noun;
+  m._gsReturn = document.activeElement;
+  m.classList.add('open');
+  setTimeout(function(){ try { m.querySelector('#saprod-confirm-cancel').focus(); } catch (e) {} }, 30);
+}
+
+function saProdConfirmClose() {
+  var m = document.getElementById('saprod-confirm');
+  if (!m) return;
+  m.classList.remove('open');
+  try { if (m._gsReturn && document.contains(m._gsReturn)) m._gsReturn.focus(); } catch (e) {}
+}
+
+function saProdConfirmDelete() {
+  var n = saProdSel.size;
+  saProdConfirmClose();
+  saProdClearSel();
+  saProdMiniToast(n + ' product' + (n > 1 ? 's' : '') + ' deleted');
 }
 
 function saProdBulkRemind() {

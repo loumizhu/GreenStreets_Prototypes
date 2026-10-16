@@ -860,8 +860,11 @@ select.fi option{background-color:#0f2038;color:var(--tw)}
 .filter-toolbar .ftb-group{flex-wrap:nowrap}
 
 /* ── the selection cluster ── */
-.ftb-sel{display:none;align-items:center;gap:6px;padding-left:10px;
+/* right-aligned: margin-left:auto pushes the count + actions to the bar's right edge. After a
+   .ftb-actions (which already takes the free space) it simply follows it. */
+.ftb-sel{display:none;align-items:center;gap:6px;padding-left:10px;margin-left:auto;
   border-left:1px solid var(--bw,rgba(255,255,255,.14))}
+.ftb-actions~.ftb-sel{margin-left:0}
 .filter-toolbar.ftb-sel-on .ftb-sel,.filter-toolbar.ftb-sel-off .ftb-sel{display:flex}
 .ftb-sel-count{display:inline-flex;align-items:center;height:34px;flex:none;
   font-size:12px;color:var(--tw2);white-space:nowrap}
