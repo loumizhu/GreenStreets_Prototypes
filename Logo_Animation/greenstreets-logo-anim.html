@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Greenstreets Logo Animation</title>
+<style>
+  :root{
+    --bg1:#0e1130; --bg2:#1d2046; --tx:#fff; --tx2:rgba(255,255,255,.66); --line:rgba(255,255,255,.14);
+    --gs:#49ae7a; --card:rgba(255,255,255,.06);
+  }
+  body.light{ --bg1:#eef2f8; --bg2:#ffffff; --tx:#1d2046; --tx2:rgba(29,32,70,.62); --line:rgba(29,32,70,.14); --card:rgba(29,32,70,.04); }
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--tx);
+    background:radial-gradient(120% 90% at 50% 0%,var(--bg2),var(--bg1));display:flex;flex-direction:column}
+  .stage{flex:1;display:flex;align-items:center;justify-content:center;padding:48px 16px}
+  .login-mock{display:flex;flex-direction:column;align-items:center;gap:22px}
+  #logo{width:200px;transition:width .25s}
+  .login-mock h1{margin:0;font-size:22px;font-weight:600;letter-spacing:.2px}
+  .login-mock p{margin:-14px 0 0;color:var(--tx2)}
+  .bar{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;justify-content:center;padding:14px 16px;border-top:1px solid var(--line);background:var(--card)}
+  .grp{display:flex;align-items:center;gap:6px}
+  .grp>span{color:var(--tx2);font-size:12px;margin-right:2px}
+  button{font:inherit;color:var(--tx);background:transparent;border:1px solid var(--line);border-radius:8px;padding:5px 10px;cursor:pointer}
+  button.on{border-color:var(--gs);background:rgba(73,174,122,.18)}
+  button.primary{background:var(--gs);border-color:var(--gs);color:#fff}
+  input[type=range]{width:180px;accent-color:var(--gs)}
+  output{font-variant-numeric:tabular-nums;color:var(--tx2);min-width:42px;display:inline-block}
+</style>
+</head>
+<body>
+
+<main class="stage">
+  <div class="login-mock">
+    <div id="logo"></div>
+    <h1>Welcome to Greenstreets</h1>
+    <p>Packaging compliance, simplified.</p>
+  </div>
+</main>
+
+<div class="bar">
+  <div class="grp"><button class="primary" id="replay">▶ Replay</button></div>
+  <div class="grp"><span>Size</span>
+    <button data-size="48">48</button><button data-size="96">96</button><button data-size="200" class="on">200</button><button data-size="320">320</button><button data-size="480">480</button>
+  </div>
+  <div class="grp"><span>Tile</span>
+    <button data-bgopt="none" class="on">None</button><button data-bgopt="rounded">Rounded</button><button data-bgopt="square">Square</button><button data-bgopt="circle">Circle</button>
+  </div>
+  <div class="grp"><span>Speed</span>
+    <button data-speed="1">1×</button><button data-speed="1.5" class="on">1.5×</button><button data-speed="2">2×</button>
+  </div>
+  <div class="grp"><span>Scrub</span><input type="range" id="scrub" min="0" max="4" step="0.01" value="0"><output id="t">0.00s</output></div>
+  <div class="grp"><button id="theme">Light page</button></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/DrawSVGPlugin.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/MotionPathPlugin.min.js"></script>
+<script src="greenstreets-logo-anim.js"></script>
+<script>
+  var host = document.getElementById('logo');
+  var state = { background: 'none', speed: 1.5 };
+  var anim;
+  var scrub = document.getElementById('scrub'), out = document.getElementById('t');
+
+  function build() {
+    if (anim) anim.destroy();
+    anim = GSLogoAnim.mount(host, {
+      background: state.background, speed: state.speed, delay: 0.2,
+      respectReducedMotion: false   // demo page: always show the motion
+    });
+    if (anim.timeline) scrub.max = anim.timeline.duration().toFixed(2);
+    if (anim.timeline) anim.timeline.eventCallback('onUpdate', function () {
+      var t = anim.timeline.time(); scrub.value = t; out.textContent = t.toFixed(2) + 's';
+    });
+  }
+  function pick(attr, fn) {
+    document.querySelectorAll('[' + attr + ']').forEach(function (b) {
+      b.addEventListener('click', function () {
+        document.querySelectorAll('[' + attr + ']').forEach(function (x) { x.classList.toggle('on', x === b); });
+        fn(b.getAttribute(attr));
+      });
+    });
+  }
+  pick('data-size', function (v) { host.style.width = v + 'px'; });
+  pick('data-bgopt', function (v) { state.background = v; build(); });
+  pick('data-speed', function (v) { state.speed = parseFloat(v); build(); });
+  document.getElementById('replay').onclick = function () { anim.replay(); };
+  scrub.oninput = function () { anim.seek(parseFloat(scrub.value)); out.textContent = (+scrub.value).toFixed(2) + 's'; };
+  document.getElementById('theme').onclick = function () {
+    var l = document.body.classList.toggle('light'); this.textContent = l ? 'Dark page' : 'Light page';
+  };
+  build();
+</script>
+</body>
+</html>
