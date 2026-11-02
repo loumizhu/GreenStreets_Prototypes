@@ -20,6 +20,10 @@ emblem: the points are 16 round dots instead of 12 stars.
 | `greenstreets-logo-anim.js` | The animation. It is framework-free and exposes `window.GSLogoAnim`. |
 | `GreenstreetsLogoAnim.tsx` | A React / Next.js wrapper (`'use client'`). |
 | `greenstreets-logo-anim.html` | A review page. It has a replay button, sizes, tile variants, speed, a frame scrubber and a light/dark page toggle. |
+| `greenstreets-login-anim.html` | The animation shown on the login card. |
+| `lottie/greenstreets-logo.json` | **The Lottie version** (60 fps, 161 frames, 2.68 s, 64 KB). See "Lottie" below. |
+| `lottie/compare.html` | GSAP and Lottie side by side, with a pixel-diff "Measure accuracy" button. |
+| `tools/build-lottie.py` | Generates the Lottie JSON from the JS. Don't hand-edit the JSON. |
 
 ## Timeline
 
@@ -122,3 +126,51 @@ exact letter. Once all four are drawn, they are swapped for the real G path, whi
 identical. Each square rides the tip of its stroke with MotionPath (`autoRotate`). The
 swooshes use the same idea: a thick stroke in an SVG mask, drawn along the swoosh from its
 base to its tip.
+
+## Lottie
+
+`lottie/greenstreets-logo.json` is the same animation as a Lottie file, for teams that
+prefer a player over code, or for iOS and Android apps.
+
+```html
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js"></script>
+<div id="logo" style="width:150px;height:150px"></div>
+<script>
+  lottie.loadAnimation({ container: document.getElementById('logo'), renderer: 'svg',
+                         loop: false, autoplay: true, path: 'greenstreets-logo.json' });
+</script>
+```
+
+In React, `lottie-react` or `@lottiefiles/dotlottie-react` takes the same file. To make a
+`.lottie` (zipped) copy, run it through LottieFiles.
+
+- **Speed:** the 1.5× speed is already built in: 2.68 s at 60 fps. Change it with the
+  player's `setSpeed()`.
+- **Background:** transparent only. If you need the navy tile, put it behind the player with
+  CSS.
+- **Tagline sync:** there is a marker named `tagline` at frame 128. Listen for it, or for
+  `enterFrame` ≥ 128, to bring in the text under the logo the way the login page does.
+- **Reduced motion:** the player doesn't handle it. Check
+  `matchMedia('(prefers-reduced-motion: reduce)')` and jump to the last frame
+  (`goToAndStop(160, true)`).
+
+**Accuracy against the code version:** `lottie/compare.html` renders both versions at every
+frame and compares them pixel by pixel. Measured on 2026-11-02, across all 161 frames:
+
+- On average, 0.13% of logo pixels differ visibly.
+- The worst frame (117, as the squares shrink away) differs by 1.02%, which is 123 pixels.
+
+**How it's built** (`python Logo_Animation/tools/build-lottie.py`):
+
+- Every path, colour and position is read from `greenstreets-logo-anim.js`. The timings
+  mirror `buildTimeline()` by hand, so change both together.
+- Each GSAP easing curve is fitted to a Lottie cubic curve. The script prints each fit's error:
+  0.006–0.015 for most curves, and about 0.035 for the two overshoot curves on the yellow
+  points.
+- The squares riding the G, and the tips of the strokes they draw, are baked as one keyframe
+  per frame. A single cubic curve can't express "move along this arc while turning with it",
+  and baking keeps each square locked to its tip. All other movements are ordinary keyframes,
+  so they can be edited in a Lottie tool.
+- The G is drawn the same way as in the code version: four strokes under a layer mask in the
+  shape of the real G, swapped for the solid G once they finish. The swooshes are revealed by
+  an alpha matte that draws itself along each swoosh.

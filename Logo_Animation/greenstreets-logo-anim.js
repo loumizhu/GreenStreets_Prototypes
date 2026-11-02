@@ -210,7 +210,8 @@
 
     // 2 — verified; points leave one by one in the opposite order
     tl.to(checkLine, { drawSVG: '0% 100%', duration: 0.42, ease: 'power3.inOut' }, 0.6)
-      .fromTo(pulse, { opacity: 0.9, scale: 1 }, { opacity: 0, scale: 1.22, duration: 0.6, ease: 'power2.out' }, 1.0)
+      // immediateRender:false — otherwise fromTo shows the ring at 0.9 from t=0, under the seal as it draws
+      .fromTo(pulse, { opacity: 0.9, scale: 1 }, { opacity: 0, scale: 1.22, duration: 0.6, ease: 'power2.out', immediateRender: false }, 1.0)
       .to(checkLine, { scale: 1.08, svgOrigin: origin, duration: 0.14, ease: 'power2.out', yoyo: true, repeat: 1 }, 1.0)
       .to(points, { scale: 0, duration: 0.25, ease: 'back.in(2.5)', stagger: { each: 0.035, from: 'end' } }, 1.05);
 
