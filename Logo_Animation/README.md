@@ -22,6 +22,7 @@ emblem: the points are 16 round dots instead of 12 stars.
 | `greenstreets-logo-anim.html` | A review page. It has a replay button, sizes, tile variants, speed, a frame scrubber and a light/dark page toggle. |
 | `greenstreets-login-anim.html` | The animation shown on the login card. |
 | `lottie/greenstreets-logo.json` | **The Lottie version** (60 fps, 161 frames, 2.68 s, 64 KB). See "Lottie" below. |
+| `lottie/login-lottie.html` | The login card with the logo played from the Lottie file (lottie-web). |
 | `lottie/compare.html` | GSAP and Lottie side by side, with a pixel-diff "Measure accuracy" button. |
 | `tools/build-lottie.py` | Generates the Lottie JSON from the JS. Don't hand-edit the JSON. |
 
